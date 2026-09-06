@@ -112,17 +112,55 @@ adb reverse tcp:8082 tcp:8082
 
 The forwards do not survive unplugging or an adb restart; re-run them.
 
-### Not yet provisioned
+### Registering the app clients
 
 Each app authenticates as its own public OIDC client — `mano-requester-app`
-and `mano-provider-app` — and **neither exists in Keycloak yet**. Each needs:
+and `mano-provider-app`:
 
-- a public client with PKCE (S256) and direct access grants **disabled**
-- the redirect URI `com.manoinc.mano.<requester|provider>:/oauth2redirect`
-- an **audience mapper for `mano-gateway`**, without which Keycloak issues
-  tokens carrying no `aud` and the gateway rejects every one
+```bash
+./scripts/setup-keycloak-clients.sh
+```
 
-Extending `setup-keycloak-realm.sh` to create them is the next step.
+Idempotent, and it needs the `mano` realm to exist first
+(`libmano-backapp/scripts/setup-keycloak-realm.sh`). Each client gets PKCE
+(S256) enforced, direct access grants **disabled** so the password grant is not
+available, the redirect URI matching `ManoConfig.redirectUrl`, and an
+**audience mapper for `mano-gateway`** — without which Keycloak issues tokens
+carrying no `aud` and the gateway rejects every one.
+
+## The Keycloak login theme
+
+Sign-in happens in the system browser, not in the app -- that is what keeps
+Mano from ever handling a password and what makes SSO, MFA and social login
+possible later. The handoff is only jarring if the page it opens looks like
+someone else's, so `keycloak-theme/mano` puts Mano's brand on it.
+
+```bash
+./scripts/deploy-keycloak-theme.sh
+```
+
+It copies the theme into the container, points the realm at it, and switches
+the realm to Spanish. Idempotent; re-run it after recreating the container.
+
+The theme inherits from `keycloak.v2`, so **every** page the authentication
+flow can reach is branded -- password reset, one-time codes, required actions,
+consent, errors -- not just the login form. A themed login followed by an
+unthemed "update your password" page would be worse than no theme.
+
+Details worth knowing:
+
+- **Tokens are copied from `mano-landing`, not re-picked.** The login page is
+  where someone decides whether to trust that this is really Mano, and a
+  near-miss on the orange is worse than no branding.
+- **Poppins is bundled**, not fetched from Google Fonts: a login page should
+  not depend on a third party being reachable, or tell one who is signing in.
+- **Spanish is the only locale.** Listing a second makes Keycloak render a
+  language picker above the form, and a phone set to English would otherwise
+  get untranslated Keycloak defaults.
+- **The copy is Mano's, not a translation of Keycloak's.** Errors say what
+  happened and what to do; they do not apologise. A wrong username and a wrong
+  password give the same message, so an attacker cannot use it to learn which
+  accounts exist.
 
 ## Pointing at a real environment
 
