@@ -1,0 +1,28 @@
+name: mano_provider
+description: >
+  Mano for Proveedores: the app for people who do the work.
+publish_to: none
+resolution: workspace
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.2
+
+# Screens and routing only. Anything this app learns about Mano, it learns
+# through mano_session; anything it draws, it draws with mano_ui.
+dependencies:
+  flutter:
+    sdk: flutter
+  mano_domain: ^0.1.0
+  mano_session: ^0.1.0
+  mano_ui: ^0.1.0
+  flutter_riverpod: ^3.4.3
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

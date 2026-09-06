@@ -1,0 +1,24 @@
+name: mano_domain
+description: >
+  Mano's domain core: entities, the ports through which the outside world is
+  reached, and the failures those ports may report.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.13.2
+
+# Deliberately empty, and it must stay that way.
+#
+# This package has no dependencies at all -- not Flutter, not Riverpod, not a
+# functional-programming library. That is what makes the architecture
+# enforceable: importing a framework here does not merely violate a
+# convention, it fails to resolve. Everything the domain needs from the
+# outside world is expressed as an interface it declares and someone else
+# implements.
+dependencies:
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6

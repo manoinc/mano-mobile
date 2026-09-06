@@ -1,0 +1,39 @@
+name: mano_data
+description: >
+  Adapters implementing the ports declared by mano_domain: OIDC sign-in,
+  credential storage, and the GraphQL transport to mano-gateway.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.13.2
+  flutter: ">=1.17.0"
+
+# This package depends on Flutter, and that is not a violation of the
+# boundary. Adapters exist precisely to know about infrastructure -- here,
+# plugins that need platform channels. What matters is the direction of the
+# arrow: mano_data depends on mano_domain and never the reverse, so the domain
+# stays ignorant of everything below.
+dependencies:
+  flutter:
+    sdk: flutter
+  mano_domain: ^0.1.0
+
+  # System-browser OAuth with PKCE. The password grant the throwaway harness
+  # used is not acceptable in a shipped client: it puts the user's password in
+  # the app's hands.
+  flutter_appauth: ^12.1.0
+
+  # Refresh tokens belong in the Keystore/Keychain, not SharedPreferences.
+  flutter_secure_storage: ^11.0.0
+
+  # GraphQL transport. No GraphQL client library yet, deliberately: there is
+  # one query and no agreed schema, so committing to a client and its cache
+  # would be a guess. Revisit when the schema lands.
+  http: ^1.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

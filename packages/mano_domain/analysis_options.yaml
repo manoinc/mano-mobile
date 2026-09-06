@@ -1,0 +1,28 @@
+include: package:lints/recommended.yaml
+
+# This file is what actually holds the architecture in place.
+#
+# A pub workspace resolves every member against one shared dependency set, so
+# Flutter and Riverpod are physically reachable from this package even though
+# its pubspec does not name them. Left at its default severity,
+# `depend_on_referenced_packages` reports that as *info* -- a suggestion,
+# easily scrolled past, and invisible to CI.
+#
+# Promoted to an error, an import of anything this package did not declare
+# fails `dart analyze` and fails the build. The domain's independence stops
+# being a thing people remember and becomes a thing the tooling refuses to
+# let them forget.
+analyzer:
+  errors:
+    depend_on_referenced_packages: error
+
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    - avoid_dynamic_calls
+    - prefer_final_locals
+    - unawaited_futures

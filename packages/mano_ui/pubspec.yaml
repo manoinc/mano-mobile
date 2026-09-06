@@ -1,0 +1,30 @@
+name: mano_ui
+description: >
+  Mano's design system: theme, tokens and presentational widgets shared by
+  both apps.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.13.2
+  flutter: ">=1.17.0"
+
+# Flutter, and nothing else. Note in particular what is *not* here:
+#
+#   - mano_domain, so a widget cannot accept a Session or an AuthenticatedUser.
+#     Components take strings, booleans and callbacks; screens do the mapping.
+#     "Dumb component" is therefore a fact about the dependency graph rather
+#     than a rule people have to remember.
+#   - Riverpod, so no widget can reach into application state. Everything it
+#     renders arrives through its constructor.
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:

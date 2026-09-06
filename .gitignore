@@ -1,0 +1,33 @@
+# Dart / Flutter
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+
+# Pub workspace: members do not carry their own lockfiles -- resolution is
+# shared and the single root pubspec.lock is what gets committed.
+packages/*/pubspec.lock
+apps/*/pubspec.lock
+
+# Android
+**/android/.gradle/
+**/android/captures/
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+
+# Signing material. Never commit these.
+**/android/key.properties
+*.jks
+*.keystore
+
+# IDE
+.idea/
+.vscode/
+*.iws
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

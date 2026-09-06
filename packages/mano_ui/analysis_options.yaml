@@ -1,0 +1,24 @@
+include: package:flutter_lints/flutter.yaml
+
+# Keeps the design system dumb.
+#
+# `mano_ui` declares only Flutter. Promoting `depend_on_referenced_packages`
+# to an error means an import of `mano_domain` or `flutter_riverpod` here
+# fails the build rather than producing a suggestion nobody reads.
+#
+# The point is not purity for its own sake. A widget that cannot see a
+# `Session` cannot render one, so it has to accept strings, booleans and
+# callbacks instead -- which is exactly what makes it reusable between the two
+# apps and testable without a provider in sight.
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+
+  errors:
+    depend_on_referenced_packages: error
+
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true

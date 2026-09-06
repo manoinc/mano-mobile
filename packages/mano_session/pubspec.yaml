@@ -1,0 +1,32 @@
+name: mano_session
+description: >
+  Composition root and session state: binds mano_data's adapters to
+  mano_domain's ports and exposes them to the apps as Riverpod providers.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.13.2
+  flutter: ">=1.17.0"
+
+# The only member of the workspace permitted to depend on Riverpod.
+#
+# Everything below this package is framework-free and testable with plain
+# `dart test`. Everything above it renders. This package is the seam where the
+# two meet: it constructs adapters, hands them to the domain as ports, and
+# publishes the result as providers. Keeping that in one place is what stops
+# the framework leaking downward.
+dependencies:
+  flutter:
+    sdk: flutter
+  mano_domain: ^0.1.0
+  mano_data: ^0.1.0
+  flutter_riverpod: ^3.4.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:

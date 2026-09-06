@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Lets the Flutter tooling reach the app. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- Local development talks to Keycloak and mano-gateway over plain HTTP
+         on localhost, forwarded from the host by `adb reverse`. Android has
+         blocked cleartext by default since API 28, so debug builds opt back
+         in. This file applies to the debug build only. -->
+    <application android:usesCleartextTraffic="true" />
+</manifest>

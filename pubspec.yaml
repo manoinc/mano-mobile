@@ -1,0 +1,33 @@
+# Workspace root for the Mano mobile apps.
+#
+# This package exists only to group the members below into a single pub
+# workspace: one `pub get`, one lockfile, one resolved dependency set. It
+# ships no code of its own.
+#
+# The dependency arrows between members are the architecture, and they are
+# enforced by these pubspecs rather than by convention:
+#
+#   apps/requester ─┐
+#   apps/provider  ─┴─▶ mano_session ─▶ mano_data ─▶ mano_domain
+#                   └─▶ mano_ui                        ▲
+#                                                      │
+#                        (mano_session also depends on ┘)
+#
+#   mano_domain   depends on nothing. No Flutter, no Riverpod, no packages.
+#                 An import of either fails to compile.
+#   mano_ui       depends on Flutter only, never on mano_domain, so a widget
+#                 cannot accept a domain entity.
+#   mano_session  is the only member that may depend on Riverpod.
+name: _
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+workspace:
+  - packages/mano_domain
+  - packages/mano_data
+  - packages/mano_ui
+  - packages/mano_session
+  - apps/requester
+  - apps/provider
