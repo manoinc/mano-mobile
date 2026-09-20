@@ -16,7 +16,7 @@ apps/requester     screens and routing        com.manoinc.mano.requester
 apps/provider      screens and routing        com.manoinc.mano.provider
 packages/
   mano_domain      entities, ports, failures  pure Dart, zero dependencies
-  mano_data        adapters: OIDC, keystore, GraphQL
+  mano_data        adapters: keystore, GraphQL (no auth adapter yet)
   mano_ui          theme and dumb widgets     Flutter only
   mano_session     composition root and session state, the only Riverpod
 ```
@@ -57,6 +57,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // error • The imported package 'flutter_riverpod' isn't a dependency
 ```
 
+## Authentication: an open decision, not yet a dependency
+
+`mano_domain` declares one port for this, `SessionRepository` — sign in,
+restore, refresh, sign out, each returning a `Result` rather than throwing.
+Nothing about it names an OAuth flow, a vendor, or a token shape. Which
+provider actually signs a user in is not decided yet, and the architecture is
+built so that not deciding costs nothing: `mano_session`'s
+`sessionRepositoryProvider` currently points at a small placeholder
+(`_NoAuthProviderChosen`) that renders the sign-in screen cleanly and reports
+"not configured yet" the moment something tries to use it. The apps run, the
+UI is real, and adopting a provider later is one `Provider` override —
+nothing above `mano_data` changes.
+
+When one is chosen, its adapter lands in `packages/mano_data/lib/src/session/`,
+implementing `SessionRepository`. Until then there is nothing here pretending
+to be more finished than it is.
+
 ## Failure: two mechanisms, on purpose
 
 | Situation | Mechanism |
@@ -65,117 +82,109 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 | Infrastructure failed in a way nobody modelled | Let it propagate; surfaces as `AsyncError` |
 | A modelled boundary failure | `Result<T, Failure>` returned from the port |
 
-Which is which is a judgement about who made the mistake. A mistyped password
-and an unreachable Keycloak are part of the contract, so they are values the
-compiler forces you to handle. A null where there cannot be one is a bug, so it
-crashes.
+Which is which is a judgement about who made the mistake. A cancelled sign-in
+and an unreachable auth service are part of the contract, so they are values
+the compiler forces you to handle. A null where there cannot be one is a bug,
+so it crashes.
 
 The useful consequence is at the top: **`AsyncValue.error` means the app has a
 bug**, never that the user typed something wrong. Expected failures live in
 `SignedOut.lastFailure`, so they cannot accidentally be rendered as a crash
 screen.
 
+## The brand, and the logo
+
+The wordmark and the monogram are **generated Dart**, not assets:
+
+```bash
+dart tools/generate_logo_paths.dart
+```
+
+It reads `tools/brand/*.svg` and writes
+`packages/mano_ui/lib/src/brand/mano_logo_paths.g.dart`. Re-run it after
+replacing either file — that is the whole migration when the artwork stops
+being called "provisional".
+
+Generating rather than shipping the SVGs buys three things. `mano_ui` keeps its
+"Flutter and nothing else" pubspec. The artwork's considerable dead padding is
+normalised away, so `ManoWordmark` is exact at any size instead of floating
+inside whatever box it is given. And the wordmark turns out to be drawn one
+contour per letter, which is what lets the opening animation bring `m`, `a`,
+`n` and `o` in one at a time without slicing anything up.
+
+Poppins is bundled in `mano_ui` as `.ttf`, so any screen renders the brand
+typeface without a network fetch.
+
+## The opening animation
+
+Android draws the monogram, `FlutterNativeSplash.preserve` holds that frame
+until Flutter has painted, and `ManoOpening` continues from it: the letters
+arrive, then the lockup travels to the corner as the screen fades up beneath
+it. By the end the travelling wordmark sits exactly where the hero draws its
+own, so the swap is invisible.
+
+Two numbers make that work, and they are shared rather than repeated —
+`ManoLockup.preferredOpeningHeight` is measured against what Android actually
+renders, and `ManoLockup.restingHeight` and `.inset` are what
+`ManoHeroScaffold` lays the wordmark out with. Change one without the other and
+the logo jumps at the handover. Regenerate the native side with:
+
+```bash
+cd apps/requester && dart run flutter_native_splash:create
+```
+
+It plays once per cold start. A warm resume, a sign-out and a rebuild all find
+it already done.
+
 ## Testing
 
 | Layer | Runner | Needs |
 | --- | --- | --- |
 | `mano_domain` | `dart test` | nothing — no Flutter binding |
-| `mano_data` | `flutter test` | nothing — every collaborator is faked |
 | `mano_session` | `flutter test` | nothing — `ProviderContainer.test()` with an overridden repository |
+| `mano_ui` | `flutter test` | nothing — widgets take strings and callbacks |
 
 ```bash
 cd packages/mano_domain  && dart test        # 21
-cd packages/mano_data    && flutter test     # 13
-cd packages/mano_session && flutter test     #  8
+cd packages/mano_session && flutter test     #  9
+cd packages/mano_ui      && flutter test     # 48
 ```
+
+`mano_data` has no tests right now: with the auth adapter gone, all that is
+left is `GatewayClient` and `TokenStore`, neither of which was under test
+before this either. Worth covering the next time either changes.
 
 No test in the suite opens a browser, touches a keystore, or makes a request.
 
 ## Running against the local stack
 
-Both apps default to a development stack reached through `adb reverse`, so the
-phone's `localhost` is the host's. That keeps the token's `iss` claim matching
-what `mano-gateway` was configured with — reaching Keycloak by any other host
-mints tokens the gateway refuses.
-
-1. Keycloak on `localhost:8080` with the `mano` realm
-   (`libmano-backapp/scripts/setup-keycloak-realm.sh`).
-2. `mano-gateway` on `localhost:8082`.
-3. Forward both to the phone:
+Both apps default to a development gateway reached through `adb reverse`, so
+the phone's `localhost` is the host's:
 
 ```bash
-adb reverse tcp:8080 tcp:8080
-adb reverse tcp:8082 tcp:8082
+adb reverse tcp:8082 tcp:8082   # mano-gateway
 ```
 
-4. `cd apps/requester && flutter run`
-
-The forwards do not survive unplugging or an adb restart; re-run them.
-
-### Registering the app clients
-
-Each app authenticates as its own public OIDC client — `mano-requester-app`
-and `mano-provider-app`:
+The forward does not survive unplugging or an adb restart; re-run it.
 
 ```bash
-./scripts/setup-keycloak-clients.sh
+cd apps/requester && flutter run
 ```
 
-Idempotent, and it needs the `mano` realm to exist first
-(`libmano-backapp/scripts/setup-keycloak-realm.sh`). Each client gets PKCE
-(S256) enforced, direct access grants **disabled** so the password grant is not
-available, the redirect URI matching `ManoConfig.redirectUrl`, and an
-**audience mapper for `mano-gateway`** — without which Keycloak issues tokens
-carrying no `aud` and the gateway rejects every one.
-
-## The Keycloak login theme
-
-Sign-in happens in the system browser, not in the app -- that is what keeps
-Mano from ever handling a password and what makes SSO, MFA and social login
-possible later. The handoff is only jarring if the page it opens looks like
-someone else's, so `keycloak-theme/mano` puts Mano's brand on it.
-
-```bash
-./scripts/deploy-keycloak-theme.sh
-```
-
-It copies the theme into the container, points the realm at it, and switches
-the realm to Spanish. Idempotent; re-run it after recreating the container.
-
-The theme inherits from `keycloak.v2`, so **every** page the authentication
-flow can reach is branded -- password reset, one-time codes, required actions,
-consent, errors -- not just the login form. A themed login followed by an
-unthemed "update your password" page would be worse than no theme.
-
-Details worth knowing:
-
-- **Tokens are copied from `mano-landing`, not re-picked.** The login page is
-  where someone decides whether to trust that this is really Mano, and a
-  near-miss on the orange is worse than no branding.
-- **Poppins is bundled**, not fetched from Google Fonts: a login page should
-  not depend on a third party being reachable, or tell one who is signing in.
-- **Spanish is the only locale.** Listing a second makes Keycloak render a
-  language picker above the form, and a phone set to English would otherwise
-  get untranslated Keycloak defaults.
-- **The copy is Mano's, not a translation of Keycloak's.** Errors say what
-  happened and what to do; they do not apologise. A wrong username and a wrong
-  password give the same message, so an attacker cannot use it to learn which
-  accounts exist.
+Sign-in has no backend yet — the screen renders and reports "not configured"
+the moment it is pressed. Whatever provider comes next gets its own setup
+instructions in this section.
 
 ## Pointing at a real environment
 
 ```bash
-flutter run \
-  --dart-define=MANO_ISSUER=https://accounts.mano.co/realms/mano \
-  --dart-define=MANO_GATEWAY=https://api.mano.co/graphql \
-  --dart-define=MANO_ALLOW_INSECURE=false
+flutter run --dart-define=MANO_GATEWAY=https://api.mano.co/graphql
 ```
-
-`MANO_ALLOW_INSECURE` exists solely because local Keycloak is plain HTTP over
-loopback. It must be `false` anywhere a real user is involved.
 
 ## Deliberately absent
 
+- **No auth adapter.** See "Authentication" above — `SessionRepository` has no
+  implementation yet, on purpose.
 - **No GraphQL client library.** There is one query and no agreed schema;
   adopting a client and its cache now would commit to a shape nobody has
   settled. `HttpGatewayClient` is the only file that changes later.

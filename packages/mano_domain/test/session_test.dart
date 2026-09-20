@@ -11,8 +11,8 @@ void main() {
     });
 
     test('role matching is case-sensitive', () {
-      // Keycloak role names are case-sensitive, and treating 'Provider' as
-      // 'provider' would quietly widen every check built on this.
+      // Role names are case-sensitive, and treating 'Provider' as 'provider'
+      // would quietly widen every check built on this.
       expect(userWith({'provider'}).hasRole('Provider'), isFalse);
     });
 

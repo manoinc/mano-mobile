@@ -21,11 +21,11 @@ android {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.manoinc.mano.provider"
 
-        // The custom scheme AppAuth registers to catch the OAuth redirect.
-        // It must match ManoConfig.redirectUrl in lib/config.dart and the
-        // redirect URI registered on the Keycloak client; if the three ever
-        // disagree, sign-in completes in the browser and never returns.
-        manifestPlaceholders["appAuthRedirectScheme"] = "com.manoinc.mano.provider"
+        // No manifestPlaceholders for an OAuth redirect scheme here.
+        // AppAuth's Gradle plugin needed one to register the custom-scheme
+        // redirect it caught; whatever auth provider lands next may or may
+        // not need the same thing, and adds it back only if it does.
+
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

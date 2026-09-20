@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
@@ -8,6 +9,14 @@ import 'screens/home_screen.dart';
 import 'screens/sign_in_screen.dart';
 
 void main() {
+  // Hold Android's splash until Flutter has painted. Without this there is a
+  // blank window between the system's m and ours, which is the one seam the
+  // opening animation exists to avoid. ManoOpening takes it down again from
+  // its first post-frame callback.
+  FlutterNativeSplash.preserve(
+    widgetsBinding: WidgetsFlutterBinding.ensureInitialized(),
+  );
+
   runApp(
     ProviderScope(
       // The only place this app's identity is declared. `manoConfigProvider`
@@ -35,22 +44,48 @@ class RequesterApp extends StatelessWidget {
   }
 }
 
-/// Chooses a screen from the session, and nothing else.
+/// The app, once it has opened.
 ///
-/// No router yet, deliberately: there is one screen per state, so a redirect
-/// table would be indirection without a purpose. `go_router` earns its place
-/// once a signed-in Solicitante has somewhere to navigate to.
-///
-/// The switch is exhaustive in both directions. A new [SessionState] case, or
-/// a new [AsyncValue] case, breaks this file at compile time instead of
-/// silently rendering a blank screen.
+/// Wraps everything in [ManoOpening] so the brand is what a cold start shows,
+/// rather than the spinner that used to live here.
 class _Root extends ConsumerWidget {
   const _Root();
+
+  /// Whether the opening has already played in this process.
+  ///
+  /// Static, so it resets when the process does and survives every rebuild in
+  /// between. That is precisely "once per cold start": a warm resume, a sign
+  /// out and a rotation all find it already true.
+  static bool _opened = false;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(sessionProvider);
 
+    return ManoOpening(
+      animate: !_opened,
+      // A cold start is usually still restoring a session. Until it resolves
+      // there is nothing worth opening onto, so the sequence waits on its
+      // finished lockup instead.
+      ready: state.hasError || state.value != null,
+      onFirstFrame: () {
+        FlutterNativeSplash.remove();
+        _opened = true;
+      },
+      child: _screen(state),
+    );
+  }
+
+  /// Chooses a screen from the session, and nothing else.
+  ///
+  /// No router yet, deliberately: there is one screen per state, so a redirect
+  /// table would be indirection without a purpose. `go_router` earns its place
+  /// once a signed-in Solicitante has somewhere to navigate to.
+  ///
+  /// The switch is exhaustive in both directions. A new [SessionState] case, or
+  /// a new [AsyncValue] case, breaks this file at compile time instead of
+  /// silently rendering a blank screen.
+  static Widget _screen(AsyncValue<SessionState> state) {
     // Something threw. Because every failure the app expects is returned as a
     // value, reaching here means a bug -- so it is reported as one rather than
     // dressed up as a friendly message.
@@ -60,22 +95,11 @@ class _Root extends ConsumerWidget {
 
     return switch (state.value) {
       SignedIn(:final session) => HomeScreen(session: session),
-      SignedOut(:final lastFailure) => SignInScreen(
-        failure: lastFailure,
-        busy: state.isLoading,
-      ),
-      // No state yet: restoring a stored session on a cold start.
-      null => const _Splash(),
+      SignedOut(:final lastFailure) => SignInScreen(failure: lastFailure),
+      // Still restoring; the opening is holding.
+      null => const SizedBox.shrink(),
     };
   }
-}
-
-class _Splash extends StatelessWidget {
-  const _Splash();
-
-  @override
-  Widget build(BuildContext context) =>
-      const Scaffold(body: Center(child: CircularProgressIndicator()));
 }
 
 class _Crashed extends StatelessWidget {

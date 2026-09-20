@@ -54,7 +54,7 @@ class ManoNotice extends StatelessWidget {
               onPressed: onDismiss,
               icon: Icon(Icons.close, size: 18, color: foreground),
               visualDensity: VisualDensity.compact,
-              tooltip: 'Dismiss',
+              tooltip: 'Cerrar',
             ),
         ],
       ),

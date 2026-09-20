@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/mano_motion.dart';
+
 /// The main action on a screen.
 ///
 /// Takes a label, a callback and a flag — nothing else. It has no idea what
@@ -27,15 +29,62 @@ class ManoPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FilledButton(
-      onPressed: busy ? null : onPressed,
-      child: busy
-          ? const SizedBox(
-              height: 18,
-              width: 18,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : Text(label),
+    final scheme = Theme.of(context).colorScheme;
+
+    return _PressScale(
+      enabled: !busy && onPressed != null,
+      child: FilledButton(
+        onPressed: busy ? null : onPressed,
+        child: busy
+            ? SizedBox(
+                height: 18,
+                width: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  // On a flame fill the default indicator is nearly invisible.
+                  color: scheme.onPrimary,
+                ),
+              )
+            : Text(label),
+      ),
+    );
+  }
+}
+
+/// Takes a press down by a hair.
+///
+/// The stylesheet lifts this button on hover; a phone has no hover, so the
+/// press gets the equivalent acknowledgement instead. Small enough to feel
+/// rather than watch.
+class _PressScale extends StatefulWidget {
+  const _PressScale({required this.child, required this.enabled});
+
+  final Widget child;
+  final bool enabled;
+
+  @override
+  State<_PressScale> createState() => _PressScaleState();
+}
+
+class _PressScaleState extends State<_PressScale> {
+  bool _down = false;
+
+  void _set(bool down) {
+    if (widget.enabled && _down != down) setState(() => _down = down);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Listener(
+      onPointerDown: (_) => _set(true),
+      onPointerUp: (_) => _set(false),
+      onPointerCancel: (_) => _set(false),
+      child: AnimatedScale(
+        scale: _down ? 0.97 : 1,
+        duration: ManoMotion.quick,
+        curve: ManoMotion.entrance,
+        child: widget.child,
+      ),
     );
   }
 }

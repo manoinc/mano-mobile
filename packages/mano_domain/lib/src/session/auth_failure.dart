@@ -3,9 +3,9 @@
 ///
 /// This mirrors `AuthError` in `libmano-backapp`, and for the same reason: a
 /// caller must be able to tell *"this person is not allowed in"* from *"we
-/// could not even ask"* without knowing whether Keycloak, some other provider,
-/// or a stub is behind the port. The two demand opposite responses — one asks
-/// the user to try again, the other asks them to wait while somebody is paged.
+/// could not even ask"* without knowing which provider, if any, is behind the
+/// port. The two demand opposite responses — one asks the user to try again,
+/// the other asks them to wait while somebody is paged.
 ///
 /// Deliberately absent: anything describing a bug. A malformed response, a
 /// null where there should not be one, an unreachable branch — those are

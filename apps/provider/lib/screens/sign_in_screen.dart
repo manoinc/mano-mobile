@@ -4,76 +4,83 @@ import 'package:mano_domain/mano_domain.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-/// Where a Proveedor signs in.
+/// The way in.
 ///
-/// The screen is the only layer that knows both halves: it reads domain
-/// failures and speaks to `mano_ui` in strings and callbacks. That translation
-/// is its whole job, and it is why widgets below stay reusable.
-class SignInScreen extends ConsumerWidget {
-  const SignInScreen({required this.failure, required this.busy, super.key});
+/// Deliberately minimal: one action, wired to [SessionRepository] through
+/// [sessionProvider] and nothing else. What that action actually does --
+/// raise a native form, hand off to a browser, launch a platform sign-in
+/// SDK -- is entirely the adapter's business, chosen once an auth provider
+/// is. This screen doesn't know, and doesn't need to: it renders the brand,
+/// asks the session to sign in, and shows whatever [AuthFailure] comes back.
+///
+/// "Waiting for sign-in" is held here rather than in the session, as local
+/// [_busy] state. It's a fact about this screen's button, not about the
+/// session, and keeping it here is what stops a slow sign-in from blanking
+/// the rest of the app.
+class SignInScreen extends ConsumerStatefulWidget {
+  const SignInScreen({required this.failure, super.key});
 
-  /// The reason the last attempt did not succeed, if the user has not been
-  /// told yet.
   final AuthFailure? failure;
 
-  final bool busy;
+  @override
+  ConsumerState<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends ConsumerState<SignInScreen> {
+  bool _busy = false;
+
+  Future<void> _signIn() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await ref.read(sessionProvider.notifier).signIn();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final notice = failure;
+  Widget build(BuildContext context) {
+    final failure = widget.failure;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(ManoSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Mano Pro', style: theme.textTheme.displaySmall),
-              const SizedBox(height: ManoSpacing.sm),
-              Text(
-                'Recibe solicitudes de trabajo cerca de ti.',
-                style: theme.textTheme.bodyLarge,
-              ),
-              const SizedBox(height: ManoSpacing.xl),
-
-              if (notice != null) ...[
-                ManoNotice(
-                  // The mapping happens here: a sealed domain failure becomes
-                  // a string and a tone. `mano_ui` never sees an AuthFailure.
-                  message: notice.message,
-                  tone: _toneFor(notice),
-                  onDismiss: () =>
-                      ref.read(sessionProvider.notifier).acknowledgeFailure(),
-                ),
-                const SizedBox(height: ManoSpacing.lg),
-              ],
-
-              ManoPrimaryButton(
-                label: 'Iniciar sesión',
-                busy: busy,
-                onPressed: () => ref.read(sessionProvider.notifier).signIn(),
-              ),
-              const SizedBox(height: ManoSpacing.md),
-              Text(
-                'Se abrirá tu navegador para completar el inicio de sesión.',
-                style: theme.textTheme.bodySmall,
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      ),
+    return ManoHeroScaffold(
+      headline: 'Tu trabajo, más cerca.',
+      primaryLabel: 'Iniciar sesión',
+      onPrimary: _signIn,
+      busy: _busy,
+      notice: failure == null
+          ? null
+          : ManoNotice(
+              message: _messageFor(failure),
+              tone: _toneFor(failure),
+              onDismiss: () =>
+                  ref.read(sessionProvider.notifier).acknowledgeFailure(),
+            ),
     );
   }
 
-  /// How loudly each failure should read.
+  /// What to say, in the voice the rest of the flow uses.
   ///
-  /// A cancelled sign-in is not an error and must not look like one: the user
-  /// pressed back on purpose. The switch is exhaustive, so a new failure case
-  /// cannot be added without deciding how it appears here.
+  /// `AuthFailure.message` exists and is in English, deliberately: it
+  /// describes the failure for whoever is reading a log or a test, and
+  /// `mano_domain` holds no user-facing copy and no locale. Spanish belongs
+  /// here, next to the tone -- tuteo, short sentences, say what happened and
+  /// what to do, never apologise.
+  ///
+  /// Exhaustive over the sealed class, so a fifth failure will not reach a
+  /// user in English: it will fail to compile.
+  String _messageFor(AuthFailure failure) => switch (failure) {
+    SignInCancelled() => 'Cancelaste el inicio de sesión.',
+    SessionExpired() => 'Tu sesión venció. Vuelve a iniciar sesión.',
+    AuthUnavailable() =>
+      'No pudimos conectar con el servicio de inicio de sesión. '
+          'Vuelve a intentarlo en un momento.',
+    SignInRejected() =>
+      'No pudimos completar el inicio de sesión. Vuelve a intentarlo.',
+  };
+
+  /// The domain says what went wrong; the screen decides how loudly to say
+  /// it. Backing out is not an error, and must not be dressed as one.
   ManoNoticeTone _toneFor(AuthFailure failure) => switch (failure) {
     SignInCancelled() => ManoNoticeTone.info,
     SessionExpired() => ManoNoticeTone.warning,

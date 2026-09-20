@@ -33,8 +33,15 @@ final class SessionNotifier extends AsyncNotifier<SessionState> {
   /// repository returns modelled failures as data, so they land in
   /// [AsyncData] as a [SignedOut] carrying the reason. Only a genuine bug can
   /// throw, and only that becomes [AsyncError]. The two never get confused.
+  ///
+  /// Deliberately does not publish an [AsyncLoading] first. A bare one carries
+  /// no value, and the app's root screen switches on `state.value` — dropping
+  /// it here would blank the whole session for as long as sign-in is in
+  /// flight, sending the app back to its own loading screen instead of
+  /// leaving the current one up with its own button spinning. "Waiting for
+  /// sign-in" is a fact about one screen's button, not about the session,
+  /// so it belongs in the screen's own local state.
   Future<void> signIn() async {
-    state = const AsyncLoading<SessionState>();
     state = await AsyncValue.guard(() async {
       final result = await _repository.signIn();
       return switch (result) {

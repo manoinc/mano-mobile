@@ -72,9 +72,9 @@ final class HttpGatewayClient implements GatewayClient {
     }
 
     // The gateway currently maps every authentication error onto 401, so this
-    // covers both "your token is bad" and "the gateway could not reach
-    // Keycloak". Until it distinguishes them, so must we: treat it as a
-    // credential problem, because that is the case the user can act on.
+    // covers both "your token is bad" and "the gateway could not reach its
+    // identity provider". Until it distinguishes them, so must we: treat it
+    // as a credential problem, because that is the case the user can act on.
     if (response.statusCode == 401) {
       throw GatewayUnauthorized('gateway returned 401');
     }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'mano_typography.dart';
+
 /// Spacing, in multiples of four.
 ///
 /// A scale rather than free numbers: when every gap is drawn from the same
@@ -13,17 +15,28 @@ abstract final class ManoSpacing {
 }
 
 /// Corner radii.
+///
+/// The brand really only draws two: a 14px corner on anything that holds
+/// content, and a full round on anything you press. `sm`, `md` and `lg` are the
+/// Material-shaped leftovers they replaced, kept for the widgets still on them.
 abstract final class ManoRadius {
   static const double sm = 8;
   static const double md = 12;
   static const double lg = 20;
+
+  /// Fields, cards, sheets, notices -- `--mano-radius` in the stylesheet.
+  static const double card = 14;
+
+  /// Buttons. Larger than any button is tall, which is how a radius becomes a
+  /// pill and stays one at every height.
+  static const double pill = 999;
 }
 
 /// Mano's brand colours.
 ///
 /// Taken from the landing site's design system rather than re-picked, so the
-/// app, the marketing page and the Keycloak login screen are the same orange.
-/// A user who signs in should not notice a seam.
+/// app and the marketing page are the same orange. Wherever sign-in ends up
+/// happening, it should be the same orange too.
 abstract final class ManoColors {
   /// Near-black. Text, rules, and the dark ground.
   static const Color ink = Color(0xFF201E1D);
@@ -81,23 +94,24 @@ abstract final class ManoTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
+      fontFamily: ManoTypography.fontFamily,
+      textTheme: ManoTypography.textTheme(),
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(ManoRadius.md),
+          borderRadius: BorderRadius.circular(ManoRadius.card),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           minimumSize: const Size.fromHeight(52),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(ManoRadius.md),
-          ),
+          textStyle: ManoTypography.textTheme().labelLarge,
+          shape: const StadiumBorder(),
         ),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(ManoRadius.md),
+          borderRadius: BorderRadius.circular(ManoRadius.card),
           side: BorderSide(color: scheme.outlineVariant),
         ),
       ),

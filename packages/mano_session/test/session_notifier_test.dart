@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_domain/mano_domain.dart';
@@ -148,5 +150,24 @@ void main() {
     await container.read(sessionProvider.future);
 
     expect(container.read(currentUserProvider), isNull);
+  });
+
+  test('keeps the session visible while a sign-in is in flight', () async {
+    // If signIn() published a bare AsyncLoading first, state.value would go
+    // null for as long as the repository call takes -- and since the app's
+    // root screen switches on that value, the whole app would flash back to
+    // its own loading screen every time someone tapped the button.
+    final gate = Completer<Result<Session, AuthFailure>>();
+    final container = containerWith(
+      _FakeSessionRepository(onSignIn: () => gate.future),
+    );
+    await container.read(sessionProvider.future);
+
+    final signingIn = container.read(sessionProvider.notifier).signIn();
+    expect(container.read(sessionProvider).value, isA<SignedOut>());
+
+    gate.complete(Ok(session()));
+    await signingIn;
+    expect(container.read(sessionProvider).value, isA<SignedIn>());
   });
 }

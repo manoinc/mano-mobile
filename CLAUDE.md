@@ -1,0 +1,93 @@
+# CLAUDE.MD 
+
+## Project overview 
+mano-mobile is the shared frontend repo for the mobile UI/UX & frontend of all Mano applications, a home services marketplace app that connects customers with local professionals in their area (similar to TaskRabbit, Thumbtack or Urban Company but for Colombia).
+
+## Repo map
+
+Pub workspace — one `pub get`, one `pubspec.lock` at the root.
+
+    apps/requester         Mano, for Solicitantes    com.manoinc.mano.requester
+    apps/provider          Mano Pro, for Proveedores com.manoinc.mano.provider
+    packages/mano_domain   entities, ports, failures — zero dependencies
+    packages/mano_data     adapters: secure storage, GraphQL (no auth adapter yet)
+    packages/mano_ui       theme + dumb widgets — Flutter only
+    packages/mano_session  composition root; the only member using Riverpod
+
+Arrows point one way: `apps → mano_session → mano_data → mano_domain`, plus
+`apps → mano_ui`. Enforced by the build, not by review —
+`depend_on_referenced_packages` is an **error** in `mano_domain` and `mano_ui`,
+so a cross-boundary import fails `dart analyze`:
+
+- `mano_domain` imports nothing. Not Flutter, not Riverpod.
+- `mano_ui` must not import `mano_domain`. A widget takes strings, booleans and
+  callbacks; the screen does the mapping.
+- Only `mano_session` may touch Riverpod.
+
+See README.md for the rationale.
+
+## Commands
+
+```bash
+dart analyze                                     # whole workspace, from root
+cd packages/mano_domain  && dart test            # 21 — no Flutter binding
+cd packages/mano_session && flutter test         #  9
+cd packages/mano_ui      && flutter test         # 48
+dart tools/generate_logo_paths.dart              # after changing tools/brand/*.svg
+cd apps/requester && flutter run -d RFGL20WAR9E  # the A36
+```
+
+## Coding style 
+
+Modular, loosely coupled components; KISS and YAGNI by default; SOLID reserved for complex business logic, favouring single responsibility and injected dependencies.
+Hexagonal architecture. Business logic must not depend on the presentation framework. 
+
+Use TDD to make sure the code works E2E. 
+The code must be structured in such a clean way that it looks the same in all
+apps and we don't have to duplicate effort across them. Only `android/` exists
+today; iOS is planned, so keep everything platform-agnostic.
+
+## Skills 
+
+Make use of the Context7 CLI (use ctx7) and the Dart and Flutter plugin installed @dart-flutter. 
+
+## Testing 
+
+Testing will always be done by default using an external phone plugged in. In my case I already have a Samsung A36 plugged in at all times when working with Flutter. Otherwise use Android's studio simulated environments. Android's CLI is already installed along with its skill. You can use it like `android --version`.
+The A36 shows up as `RFGL20WAR9E`; pass it as `-d RFGL20WAR9E`.
+
+Both apps default to the local gateway through `adb reverse`. It does not
+survive unplugging or an adb restart:
+
+```bash
+adb reverse tcp:8082 tcp:8082   # mano-gateway
+```
+
+There is no auth backend configured yet — see README.md's "Authentication"
+section. Sign-in renders and reports "not configured" until a provider is
+chosen and wired into `mano_data`.
+
+## Design
+
+The UI in the app must be minimalist, easy to use and simple. Our biggest references are apps like Wise, Nubank, Uber and Airbnb. Including their animations. 
+
+### Branding
+
+Defined once in `packages/mano_ui/lib/src/theme/mano_theme.dart`. Take colours
+from `ManoColors`; never hard-code a hex in a screen.
+
+    flame  #ff4a1c   the one hot surface — one primary action per screen
+    clay   #c1602e   links, secondary emphasis
+    ink    #201e1d   text, rules, dark ground
+    muted  #4a4644   secondary text
+    faint  #8a8481   tertiary text, placeholders, disabled
+    sand   #f7f5f3   raised surfaces
+    stone  #ede9e6   dividers, quiet borders
+
+`ManoSpacing` (4pt scale), `ManoRadius` and `ManoMotion` are tokens too — use
+them, not free numbers. The brand draws exactly two corners, `ManoRadius.card`
+(14) and `ManoRadius.pill`, and one entrance curve, `ManoMotion.entrance`.
+
+Type is Poppins, bundled in `mano_ui`; reach it through the text theme rather
+than naming the family. The logo is generated Dart — `ManoWordmark`,
+`ManoMonogram`, `ManoArchMotif` — never an image asset.

@@ -12,7 +12,17 @@
 /// between two apps and testable without a provider in sight.
 library;
 
+export 'src/brand/mano_arch_motif.dart';
+export 'src/brand/mano_logo_paths.g.dart';
+export 'src/brand/mano_monogram.dart';
+export 'src/brand/mano_opening.dart';
+export 'src/brand/mano_wordmark.dart';
+export 'src/theme/mano_motion.dart';
 export 'src/theme/mano_theme.dart';
+export 'src/theme/mano_typography.dart';
 export 'src/widgets/mano_detail_row.dart';
+export 'src/widgets/mano_hero_scaffold.dart';
 export 'src/widgets/mano_notice.dart';
 export 'src/widgets/mano_primary_button.dart';
+export 'src/widgets/mano_quiet_button.dart';
+export 'src/widgets/mano_sheet.dart';

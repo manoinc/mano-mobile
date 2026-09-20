@@ -1,0 +1,24 @@
+# The first frame of the opening animation, drawn by Android rather than by us.
+#
+# It has to match what Flutter paints a moment later -- same mark, same colour,
+# same ground -- or the handover shows as a jump. ManoOpening holds this frame
+# and continues from it; see packages/mano_ui/lib/src/brand/mano_opening.dart.
+flutter_native_splash:
+  # ManoColors.sand, and the dark scheme's surface.
+  color: "#f7f5f3"
+  color_dark: "#191716"
+  image: assets/brand/splash.png
+  image_dark: assets/brand/splash.png
+
+  android: true
+  # No iOS folder exists yet. When one does, this generates for it unchanged.
+  ios: false
+  web: false
+
+  android_12:
+    # Android 12+ draws its own splash: an icon on an opaque window background,
+    # masked to the middle third. The artwork is padded for that mask.
+    image: assets/brand/splash_android12.png
+    image_dark: assets/brand/splash_android12.png
+    color: "#f7f5f3"
+    color_dark: "#191716"

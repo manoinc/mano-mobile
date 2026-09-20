@@ -2,8 +2,8 @@
 ///
 /// Names come from the project's ubiquitous language: a Solicitante
 /// (`requester`) asks for work and a Proveedor (`provider`) performs it. They
-/// are the same strings the Keycloak realm issues and the Rust backend reads,
-/// so all three ends of the stack agree on one vocabulary.
+/// are the same strings the Rust backend reads, whatever identity provider
+/// ends up issuing them — so all ends of the stack agree on one vocabulary.
 abstract final class ManoRole {
   /// Solicitante: asks for domestic work to be done.
   static const String requester = 'requester';
