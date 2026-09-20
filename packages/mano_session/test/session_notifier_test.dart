@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mano_domain/mano_domain.dart';
 import 'package:mano_session/mano_session.dart';
 
 /// The notifier is exercised here with a fake repository and nothing else: no

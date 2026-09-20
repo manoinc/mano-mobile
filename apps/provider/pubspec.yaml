@@ -16,7 +16,6 @@ dependencies:
   # Holds the system splash up until Flutter has painted, so the m never
   # flickers through a blank window on its way into the opening animation.
   flutter_native_splash: ^2.4.8
-  mano_domain: ^0.1.0
   mano_session: ^0.1.0
   mano_ui: ^0.1.0
   flutter_riverpod: ^3.4.3
