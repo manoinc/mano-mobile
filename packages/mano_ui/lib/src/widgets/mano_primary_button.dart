@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/mano_motion.dart';
+import 'mano_press_scale.dart';
 
 /// The main action on a screen.
 ///
@@ -31,7 +31,7 @@ class ManoPrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return _PressScale(
+    return ManoPressScale(
       enabled: !busy && onPressed != null,
       child: FilledButton(
         onPressed: busy ? null : onPressed,
@@ -46,44 +46,6 @@ class ManoPrimaryButton extends StatelessWidget {
                 ),
               )
             : Text(label),
-      ),
-    );
-  }
-}
-
-/// Takes a press down by a hair.
-///
-/// The stylesheet lifts this button on hover; a phone has no hover, so the
-/// press gets the equivalent acknowledgement instead. Small enough to feel
-/// rather than watch.
-class _PressScale extends StatefulWidget {
-  const _PressScale({required this.child, required this.enabled});
-
-  final Widget child;
-  final bool enabled;
-
-  @override
-  State<_PressScale> createState() => _PressScaleState();
-}
-
-class _PressScaleState extends State<_PressScale> {
-  bool _down = false;
-
-  void _set(bool down) {
-    if (widget.enabled && _down != down) setState(() => _down = down);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Listener(
-      onPointerDown: (_) => _set(true),
-      onPointerUp: (_) => _set(false),
-      onPointerCancel: (_) => _set(false),
-      child: AnimatedScale(
-        scale: _down ? 0.97 : 1,
-        duration: ManoMotion.quick,
-        curve: ManoMotion.entrance,
-        child: widget.child,
       ),
     );
   }

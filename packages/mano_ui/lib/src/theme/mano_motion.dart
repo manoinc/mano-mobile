@@ -35,4 +35,23 @@ abstract final class ManoMotion {
   /// What the opening costs when it is not being played in full -- a warm
   /// resume, or coming back from signing out.
   static const Duration openingReplay = Duration(milliseconds: 200);
+
+  /// How much of a staggered reveal one item occupies.
+  static const double staggerSpan = 0.5;
+
+  /// The gap between one item starting and the next. Smaller than
+  /// [staggerSpan], so items overlap and the group reads as one movement
+  /// rather than a queue.
+  static const double staggerGap = 0.25;
+
+  /// How far through its own arrival item [index] is, 0 to 1.
+  ///
+  /// Tuned for three items: the third starts at `2 * staggerGap` and has
+  /// exactly [staggerSpan] left to run.
+  static double stagger(int index, double progress) {
+    final start = index * staggerGap;
+    return entrance.transform(
+      ((progress - start) / staggerSpan).clamp(0.0, 1.0),
+    );
+  }
 }

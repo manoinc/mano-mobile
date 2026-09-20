@@ -8,7 +8,7 @@ mano-mobile is the shared frontend repo for the mobile UI/UX & frontend of all M
 Pub workspace — one `pub get`, one `pubspec.lock` at the root.
 
     apps/requester         Mano, for Solicitantes    com.manoinc.mano.requester
-    apps/provider          Mano Pro, for Proveedores com.manoinc.mano.provider
+    apps/provider          Mano Profesionales, for Proveedores com.manoinc.mano.provider
     packages/mano_domain   entities, ports, failures — zero dependencies
     packages/mano_data     adapters: secure storage, GraphQL (no auth adapter yet)
     packages/mano_ui       theme + dumb widgets — Flutter only
@@ -30,9 +30,10 @@ See README.md for the rationale.
 
 ```bash
 dart analyze                                     # whole workspace, from root
-cd packages/mano_domain  && dart test            # 21 — no Flutter binding
-cd packages/mano_session && flutter test         #  9
-cd packages/mano_ui      && flutter test         # 48
+cd packages/mano_domain  && dart test            # 43 — no Flutter binding
+cd packages/mano_session && flutter test         # 28
+cd packages/mano_ui      && flutter test         # 107
+cd apps/requester        && flutter test         # 18
 dart tools/generate_logo_paths.dart              # after changing tools/brand/*.svg
 cd apps/requester && flutter run -d RFGL20WAR9E  # the A36
 ```
@@ -43,9 +44,10 @@ Modular, loosely coupled components; KISS and YAGNI by default; SOLID reserved f
 Hexagonal architecture. Business logic must not depend on the presentation framework. 
 
 Use TDD to make sure the code works E2E. 
-The code must be structured in such a clean way that it looks the same in all
-apps and we don't have to duplicate effort across them. Only `android/` exists
-today; iOS is planned, so keep everything platform-agnostic.
+The code must be structured in such a clean way that it looks the same in all apps and we don't have to duplicate effort across them. Only `android/` exists today; iOS is planned, so keep everything platform-agnostic.
+
+Avoid extensive verbose comments or documentation inside the code, all comments must be one-liners, concise and easy to understand. Extensive documentation must sit outside the code in markdown files or using Mkdocs.
+DO NOT coauthor any commits.
 
 ## Skills 
 
@@ -91,3 +93,7 @@ them, not free numbers. The brand draws exactly two corners, `ManoRadius.card`
 Type is Poppins, bundled in `mano_ui`; reach it through the text theme rather
 than naming the family. The logo is generated Dart — `ManoWordmark`,
 `ManoMonogram`, `ManoArchMotif` — never an image asset.
+
+`mano_ui` ships no images at all. Illustrations and third-party marks are
+app assets: see `apps/requester/assets/`. A shared widget that needs one takes
+it as a `Widget` slot, the way `ManoBrandButton` takes `leading`.

@@ -14,6 +14,10 @@
 /// binding, a command-line tool, a server, a future web client.
 library;
 
+export 'src/registration/registration_draft.dart';
+export 'src/registration/registration_failure.dart';
+export 'src/registration/registration_repository.dart';
+export 'src/registration/registration_validation.dart';
 export 'src/result.dart';
 export 'src/session/auth_failure.dart';
 export 'src/session/authenticated_user.dart';

@@ -187,6 +187,9 @@ Future<T?> showManoSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
 }) {
+  // Someone who asked for less motion still gets the sheet, just not the climb.
+  final still = MediaQuery.disableAnimationsOf(context);
+
   return showModalBottomSheet<T>(
     context: context,
     builder: builder,
@@ -197,9 +200,9 @@ Future<T?> showManoSheet<T>({
       borderRadius: BorderRadius.vertical(top: Radius.circular(ManoRadius.lg)),
     ),
     sheetAnimationStyle: AnimationStyle(
-      duration: ManoMotion.sheet,
+      duration: still ? Duration.zero : ManoMotion.sheet,
       curve: ManoMotion.entrance,
-      reverseDuration: ManoMotion.normal,
+      reverseDuration: still ? Duration.zero : ManoMotion.normal,
       reverseCurve: ManoMotion.exit,
     ),
   );
