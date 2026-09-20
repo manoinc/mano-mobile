@@ -20,7 +20,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mano Pro'),
+        title: const Text('Mano Profesionales'),
         actions: [
           IconButton(
             onPressed: () => ref.read(sessionProvider.notifier).signOut(),

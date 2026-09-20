@@ -1,0 +1,21 @@
+# The launcher icon: flame monogram, centered, on white -- the inverse of
+# apps/requester's white-on-flame, so the two apps are told apart at a glance
+# in the launcher.
+# Padding is baked into the source images themselves (see assets/icon/), not
+# left to the adaptive-icon inset -- the inset alone read as barely any
+# padding at all on-device.
+flutter_launcher_icons:
+  android: true
+  ios: false
+  min_sdk_android: 21
+
+  # Pre-adaptive-icon devices: the mark, already centered with margin, on a
+  # solid white square.
+  image_path: assets/icon/icon_legacy.png
+
+  # Android 8+: a transparent mark (already centered with margin) plus a flat
+  # background colour, composited by the OS into whatever mask shape the
+  # launcher uses. A small inset on top, purely as a safety margin.
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: assets/icon/icon_foreground.png
+  adaptive_icon_foreground_inset: 4

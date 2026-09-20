@@ -35,7 +35,7 @@ class ProviderApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Mano Pro',
+      title: 'Mano Profesionales',
       debugShowCheckedModeBanner: false,
       theme: ManoTheme.light(),
       darkTheme: ManoTheme.dark(),

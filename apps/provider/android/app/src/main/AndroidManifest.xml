@@ -1,6 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Singular on purpose: the icon caption truncates at "Mano Profesiona…" with the plural, but "Mano Profesional" fits. The plural is still used everywhere else. -->
     <application
-        android:label="Mano Pro"
+        android:label="Mano Profesional"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

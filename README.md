@@ -4,7 +4,7 @@ The two Mano apps, and the packages they share.
 
 - **`apps/requester`** — Mano, for Solicitantes: people who need work done in
   their home (`com.manoinc.mano.requester`).
-- **`apps/provider`** — Mano Pro, for Proveedores: people who do the work
+- **`apps/provider`** — Mano Profesionales, for Proveedores: people who do the work
   (`com.manoinc.mano.provider`).
 
 Two apps, two store listings, two userbases. One repository, so the design
