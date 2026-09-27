@@ -40,7 +40,10 @@ final _fakeConversations = [
   ),
 ];
 
-Future<void> _host(WidgetTester tester, {List<Conversation>? conversations}) async {
+Future<void> _host(
+  WidgetTester tester, {
+  List<Conversation>? conversations,
+}) async {
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
@@ -67,19 +70,72 @@ void main() {
     expect(find.text('Listo, quedó todo funcionando'), findsOneWidget);
   });
 
-  testWidgets('shows an unread badge only for conversations with unread messages', (
+  testWidgets('renders the relative timestamp label for each conversation', (
     tester,
   ) async {
     await _host(tester);
 
-    expect(
-      find.byKey(const Key('mano-conversation-tile-unread-badge')),
-      findsOneWidget,
-    );
-    expect(find.text('3'), findsOneWidget);
+    // conv-1 is ~5 minutes old, conv-2 is ~2 hours old (see _fakeConversations).
+    expect(find.text('5m'), findsOneWidget);
+    expect(find.text('2h'), findsOneWidget);
   });
 
-  testWidgets('tapping a conversation tile shows the stub notice', (tester) async {
+  testWidgets(
+    'formats the relative timestamp at the minute/hour/day boundaries',
+    (tester) async {
+      final now = DateTime.now();
+      await _host(
+        tester,
+        conversations: [
+          Conversation(
+            id: 'boundary-1',
+            participantName: 'Recién',
+            participantPhotoUrl: 'https://example.com/a.jpg',
+            lastMessage: 'Hace segundos',
+            // Under a minute rounds up to '1m', never '0m'.
+            lastMessageAt: now.subtract(const Duration(seconds: 30)),
+          ),
+          Conversation(
+            id: 'boundary-2',
+            participantName: 'Hace una hora',
+            participantPhotoUrl: 'https://example.com/b.jpg',
+            lastMessage: 'Justo a la hora',
+            // Exactly 60 minutes is no longer "under 1 hour".
+            lastMessageAt: now.subtract(const Duration(minutes: 60)),
+          ),
+          Conversation(
+            id: 'boundary-3',
+            participantName: 'Hace un día',
+            participantPhotoUrl: 'https://example.com/c.jpg',
+            lastMessage: 'Justo el día',
+            // Exactly 24 hours is no longer "under 24 hours".
+            lastMessageAt: now.subtract(const Duration(hours: 24)),
+          ),
+        ],
+      );
+
+      expect(find.text('1m'), findsOneWidget);
+      expect(find.text('1h'), findsOneWidget);
+      expect(find.text('1d'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'shows an unread badge only for conversations with unread messages',
+    (tester) async {
+      await _host(tester);
+
+      expect(
+        find.byKey(const Key('mano-conversation-tile-unread-badge')),
+        findsOneWidget,
+      );
+      expect(find.text('3'), findsOneWidget);
+    },
+  );
+
+  testWidgets('tapping a conversation tile shows the stub notice', (
+    tester,
+  ) async {
     await _host(tester);
 
     await tester.tap(find.byType(ManoConversationTile).first);
@@ -88,12 +144,13 @@ void main() {
     expect(find.text('Muy pronto'), findsOneWidget);
   });
 
-  testWidgets('renders the empty-list fallback when there are no conversations', (
-    tester,
-  ) async {
-    await _host(tester, conversations: []);
+  testWidgets(
+    'renders the empty-list fallback when there are no conversations',
+    (tester) async {
+      await _host(tester, conversations: []);
 
-    expect(find.byType(ManoConversationTile), findsNothing);
-    expect(find.text('Aún no tienes conversaciones.'), findsOneWidget);
-  });
+      expect(find.byType(ManoConversationTile), findsNothing);
+      expect(find.text('Aún no tienes conversaciones.'), findsOneWidget);
+    },
+  );
 }
