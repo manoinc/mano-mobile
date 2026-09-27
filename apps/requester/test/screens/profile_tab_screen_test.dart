@@ -1,0 +1,108 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mano_requester/screens/profile_tab_screen.dart';
+import 'package:mano_session/mano_session.dart';
+
+/// Mirrors `_FakeSessionRepository` in mano_session's own
+/// `session_notifier_test.dart`: every outcome is injectable, and
+/// `signOutCalls` lets a test prove the real Log Out action actually
+/// reached the repository rather than just closing over a no-op.
+final class _FakeSessionRepository implements SessionRepository {
+  _FakeSessionRepository({this.onRestore});
+
+  final Future<Result<Session?, AuthFailure>> Function()? onRestore;
+
+  int signOutCalls = 0;
+
+  @override
+  Future<Result<Session, AuthFailure>> signIn() async =>
+      const Err(SignInCancelled());
+
+  @override
+  Future<Result<Session?, AuthFailure>> restore() async =>
+      onRestore?.call() ?? const Ok(null);
+
+  @override
+  Future<Result<Session, AuthFailure>> refresh() async =>
+      const Err(SessionExpired());
+
+  @override
+  Future<void> signOut() async => signOutCalls++;
+}
+
+const _user = AuthenticatedUser(
+  subject: 'user-1',
+  username: 'mano-test',
+  roles: {ManoRole.requester},
+);
+
+Session _fakeSession() => Session(
+  user: _user,
+  accessToken: 'access-1',
+  expiresAt: DateTime.now().add(const Duration(minutes: 5)),
+);
+
+Future<_FakeSessionRepository> _host(WidgetTester tester) async {
+  final repository = _FakeSessionRepository(
+    onRestore: () async => Ok(_fakeSession()),
+  );
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [sessionRepositoryProvider.overrideWithValue(repository)],
+      child: MaterialApp(home: const ProfileTabScreen()),
+    ),
+  );
+  await tester.pumpAndSettle();
+  return repository;
+}
+
+void main() {
+  testWidgets('renders the signed-in user\'s name in the header', (
+    tester,
+  ) async {
+    await _host(tester);
+
+    expect(find.text('mano-test'), findsOneWidget);
+  });
+
+  testWidgets('renders every non-destructive menu label', (tester) async {
+    await _host(tester);
+
+    expect(find.text('Información personal'), findsOneWidget);
+    expect(find.text('Direcciones guardadas'), findsOneWidget);
+    expect(find.text('Métodos de pago'), findsOneWidget);
+    expect(find.text('Historial de pedidos'), findsOneWidget);
+    expect(find.text('Atención al cliente'), findsOneWidget);
+    expect(find.text('Configuración'), findsOneWidget);
+  });
+
+  testWidgets('renders the Log Out row', (tester) async {
+    await _host(tester);
+
+    expect(find.text('Cerrar sesión'), findsOneWidget);
+  });
+
+  testWidgets('tapping a non-destructive row shows the stub notice', (
+    tester,
+  ) async {
+    await _host(tester);
+
+    await tester.tap(find.text('Información personal'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Muy pronto'), findsOneWidget);
+  });
+
+  testWidgets('tapping Log Out calls signOut on the repository, not a stub', (
+    tester,
+  ) async {
+    final repository = await _host(tester);
+
+    await tester.tap(find.text('Cerrar sesión'));
+    await tester.pumpAndSettle();
+
+    expect(repository.signOutCalls, 1);
+    expect(find.text('Muy pronto'), findsNothing);
+  });
+}
