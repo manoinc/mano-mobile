@@ -102,7 +102,7 @@ All repositories are mock-backed pending a real gateway adapter. Fetch with the 
 ### Session & User
 | Provider | Type | Purpose |
 |----------|------|---------|
-| `sessionProvider` | AsyncNotifier → SessionState | current session state (SignedIn/SignedOut) |
+| `sessionProvider` | AsyncValue<SessionState> | current session state (SignedIn/SignedOut) |
 | `currentUserProvider` | AuthenticatedUser? | signed-in user or null; convenience accessor |
 
 ---
