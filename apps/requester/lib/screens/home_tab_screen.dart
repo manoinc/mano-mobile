@@ -66,6 +66,7 @@ class _HomeTabScreenState extends ConsumerState<HomeTabScreen> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
+    final signedIn = ref.watch(sessionProvider).value is SignedIn;
     final categories = ref.watch(serviceCategoriesProvider);
     final listings = ref.watch(popularListingsProvider);
     final textTheme = Theme.of(context).textTheme;
@@ -75,6 +76,22 @@ class _HomeTabScreenState extends ConsumerState<HomeTabScreen> {
         child: ListView(
           padding: const EdgeInsets.all(ManoSpacing.md),
           children: [
+            // The nav shell is where browsing as a guest lands too --
+            // "Omitir" was never meant to be a one-way door, so the way into
+            // an account stays one tap away. On its own line, not sharing a
+            // row with the greeting: a personalized "Hola, <name>" is
+            // variable-length in a way a fixed logo never was, and at a
+            // small phone's large text the two competing for one row is
+            // exactly the overflow the rest of this app avoids by wrapping.
+            if (!signedIn)
+              Align(
+                alignment: Alignment.centerRight,
+                child: ManoTextAction(
+                  label: 'Iniciar sesión',
+                  onPressed: () =>
+                      ref.read(onboardingFlowProvider.notifier).startSignIn(),
+                ),
+              ),
             ManoGreetingHeader(name: user?.displayName ?? 'Solicitante'),
             const SizedBox(height: ManoSpacing.md),
             // There is no address feature yet, so this is a neutral
@@ -88,9 +105,15 @@ class _HomeTabScreenState extends ConsumerState<HomeTabScreen> {
             ManoSearchPill(onTap: () => _showStub(context)),
             const SizedBox(height: ManoSpacing.lg),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Explora por categoría', style: textTheme.titleMedium),
+                Expanded(
+                  child: Text(
+                    'Explora por categoría',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: textTheme.titleMedium,
+                  ),
+                ),
                 // `ManoQuietButton` forces a full-width minimum size (it's
                 // meant to be a screen's sole secondary action), which does
                 // not fit trailing a Row -- so this matches its weight

@@ -29,13 +29,6 @@ class ManoWordmark extends StatelessWidget {
   /// The lockup's height. Width follows from the artwork's proportions.
   final double? height;
 
-  /// How much of the reveal one letter occupies. Longer than the gap between
-  /// letters, so they overlap.
-  static const double _span = 0.5;
-
-  /// The gap between one letter starting and the next.
-  static const double _stagger = 0.25;
-
   /// Where a letter begins: low, and slightly small.
   static const double _rise = 0.22;
   static const double _shrink = 0.08;
@@ -45,10 +38,9 @@ class ManoWordmark extends StatelessWidget {
   /// Exposed so the opening animation can line other things up against the
   /// letters without re-deriving the choreography.
   static double glyphProgress(int index, double progress) {
+    // The `m` is already on screen, so the letters are one place along.
     if (index <= 0) return 1;
-    final start = (index - 1) * _stagger;
-    return ManoMotion.entrance
-        .transform(((progress - start) / _span).clamp(0.0, 1.0));
+    return ManoMotion.stagger(index - 1, progress);
   }
 
   @override

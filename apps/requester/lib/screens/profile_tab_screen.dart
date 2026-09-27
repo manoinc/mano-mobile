@@ -24,15 +24,18 @@ const _stubMenuEntries = <_StubMenuEntry>[
 
 /// The Perfil tab: the signed-in user's header plus a grouped menu list.
 ///
-/// Every row is a stub notice except "Cerrar sesión", which is the one real
-/// action here -- it tells [sessionProvider] to sign out, same as the old
-/// placeholder AppBar button this replaces.
+/// Every row is a stub notice except the last one, which is the one real
+/// action here -- and which one it is depends on who is looking. A guest
+/// reaches this tab too (the nav shell is [OnboardingBrowsing]'s destination
+/// as much as a signed-in session's), and "Omitir" was never meant to be a
+/// one-way door: they get "Iniciar sesión" instead of "Cerrar sesión".
 class ProfileTabScreen extends ConsumerWidget {
   const ProfileTabScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
+    final signedIn = ref.watch(sessionProvider).value is SignedIn;
     final theme = Theme.of(context);
     final divider = Divider(
       height: 1,
@@ -66,10 +69,13 @@ class ProfileTabScreen extends ConsumerWidget {
               divider,
             ],
             ManoOptionRow(
-              icon: Icons.logout,
-              label: 'Cerrar sesión',
-              destructive: true,
-              onPressed: () => ref.read(sessionProvider.notifier).signOut(),
+              icon: signedIn ? Icons.logout : Icons.login,
+              label: signedIn ? 'Cerrar sesión' : 'Iniciar sesión',
+              destructive: signedIn,
+              onPressed: signedIn
+                  ? () => ref.read(sessionProvider.notifier).signOut()
+                  : () =>
+                        ref.read(onboardingFlowProvider.notifier).startSignIn(),
             ),
           ],
         ),

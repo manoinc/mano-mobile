@@ -55,11 +55,11 @@ class ManoBottomNavBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _sideItem(context, 0),
-              _sideItem(context, 1),
+              Expanded(child: _sideItem(context, 0)),
+              Expanded(child: _sideItem(context, 1)),
               _ActionButton(onTap: onActionTap),
-              _sideItem(context, 2),
-              _sideItem(context, 3),
+              Expanded(child: _sideItem(context, 2)),
+              Expanded(child: _sideItem(context, 3)),
             ],
           ),
         ),
@@ -80,6 +80,8 @@ class ManoBottomNavBar extends StatelessWidget {
           Icon(item.icon, color: color),
           Text(
             item.label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.labelSmall
                 ?.copyWith(color: color),
           ),
