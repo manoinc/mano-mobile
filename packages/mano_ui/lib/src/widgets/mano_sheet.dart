@@ -38,6 +38,7 @@ class ManoOptionRow extends StatelessWidget {
     required this.onPressed,
     this.icon,
     this.detail,
+    this.destructive = false,
     super.key,
   });
 
@@ -46,11 +47,20 @@ class ManoOptionRow extends StatelessWidget {
   final IconData? icon;
   final String? detail;
 
+  /// Marks a row that undoes or removes something, e.g. "Eliminar cuenta".
+  /// Ignored while the row is disabled -- a row nobody can tap stays quiet
+  /// regardless of what it would have done.
+  final bool destructive;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final enabled = onPressed != null;
-    final ink = enabled ? theme.colorScheme.onSurface : ManoColors.faint;
+    final ink = !enabled
+        ? ManoColors.faint
+        : destructive
+            ? theme.colorScheme.error
+            : theme.colorScheme.onSurface;
 
     return InkWell(
       onTap: onPressed,

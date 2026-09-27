@@ -177,6 +177,29 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Entra a Mano'), findsNothing);
     });
+
+    testWidgets('marks a destructive action with the error colour', (tester) async {
+      await tester.pumpWidget(_host(
+        ManoOptionRow(label: 'Eliminar cuenta', destructive: true, onPressed: () {}),
+      ));
+
+      final theme = ManoTheme.light();
+      final text = tester.widget<Text>(find.text('Eliminar cuenta'));
+      expect(text.style?.color, theme.colorScheme.error);
+    });
+
+    testWidgets('a disabled row stays quiet even when destructive', (tester) async {
+      await tester.pumpWidget(_host(
+        const ManoOptionRow(
+          label: 'Eliminar cuenta',
+          destructive: true,
+          onPressed: null,
+        ),
+      ));
+
+      final text = tester.widget<Text>(find.text('Eliminar cuenta'));
+      expect(text.style?.color, ManoColors.faint);
+    });
   });
 
     testWidgets('never draws a disabled row louder than a live one',
