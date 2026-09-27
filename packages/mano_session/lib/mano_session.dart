@@ -24,6 +24,9 @@ export 'package:mano_data/mano_data.dart' show ManoConfig;
 // past.
 export 'package:mano_domain/mano_domain.dart';
 
+export 'src/catalog_providers.dart';
+export 'src/conversation_providers.dart';
+export 'src/project_providers.dart';
 export 'src/session_notifier.dart';
 export 'src/session_providers.dart';
 export 'src/session_state.dart';
