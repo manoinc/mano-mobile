@@ -20,3 +20,8 @@ library;
 export 'src/config/mano_config.dart';
 export 'src/gateway/gateway_client.dart';
 export 'src/session/token_store.dart';
+
+// Mock implementations pending real gateway-backed adapters.
+export 'src/catalog/mock_catalog_repository.dart';
+export 'src/messaging/mock_conversation_repository.dart';
+export 'src/projects/mock_project_repository.dart';
