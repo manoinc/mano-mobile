@@ -5,8 +5,7 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import 'config.dart';
-import 'screens/home_screen.dart';
-import 'screens/sign_in_screen.dart';
+import 'shell/app_router.dart';
 
 void main() {
   // Hold Android's splash until Flutter has painted. Without this there is a
@@ -29,27 +28,13 @@ void main() {
   );
 }
 
-class RequesterApp extends StatelessWidget {
-  const RequesterApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Mano',
-      debugShowCheckedModeBanner: false,
-      theme: ManoTheme.light(),
-      darkTheme: ManoTheme.dark(),
-      home: const _Root(),
-    );
-  }
-}
-
-/// The app, once it has opened.
+/// The app.
 ///
-/// Wraps everything in [ManoOpening] so the brand is what a cold start shows,
-/// rather than the spinner that used to live here.
-class _Root extends ConsumerWidget {
-  const _Root();
+/// Where to go is the router's business ([requesterRouterProvider] redirects
+/// on the session). What wraps it is this widget's: everything the router
+/// matches sits inside [ManoOpening], so the brand is what a cold start shows.
+class RequesterApp extends ConsumerWidget {
+  const RequesterApp({super.key});
 
   /// Whether the opening has already played in this process.
   ///
@@ -60,45 +45,35 @@ class _Root extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(requesterRouterProvider);
     final state = ref.watch(sessionProvider);
 
-    return ManoOpening(
-      animate: !_opened,
-      // A cold start is usually still restoring a session. Until it resolves
-      // there is nothing worth opening onto, so the sequence waits on its
-      // finished lockup instead.
-      ready: state.hasError || state.value != null,
-      onFirstFrame: () {
-        FlutterNativeSplash.remove();
-        _opened = true;
-      },
-      child: _screen(state),
+    return MaterialApp.router(
+      title: 'Mano',
+      debugShowCheckedModeBanner: false,
+      theme: ManoTheme.light(),
+      darkTheme: ManoTheme.dark(),
+      routerConfig: router,
+      builder: (context, child) => ManoOpening(
+        animate: !_opened,
+        // A cold start is usually still restoring a session. Until it resolves
+        // there is nothing worth opening onto, so the sequence waits on its
+        // finished lockup instead -- the routed screen mounts underneath,
+        // fully hidden.
+        ready: state.hasError || state.value != null,
+        onFirstFrame: () {
+          FlutterNativeSplash.remove();
+          _opened = true;
+        },
+        child: switch (state) {
+          // Something threw. Because every failure the app expects is
+          // returned as a value, reaching here means a bug -- so it is
+          // reported as one rather than dressed up as a friendly message.
+          AsyncError(:final error) => _Crashed(error: error),
+          _ => child ?? const SizedBox.shrink(),
+        },
+      ),
     );
-  }
-
-  /// Chooses a screen from the session, and nothing else.
-  ///
-  /// No router yet, deliberately: there is one screen per state, so a redirect
-  /// table would be indirection without a purpose. `go_router` earns its place
-  /// once a signed-in Solicitante has somewhere to navigate to.
-  ///
-  /// The switch is exhaustive in both directions. A new [SessionState] case, or
-  /// a new [AsyncValue] case, breaks this file at compile time instead of
-  /// silently rendering a blank screen.
-  static Widget _screen(AsyncValue<SessionState> state) {
-    // Something threw. Because every failure the app expects is returned as a
-    // value, reaching here means a bug -- so it is reported as one rather than
-    // dressed up as a friendly message.
-    if (state case AsyncError(:final error)) {
-      return _Crashed(error: error);
-    }
-
-    return switch (state.value) {
-      SignedIn(:final session) => HomeScreen(session: session),
-      SignedOut(:final lastFailure) => SignInScreen(failure: lastFailure),
-      // Still restoring; the opening is holding.
-      null => const SizedBox.shrink(),
-    };
   }
 }
 
