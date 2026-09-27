@@ -1,0 +1,121 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mano_ui/mano_ui.dart';
+
+Widget _host(Widget child) => MaterialApp(
+  theme: ManoTheme.light(),
+  home: Scaffold(body: Center(child: child)),
+);
+
+void main() {
+  const items = [
+    ManoNavItem(icon: Icons.home_outlined, label: 'Inicio'),
+    ManoNavItem(icon: Icons.work_outline, label: 'Trabajos'),
+    ManoNavItem(icon: Icons.chat_bubble_outline, label: 'Mensajes'),
+    ManoNavItem(icon: Icons.person_outline, label: 'Perfil'),
+  ];
+
+  group('the bottom nav bar', () {
+    testWidgets('renders every item label', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          ManoBottomNavBar(
+            items: items,
+            currentIndex: 0,
+            onTap: (_) {},
+            onActionTap: () {},
+          ),
+        ),
+      );
+
+      for (final item in items) {
+        expect(find.text(item.label), findsOneWidget);
+      }
+    });
+
+    testWidgets('renders a distinct center action, separate from item icons', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          ManoBottomNavBar(
+            items: items,
+            currentIndex: 0,
+            onTap: (_) {},
+            onActionTap: () {},
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.add), findsOneWidget);
+    });
+
+    testWidgets(
+      'tapping a side item calls onTap with its index, never onActionTap',
+      (tester) async {
+        int? tapped;
+        var actionTaps = 0;
+        await tester.pumpWidget(
+          _host(
+            ManoBottomNavBar(
+              items: items,
+              currentIndex: 0,
+              onTap: (index) => tapped = index,
+              onActionTap: () => actionTaps++,
+            ),
+          ),
+        );
+
+        await tester.tap(find.text(items[2].label));
+        await tester.pumpAndSettle();
+
+        expect(tapped, 2);
+        expect(actionTaps, 0);
+      },
+    );
+
+    testWidgets('tapping the center action calls onActionTap, never onTap', (
+      tester,
+    ) async {
+      var tapCalls = 0;
+      var actionTaps = 0;
+      await tester.pumpWidget(
+        _host(
+          ManoBottomNavBar(
+            items: items,
+            currentIndex: 0,
+            onTap: (_) => tapCalls++,
+            onActionTap: () => actionTaps++,
+          ),
+        ),
+      );
+
+      await tester.tap(find.byIcon(Icons.add));
+      await tester.pumpAndSettle();
+
+      expect(actionTaps, 1);
+      expect(tapCalls, 0);
+    });
+
+    testWidgets('tints the selected item flame and an unselected item faint', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          ManoBottomNavBar(
+            items: items,
+            currentIndex: 1,
+            onTap: (_) {},
+            onActionTap: () {},
+          ),
+        ),
+      );
+
+      final selected = tester.widget<Icon>(find.byIcon(items[1].icon));
+      final unselected = tester.widget<Icon>(find.byIcon(items[0].icon));
+
+      expect(selected.color, ManoColors.flame);
+      expect(unselected.color, ManoColors.faint);
+    });
+  });
+}

@@ -20,6 +20,8 @@ export 'src/brand/mano_wordmark.dart';
 export 'src/theme/mano_motion.dart';
 export 'src/theme/mano_theme.dart';
 export 'src/theme/mano_typography.dart';
+export 'src/widgets/mano_avatar.dart';
+export 'src/widgets/mano_bottom_nav_bar.dart';
 export 'src/widgets/mano_detail_row.dart';
 export 'src/widgets/mano_hero_scaffold.dart';
 export 'src/widgets/mano_notice.dart';
