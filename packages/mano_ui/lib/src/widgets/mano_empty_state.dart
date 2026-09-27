@@ -1,0 +1,48 @@
+import 'package:flutter/material.dart';
+
+import '../theme/mano_theme.dart';
+import 'mano_primary_button.dart';
+
+/// A centered "nothing here yet" placeholder with one way forward.
+///
+/// Takes an icon, a message and a CTA -- no knowledge of *why* the list is
+/// empty (no projects yet, a filter matched nothing, a search came back
+/// blank). The screen decides the wording; this widget only lays it out.
+class ManoEmptyState extends StatelessWidget {
+  const ManoEmptyState({
+    required this.icon,
+    required this.message,
+    required this.ctaLabel,
+    required this.onCta,
+    super.key,
+  });
+
+  final IconData icon;
+  final String message;
+  final String ctaLabel;
+  final VoidCallback onCta;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(ManoSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 56, color: ManoColors.faint),
+            const SizedBox(height: ManoSpacing.md),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge
+                  ?.copyWith(color: ManoColors.muted),
+            ),
+            const SizedBox(height: ManoSpacing.lg),
+            ManoPrimaryButton(label: ctaLabel, onPressed: onCta),
+          ],
+        ),
+      ),
+    );
+  }
+}

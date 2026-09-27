@@ -1,0 +1,140 @@
+import 'package:flutter/material.dart';
+
+import '../theme/mano_theme.dart';
+import 'mano_avatar.dart';
+
+/// How a project's status badge should read.
+///
+/// Note this is a *presentational* distinction, not `mano_domain`'s
+/// `ProjectStatus`. The screen maps a domain status to a tone (e.g.
+/// `scheduled` reads as `info`, `disputed` as `warning`); this widget only
+/// knows how a tone looks.
+enum ManoStatusTone { info, warning, success, neutral }
+
+/// A single project, as shown in the Projects tab's list.
+///
+/// Takes only strings, a tone and a callback -- no `Project` entity, no date
+/// or currency formatting. `scheduledLabel` and `priceLabel` arrive
+/// pre-formatted because turning a `DateTime` into "Mar 12, 3:00 p.m." needs a
+/// locale, which is a screen-level concern.
+class ManoProjectCard extends StatelessWidget {
+  const ManoProjectCard({
+    required this.title,
+    required this.professionalName,
+    required this.professionalPhotoUrl,
+    required this.statusLabel,
+    required this.statusTone,
+    required this.scheduledLabel,
+    required this.priceLabel,
+    required this.onTap,
+    super.key,
+  });
+
+  final String title;
+  final String professionalName;
+  final String professionalPhotoUrl;
+
+  /// Pre-formatted, e.g. "Programado".
+  final String statusLabel;
+  final ManoStatusTone statusTone;
+
+  /// Pre-formatted, e.g. "Mar 12, 3:00 p.m.".
+  final String scheduledLabel;
+
+  /// Pre-formatted, e.g. "$80.000 COP".
+  final String priceLabel;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    // `success` has no brand token -- green reads as "done" everywhere else
+    // in the product a user might have seen, and `primaryContainer` is
+    // flame's territory, already spent on the one primary action per screen.
+    final (background, foreground) = switch (statusTone) {
+      ManoStatusTone.info || ManoStatusTone.neutral => (
+        scheme.surfaceContainerHighest,
+        scheme.onSurface,
+      ),
+      ManoStatusTone.warning => (
+        scheme.tertiaryContainer,
+        scheme.onTertiaryContainer,
+      ),
+      ManoStatusTone.success => (Colors.green.shade100, Colors.green.shade900),
+    };
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(ManoSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  ManoAvatar(photoUrl: professionalPhotoUrl, size: 40),
+                  const SizedBox(width: ManoSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      professionalName,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: scheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: ManoSpacing.sm),
+                  Container(
+                    key: const Key('mano-project-card-status-badge'),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: ManoSpacing.sm,
+                      vertical: ManoSpacing.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: background,
+                      borderRadius: BorderRadius.circular(ManoRadius.pill),
+                    ),
+                    child: Text(
+                      statusLabel,
+                      style: textTheme.labelSmall?.copyWith(color: foreground),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: ManoSpacing.sm),
+              Text(
+                title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: textTheme.bodyLarge?.copyWith(color: scheme.onSurface),
+              ),
+              const SizedBox(height: ManoSpacing.xs),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    scheduledLabel,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                  Text(
+                    priceLabel,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: scheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
