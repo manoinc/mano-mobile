@@ -20,7 +20,7 @@ final class MockProjectRepository implements ProjectRepository {
       professionalName: 'Juan García',
       professionalPhotoUrl: 'https://i.pravatar.cc/150?u=juan-garcia',
       status: ProjectStatus.inProgress,
-      scheduledAt: DateTime(2026, 9, 25, 14, 0),
+      scheduledAt: DateTime(2026, 9, 29, 14, 0),
       address: 'Cll 72 No. 8-45, Usaquén, Bogotá',
       priceCents: 7500000,
     ),
