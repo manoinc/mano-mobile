@@ -138,4 +138,29 @@ void main() {
 
     expect(find.text('Muy pronto'), findsOneWidget);
   });
+
+  testWidgets(
+    'shows a filter-specific empty message (not the "never requested a service" one) when the user has projects but none match the selected filter',
+    (tester) async {
+      // Only scheduled projects -- "Cancelados" will match none of them,
+      // even though the user plainly has requested service before.
+      final onlyScheduled = _fakeProjects
+          .where((project) => project.status == ProjectStatus.scheduled)
+          .toList();
+      await _host(tester, projects: onlyScheduled);
+
+      final cancelTab = find.text('Cancelados');
+      await tester.ensureVisible(cancelTab);
+      await tester.pumpAndSettle();
+      await tester.tap(cancelTab);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Aún no has solicitado ningún servicio'),
+        findsNothing,
+      );
+      expect(find.text('Solicita tu primer servicio'), findsNothing);
+      expect(find.text('No hay proyectos en esta categoría.'), findsOneWidget);
+    },
+  );
 }

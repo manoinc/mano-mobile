@@ -35,8 +35,9 @@ class ManoEmptyState extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge
-                  ?.copyWith(color: ManoColors.muted),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: ManoSpacing.lg),
             ManoPrimaryButton(label: ctaLabel, onPressed: onCta),

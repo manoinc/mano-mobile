@@ -7,6 +7,11 @@ Widget _host(Widget child) => MaterialApp(
   home: Scaffold(body: Center(child: child)),
 );
 
+Widget _darkHost(Widget child) => MaterialApp(
+  theme: ManoTheme.dark(),
+  home: Scaffold(body: Center(child: child)),
+);
+
 void main() {
   group('the empty state', () {
     testWidgets('renders the message, the icon and the CTA label', (
@@ -46,5 +51,29 @@ void main() {
 
       expect(taps, 1);
     });
+
+    testWidgets(
+      'renders the message in the dark-mode-appropriate color, not the hard-coded light one',
+      (tester) async {
+        await tester.pumpWidget(
+          _darkHost(
+            ManoEmptyState(
+              icon: Icons.work_outline,
+              message: 'Aún no tienes proyectos',
+              ctaLabel: 'Explorar servicios',
+              onCta: () {},
+            ),
+          ),
+        );
+
+        final message = tester.widget<Text>(
+          find.text('Aún no tienes proyectos'),
+        );
+        final darkOnSurfaceVariant = ManoTheme.dark().colorScheme.onSurfaceVariant;
+
+        expect(message.style?.color, isNot(ManoColors.muted));
+        expect(message.style?.color, darkOnSurfaceVariant);
+      },
+    );
   });
 }

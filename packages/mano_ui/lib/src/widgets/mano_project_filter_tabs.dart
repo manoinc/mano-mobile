@@ -57,6 +57,8 @@ class _FilterPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -69,14 +71,15 @@ class _FilterPill extends StatelessWidget {
             vertical: ManoSpacing.sm,
           ),
           decoration: BoxDecoration(
-            color: selected ? ManoColors.flame : ManoColors.stone,
+            color: selected ? ManoColors.flame : scheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(ManoRadius.pill),
           ),
           alignment: Alignment.center,
           child: Text(
             label,
-            style: Theme.of(context).textTheme.labelLarge
-                ?.copyWith(color: selected ? Colors.white : ManoColors.muted),
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: selected ? Colors.white : scheme.onSurface,
+            ),
           ),
         ),
       ),

@@ -40,12 +40,12 @@ class ProfileTabScreen extends ConsumerWidget {
       color: theme.colorScheme.outlineVariant,
     );
 
-    // AuthenticatedUser has no photo-URL field yet -- see this task's
-    // self-review notes: a real one belongs here once the backend provides
-    // it, added in its own task rather than smuggled in with this screen.
-    final photoUrl =
-        'https://i.pravatar.cc/150?u=${user?.subject ?? 'mano-user'}';
-
+    // AuthenticatedUser has no photo-URL field yet -- a real one belongs
+    // here once the backend provides it, added in its own task. Until then
+    // this passes no photo at all: inventing one (e.g. from `user.subject`)
+    // would leak the real signed-in user's identifier to a third party and
+    // show them a stranger's face as their own. `ManoProfileHeader` and
+    // `ManoAvatar` render their stone-circle fallback for `null`.
     return Scaffold(
       body: SafeArea(
         child: ListView(
@@ -53,7 +53,7 @@ class ProfileTabScreen extends ConsumerWidget {
           children: [
             ManoProfileHeader(
               name: user?.displayName ?? 'Solicitante',
-              photoUrl: photoUrl,
+              photoUrl: null,
               onEdit: () => _showStub(context),
             ),
             const SizedBox(height: ManoSpacing.lg),

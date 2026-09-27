@@ -77,8 +77,11 @@ class _HomeTabScreenState extends ConsumerState<HomeTabScreen> {
           children: [
             ManoGreetingHeader(name: user?.displayName ?? 'Solicitante'),
             const SizedBox(height: ManoSpacing.md),
+            // There is no address feature yet, so this is a neutral
+            // placeholder label rather than invented data claiming to be the
+            // real user's actual address.
             ManoAddressPill(
-              address: 'Calle 93 #15-20, Bogotá',
+              address: 'Agrega tu dirección',
               onTap: () => _showStub(context),
             ),
             const SizedBox(height: ManoSpacing.md),

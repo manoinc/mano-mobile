@@ -36,5 +36,21 @@ void main() {
       await tester.pumpAndSettle();
       expect(taps, 1);
     });
+
+    testWidgets('renders the avatar fallback when photoUrl is null', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_host(
+        ManoProfileHeader(
+          name: 'Camila Ríos',
+          photoUrl: null,
+          onEdit: () {},
+        ),
+      ));
+
+      expect(find.text('Camila Ríos'), findsOneWidget);
+      expect(find.byIcon(Icons.person), findsOneWidget);
+      expect(find.byType(Image), findsNothing);
+    });
   });
 }

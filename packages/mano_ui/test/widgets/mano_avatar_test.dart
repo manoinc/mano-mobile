@@ -61,5 +61,15 @@ void main() {
       expect(image.errorBuilder, isNotNull);
       expect(image.loadingBuilder, isNotNull);
     });
+
+    testWidgets(
+      'renders the stone-circle-and-person-icon fallback when photoUrl is null, without fetching an Image',
+      (tester) async {
+        await tester.pumpWidget(_host(const ManoAvatar(photoUrl: null)));
+
+        expect(find.byType(Image), findsNothing);
+        expect(find.byIcon(Icons.person), findsOneWidget);
+      },
+    );
   });
 }

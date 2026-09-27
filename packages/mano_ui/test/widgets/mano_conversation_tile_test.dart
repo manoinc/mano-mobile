@@ -7,6 +7,11 @@ Widget _host(Widget child) => MaterialApp(
       home: Scaffold(body: Center(child: child)),
     );
 
+Widget _darkHost(Widget child) => MaterialApp(
+      theme: ManoTheme.dark(),
+      home: Scaffold(body: Center(child: child)),
+    );
+
 void main() {
   group('the conversation tile', () {
     testWidgets('shows the name, snippet and timestamp', (tester) async {
@@ -117,5 +122,31 @@ void main() {
       expect(find.byKey(const Key('mano-conversation-tile-unread-badge')), findsOneWidget);
       expect(find.text('3'), findsOneWidget);
     });
+
+    testWidgets(
+      'renders the snippet in the dark-mode-appropriate color, not the hard-coded light one',
+      (tester) async {
+        await tester.pumpWidget(_darkHost(
+          ManoConversationTile(
+            avatarUrl: 'https://example.com/a.png',
+            online: false,
+            verified: false,
+            name: 'Camila Ríos',
+            snippet: 'Nos vemos mañana a las 10',
+            timestampLabel: '5m',
+            unreadCount: 0,
+            onTap: () {},
+          ),
+        ));
+
+        final snippet = tester.widget<Text>(
+          find.text('Nos vemos mañana a las 10'),
+        );
+        final darkOnSurfaceVariant = ManoTheme.dark().colorScheme.onSurfaceVariant;
+
+        expect(snippet.style?.color, isNot(ManoColors.muted));
+        expect(snippet.style?.color, darkOnSurfaceVariant);
+      },
+    );
   });
 }

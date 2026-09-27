@@ -17,36 +17,40 @@ class ManoAvatar extends StatelessWidget {
     super.key,
   });
 
-  final String photoUrl;
+  /// `null` renders the same stone-circle-and-person-icon fallback as a
+  /// failed network load -- there is no photo to fetch, so this skips
+  /// `Image.network` entirely rather than requesting a URL that isn't there.
+  final String? photoUrl;
   final double size;
 
   /// `null` = no online indicator at all. `true`/`false` shows the dot.
   final bool? online;
 
+  Widget _fallback() => ColoredBox(
+    color: ManoColors.stone,
+    child: Center(
+      child: Icon(Icons.person, color: ManoColors.faint, size: size * 0.6),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
+    final url = photoUrl;
     final photo = ClipOval(
       child: SizedBox(
         width: size,
         height: size,
-        child: Image.network(
-          photoUrl,
-          fit: BoxFit.cover,
-          loadingBuilder: (context, child, progress) {
-            if (progress == null) return child;
-            return ColoredBox(color: ManoColors.stone);
-          },
-          errorBuilder: (context, error, stackTrace) => ColoredBox(
-            color: ManoColors.stone,
-            child: Center(
-              child: Icon(
-                Icons.person,
-                color: ManoColors.faint,
-                size: size * 0.6,
+        child: url == null
+            ? _fallback()
+            : Image.network(
+                url,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, progress) {
+                  if (progress == null) return child;
+                  return ColoredBox(color: ManoColors.stone);
+                },
+                errorBuilder: (context, error, stackTrace) => _fallback(),
               ),
-            ),
-          ),
-        ),
       ),
     );
 

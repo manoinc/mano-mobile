@@ -17,7 +17,10 @@ class ManoProfileHeader extends StatelessWidget {
   });
 
   final String name;
-  final String photoUrl;
+
+  /// `null` when there is no real photo to show -- `ManoAvatar` renders its
+  /// stone-circle-and-person-icon fallback rather than a stranger's photo.
+  final String? photoUrl;
   final VoidCallback onEdit;
 
   @override

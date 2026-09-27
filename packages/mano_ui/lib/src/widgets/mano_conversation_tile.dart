@@ -39,6 +39,7 @@ class ManoConversationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
 
     return InkWell(
       onTap: onTap,
@@ -81,7 +82,9 @@ class ManoConversationTile extends StatelessWidget {
                     snippet,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: textTheme.bodySmall?.copyWith(color: ManoColors.muted),
+                    style: textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),

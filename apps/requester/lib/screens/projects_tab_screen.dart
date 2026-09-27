@@ -114,12 +114,14 @@ class _ProjectsTabScreenState extends ConsumerState<ProjectsTabScreen> {
                 child: projects.when(
                   data: (items) {
                     final status = _statusFor(_selectedFilterIndex);
+                    final filtered = status == null
+                        ? items
+                        : items
+                              .where((project) => project.status == status)
+                              .toList();
                     return _ProjectList(
-                      projects: status == null
-                          ? items
-                          : items
-                                .where((project) => project.status == status)
-                                .toList(),
+                      allProjects: items,
+                      filteredProjects: filtered,
                     );
                   },
                   loading: () =>
@@ -136,19 +138,25 @@ class _ProjectsTabScreenState extends ConsumerState<ProjectsTabScreen> {
   }
 }
 
-/// Renders the filtered project list, or the shared empty state when it's
-/// empty -- whether that's because there are genuinely no projects, or
-/// because the active filter matched none. Deliberately one empty state for
-/// both cases: the widget's copy already covers it, so a second,
-/// filter-specific message would be unused ceremony.
+/// Renders the filtered project list, or an empty state when it's empty --
+/// distinguishing *why* it's empty, because the two cases say different
+/// things:
+///
+/// - The user genuinely has zero projects: the "you haven't requested any
+///   service yet" copy, with the "request your first service" CTA.
+/// - The user has projects, but none match the selected filter (e.g. no
+///   canceled jobs): a filter-specific message with no CTA, since offering
+///   to "request your first service" would be nonsensical for someone who
+///   plainly already has.
 class _ProjectList extends StatelessWidget {
-  const _ProjectList({required this.projects});
+  const _ProjectList({required this.allProjects, required this.filteredProjects});
 
-  final List<Project> projects;
+  final List<Project> allProjects;
+  final List<Project> filteredProjects;
 
   @override
   Widget build(BuildContext context) {
-    if (projects.isEmpty) {
+    if (allProjects.isEmpty) {
       return ManoEmptyState(
         icon: Icons.pan_tool_outlined,
         message: 'Aún no has solicitado ningún servicio',
@@ -157,12 +165,27 @@ class _ProjectList extends StatelessWidget {
       );
     }
 
+    if (filteredProjects.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(ManoSpacing.lg),
+          child: Text(
+            'No hay proyectos en esta categoría.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      );
+    }
+
     return ListView.separated(
-      itemCount: projects.length,
+      itemCount: filteredProjects.length,
       separatorBuilder: (context, index) =>
           const SizedBox(height: ManoSpacing.sm),
       itemBuilder: (context, index) {
-        final project = projects[index];
+        final project = filteredProjects[index];
         final (statusLabel, statusTone) = _badgeFor(project.status);
         return ManoProjectCard(
           title: project.title,

@@ -105,4 +105,14 @@ void main() {
     expect(repository.signOutCalls, 1);
     expect(find.text('Muy pronto'), findsNothing);
   });
+
+  testWidgets(
+    'does not fetch a network photo for the header -- no real photo exists yet, and inventing one from the subject would leak it',
+    (tester) async {
+      await _host(tester);
+
+      expect(find.byType(Image), findsNothing);
+      expect(find.byIcon(Icons.person), findsOneWidget);
+    },
+  );
 }
