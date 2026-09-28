@@ -7,7 +7,7 @@ final class MockConversationRepository implements ConversationRepository {
     Conversation(
       id: 'conv-1',
       participantName: 'Ana Gómez',
-      participantPhotoUrl: 'https://i.pravatar.cc/150?u=ana-gomez',
+      participantPhotoUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
       isOnline: true,
       isVerified: true,
       lastMessage: '¿Aún disponible para el jueves?',
@@ -17,7 +17,7 @@ final class MockConversationRepository implements ConversationRepository {
     Conversation(
       id: 'conv-2',
       participantName: 'Luis Martínez',
-      participantPhotoUrl: 'https://i.pravatar.cc/150?u=luis-martinez',
+      participantPhotoUrl: 'https://randomuser.me/api/portraits/men/76.jpg',
       isOnline: false,
       isVerified: true,
       lastMessage: 'Perfecto, te veo mañana.',
@@ -27,7 +27,7 @@ final class MockConversationRepository implements ConversationRepository {
     Conversation(
       id: 'conv-3',
       participantName: 'María Rodríguez',
-      participantPhotoUrl: 'https://i.pravatar.cc/150?u=maria-rodriguez',
+      participantPhotoUrl: 'https://randomuser.me/api/portraits/women/58.jpg',
       isOnline: true,
       isVerified: false,
       lastMessage: 'El precio te parece bien?',
@@ -37,7 +37,7 @@ final class MockConversationRepository implements ConversationRepository {
     Conversation(
       id: 'conv-4',
       participantName: 'Fernando López',
-      participantPhotoUrl: 'https://i.pravatar.cc/150?u=fernando-lopez',
+      participantPhotoUrl: 'https://randomuser.me/api/portraits/men/12.jpg',
       isOnline: false,
       isVerified: true,
       lastMessage: 'Listo, tomo nota de eso.',
@@ -47,7 +47,7 @@ final class MockConversationRepository implements ConversationRepository {
     Conversation(
       id: 'conv-5',
       participantName: 'Catalina Pérez',
-      participantPhotoUrl: 'https://i.pravatar.cc/150?u=catalina-perez',
+      participantPhotoUrl: 'https://randomuser.me/api/portraits/women/33.jpg',
       isOnline: true,
       isVerified: false,
       lastMessage: 'Gracias por tu ayuda, muy profesional.',
@@ -57,7 +57,7 @@ final class MockConversationRepository implements ConversationRepository {
     Conversation(
       id: 'conv-6',
       participantName: 'Jorge Sánchez',
-      participantPhotoUrl: 'https://i.pravatar.cc/150?u=jorge-sanchez',
+      participantPhotoUrl: 'https://randomuser.me/api/portraits/men/89.jpg',
       isOnline: false,
       isVerified: false,
       lastMessage: 'Cuándo puedo pasar por tu oficina?',

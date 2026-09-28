@@ -117,5 +117,96 @@ void main() {
       expect(selected.color, ManoColors.flame);
       expect(unselected.color, ManoColors.faint);
     });
+
+    testWidgets(
+      'tapping a side item shows a brief expanding ripple, then it fades away',
+      (tester) async {
+        await tester.pumpWidget(
+          _host(
+            ManoBottomNavBar(
+              items: items,
+              currentIndex: 0,
+              onTap: (_) {},
+              onActionTap: () {},
+            ),
+          ),
+        );
+
+        // At rest, no ripple is mounted at all -- it exists only mid-animation.
+        expect(find.byKey(const Key('mano-nav-item-ripple')), findsNothing);
+
+        await tester.tap(find.text(items[2].label));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 80));
+
+        final earlySize = tester
+            .getSize(find.byKey(const Key('mano-nav-item-ripple')))
+            .width;
+
+        await tester.pump(const Duration(milliseconds: 150));
+        final laterSize = tester
+            .getSize(find.byKey(const Key('mano-nav-item-ripple')))
+            .width;
+
+        expect(
+          laterSize,
+          greaterThan(earlySize),
+          reason: 'a droplet ripple spreads outward as it plays',
+        );
+
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const Key('mano-nav-item-ripple')),
+          findsNothing,
+          reason: 'the ripple fades out and unmounts once it finishes',
+        );
+      },
+    );
+
+    testWidgets(
+      'tapping a side item wiggles it briefly, then it settles level',
+      (tester) async {
+        await tester.pumpWidget(
+          _host(
+            ManoBottomNavBar(
+              items: items,
+              currentIndex: 0,
+              onTap: (_) {},
+              onActionTap: () {},
+            ),
+          ),
+        );
+
+        // `AnimatedScale` also wraps its child in a `Transform` internally,
+        // so more than one is an ancestor of the label -- `.first` is the
+        // innermost, which is the wiggle's own.
+        Matrix4 rotationOf(String label) => tester
+            .widget<Transform>(
+              find
+                  .ancestor(of: find.text(label), matching: find.byType(Transform))
+                  .first,
+            )
+            .transform;
+
+        expect(rotationOf(items[2].label), Matrix4.identity());
+
+        await tester.tap(find.text(items[2].label));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 80));
+
+        expect(
+          rotationOf(items[2].label),
+          isNot(Matrix4.identity()),
+          reason: 'mid-flight the tapped icon should be tilted, not level',
+        );
+
+        await tester.pumpAndSettle();
+        expect(
+          rotationOf(items[2].label),
+          Matrix4.identity(),
+          reason: 'the wiggle is a brief detail, not a resting tilt',
+        );
+      },
+    );
   });
 }

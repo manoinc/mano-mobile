@@ -91,10 +91,10 @@ class ManoBottomNavBar extends StatelessWidget {
   }
 }
 
-/// A side item's hit area: the button's press feedback, adapted to a tap.
-///
-/// `InkResponse` rather than `InkWell` -- nav items are compact, roughly
-/// circular targets, not a rectangular tile.
+/// A side item's hit area: a ripple that spreads and fades like a drop
+/// landing on still water, plus a brief wiggle on the icon -- rather than the
+/// platform's own ink splash, which reads as a hard-edged square once it hits
+/// the narrow column each item sits in.
 class _TappableNavItem extends StatefulWidget {
   const _TappableNavItem({required this.child, required this.onTap});
 
@@ -105,11 +105,44 @@ class _TappableNavItem extends StatefulWidget {
   State<_TappableNavItem> createState() => _TappableNavItemState();
 }
 
-class _TappableNavItemState extends State<_TappableNavItem> {
+class _TappableNavItemState extends State<_TappableNavItem>
+    with TickerProviderStateMixin {
   bool _down = false;
+
+  late final AnimationController _rippleController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 450),
+  );
+
+  late final AnimationController _wiggleController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 350),
+  );
+
+  /// A small tilt one way, a smaller one back, then level -- big enough to
+  /// read as a wiggle, small enough to stay a detail rather than a gesture.
+  late final Animation<double> _wiggle =
+      TweenSequence<double>([
+        TweenSequenceItem(tween: Tween(begin: 0, end: -0.12), weight: 1),
+        TweenSequenceItem(tween: Tween(begin: -0.12, end: 0.08), weight: 1),
+        TweenSequenceItem(tween: Tween(begin: 0.08, end: 0), weight: 1),
+      ]).animate(CurvedAnimation(parent: _wiggleController, curve: Curves.easeOut));
 
   void _set(bool down) {
     if (_down != down) setState(() => _down = down);
+  }
+
+  void _handleTap() {
+    _rippleController.forward(from: 0);
+    _wiggleController.forward(from: 0);
+    widget.onTap();
+  }
+
+  @override
+  void dispose() {
+    _rippleController.dispose();
+    _wiggleController.dispose();
+    super.dispose();
   }
 
   @override
@@ -118,18 +151,47 @@ class _TappableNavItemState extends State<_TappableNavItem> {
       onPointerDown: (_) => _set(true),
       onPointerUp: (_) => _set(false),
       onPointerCancel: (_) => _set(false),
-      child: AnimatedScale(
-        scale: _down ? 0.97 : 1,
-        duration: ManoMotion.quick,
-        curve: ManoMotion.entrance,
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkResponse(
-            onTap: widget.onTap,
-            radius: 32,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: ManoSpacing.sm),
-              child: widget.child,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _handleTap,
+        child: AnimatedScale(
+          scale: _down ? 0.97 : 1,
+          duration: ManoMotion.quick,
+          curve: ManoMotion.entrance,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: ManoSpacing.sm),
+            child: Stack(
+              alignment: Alignment.center,
+              clipBehavior: Clip.none,
+              children: [
+                AnimatedBuilder(
+                  animation: _rippleController,
+                  builder: (context, _) {
+                    final t = _rippleController.value;
+                    if (t <= 0 || t >= 1) return const SizedBox.shrink();
+                    final eased = Curves.easeOut.transform(t);
+                    final diameter = 12 + eased * 44;
+                    return Opacity(
+                      opacity: (1 - t).clamp(0.0, 1.0),
+                      child: Container(
+                        key: const Key('mano-nav-item-ripple'),
+                        width: diameter,
+                        height: diameter,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: ManoColors.flame.withValues(alpha: 0.18),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                AnimatedBuilder(
+                  animation: _wiggle,
+                  builder: (context, child) =>
+                      Transform.rotate(angle: _wiggle.value, child: child),
+                  child: widget.child,
+                ),
+              ],
             ),
           ),
         ),
