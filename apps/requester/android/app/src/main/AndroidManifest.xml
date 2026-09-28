@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required for the local gateway (adb reverse) and for loading network
+         images (ManoAvatar, listing photos). Android enforces this on a real
+         device even though some emulators are lenient without it. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="Mano"
         android:name="${applicationName}"
