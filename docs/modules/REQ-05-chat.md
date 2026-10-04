@@ -9,16 +9,16 @@
 
 `ChatScreen` is made of:
 
-- **App bar.** `ManoAvatar` (36, with the online dot), the participant's name, and a clay `Icons.verified` badge when `Conversation.isVerified`. It reads `conversationsProvider` and stays blank until that list resolves.
-- **Thread.** `ChatThreadView` (`features/chat/chat_thread_view.dart`) draws a reversed `ListView`, so it opens on the newest message and stays pinned there as messages arrive. Rows are built oldest first, a `ManoFormat.dayMonth` label is inserted whenever the day changes, and then the list is reversed.
-  - Confirmed message: `ManoChatBubble(mine: fromMe, timeLabel: ManoFormat.time(sentAt))`.
-  - Pending: the same bubble at 0.55 opacity with "Enviando…" (`Key('chat-item-pending')`).
-  - Failed: the faded bubble plus "No se envió. Toca para reintentar." in the error colour. Tapping the row retries (`Key('chat-item-failed')`).
+- **App bar.** `ManoChatHeader` (avatar with the online dot, name, clay verified badge). It reads `conversationsProvider` and stays blank until that list resolves.
+- **Thread.** `ManoChatThread` from `mano_ui`; the screen only maps each `ChatThreadItem` to a `ManoChatEntry` (`sent`, `pending` or `failed`). See [PROV-06](PROV-06-chat.md#shared-widgets) for the widget's behaviour: reversed list, day separators, "Enviando…", tap-to-retry.
 - **Composer.** `ManoMessageComposer` sits at the bottom of a `Column` inside `SafeArea(top: false)`. The Scaffold resizes for the keyboard, so the composer stays above it.
+- **Leaving.** A `PopScope` invalidates `conversationsProvider` on pop, so Bandeja shows the latest snippet.
 - **States.**
   - Loading: a spinner.
   - Empty: "Escribe el primer mensaje", with the composer still shown.
-  - Error: "No se pudo cargar la conversación." with a `ManoQuietButton` "Reintentar" that invalidates the thread.
+  - Error: `ManoEmptyState` "No se pudo cargar la conversación." with "Reintentar", which invalidates the thread.
+
+Bandeja is built on `ManoRefreshList` with `ManoFormat.relative` timestamps; its load error offers "Reintentar".
 
 ## State flow
 
@@ -49,6 +49,7 @@ What invalidates what:
 | Trigger | Invalidates |
 |---|---|
 | Chat opened (thread built) and `markRead` succeeds | `conversationsProvider` |
+| Leaving the chat (pop) | `conversationsProvider` |
 | Pull-to-refresh in Bandeja | `conversationsProvider` (`ref.refresh(...future)`) |
 | "Reintentar" on a load error | `chatThreadProvider(id)` |
 | Leaving the chat | `chatThreadProvider(id)` auto-disposes; the `watch` subscription is cancelled |
@@ -62,7 +63,7 @@ What invalidates what:
 
 ## Shared widgets
 
-None were added. The module uses `ManoChatBubble`, `ManoMessageComposer`, `ManoAvatar`, `ManoConversationTile`, `ManoQuietButton` and `ManoFormat`.
+PROV-06 extracted `ManoChatThread`, `ManoChatHeader`, `ManoRefreshList` and `ManoFormat.relative` from this module; both apps now use them, plus `ManoMessageComposer`, `ManoConversationTile` and `ManoEmptyState`.
 
 ## Tests
 
@@ -76,7 +77,7 @@ None were added. The module uses `ManoChatBubble`, `ManoMessageComposer`, `ManoA
   - failed send and retry
   - blank sends ignored
   - subscription cancelled on dispose
-- `apps/requester/test/features/chat/chat_screen_test.dart` (9 tests):
+- `apps/requester/test/features/chat/chat_screen_test.dart` (10 tests):
   - header name and verified badge
   - bubbles, day separators and time labels
   - empty state
@@ -86,11 +87,12 @@ None were added. The module uses `ManoChatBubble`, `ManoMessageComposer`, `ManoA
   - live incoming message
   - default mock reply after about 2 s
   - Bandeja tile opens `/inbox/conv-1`
+  - leaving the chat refreshes the Bandeja snippet
 - `apps/requester/test/screens/inbox_tab_screen_test.dart`: two pull-to-refresh tests, one for a populated list and one for an empty list.
 - `apps/requester/integration_test/chat_flow_test.dart` (device test), signed in with the default mocks: Bandeja → first conversation → "Hola" → bubble → simulated reply within about 3 s.
 
 ## Backend gaps blocking go-live
 
 - The gateway has no conversations or messaging API (see `docs/backend-contract.md`). Both ports are mock only, and a `GatewayChatRepository` needs a real-time transport, for example a GraphQL subscription or WebSocket for `watch`.
-- `MockConversationRepository` is static. `markRead` is a no-op in `MockChatRepository`, and the list's `unreadCount` and `lastMessage` never change, so opening a chat does not visibly clear its badge until a real adapter backs both ports.
+- The mocks share state in memory only (`MockChatRepository` updates `MockConversationRepository` on read and on each message), so nothing survives a restart until real adapters back both ports.
 - `Message` has no client-generated id or delivery status. Dedupe relies on the server returning the same id on `send` and on `watch`. An idempotency key on `send` would make retries safe against duplicate delivery.

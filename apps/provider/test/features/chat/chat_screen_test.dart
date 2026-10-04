@@ -1,0 +1,207 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mano_session/mano_session.dart';
+import 'package:mano_ui/mano_ui.dart';
+
+import '../../support/fake_session_repository.dart';
+import '../../support/pump_app.dart';
+
+final class _FakeChatRepository implements ChatRepository {
+  _FakeChatRepository({this.history = const [], this.failLoads = 0});
+
+  final List<Message> history;
+  int failLoads;
+  final incoming = StreamController<Message>.broadcast();
+  final sends = <Completer<Result<Message, DataFailure>>>[];
+
+  @override
+  Future<List<Message>> messages(String conversationId) async {
+    if (failLoads > 0) {
+      failLoads--;
+      throw Exception('offline');
+    }
+    return history;
+  }
+
+  @override
+  Stream<Message> watch(String conversationId) => incoming.stream;
+
+  @override
+  Future<Result<Message, DataFailure>> send(
+    String conversationId,
+    String body,
+  ) {
+    final completer = Completer<Result<Message, DataFailure>>();
+    sends.add(completer);
+    return completer.future;
+  }
+
+  @override
+  Future<Result<void, DataFailure>> markRead(String conversationId) async =>
+      const Ok(null);
+}
+
+Message _message(String id, String body, DateTime at, {bool fromMe = false}) =>
+    Message(
+      id: id,
+      conversationId: 'conv-1',
+      body: body,
+      sentAt: at,
+      fromMe: fromMe,
+    );
+
+Future<void> _type(WidgetTester tester, String text) async {
+  await tester.enterText(find.byType(TextField), text);
+  await tester.tap(find.byKey(const Key('mano-composer-send')));
+  await tester.pump();
+}
+
+Future<dynamic> _pumpChat(WidgetTester tester, {ChatRepository? repo}) =>
+    pumpRouterAt(
+      tester,
+      '/inbox/conv-1',
+      session: FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
+      overrides: [
+        if (repo != null) chatRepositoryProvider.overrideWithValue(repo),
+      ],
+    );
+
+void main() {
+  testWidgets('the header shows the client and their verified badge', (
+    tester,
+  ) async {
+    await _pumpChat(tester);
+
+    final header = find.byType(ManoChatHeader);
+    expect(
+      find.descendant(of: header, matching: find.text('Ana Gómez')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: header, matching: find.byIcon(Icons.verified)),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('renders the history with day separators', (tester) async {
+    await _pumpChat(
+      tester,
+      repo: _FakeChatRepository(
+        history: [
+          _message('m1', 'Hola', DateTime(2026, 10, 1, 9), fromMe: true),
+          _message('m2', 'Buenos días', DateTime(2026, 10, 2, 8)),
+        ],
+      ),
+    );
+
+    expect(find.byType(ManoChatBubble), findsNWidgets(2));
+    expect(find.text('1 oct'), findsOneWidget);
+    expect(find.text('2 oct'), findsOneWidget);
+    final mine = tester.widget<ManoChatBubble>(
+      find.widgetWithText(ManoChatBubble, 'Hola'),
+    );
+    expect(mine.mine, isTrue);
+  });
+
+  testWidgets('an empty thread invites the first message', (tester) async {
+    await _pumpChat(tester, repo: _FakeChatRepository());
+
+    expect(find.text('Escribe el primer mensaje'), findsOneWidget);
+    expect(find.byType(ManoMessageComposer), findsOneWidget);
+  });
+
+  testWidgets('a failed load shows an error with retry', (tester) async {
+    await _pumpChat(
+      tester,
+      repo: _FakeChatRepository(
+        history: [_message('m1', 'Hola', DateTime(2026, 10, 1, 9))],
+        failLoads: 1,
+      ),
+    );
+
+    expect(find.text('No se pudo cargar la conversación.'), findsOneWidget);
+    await tester.tap(find.text('Reintentar'));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(ManoChatBubble, 'Hola'), findsOneWidget);
+  });
+
+  testWidgets('a sent message shows pending, then confirmed', (tester) async {
+    final repo = _FakeChatRepository();
+    await _pumpChat(tester, repo: repo);
+
+    await _type(tester, 'Voy en camino');
+    expect(find.byKey(const Key('chat-item-pending')), findsOneWidget);
+
+    repo.sends.single.complete(
+      Ok(
+        _message('m5', 'Voy en camino', DateTime(2026, 10, 1, 9), fromMe: true),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('chat-item-pending')), findsNothing);
+    expect(
+      find.widgetWithText(ManoChatBubble, 'Voy en camino'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('a failed send retries on tap', (tester) async {
+    final repo = _FakeChatRepository();
+    await _pumpChat(tester, repo: repo);
+
+    await _type(tester, 'Hola');
+    repo.sends.single.complete(const Err(DataUnavailable()));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('chat-item-failed')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('chat-item-failed')));
+    await tester.pump();
+
+    expect(repo.sends, hasLength(2));
+    expect(find.byKey(const Key('chat-item-pending')), findsOneWidget);
+  });
+
+  testWidgets('incoming messages appear live', (tester) async {
+    final repo = _FakeChatRepository();
+    await _pumpChat(tester, repo: repo);
+
+    repo.incoming.add(_message('m7', '¿Ya vienes?', DateTime(2026, 10, 1, 9)));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(ManoChatBubble, '¿Ya vienes?'), findsOneWidget);
+  });
+
+  testWidgets('leaving the chat refreshes the inbox snippet', (tester) async {
+    final container = await pumpRouterAt(
+      tester,
+      '/inbox',
+      session: FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
+    );
+
+    await tester.tap(find.text('Ana Gómez'));
+    await tester.pumpAndSettle();
+    expect(routerPath(container), '/inbox/conv-1');
+
+    await _type(tester, 'Hola, voy en camino');
+    await tester.pumpAndSettle();
+    expect(
+      find.widgetWithText(ManoChatBubble, 'Hola, voy en camino'),
+      findsOneWidget,
+    );
+
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+    const reply = '¡Recibido! Te respondo en un momento.';
+    expect(find.widgetWithText(ManoChatBubble, reply), findsOneWidget);
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    expect(routerPath(container), '/inbox');
+    expect(find.widgetWithText(ManoConversationTile, reply), findsOneWidget);
+  });
+}
