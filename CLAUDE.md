@@ -71,9 +71,11 @@ survive unplugging or an adb restart:
 adb reverse tcp:8082 tcp:8082   # mano-gateway
 ```
 
-The backend authenticates with Keycloak, but the app has no Keycloak adapter
-yet: sign-in reports "not configured", and every port except the catalog runs
-on in-memory mocks (`docs/backend-contract.md`).
+Auth: Keycloak was dropped, because it needs an in-app browser tab, which breaks
+the native feel. SuperTokens is being trialled (Flutter SDK; the Rust side is
+hand-built). Until it lands, sign-in reports "not configured", the gateway is
+anonymous, and every port except the catalog runs on in-memory mocks. Local
+gateway setup and the catalog seed are in `docs/backend-contract.md`.
 
 ## Design
 
