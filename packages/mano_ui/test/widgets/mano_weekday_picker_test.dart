@@ -42,7 +42,7 @@ void main() {
 
       expect(
         tester.getSemantics(find.text('X')),
-        containsSemantics(
+        isSemantics(
           label: 'miércoles',
           isButton: true,
           isSelected: true,
