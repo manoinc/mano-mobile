@@ -4,7 +4,7 @@ import 'package:mano_domain/mano_domain.dart';
 
 /// The composition step that matters: an adapter bound to the domain's port.
 final conversationRepositoryProvider = Provider<ConversationRepository>(
-  (ref) => const MockConversationRepository(),
+  (ref) => MockConversationRepository(),
 );
 
 final conversationsProvider = FutureProvider<List<Conversation>>(

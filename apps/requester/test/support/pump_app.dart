@@ -10,16 +10,19 @@ import 'fake_session_repository.dart';
 
 const testConfig = ManoConfig(gatewayGraphQlUrl: 'http://localhost:8082/graphql');
 
-/// Pumps the real router at [location] with fakes for whatever [overrides] replace.
+/// Pumps the real router at [location]; [session] defaults to signed out.
 Future<ProviderContainer> pumpRouterAt(
   WidgetTester tester,
   String location, {
   List<Override> overrides = const [],
+  SessionRepository? session,
 }) async {
   final container = ProviderContainer.test(
     overrides: [
       manoConfigProvider.overrideWithValue(testConfig),
-      sessionRepositoryProvider.overrideWithValue(FakeSessionRepository()),
+      sessionRepositoryProvider.overrideWithValue(
+        session ?? FakeSessionRepository(),
+      ),
       ...overrides,
     ],
   );

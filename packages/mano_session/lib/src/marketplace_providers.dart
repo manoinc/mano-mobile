@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_data/mano_data.dart';
 import 'package:mano_domain/mano_domain.dart';
 
+import 'conversation_providers.dart';
 import 'session_providers.dart';
 
 // One provider per marketplace port. The catalog is live on the gateway; the
@@ -20,16 +21,22 @@ final serviceRequestRepositoryProvider = Provider<ServiceRequestRepository>(
 );
 
 final jobRepositoryProvider = Provider<JobRepository>(
-  (ref) => MockJobRepository(),
+  (ref) =>
+      MockJobRepository(requests: ref.watch(serviceRequestRepositoryProvider)),
 );
 
 final availabilityRepositoryProvider = Provider<AvailabilityRepository>(
   (ref) => MockAvailabilityRepository(),
 );
 
-final chatRepositoryProvider = Provider<ChatRepository>(
-  (ref) => MockChatRepository(replyDelay: const Duration(seconds: 2)),
-);
+final chatRepositoryProvider = Provider<ChatRepository>((ref) {
+  // Shares the mock inbox so reads and sends show up in the conversation list.
+  final inbox = ref.watch(conversationRepositoryProvider);
+  return MockChatRepository(
+    replyDelay: const Duration(seconds: 2),
+    conversations: inbox is MockConversationRepository ? inbox : null,
+  );
+});
 
 final providerOnboardingRepositoryProvider =
     Provider<ProviderOnboardingRepository>(

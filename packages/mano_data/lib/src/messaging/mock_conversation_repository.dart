@@ -1,9 +1,11 @@
 import 'package:mano_domain/mano_domain.dart';
 
 final class MockConversationRepository implements ConversationRepository {
-  const MockConversationRepository();
+  MockConversationRepository() : _conversations = [..._fixtures];
 
-  static final List<Conversation> _conversations = [
+  final List<Conversation> _conversations;
+
+  static final List<Conversation> _fixtures = [
     Conversation(
       id: 'conv-1',
       participantName: 'Ana Gómez',
@@ -67,5 +69,33 @@ final class MockConversationRepository implements ConversationRepository {
   ];
 
   @override
-  Future<List<Conversation>> conversations() async => _conversations;
+  Future<List<Conversation>> conversations() async => List.of(_conversations);
+
+  /// Called by [MockChatRepository] when a thread is opened.
+  void markRead(String id) => _update(id, (c) => _copy(c, unreadCount: 0));
+
+  /// Called by [MockChatRepository] when a message is sent or received.
+  void recordMessage(String id, String body, DateTime at) =>
+      _update(id, (c) => _copy(c, lastMessage: body, lastMessageAt: at));
+
+  void _update(String id, Conversation Function(Conversation) change) {
+    final index = _conversations.indexWhere((c) => c.id == id);
+    if (index >= 0) _conversations[index] = change(_conversations[index]);
+  }
+
+  static Conversation _copy(
+    Conversation c, {
+    int? unreadCount,
+    String? lastMessage,
+    DateTime? lastMessageAt,
+  }) => Conversation(
+    id: c.id,
+    participantName: c.participantName,
+    participantPhotoUrl: c.participantPhotoUrl,
+    isOnline: c.isOnline,
+    isVerified: c.isVerified,
+    lastMessage: lastMessage ?? c.lastMessage,
+    lastMessageAt: lastMessageAt ?? c.lastMessageAt,
+    unreadCount: unreadCount ?? c.unreadCount,
+  );
 }

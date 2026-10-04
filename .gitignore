@@ -31,3 +31,4 @@ apps/*/pubspec.lock
 # OS
 .DS_Store
 Thumbs.db
+.claude/worktrees/

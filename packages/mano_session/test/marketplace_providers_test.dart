@@ -108,4 +108,19 @@ void main() {
       },
     );
   });
+
+  test('the default mocks share state across ports', () async {
+    final c = _container();
+    final finished =
+        (await c.read(jobRepositoryProvider).mine(status: JobStatus.finished))
+            .first;
+    final rebooked = (await c.read(jobRepositoryProvider).rebook(finished.id))
+        .valueOrNull!;
+    final requests = await c.read(serviceRequestRepositoryProvider).mine();
+    expect(requests.map((r) => r.id), contains(rebooked.id));
+
+    await c.read(chatRepositoryProvider).markRead('conv-2');
+    final convs = await c.read(conversationRepositoryProvider).conversations();
+    expect(convs.firstWhere((x) => x.id == 'conv-2').unreadCount, 0);
+  });
 }

@@ -4,7 +4,10 @@ import '../mock/mock_fixtures.dart';
 
 /// In-memory [JobRepository] enforcing the domain's lifecycle rules.
 final class MockJobRepository implements JobRepository {
-  MockJobRepository({DateTime Function()? now}) : _now = now ?? DateTime.now {
+  MockJobRepository({
+    DateTime Function()? now,
+    this._requests,
+  }) : _now = now ?? DateTime.now {
     final today = _now();
     DateTime at(int days, int hour) =>
         DateTime(today.year, today.month, today.day + days, hour);
@@ -19,6 +22,8 @@ final class MockJobRepository implements JobRepository {
   }
 
   final DateTime Function() _now;
+  // When shared, rebooked requests land where the requests list reads them.
+  final ServiceRequestRepository? _requests;
   final List<Job> _jobs = [];
   int _nextId = 100;
 
@@ -103,6 +108,9 @@ final class MockJobRepository implements JobRepository {
     if (!job.canRebook) {
       return Err(DataRejected(reason: 'job is ${job.status}'));
     }
+    const message = 'Quiero volver a contratar este servicio.';
+    final shared = _requests;
+    if (shared != null) return shared.request(job.offerId, message: message);
     return Ok(
       ServiceRequest(
         id: 'request-${_nextId++}',
@@ -110,7 +118,7 @@ final class MockJobRepository implements JobRepository {
         serviceTitle: job.serviceTitle,
         client: job.client,
         provider: job.provider,
-        message: 'Quiero volver a contratar este servicio.',
+        message: message,
         status: ServiceRequestStatus.pending,
         createdAt: _now(),
       ),

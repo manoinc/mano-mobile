@@ -6,7 +6,7 @@ void main() {
     late MockConversationRepository repository;
 
     setUp(() {
-      repository = const MockConversationRepository();
+      repository = MockConversationRepository();
     });
 
     test('conversations() returns a non-empty list', () async {
