@@ -199,6 +199,8 @@ Future<T?> showManoSheet<T>({
 }) {
   // Someone who asked for less motion still gets the sheet, just not the climb.
   final still = MediaQuery.disableAnimationsOf(context);
+  // Snackbars paint above sheets and would cover their buttons.
+  ScaffoldMessenger.maybeOf(context)?.hideCurrentSnackBar();
 
   return showModalBottomSheet<T>(
     context: context,
