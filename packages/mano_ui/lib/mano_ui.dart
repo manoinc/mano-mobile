@@ -52,6 +52,7 @@ export 'src/widgets/mano_project_card.dart';
 export 'src/widgets/mano_project_filter_tabs.dart';
 export 'src/widgets/mano_prompt_sheet.dart';
 export 'src/widgets/mano_quiet_button.dart';
+export 'src/widgets/mano_request_card.dart';
 export 'src/widgets/mano_search_field.dart';
 export 'src/widgets/mano_search_pill.dart';
 export 'src/widgets/mano_sheet.dart';
