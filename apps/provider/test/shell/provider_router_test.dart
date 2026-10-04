@@ -49,14 +49,17 @@ void main() {
     expect(find.byType(AvailabilityScreen), findsOneWidget);
   });
 
-  testWidgets('offer editor: new and existing, full screen', (tester) async {
+  // One container per test: re-pumping strands the first one's autoDispose timers.
+  testWidgets('offer editor: new, full screen', (tester) async {
     await pumpRouterAt(tester, '/services/new');
     expect(
       tester.widget<OfferEditorScreen>(find.byType(OfferEditorScreen)).offerId,
       isNull,
     );
     expect(find.byType(ManoBottomNavBar), findsNothing);
+  });
 
+  testWidgets('offer editor: existing, by id', (tester) async {
     await pumpRouterAt(tester, '/services/offer/o1');
     expect(
       tester.widget<OfferEditorScreen>(find.byType(OfferEditorScreen)).offerId,
