@@ -40,6 +40,7 @@ export 'src/widgets/mano_initials_avatar.dart';
 export 'src/widgets/mano_listing_card.dart';
 export 'src/widgets/mano_message_composer.dart';
 export 'src/widgets/mano_notice.dart';
+export 'src/widgets/mano_offer_card.dart';
 export 'src/widgets/mano_outline_button.dart';
 export 'src/widgets/mano_page_indicator.dart';
 export 'src/widgets/mano_person_row.dart';
