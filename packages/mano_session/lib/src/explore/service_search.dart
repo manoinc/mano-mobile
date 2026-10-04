@@ -5,21 +5,19 @@ import '../marketplace_providers.dart';
 
 /// What the requester is searching for; blanks mean "no filter".
 final class ServiceQuery {
-  const ServiceQuery({String? category, String text = ''})
-    : _category = category,
-      _text = text;
+  const ServiceQuery({this.category, this.text = ''});
 
-  final String? _category;
-  final String _text;
+  final String? category;
+  final String text;
 
-  String? get categoryFilter => _blankToNull(_category);
-  String? get searchText => _blankToNull(_text);
+  String? get categoryFilter => _blankToNull(category);
+  String? get searchText => _blankToNull(text);
 
   // A function so callers can clear the category, not just change it.
   ServiceQuery copyWith({String? Function()? category, String? text}) =>
       ServiceQuery(
-        category: category == null ? _category : category(),
-        text: text ?? _text,
+        category: category == null ? this.category : category(),
+        text: text ?? this.text,
       );
 
   @override

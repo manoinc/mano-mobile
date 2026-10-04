@@ -30,8 +30,7 @@ class ServiceDetailScreen extends ConsumerWidget {
         data: (service) => service == null
             ? ManoEmptyState(
                 icon: Icons.search_off,
-                message:
-                    'No encontramos este servicio. Puede que ya no esté disponible.',
+                message: 'No encontramos este servicio. Puede que ya no esté disponible.',
                 ctaLabel: 'Buscar otros servicios',
                 onCta: () => context.canPop()
                     ? context.pop()

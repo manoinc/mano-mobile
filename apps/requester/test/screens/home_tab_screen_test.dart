@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_requester/screens/home_tab_screen.dart';
+import 'package:mano_requester/shell/app_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../features/explore/fake_service_catalog.dart';
 import '../support/fake_session_repository.dart';
+import '../support/pump_app.dart';
 
-/// A tiny in-memory catalog: two categories, and listings split across them
-/// so the category-filter tests have something to prove.
+/// A tiny in-memory catalog: two categories and a listing in each.
 final class _FakeCatalogRepository implements CatalogRepository {
   const _FakeCatalogRepository();
 
@@ -64,6 +66,18 @@ Future<void> _host(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+Future<ProviderContainer> _hostRouted(WidgetTester tester) => pumpRouterAt(
+  tester,
+  '/home',
+  overrides: [
+    catalogRepositoryProvider.overrideWithValue(const _FakeCatalogRepository()),
+    serviceCatalogProvider.overrideWithValue(FakeServiceCatalog()),
+  ],
+);
+
+Map<String, String> _query(ProviderContainer container) =>
+    container.read(requesterRouterProvider).state.uri.queryParameters;
+
 void main() {
   testWidgets('greets the signed-in user by name', (tester) async {
     await _host(tester);
@@ -87,28 +101,33 @@ void main() {
     expect(find.textContaining('75.000'), findsOneWidget);
   });
 
-  testWidgets('tapping a category chip filters listings to that category', (
-    tester,
-  ) async {
-    await _host(tester);
+  testWidgets('tapping a category opens search filtered to it', (tester) async {
+    final container = await _hostRouted(tester);
 
     await tester.tap(find.text('Limpieza'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Limpieza profunda'), findsOneWidget);
-    expect(find.text('Reparación de tuberías'), findsNothing);
+    expect(routerPath(container), '/home/search');
+    expect(_query(container)['category'], 'cleaning');
   });
 
-  testWidgets('tapping the same chip again clears the filter', (tester) async {
-    await _host(tester);
+  testWidgets('"Ver todo" opens search with no filter', (tester) async {
+    final container = await _hostRouted(tester);
 
-    await tester.tap(find.text('Limpieza'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Limpieza'));
+    await tester.tap(find.text('Ver todo'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Limpieza profunda'), findsOneWidget);
-    expect(find.text('Reparación de tuberías'), findsOneWidget);
+    expect(routerPath(container), '/home/search');
+    expect(_query(container), isEmpty);
+  });
+
+  testWidgets('the search pill opens search', (tester) async {
+    final container = await _hostRouted(tester);
+
+    await tester.tap(find.byType(ManoSearchPill));
+    await tester.pumpAndSettle();
+
+    expect(routerPath(container), '/home/search');
   });
 
   testWidgets('tapping the address pill shows the stub notice', (tester) async {

@@ -7,8 +7,10 @@ import 'package:mano_ui/mano_ui.dart';
 import '../../support/pump_app.dart';
 import 'fake_service_catalog.dart';
 
-Finder _chip(String label) =>
-    find.descendant(of: find.byType(ManoCategoryRail), matching: find.text(label));
+Finder _chip(String label) => find.descendant(
+  of: find.byType(ManoCategoryRail),
+  matching: find.text(label),
+);
 
 Future<FakeServiceCatalog> _open(
   WidgetTester tester, {
@@ -66,13 +68,21 @@ void main() {
   testWidgets('a category from the route is preselected and filters', (
     tester,
   ) async {
-    final catalog = await _open(tester, location: '/home/search?category=cleaning');
+    final catalog = await _open(
+      tester,
+      location: '/home/search?category=cleaning',
+    );
 
     expect(catalog.searches.last, (category: 'cleaning', text: null));
     expect(
-      tester.widget<ManoCategoryChip>(
-        find.ancestor(of: _chip('Limpieza'), matching: find.byType(ManoCategoryChip)),
-      ).selected,
+      tester
+          .widget<ManoCategoryChip>(
+            find.ancestor(
+              of: _chip('Limpieza'),
+              matching: find.byType(ManoCategoryChip),
+            ),
+          )
+          .selected,
       isTrue,
     );
     expect(find.text('Reparación de fugas'), findsNothing);

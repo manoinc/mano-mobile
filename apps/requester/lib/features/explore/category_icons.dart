@@ -14,7 +14,9 @@ const Map<String, IconData> _categoryIcons = {
 IconData categoryIcon(String iconKey) =>
     _categoryIcons[iconKey] ?? Icons.build_outlined;
 
-List<ManoCategoryRailItem> categoryRailItems(List<ServiceCategory> categories) => [
+List<ManoCategoryRailItem> categoryRailItems(
+  List<ServiceCategory> categories,
+) => [
   for (final category in categories)
     ManoCategoryRailItem(
       id: category.id,

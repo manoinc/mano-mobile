@@ -23,7 +23,9 @@ void main() {
     await pumpRouterAt(
       tester,
       '/home/service/s1',
-      overrides: [serviceCatalogProvider.overrideWithValue(FakeServiceCatalog())],
+      overrides: [
+        serviceCatalogProvider.overrideWithValue(FakeServiceCatalog()),
+      ],
     );
 
     expect(find.text('Limpieza profunda'), findsOneWidget);
@@ -41,7 +43,9 @@ void main() {
     final container = await pumpRouterAt(
       tester,
       '/home/service/s1',
-      overrides: [serviceCatalogProvider.overrideWithValue(FakeServiceCatalog())],
+      overrides: [
+        serviceCatalogProvider.overrideWithValue(FakeServiceCatalog()),
+      ],
     );
 
     await tester.tap(find.text('Ver ofertas'));
@@ -56,7 +60,9 @@ void main() {
     await pumpRouterAt(
       tester,
       '/home/service/nope',
-      overrides: [serviceCatalogProvider.overrideWithValue(FakeServiceCatalog())],
+      overrides: [
+        serviceCatalogProvider.overrideWithValue(FakeServiceCatalog()),
+      ],
     );
 
     expect(find.textContaining('No encontramos este servicio'), findsOneWidget);

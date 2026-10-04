@@ -13,7 +13,12 @@ final class _Catalog implements ServiceCatalog {
     calls.add((category: category, text: text));
     if (fail) throw Exception('gateway down');
     return const [
-      JobService(id: 's1', category: 'cleaning', title: 'Aseo', description: ''),
+      JobService(
+        id: 's1',
+        category: 'cleaning',
+        title: 'Aseo',
+        description: '',
+      ),
     ];
   }
 
@@ -72,26 +77,28 @@ void main() {
 
     test('an empty query asks for everything', () async {
       final catalog = _Catalog();
-      await _container(
-        catalog,
-      ).read(serviceSearchProvider(const ServiceQuery()).future);
+      await _container(catalog)
+          .read(serviceSearchProvider(const ServiceQuery()).future);
 
       expect(catalog.calls.single, (category: null, text: null));
     });
 
-    test('a failure surfaces as an error right away, without retrying', () async {
-      final container = _container(_Catalog(fail: true));
-      final sub = container.listen(
-        serviceSearchProvider(const ServiceQuery()),
-        (_, _) {},
-      );
+    test(
+      'a failure surfaces as an error right away, without retrying',
+      () async {
+        final container = _container(_Catalog(fail: true));
+        final sub = container.listen(
+          serviceSearchProvider(const ServiceQuery()),
+          (_, _) {},
+        );
 
-      await expectLater(
-        container.read(serviceSearchProvider(const ServiceQuery()).future),
-        throwsException,
-      );
-      expect(sub.read().hasError, isTrue);
-      expect(sub.read().isLoading, isFalse);
-    });
+        await expectLater(
+          container.read(serviceSearchProvider(const ServiceQuery()).future),
+          throwsException,
+        );
+        expect(sub.read().hasError, isTrue);
+        expect(sub.read().isLoading, isFalse);
+      },
+    );
   });
 }

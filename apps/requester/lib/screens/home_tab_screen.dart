@@ -4,21 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-/// Maps a [ServiceCategory.iconKey] to the icon a chip shows. `mano_ui`
-/// cannot see `ServiceCategory`, so this mapping lives here, at the screen
-/// that can see both sides. An unrecognized key falls back to a generic
-/// icon rather than crashing, so a category the app doesn't know about yet
-/// still renders.
-const Map<String, IconData> _categoryIcons = {
-  'cleaning': Icons.cleaning_services_outlined,
-  'plumbing': Icons.plumbing,
-  'electrical': Icons.electrical_services,
-  'painting': Icons.format_paint_outlined,
-  'gardening': Icons.grass,
-};
-
-IconData _iconFor(String iconKey) =>
-    _categoryIcons[iconKey] ?? Icons.build_outlined;
+import '../features/explore/category_icons.dart';
 
 void _showStub(BuildContext context) {
   ScaffoldMessenger.of(context)
@@ -26,30 +12,16 @@ void _showStub(BuildContext context) {
 }
 
 /// The Inicio tab: a greeting, an address and a search pill, a category
-/// rail, and a feed of popular listings the rail filters.
+/// rail, and a feed of popular listings.
 ///
-/// Nothing here has a real destination yet -- no address picker, no search
-/// results, no listing detail -- so every one of those taps shows a stub
-/// notice instead of a silent no-op. Only the category filter, which is
-/// pure local UI state, is real.
-class HomeTabScreen extends ConsumerStatefulWidget {
+/// Search, "Ver todo" and the category rail lead into Explore (REQ-01). The
+/// address picker and listing detail don't exist yet, so those taps show a
+/// stub notice instead of a silent no-op.
+class HomeTabScreen extends ConsumerWidget {
   const HomeTabScreen({super.key});
 
   @override
-  ConsumerState<HomeTabScreen> createState() => _HomeTabScreenState();
-}
-
-class _HomeTabScreenState extends ConsumerState<HomeTabScreen> {
-  String? _selectedCategoryId;
-
-  void _toggleCategory(String id) {
-    setState(() {
-      _selectedCategoryId = _selectedCategoryId == id ? null : id;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
     final signedIn = ref.watch(sessionProvider).value is SignedIn;
     final categories = ref.watch(serviceCategoriesProvider);
@@ -105,7 +77,7 @@ class _HomeTabScreenState extends ConsumerState<HomeTabScreen> {
                 // (clay foreground, labelLarge) with a plain TextButton
                 // instead of reusing it verbatim.
                 TextButton(
-                  onPressed: () => _showStub(context),
+                  onPressed: () => context.push('/home/search'),
                   style: TextButton.styleFrom(
                     foregroundColor: ManoColors.clay,
                     textStyle: textTheme.labelLarge,
@@ -116,16 +88,13 @@ class _HomeTabScreenState extends ConsumerState<HomeTabScreen> {
             ),
             categories.when(
               data: (items) => ManoCategoryRail(
-                items: [
-                  for (final category in items)
-                    ManoCategoryRailItem(
-                      id: category.id,
-                      icon: _iconFor(category.iconKey),
-                      label: category.label,
-                    ),
-                ],
-                selectedId: _selectedCategoryId,
-                onSelected: _toggleCategory,
+                items: categoryRailItems(items),
+                onSelected: (id) => context.push(
+                  Uri(
+                    path: '/home/search',
+                    queryParameters: {'category': id},
+                  ).toString(),
+                ),
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stackTrace) => const Text('No se pudo cargar.'),
@@ -135,15 +104,9 @@ class _HomeTabScreenState extends ConsumerState<HomeTabScreen> {
             const SizedBox(height: ManoSpacing.sm),
             listings.when(
               data: (items) {
-                final selected = _selectedCategoryId;
-                final visible = selected == null
-                    ? items
-                    : items
-                          .where((listing) => listing.categoryId == selected)
-                          .toList();
                 return Column(
                   children: [
-                    for (final listing in visible) ...[
+                    for (final listing in items) ...[
                       ManoListingCard(
                         title: listing.title,
                         photoUrl: listing.photoUrl,

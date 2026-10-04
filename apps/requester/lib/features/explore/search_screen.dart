@@ -97,8 +97,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     ? ManoEmptyState(
                         key: const ValueKey('empty'),
                         icon: Icons.search_off,
-                        message:
-                            'No encontramos servicios con esa búsqueda. Prueba otras palabras o categorías.',
+                        message: 'No encontramos servicios con esa búsqueda. Prueba otras palabras o categorías.',
                         ctaLabel: 'Limpiar búsqueda',
                         onCta: _clear,
                       )
@@ -115,9 +114,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             categories,
                           ),
                           description: services[i].description,
-                          onTap: () => context.push(
-                            '/home/service/${services[i].id}',
-                          ),
+                          onTap: () =>
+                              context.push('/home/service/${services[i].id}'),
                         ),
                       ),
               ),
