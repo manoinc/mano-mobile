@@ -70,21 +70,13 @@ All repositories are mock-backed pending a real gateway adapter. Fetch with the 
 **Source:** `MockCatalogRepository`  
 **Provider:** `popularListingsProvider` → `List<ServiceListing>`
 
-### Project
-| Field | Type | Details |
-|-------|------|---------|
-| `id` | String | unique identifier |
-| `title` | String | job title |
-| `professionalName` | String | assigned provider's name |
-| `professionalPhotoUrl` | String | provider's avatar URL |
-| `status` | ProjectStatus | one of: `scheduled`, `inProgress`, `completed`, `canceled` |
-| `scheduledAt` | DateTime | when the work is scheduled |
-| `address` | String | job location |
-| `priceCents` | int | agreed price in centavos |
-| `currency` | String | ISO 4217 code (default: "COP") |
+### Jobs and requests (Actividad tab)
+The Actividad tab no longer has its own `Project` model. It reads the
+marketplace `Job` and `ServiceRequest` entities through `myJobsProvider` and
+`myServiceRequestsProvider` (filtered by `jobsByStatusProvider` and
+`requestsByStatusProvider`). See [REQ-04](modules/REQ-04-activity.md).
 
-**Source:** `MockProjectRepository`  
-**Provider:** `projectsProvider` → `List<Project>`
+**Source:** `MockJobRepository`, `MockServiceRequestRepository`
 
 ### Conversation
 | Field | Type | Details |
@@ -109,4 +101,4 @@ All repositories are mock-backed pending a real gateway adapter. Fetch with the 
 
 ---
 
-**Mock implementations pending real gateway-backed adapters.** All repositories (`MockCatalogRepository`, `MockProjectRepository`, `MockConversationRepository`) are defined in `packages/mano_data` and bound to their domain ports in `packages/mano_session`. Real adapters arrive as new `src/*` files with no changes above the seam.
+**Mock implementations pending real gateway-backed adapters.** All repositories (`MockCatalogRepository`, `MockConversationRepository`, plus the marketplace mocks) are defined in `packages/mano_data` and bound to their domain ports in `packages/mano_session`. Real adapters arrive as new `src/*` files with no changes above the seam.
