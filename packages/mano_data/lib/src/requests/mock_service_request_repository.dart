@@ -4,7 +4,7 @@ import '../mock/mock_fixtures.dart';
 
 /// In-memory [ServiceRequestRepository] with one request per status.
 final class MockServiceRequestRepository implements ServiceRequestRepository {
-  MockServiceRequestRepository({DateTime Function()? now})
+  MockServiceRequestRepository({DateTime Function()? now, this.onAccepted})
     : _now = now ?? DateTime.now {
     final today = _now();
     _requests.addAll([
@@ -47,6 +47,8 @@ final class MockServiceRequestRepository implements ServiceRequestRepository {
     ]);
   }
 
+  /// Lets the job store schedule accepted work, as the backend will.
+  final void Function(ServiceRequest accepted)? onAccepted;
   final DateTime Function() _now;
   final List<ServiceRequest> _requests = [];
   int _nextId = 100;
@@ -93,8 +95,11 @@ final class MockServiceRequestRepository implements ServiceRequestRepository {
   }
 
   @override
-  Future<Result<ServiceRequest, DataFailure>> accept(String id) async =>
-      _answer(id, ServiceRequestStatus.accepted);
+  Future<Result<ServiceRequest, DataFailure>> accept(String id) async {
+    final result = _answer(id, ServiceRequestStatus.accepted);
+    if (result case Ok(:final value)) onAccepted?.call(value);
+    return result;
+  }
 
   @override
   Future<Result<ServiceRequest, DataFailure>> reject(

@@ -4,10 +4,8 @@ import '../mock/mock_fixtures.dart';
 
 /// In-memory [JobRepository] enforcing the domain's lifecycle rules.
 final class MockJobRepository implements JobRepository {
-  MockJobRepository({
-    DateTime Function()? now,
-    this._requests,
-  }) : _now = now ?? DateTime.now {
+  MockJobRepository({DateTime Function()? now, this._requests})
+    : _now = now ?? DateTime.now {
     final today = _now();
     DateTime at(int days, int hour) =>
         DateTime(today.year, today.month, today.day + days, hour);
@@ -40,6 +38,29 @@ final class MockJobRepository implements JobRepository {
         end: start.add(const Duration(hours: 2)),
         status: status,
       );
+
+  /// Schedules an accepted request; the backend creates the job on accept.
+  void addFromRequest(ServiceRequest request) {
+    final today = _now();
+    final start =
+        request.proposedStart ??
+        DateTime(today.year, today.month, today.day + 1, 9);
+    _jobs.insert(
+      0,
+      Job(
+        id: 'job-${_nextId++}',
+        offerId: request.offer.id,
+        serviceTitle: request.serviceTitle,
+        client: request.client,
+        provider: request.provider,
+        rateType: request.offer.rateType,
+        amountCop: request.offer.amountCop,
+        start: start,
+        end: start.add(const Duration(hours: 2)),
+        status: JobStatus.scheduled,
+      ),
+    );
+  }
 
   @override
   Future<List<Job>> mine({JobStatus? status}) async =>

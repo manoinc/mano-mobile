@@ -123,4 +123,16 @@ void main() {
     final convs = await c.read(conversationRepositoryProvider).conversations();
     expect(convs.firstWhere((x) => x.id == 'conv-2').unreadCount, 0);
   });
+
+  test('accepting a request puts a job on the agenda', () async {
+    final c = _container();
+    final requests = c.read(serviceRequestRepositoryProvider);
+    final pending = (await requests.mine(status: ServiceRequestStatus.pending))
+        .first;
+    final before = (await c.read(jobRepositoryProvider).mine()).length;
+
+    await requests.accept(pending.id);
+
+    expect((await c.read(jobRepositoryProvider).mine()).length, before + 1);
+  });
 }

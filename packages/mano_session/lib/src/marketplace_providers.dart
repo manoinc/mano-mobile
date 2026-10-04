@@ -16,13 +16,22 @@ final offerManagementProvider = Provider<OfferManagement>(
   (ref) => MockOfferManagement(),
 );
 
+// Built together so accepting a request schedules a job and rebooking files a request.
+final _mockWorkStoresProvider = Provider((ref) {
+  late final MockJobRepository jobs;
+  final requests = MockServiceRequestRepository(
+    onAccepted: (request) => jobs.addFromRequest(request),
+  );
+  jobs = MockJobRepository(requests: requests);
+  return (requests: requests, jobs: jobs);
+});
+
 final serviceRequestRepositoryProvider = Provider<ServiceRequestRepository>(
-  (ref) => MockServiceRequestRepository(),
+  (ref) => ref.watch(_mockWorkStoresProvider).requests,
 );
 
 final jobRepositoryProvider = Provider<JobRepository>(
-  (ref) =>
-      MockJobRepository(requests: ref.watch(serviceRequestRepositoryProvider)),
+  (ref) => ref.watch(_mockWorkStoresProvider).jobs,
 );
 
 final availabilityRepositoryProvider = Provider<AvailabilityRepository>(

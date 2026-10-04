@@ -23,7 +23,7 @@ const mockProviders = [
 const mockOffers = [
   ServiceOffer(
     id: 'offer-1',
-    jobServiceId: 'service-cleaning',
+    jobServiceId: '11111111-0000-0000-0000-000000000001',
     offerantId: 'provider-1',
     rateType: RateType.fixed,
     amountCop: 120000,
@@ -32,7 +32,7 @@ const mockOffers = [
   ),
   ServiceOffer(
     id: 'offer-2',
-    jobServiceId: 'service-plumbing',
+    jobServiceId: '11111111-0000-0000-0000-000000000003',
     offerantId: 'provider-2',
     rateType: RateType.hourly,
     amountCop: 45000,
@@ -41,7 +41,7 @@ const mockOffers = [
   ),
   ServiceOffer(
     id: 'offer-3',
-    jobServiceId: 'service-painting',
+    jobServiceId: '11111111-0000-0000-0000-000000000007',
     offerantId: 'provider-1',
     rateType: RateType.hourly,
     amountCop: 38000,
@@ -50,10 +50,11 @@ const mockOffers = [
   ),
 ];
 
+// Ids match tools/dev/seed_catalog.sql so a live gateway resolves the same titles.
 const mockServiceTitles = {
-  'service-cleaning': 'Limpieza profunda',
-  'service-plumbing': 'Reparación de fugas',
-  'service-painting': 'Pintura de interiores',
+  '11111111-0000-0000-0000-000000000001': 'Limpieza profunda del hogar',
+  '11111111-0000-0000-0000-000000000003': 'Reparación de fugas',
+  '11111111-0000-0000-0000-000000000007': 'Pintura de interiores',
 };
 
 ServiceOffer mockOfferById(String id) =>

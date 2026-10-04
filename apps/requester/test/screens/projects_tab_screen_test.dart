@@ -45,7 +45,7 @@ void main() {
     await _openFilter(tester, 'Programados');
 
     final card = tester.widget<ManoProjectCard>(_card('activity-job-job-1'));
-    expect(card.title, 'Limpieza profunda');
+    expect(card.title, 'Limpieza profunda del hogar');
     expect(card.professionalName, 'Andrés Castro');
     expect(card.scheduledLabel, ManoFormat.dateTime(mockJobStart(2, 9)));
     expect(card.priceLabel, r'$120.000');

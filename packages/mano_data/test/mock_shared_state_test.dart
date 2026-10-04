@@ -1,4 +1,5 @@
 import 'package:mano_data/mano_data.dart';
+import 'package:mano_data/src/mock/mock_fixtures.dart';
 import 'package:mano_domain/mano_domain.dart';
 import 'package:test/test.dart';
 
@@ -49,5 +50,37 @@ void main() {
         greaterThan(0),
       );
     });
+  });
+
+  test(
+    'accepting a request schedules a job when the stores are shared',
+    () async {
+      final jobs = MockJobRepository();
+      final requests = MockServiceRequestRepository(
+        onAccepted: jobs.addFromRequest,
+      );
+      final pending = (await requests.mine(
+        status: ServiceRequestStatus.pending,
+      )).first;
+
+      await requests.accept(pending.id);
+
+      final scheduled = await jobs.mine(status: JobStatus.scheduled);
+      expect(
+        scheduled.any(
+          (j) =>
+              j.offerId == pending.offer.id &&
+              j.serviceTitle == pending.serviceTitle,
+        ),
+        isTrue,
+      );
+    },
+  );
+
+  test('mock offers point at the seeded gateway services', () {
+    expect(
+      mockOffers.every((o) => o.jobServiceId.startsWith('11111111-')),
+      isTrue,
+    );
   });
 }
