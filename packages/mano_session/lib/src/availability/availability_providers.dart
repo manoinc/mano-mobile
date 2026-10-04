@@ -73,5 +73,6 @@ final class AvailabilityActions extends Notifier<void> {
   }
 }
 
-final availabilityActionsProvider =
-    NotifierProvider<AvailabilityActions, void>(AvailabilityActions.new);
+final availabilityActionsProvider = NotifierProvider<AvailabilityActions, void>(
+  AvailabilityActions.new,
+);

@@ -31,9 +31,7 @@ final SlotRange _range = (
 void main() {
   group('reads', () {
     test('myAvailabilityRulesProvider lists the rules', () async {
-      final rules = await _container().read(
-        myAvailabilityRulesProvider.future,
-      );
+      final rules = await _container().read(myAvailabilityRulesProvider.future);
       expect(rules.map((r) => r.id), ['rule-1', 'rule-2', 'rule-3']);
     });
 
