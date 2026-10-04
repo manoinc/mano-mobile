@@ -91,20 +91,23 @@ void main() {
     expect(after.length, before.length + 1);
   });
 
-  test('a failed booking keeps the selection and carries the failure', () async {
-    final jobs = _FailingJobs();
-    final (:c, :n) = setUp0(jobs: jobs);
-    n.selectDay(DateTime(2030, 1, 7));
-    n.selectSlot(slot);
+  test(
+    'a failed booking keeps the selection and carries the failure',
+    () async {
+      final jobs = _FailingJobs();
+      final (:c, :n) = setUp0(jobs: jobs);
+      n.selectDay(DateTime(2030, 1, 7));
+      n.selectSlot(slot);
 
-    await n.confirm();
+      await n.confirm();
 
-    final state = c.read(bookingProvider('offer-1'));
-    expect(state.status, isA<BookingFailed>());
-    expect((state.status as BookingFailed).failure, isA<DataUnavailable>());
-    expect(state.selectedSlot, slot);
-    expect(state.selectedDay, DateTime(2030, 1, 7));
-  });
+      final state = c.read(bookingProvider('offer-1'));
+      expect(state.status, isA<BookingFailed>());
+      expect((state.status as BookingFailed).failure, isA<DataUnavailable>());
+      expect(state.selectedSlot, slot);
+      expect(state.selectedDay, DateTime(2030, 1, 7));
+    },
+  );
 
   test('confirm without a slot does nothing', () async {
     final jobs = _FailingJobs();

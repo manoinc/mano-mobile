@@ -108,7 +108,9 @@ class BookingNotifier extends Notifier<BookingState> {
     final slot = state.selectedSlot;
     if (slot == null || state.status is BookingSubmitting) return;
     state = state.copyWith(status: const BookingSubmitting());
-    final result = await ref.read(jobRepositoryProvider).bookSlot(offerId, slot);
+    final result = await ref
+        .read(jobRepositoryProvider)
+        .bookSlot(offerId, slot);
     if (!ref.mounted) return;
     state = state.copyWith(
       status: switch (result) {
