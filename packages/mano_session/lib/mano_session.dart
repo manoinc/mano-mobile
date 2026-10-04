@@ -24,6 +24,7 @@ export 'package:mano_data/mano_data.dart' show ManoConfig;
 // past.
 export 'package:mano_domain/mano_domain.dart';
 
+export 'src/booking/booking_notifier.dart';
 export 'src/catalog_providers.dart';
 export 'src/conversation_providers.dart';
 export 'src/marketplace_providers.dart';
