@@ -175,7 +175,9 @@ class OfferEditorNotifier extends AsyncNotifier<OfferEditorState> {
   }
 }
 
+// No auto-retry: the screen offers an explicit "Reintentar" instead.
 final offerEditorProvider = AsyncNotifierProvider.autoDispose
     .family<OfferEditorNotifier, OfferEditorState, String?>(
       OfferEditorNotifier.new,
+      retry: (_, _) => null,
     );
