@@ -25,7 +25,7 @@ cross-boundary import fails `dart analyze`.
 - **Entities** are hand-written `final class`es with `const` constructors, `==`,
   `hashCode`, `toString` and, where state changes, `copyWith`. No codegen.
 - **Money** is whole pesos (`amountCop`), matching the gateway. Legacy
-  `ServiceListing`/`Project` still carry cents.
+  `ServiceListing` still carries cents.
 - **Reads** return `Future<T>` and may throw; `FutureProvider`/`AsyncValue`
   turns that into an error state.
 - **Mutations** return `Result<T, DataFailure>` (`DataNotFound`,
