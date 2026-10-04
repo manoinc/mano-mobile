@@ -74,7 +74,7 @@ final class ProviderOnboardingState {
     workZone: workZone.trim(),
     documentPaths: [
       for (final d in ProviderDocument.values)
-        if (attached[d] case final path?) path,
+        ?attached[d],
     ],
   );
 
