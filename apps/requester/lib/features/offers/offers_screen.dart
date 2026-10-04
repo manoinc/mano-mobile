@@ -128,9 +128,8 @@ class _FilteredOffers extends StatelessWidget {
                     key: ValueKey('empty-$filter'),
                     child: Text(
                       'No hay ofertas con este tipo de precio',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: ManoColors.faint,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium
+                          ?.copyWith(color: ManoColors.faint),
                     ),
                   )
                 : ListView.separated(

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_session/mano_session.dart';
@@ -75,7 +74,10 @@ void main() {
 
     await tester.tap(find.text('Precio fijo').first);
     await tester.pumpAndSettle();
-    expect(_cardAmounts(tester), [ManoFormat.cop(90000), ManoFormat.cop(150000)]);
+    expect(_cardAmounts(tester), [
+      ManoFormat.cop(90000),
+      ManoFormat.cop(150000),
+    ]);
 
     await tester.tap(find.text('Todas'));
     await tester.pumpAndSettle();
