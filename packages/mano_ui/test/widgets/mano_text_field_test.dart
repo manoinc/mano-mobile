@@ -166,4 +166,22 @@ void main() {
 
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('grows to several lines when asked', (tester) async {
+    final controller = TextEditingController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(
+      _host(
+        ManoTextField(
+          label: 'Mensaje',
+          controller: controller,
+          minLines: 3,
+          maxLines: 5,
+        ),
+      ),
+    );
+    final field = tester.widget<TextField>(find.byType(TextField));
+    expect(field.minLines, 3);
+    expect(field.maxLines, 5);
+  });
 }

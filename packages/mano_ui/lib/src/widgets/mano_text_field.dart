@@ -21,6 +21,8 @@ class ManoTextField extends StatelessWidget {
     this.autofocus = false,
     this.focusNode,
     this.enabled = true,
+    this.minLines,
+    this.maxLines = 1,
     super.key,
   });
 
@@ -42,6 +44,10 @@ class ManoTextField extends StatelessWidget {
   final FocusNode? focusNode;
 
   final bool enabled;
+
+  // Set both above 1 for a free-text message.
+  final int? minLines;
+  final int? maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +76,8 @@ class ManoTextField extends StatelessWidget {
           autofocus: autofocus,
           focusNode: focusNode,
           enabled: enabled,
+          minLines: minLines,
+          maxLines: maxLines,
           style: theme.textTheme.titleMedium,
           cursorColor: ManoColors.flame,
           decoration: InputDecoration(
