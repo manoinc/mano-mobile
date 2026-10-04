@@ -32,7 +32,7 @@ See README.md for the rationale.
 dart analyze                                     # whole workspace, from root
 cd packages/mano_domain  && dart test            # 71 — no Flutter binding
 cd packages/mano_data    && flutter test         # 49
-cd packages/mano_session && flutter test         # 40
+cd packages/mano_session && flutter test         # 42
 cd packages/mano_ui      && flutter test         # 169
 cd apps/requester        && flutter test         # 63
 cd apps/provider         && flutter test         # 10

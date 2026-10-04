@@ -63,7 +63,7 @@ Detailed docs live in [`docs/`](docs/). This README is just the map.
 ```bash
 cd packages/mano_domain  && dart test        #  71 — no Flutter binding needed
 cd packages/mano_data    && flutter test     #  49 — gateway adapters via MockClient, mocks
-cd packages/mano_session && flutter test     #  40 — fake repositories, no device
+cd packages/mano_session && flutter test     #  42 — fake repositories, no device
 cd packages/mano_ui      && flutter test     # 169 — widgets take strings & callbacks
 cd apps/requester        && flutter test     #  63
 cd apps/provider         && flutter test     #  10
