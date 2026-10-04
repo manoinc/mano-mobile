@@ -34,7 +34,10 @@ void main() {
 
       expect(find.text('Laura Pérez'), findsOneWidget);
       expect(find.text('Limpieza profunda'), findsOneWidget);
-      expect(find.text('Tengo una fuga debajo del lavaplatos.'), findsOneWidget);
+      expect(
+        find.text('Tengo una fuga debajo del lavaplatos.'),
+        findsOneWidget,
+      );
       expect(find.text('sáb 10 oct, 9:00 a. m.'), findsOneWidget);
       expect(find.text(r'$120.000'), findsOneWidget);
       expect(find.byType(ManoAvatar), findsOneWidget);
