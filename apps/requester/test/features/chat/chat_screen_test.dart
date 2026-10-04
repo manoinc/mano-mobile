@@ -227,4 +227,21 @@ void main() {
     expect(routerPath(container), '/inbox/conv-1');
     expect(find.byType(ManoMessageComposer), findsOneWidget);
   });
+
+  testWidgets('leaving the chat refreshes the Bandeja snippet', (tester) async {
+    await pumpRouterAt(tester, '/inbox');
+    await tester.tap(find.text('Ana Gómez'));
+    await tester.pumpAndSettle();
+
+    await _type(tester, 'Hola de nuevo');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.widgetWithText(ManoConversationTile, 'Hola de nuevo'),
+      findsOneWidget,
+    );
+    await tester.pump(const Duration(seconds: 3));
+  });
 }
