@@ -42,4 +42,14 @@ abstract final class ManoFormat {
 
   /// "lun"
   static String weekdayShort(DateTime at) => _weekdays[at.weekday - 1];
+
+  /// Time since [at] as "5m", "3h" or "2d"; never below 1 of the unit.
+  static String relative(DateTime at, DateTime now) {
+    final elapsed = now.difference(at);
+    if (elapsed.inHours < 1) {
+      return '${elapsed.inMinutes < 1 ? 1 : elapsed.inMinutes}m';
+    }
+    if (elapsed.inHours < 24) return '${elapsed.inHours}h';
+    return '${elapsed.inDays}d';
+  }
 }

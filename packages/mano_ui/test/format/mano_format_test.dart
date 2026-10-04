@@ -24,4 +24,20 @@ void main() {
     expect(ManoFormat.weekdayShort(DateTime(2026, 10, 5)), 'lun');
     expect(ManoFormat.weekdayShort(DateTime(2026, 10, 11)), 'dom');
   });
+
+  test('relative is a short elapsed label, never zero', () {
+    final now = DateTime(2026, 10, 4, 12);
+    String ago(Duration d) => ManoFormat.relative(now.subtract(d), now);
+    expect(ago(const Duration(seconds: 30)), '1m');
+    expect(ago(const Duration(minutes: 5)), '5m');
+    expect(ago(const Duration(minutes: 60)), '1h');
+    expect(ago(const Duration(hours: 3)), '3h');
+    expect(ago(const Duration(hours: 24)), '1d');
+    expect(ago(const Duration(days: 2)), '2d');
+  });
+
+  test('relative treats a future timestamp as just now', () {
+    final now = DateTime(2026, 10, 4, 12);
+    expect(ManoFormat.relative(now.add(const Duration(minutes: 5)), now), '1m');
+  });
 }
