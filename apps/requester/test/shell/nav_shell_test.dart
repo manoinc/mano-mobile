@@ -59,10 +59,7 @@ void main() {
 
     expect(find.text('page /c'), findsOneWidget);
     expect(_currentIndex(tester), 2);
-    expect(
-      router.routerDelegate.currentConfiguration.uri.toString(),
-      '/c',
-    );
+    expect(router.routerDelegate.currentConfiguration.uri.toString(), '/c');
 
     await tester.tap(find.text('Perfil'));
     await tester.pumpAndSettle();
@@ -75,7 +72,7 @@ void main() {
     tester,
   ) async {
     await _pump(tester);
-    await tester.tap(find.text('Proyectos'));
+    await tester.tap(find.text('Actividad'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byIcon(Icons.add));
@@ -86,9 +83,7 @@ void main() {
     expect(_currentIndex(tester), 1);
   });
 
-  testWidgets('the action sheet closes from its close control', (
-    tester,
-  ) async {
+  testWidgets('the action sheet closes from its close control', (tester) async {
     await _pump(tester);
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();

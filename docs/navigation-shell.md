@@ -5,28 +5,30 @@ The Mano Requester app's bottom-navigation shell and routing structure.
 ## Widget Hierarchy
 
 ```
-RequesterApp (MaterialApp.router)
-└─ requesterRouterProvider (GoRouter, redirect: session-aware)
-   ├─ /sign-in → SignInScreen
-   └─ StatefulShellRoute.indexedStack → NavShell (ManoBottomNavBar + Scaffold)
-      ├─ /home → HomeTabScreen
-      │          ├─ ManoGreetingHeader
-      │          ├─ ManoAddressPill
-      │          ├─ ManoSearchPill
-      │          ├─ ManoCategoryRail (ManoCategoryRailItem)
-      │          └─ ManoListingCard
-      ├─ /projects → ProjectsTabScreen
-      │              ├─ ManoProjectFilterTabs
-      │              └─ ManoProjectCard | ManoEmptyState
-      ├─ /inbox → InboxTabScreen
-      │            └─ ManoConversationTile
-      └─ /profile → ProfileTabScreen
-                   ├─ ManoProfileHeader
-                   └─ ManoOptionRow
+RequesterApp (MaterialApp, home: ManoRoot)
+└─ ManoRoot: decides from session + onboarding flow
+   ├─ OnboardingTour / OnboardingSignIn / OnboardingRegistration
+   └─ RequesterShell (signed in, or browsing as a guest)
+      └─ Router(requesterRouterProvider)
+         └─ StatefulShellRoute.indexedStack → NavShell (ManoBottomNavBar)
+            ├─ /home → HomeTabScreen
+            │   ├─ search?category= → SearchScreen            (REQ-01)
+            │   ├─ service/:id → ServiceDetailScreen          (REQ-01)
+            │   │   └─ offers → OffersScreen                  (REQ-02)
+            │   └─ book/:offerId → BookingScreen  [root]      (REQ-03)
+            ├─ /projects → ProjectsTabScreen ("Actividad")    (REQ-04)
+            │   └─ job/:id → JobDetailScreen                  (REQ-04)
+            ├─ /inbox → InboxTabScreen                        (REQ-05)
+            │   └─ :conversationId → ChatScreen   [root]      (REQ-05)
+            └─ /profile → ProfileTabScreen
+```
+
+`[root]` routes use the root navigator and cover the bottom bar. There is no
+redirect: auth gating happens in `ManoRoot`, before the router is mounted.
 
 NavShell's ManoBottomNavBar hosts four destinations plus a fifth action:
   - Items[0]: Inicio (home icon) → goBranch(0)
-  - Items[1]: Proyectos (work icon) → goBranch(1)
+  - Items[1]: Actividad (work icon) → goBranch(1)
   - Items[2]: Bandeja (chat icon) → goBranch(2)
   - Items[3]: Perfil (person icon) → goBranch(3)
   - Center action (CREATE) → showManoSheet(CreateActionSheet)

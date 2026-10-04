@@ -133,17 +133,6 @@ void main() {
     },
   );
 
-  testWidgets('tapping a conversation tile shows the stub notice', (
-    tester,
-  ) async {
-    await _host(tester);
-
-    await tester.tap(find.byType(ManoConversationTile).first);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Muy pronto'), findsOneWidget);
-  });
-
   testWidgets(
     'renders the empty-list fallback when there are no conversations',
     (tester) async {

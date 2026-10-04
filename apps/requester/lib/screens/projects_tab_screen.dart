@@ -31,46 +31,6 @@ ProjectStatus? _statusFor(int filterIndex) => switch (filterIndex) {
   ProjectStatus.canceled => ('Cancelado', ManoStatusTone.neutral),
 };
 
-const _monthAbbreviations = [
-  'ene',
-  'feb',
-  'mar',
-  'abr',
-  'may',
-  'jun',
-  'jul',
-  'ago',
-  'sep',
-  'oct',
-  'nov',
-  'dic',
-];
-
-/// Turns a `DateTime` into "12 mar, 3:00 p. m.": day, Spanish month
-/// abbreviation, and 12-hour time. No `intl` dependency in this app, so this
-/// stays a small, screen-local helper rather than pulling one in.
-String _scheduledLabel(DateTime dateTime) {
-  final month = _monthAbbreviations[dateTime.month - 1];
-  final hour12 = dateTime.hour % 12 == 0 ? 12 : dateTime.hour % 12;
-  final minute = dateTime.minute.toString().padLeft(2, '0');
-  final suffix = dateTime.hour < 12 ? 'a. m.' : 'p. m.';
-  return '${dateTime.day} $month, $hour12:$minute $suffix';
-}
-
-/// Turns cents into "$80.000 COP": Colombian pesos, thousands separated by
-/// dots. Duplicated from the Home tab's equivalent helper on purpose -- two
-/// small private helpers is simpler than a shared utility file for this.
-String _copLabel(int priceCents) {
-  final pesos = priceCents ~/ 100;
-  final digits = pesos.toString();
-  final grouped = StringBuffer();
-  for (var i = 0; i < digits.length; i++) {
-    if (i > 0 && (digits.length - i) % 3 == 0) grouped.write('.');
-    grouped.write(digits[i]);
-  }
-  return '\$$grouped COP';
-}
-
 void _showStub(BuildContext context) {
   ScaffoldMessenger.of(context)
       .showSnackBar(const SnackBar(content: Text('Muy pronto')));
@@ -149,7 +109,10 @@ class _ProjectsTabScreenState extends ConsumerState<ProjectsTabScreen> {
 ///   to "request your first service" would be nonsensical for someone who
 ///   plainly already has.
 class _ProjectList extends StatelessWidget {
-  const _ProjectList({required this.allProjects, required this.filteredProjects});
+  const _ProjectList({
+    required this.allProjects,
+    required this.filteredProjects,
+  });
 
   final List<Project> allProjects;
   final List<Project> filteredProjects;
@@ -193,8 +156,8 @@ class _ProjectList extends StatelessWidget {
           professionalPhotoUrl: project.professionalPhotoUrl,
           statusLabel: statusLabel,
           statusTone: statusTone,
-          scheduledLabel: _scheduledLabel(project.scheduledAt),
-          priceLabel: _copLabel(project.priceCents),
+          scheduledLabel: ManoFormat.dateTime(project.scheduledAt),
+          priceLabel: '${ManoFormat.cop(project.priceCents ~/ 100)} COP',
           onTap: () => _showStub(context),
         );
       },

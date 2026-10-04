@@ -10,7 +10,7 @@ Pub workspace — one `pub get`, one `pubspec.lock` at the root.
     apps/requester         Mano, for Solicitantes    com.manoinc.mano.requester
     apps/provider          Mano Profesionales, for Proveedores com.manoinc.mano.provider
     packages/mano_domain   entities, ports, failures — zero dependencies
-    packages/mano_data     adapters: secure storage, GraphQL (no auth adapter yet)
+    packages/mano_data     adapters: GraphQL gateway (catalog live), in-memory mocks, secure storage
     packages/mano_ui       theme + dumb widgets — Flutter only
     packages/mano_session  composition root; the only member using Riverpod
 
@@ -30,13 +30,19 @@ See README.md for the rationale.
 
 ```bash
 dart analyze                                     # whole workspace, from root
-cd packages/mano_domain  && dart test            # 56 — no Flutter binding
-cd packages/mano_session && flutter test         # 36
-cd packages/mano_ui      && flutter test         # 155
-cd apps/requester        && flutter test         # 53
+cd packages/mano_domain  && dart test            # 71 — no Flutter binding
+cd packages/mano_data    && flutter test         # 49
+cd packages/mano_session && flutter test         # 40
+cd packages/mano_ui      && flutter test         # 169
+cd apps/requester        && flutter test         # 63
+cd apps/provider         && flutter test         # 10
+cd apps/<app> && flutter test integration_test -d RFGL20WAR9E  # on the A36, one at a time
 dart tools/generate_logo_paths.dart              # after changing tools/brand/*.svg
 cd apps/requester && flutter run -d RFGL20WAR9E  # the A36
 ```
+
+Architecture conventions and the "adding a module" recipe: `docs/architecture.md`.
+What the gateway really serves versus what is mocked: `docs/backend-contract.md`.
 
 ## Coding style 
 
@@ -65,9 +71,9 @@ survive unplugging or an adb restart:
 adb reverse tcp:8082 tcp:8082   # mano-gateway
 ```
 
-There is no auth backend configured yet — see README.md's "Authentication"
-section. Sign-in renders and reports "not configured" until a provider is
-chosen and wired into `mano_data`.
+The backend authenticates with Keycloak, but the app has no Keycloak adapter
+yet: sign-in reports "not configured", and every port except the catalog runs
+on in-memory mocks (`docs/backend-contract.md`).
 
 ## Design
 

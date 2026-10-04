@@ -22,7 +22,7 @@ flowchart TD
     end
     subgraph Packages
         session[mano_session<br/>composition root, only Riverpod]
-        data[mano_data<br/>adapters: GatewayClient, TokenStore]
+        data[mano_data<br/>adapters: gateway + mocks]
         ui[mano_ui<br/>theme + dumb widgets]
         domain[mano_domain<br/>entities, ports, zero deps]
     end
@@ -56,21 +56,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // error • The imported package 'flutter_riverpod' isn't a dependency
 ```
 
-Detailed docs live outside this file — see mkdocs (or equivalent) once it's
-set up. This README is just the map.
+Detailed docs live in [`docs/`](docs/). This README is just the map.
 
 ## Testing
 
 ```bash
-cd packages/mano_domain  && dart test        # 21 — no Flutter binding needed
-cd packages/mano_session && flutter test     #  9 — fake repository, no device
-cd packages/mano_ui      && flutter test     # 48 — widgets take strings & callbacks
+cd packages/mano_domain  && dart test        #  71 — no Flutter binding needed
+cd packages/mano_data    && flutter test     #  49 — gateway adapters via MockClient, mocks
+cd packages/mano_session && flutter test     #  40 — fake repositories, no device
+cd packages/mano_ui      && flutter test     # 169 — widgets take strings & callbacks
+cd apps/requester        && flutter test     #  63
+cd apps/provider         && flutter test     #  10
+cd apps/requester        && flutter test integration_test -d RFGL20WAR9E   # on the phone
 ```
 
-No test opens a browser, touches a keystore, or makes a network request.
+No host test opens a browser, touches a keystore, or makes a network request.
 
-`mano_data` has no tests yet — `GatewayClient` and `TokenStore` were never
-covered, auth adapter or not.
+## Docs
+
+- [docs/architecture.md](docs/architecture.md): layers, conventions, adding a module
+- [docs/backend-contract.md](docs/backend-contract.md): gateway operations, live versus stubbed
+- [docs/modules/](docs/modules/README.md): one page per screen module
+- [docs/navigation-shell.md](docs/navigation-shell.md): requester routing
 
 ## Quick start
 

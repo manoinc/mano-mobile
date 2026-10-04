@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
@@ -19,25 +20,9 @@ const Map<String, IconData> _categoryIcons = {
 IconData _iconFor(String iconKey) =>
     _categoryIcons[iconKey] ?? Icons.build_outlined;
 
-/// Turns cents into "Desde $80.000 COP": Colombian pesos, thousands
-/// separated by dots. `ManoListingCard` takes a pre-formatted label because
-/// this formatting needs a locale, which is a screen concern, not a widget
-/// one.
-String _copLabel(int priceFromCents) {
-  final pesos = priceFromCents ~/ 100;
-  final digits = pesos.toString();
-  final grouped = StringBuffer();
-  for (var i = 0; i < digits.length; i++) {
-    if (i > 0 && (digits.length - i) % 3 == 0) grouped.write('.');
-    grouped.write(digits[i]);
-  }
-  return 'Desde \$$grouped COP';
-}
-
 void _showStub(BuildContext context) {
-  ScaffoldMessenger.of(
-    context,
-  ).showSnackBar(const SnackBar(content: Text('Muy pronto')));
+  ScaffoldMessenger.of(context)
+      .showSnackBar(const SnackBar(content: Text('Muy pronto')));
 }
 
 /// The Inicio tab: a greeting, an address and a search pill, a category
@@ -102,7 +87,7 @@ class _HomeTabScreenState extends ConsumerState<HomeTabScreen> {
               onTap: () => _showStub(context),
             ),
             const SizedBox(height: ManoSpacing.md),
-            ManoSearchPill(onTap: () => _showStub(context)),
+            ManoSearchPill(onTap: () => context.push('/home/search')),
             const SizedBox(height: ManoSpacing.lg),
             Row(
               children: [
@@ -154,8 +139,8 @@ class _HomeTabScreenState extends ConsumerState<HomeTabScreen> {
                 final visible = selected == null
                     ? items
                     : items
-                        .where((listing) => listing.categoryId == selected)
-                        .toList();
+                          .where((listing) => listing.categoryId == selected)
+                          .toList();
                 return Column(
                   children: [
                     for (final listing in visible) ...[
@@ -164,7 +149,8 @@ class _HomeTabScreenState extends ConsumerState<HomeTabScreen> {
                         photoUrl: listing.photoUrl,
                         professionalName: listing.professionalName,
                         professionalPhotoUrl: listing.professionalPhotoUrl,
-                        priceLabel: _copLabel(listing.priceFromCents),
+                        priceLabel:
+                            'Desde ${ManoFormat.cop(listing.priceFromCents ~/ 100)} COP',
                         rating: listing.rating,
                         onTap: () => _showStub(context),
                       ),

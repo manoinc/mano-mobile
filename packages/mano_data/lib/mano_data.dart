@@ -18,10 +18,18 @@
 library;
 
 export 'src/config/mano_config.dart';
+export 'src/catalog/gateway_service_catalog.dart';
 export 'src/gateway/gateway_client.dart';
+export 'src/gateway/gateway_transport.dart';
 export 'src/session/token_store.dart';
 
 // Mock implementations pending real gateway-backed adapters.
 export 'src/catalog/mock_catalog_repository.dart';
+export 'src/catalog/mock_offer_management.dart';
+export 'src/jobs/mock_job_repository.dart';
+export 'src/messaging/mock_chat_repository.dart';
 export 'src/messaging/mock_conversation_repository.dart';
+export 'src/onboarding/mock_provider_onboarding_repository.dart';
 export 'src/projects/mock_project_repository.dart';
+export 'src/requests/mock_service_request_repository.dart';
+export 'src/scheduling/mock_availability_repository.dart';

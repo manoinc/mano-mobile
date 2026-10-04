@@ -2,14 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../theme/mano_theme.dart';
 import 'mano_avatar.dart';
+import 'mano_status_chip.dart';
 
-/// How a project's status badge should read.
-///
-/// Note this is a *presentational* distinction, not `mano_domain`'s
-/// `ProjectStatus`. The screen maps a domain status to a tone (e.g.
-/// `scheduled` reads as `info`, `disputed` as `warning`); this widget only
-/// knows how a tone looks.
-enum ManoStatusTone { info, warning, success, neutral }
 
 /// A single project, as shown in the Projects tab's list.
 ///
@@ -50,21 +44,6 @@ class ManoProjectCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    // `success` has no brand token -- green reads as "done" everywhere else
-    // in the product a user might have seen, and `primaryContainer` is
-    // flame's territory, already spent on the one primary action per screen.
-    final (background, foreground) = switch (statusTone) {
-      ManoStatusTone.info || ManoStatusTone.neutral => (
-        scheme.surfaceContainerHighest,
-        scheme.onSurface,
-      ),
-      ManoStatusTone.warning => (
-        scheme.tertiaryContainer,
-        scheme.onTertiaryContainer,
-      ),
-      ManoStatusTone.success => (Colors.green.shade100, Colors.green.shade900),
-    };
-
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -89,20 +68,10 @@ class ManoProjectCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: ManoSpacing.sm),
-                  Container(
+                  ManoStatusChip(
                     key: const Key('mano-project-card-status-badge'),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: ManoSpacing.sm,
-                      vertical: ManoSpacing.xs,
-                    ),
-                    decoration: BoxDecoration(
-                      color: background,
-                      borderRadius: BorderRadius.circular(ManoRadius.pill),
-                    ),
-                    child: Text(
-                      statusLabel,
-                      style: textTheme.labelSmall?.copyWith(color: foreground),
-                    ),
+                    label: statusLabel,
+                    tone: statusTone,
                   ),
                 ],
               ),

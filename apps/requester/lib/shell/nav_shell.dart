@@ -15,7 +15,7 @@ class NavShell extends StatelessWidget {
 
   static const _items = [
     ManoNavItem(icon: Icons.home_outlined, label: 'Inicio'),
-    ManoNavItem(icon: Icons.work_outline, label: 'Proyectos'),
+    ManoNavItem(icon: Icons.work_outline, label: 'Actividad'),
     ManoNavItem(icon: Icons.chat_bubble_outline, label: 'Bandeja'),
     ManoNavItem(icon: Icons.person_outline, label: 'Perfil'),
   ];

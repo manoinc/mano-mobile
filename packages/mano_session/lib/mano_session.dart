@@ -26,6 +26,7 @@ export 'package:mano_domain/mano_domain.dart';
 
 export 'src/catalog_providers.dart';
 export 'src/conversation_providers.dart';
+export 'src/marketplace_providers.dart';
 export 'src/onboarding/onboarding_flow.dart';
 export 'src/onboarding/onboarding_notifier.dart';
 export 'src/onboarding/registration_providers.dart';

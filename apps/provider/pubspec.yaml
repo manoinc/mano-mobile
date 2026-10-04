@@ -18,11 +18,14 @@ dependencies:
   flutter_native_splash: ^2.4.8
   mano_session: ^0.1.0
   mano_ui: ^0.1.0
+  go_router: ^18.0.1
   flutter_riverpod: ^3.4.3
   cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4

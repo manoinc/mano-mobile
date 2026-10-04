@@ -5,8 +5,8 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import 'config.dart';
-import 'screens/home_screen.dart';
-import 'screens/sign_in_screen.dart';
+import 'features/onboarding/professional_onboarding_screen.dart';
+import 'shell/provider_shell.dart';
 
 void main() {
   // Hold Android's splash until Flutter has painted. Without this there is a
@@ -44,29 +44,28 @@ class ProviderApp extends StatelessWidget {
   }
 }
 
-/// The app, once it has opened.
-///
-/// Wraps everything in [ManoOpening] so the brand is what a cold start shows,
-/// rather than the spinner that used to live here.
-class _Root extends ConsumerWidget {
+/// The app, once it has opened: onboarding when signed out, the shell otherwise.
+class _Root extends ConsumerStatefulWidget {
   const _Root();
 
-  /// Whether the opening has already played in this process.
-  ///
-  /// Static, so it resets when the process does and survives every rebuild in
-  /// between. That is precisely "once per cold start": a warm resume, a sign
-  /// out and a rotation all find it already true.
+  @override
+  ConsumerState<_Root> createState() => _RootState();
+}
+
+class _RootState extends ConsumerState<_Root> {
+  // Static so the opening plays once per cold start, not per rebuild.
   static bool _opened = false;
 
+  // Until auth exists, finishing onboarding enters the shell locally.
+  bool _browsing = false;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final state = ref.watch(sessionProvider);
 
     return ManoOpening(
       animate: !_opened,
-      // A cold start is usually still restoring a session. Until it resolves
-      // there is nothing worth opening onto, so the sequence waits on its
-      // finished lockup instead.
+      // A cold start is usually still restoring a session; hold the lockup until it resolves.
       ready: state.hasError || state.value != null,
       onFirstFrame: () {
         FlutterNativeSplash.remove();
@@ -76,27 +75,18 @@ class _Root extends ConsumerWidget {
     );
   }
 
-  /// Chooses a screen from the session, and nothing else.
-  ///
-  /// No router yet, deliberately: there is one screen per state, so a redirect
-  /// table would be indirection without a purpose. `go_router` earns its place
-  /// once a signed-in Proveedor has somewhere to navigate to.
-  ///
-  /// The switch is exhaustive in both directions. A new [SessionState] case, or
-  /// a new [AsyncValue] case, breaks this file at compile time instead of
-  /// silently rendering a blank screen.
-  static Widget _screen(AsyncValue<SessionState> state) {
-    // Something threw. Because every failure the app expects is returned as a
-    // value, reaching here means a bug -- so it is reported as one rather than
-    // dressed up as a friendly message.
+  Widget _screen(AsyncValue<SessionState> state) {
+    // Expected failures arrive as values, so an error here is a bug.
     if (state case AsyncError(:final error)) {
       return _Crashed(error: error);
     }
 
     return switch (state.value) {
-      SignedIn(:final session) => HomeScreen(session: session),
-      SignedOut(:final lastFailure) => SignInScreen(failure: lastFailure),
-      // Still restoring; the opening is holding.
+      SignedIn() => const ProviderShell(),
+      SignedOut() when _browsing => const ProviderShell(),
+      SignedOut() => ProfessionalOnboardingScreen(
+        onFinished: () => setState(() => _browsing = true),
+      ),
       null => const SizedBox.shrink(),
     };
   }

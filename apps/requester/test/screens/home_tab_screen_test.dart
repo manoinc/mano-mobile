@@ -99,9 +99,7 @@ void main() {
     expect(find.text('Reparación de tuberías'), findsNothing);
   });
 
-  testWidgets('tapping the same chip again clears the filter', (
-    tester,
-  ) async {
+  testWidgets('tapping the same chip again clears the filter', (tester) async {
     await _host(tester);
 
     await tester.tap(find.text('Limpieza'));
@@ -113,20 +111,7 @@ void main() {
     expect(find.text('Reparación de tuberías'), findsOneWidget);
   });
 
-  testWidgets('tapping the search pill shows the stub notice', (
-    tester,
-  ) async {
-    await _host(tester);
-
-    await tester.tap(find.byType(ManoSearchPill));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Muy pronto'), findsOneWidget);
-  });
-
-  testWidgets('tapping the address pill shows the stub notice', (
-    tester,
-  ) async {
+  testWidgets('tapping the address pill shows the stub notice', (tester) async {
     await _host(tester);
 
     await tester.tap(find.byType(ManoAddressPill));
@@ -135,9 +120,7 @@ void main() {
     expect(find.text('Muy pronto'), findsOneWidget);
   });
 
-  testWidgets('tapping a listing card shows the stub notice', (
-    tester,
-  ) async {
+  testWidgets('tapping a listing card shows the stub notice', (tester) async {
     await _host(tester);
 
     final card = find.text('Limpieza profunda');

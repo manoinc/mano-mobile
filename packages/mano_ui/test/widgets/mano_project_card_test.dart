@@ -76,7 +76,10 @@ void main() {
         ),
       );
       final successBadge = tester.widget<Container>(
-        find.byKey(const Key('mano-project-card-status-badge')),
+        find.descendant(
+          of: find.byKey(const Key('mano-project-card-status-badge')),
+          matching: find.byType(Container),
+        ),
       );
       final successColor = (successBadge.decoration! as BoxDecoration).color;
 
@@ -95,7 +98,10 @@ void main() {
         ),
       );
       final warningBadge = tester.widget<Container>(
-        find.byKey(const Key('mano-project-card-status-badge')),
+        find.descendant(
+          of: find.byKey(const Key('mano-project-card-status-badge')),
+          matching: find.byType(Container),
+        ),
       );
       final warningColor = (warningBadge.decoration! as BoxDecoration).color;
 

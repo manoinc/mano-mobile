@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
@@ -18,15 +19,8 @@ String _relativeLabel(DateTime lastMessageAt, DateTime now) {
   return '${elapsed.inDays < 1 ? 1 : elapsed.inDays}d';
 }
 
-void _showStub(BuildContext context) {
-  ScaffoldMessenger.of(
-    context,
-  ).showSnackBar(const SnackBar(content: Text('Muy pronto')));
-}
-
 /// The Bandeja tab: a plain list of conversations, newest activity first as
-/// the repository already orders them. No chat-thread screen exists yet, so
-/// tapping a tile shows the stub notice instead of a silent no-op.
+/// the repository already orders them. Tapping a tile opens its chat.
 class InboxTabScreen extends ConsumerWidget {
   const InboxTabScreen({super.key});
 
@@ -40,9 +34,7 @@ class InboxTabScreen extends ConsumerWidget {
         child: conversations.when(
           data: (items) {
             if (items.isEmpty) {
-              return const Center(
-                child: Text('Aún no tienes conversaciones.'),
-              );
+              return const Center(child: Text('Aún no tienes conversaciones.'));
             }
             final now = DateTime.now();
             return ListView.separated(
@@ -65,15 +57,14 @@ class InboxTabScreen extends ConsumerWidget {
                     now,
                   ),
                   unreadCount: conversation.unreadCount,
-                  onTap: () => _showStub(context),
+                  onTap: () => context.push('/inbox/${conversation.id}'),
                 );
               },
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) => const Center(
-            child: Text('No se pudo cargar.'),
-          ),
+          error: (error, stackTrace) =>
+              const Center(child: Text('No se pudo cargar.')),
         ),
       ),
     );

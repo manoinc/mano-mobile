@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mano_requester/features/activity/job_detail_screen.dart';
+import 'package:mano_requester/features/booking/booking_screen.dart';
+import 'package:mano_requester/features/chat/chat_screen.dart';
+import 'package:mano_requester/features/explore/search_screen.dart';
+import 'package:mano_requester/features/explore/service_detail_screen.dart';
+import 'package:mano_requester/features/offers/offers_screen.dart';
 import 'package:mano_requester/screens/home_tab_screen.dart';
 import 'package:mano_requester/shell/app_router.dart';
 import 'package:mano_requester/shell/nav_shell.dart';
@@ -60,5 +66,86 @@ void main() {
 
     final GoRouter first = container.read(requesterRouterProvider);
     expect(container.read(requesterRouterProvider), same(first));
+  });
+
+  group('module routes', () {
+    Future<void> go(WidgetTester tester, ProviderContainer c, String to) async {
+      c.read(requesterRouterProvider).go(to);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('explore: search with an optional category', (tester) async {
+      final c = await _pump(tester);
+      await go(tester, c, '/home/search?category=cleaning');
+      expect(
+        tester.widget<SearchScreen>(find.byType(SearchScreen)).category,
+        'cleaning',
+      );
+    });
+
+    testWidgets('explore: service detail by id', (tester) async {
+      final c = await _pump(tester);
+      await go(tester, c, '/home/service/s1');
+      expect(
+        tester
+            .widget<ServiceDetailScreen>(find.byType(ServiceDetailScreen))
+            .serviceId,
+        's1',
+      );
+    });
+
+    testWidgets('offers for a service', (tester) async {
+      final c = await _pump(tester);
+      await go(tester, c, '/home/service/s1/offers');
+      expect(
+        tester.widget<OffersScreen>(find.byType(OffersScreen)).serviceId,
+        's1',
+      );
+    });
+
+    testWidgets('booking is full screen, above the nav bar', (tester) async {
+      final c = await _pump(tester);
+      await go(tester, c, '/home/book/o1');
+      expect(
+        tester.widget<BookingScreen>(find.byType(BookingScreen)).offerId,
+        'o1',
+      );
+      expect(find.byType(ManoBottomNavBar), findsNothing);
+    });
+
+    testWidgets('activity: job detail', (tester) async {
+      final c = await _pump(tester);
+      await go(tester, c, '/projects/job/j1');
+      expect(
+        tester.widget<JobDetailScreen>(find.byType(JobDetailScreen)).jobId,
+        'j1',
+      );
+    });
+
+    testWidgets('chat is full screen, above the nav bar', (tester) async {
+      final c = await _pump(tester);
+      await go(tester, c, '/inbox/conv-1');
+      expect(
+        tester.widget<ChatScreen>(find.byType(ChatScreen)).conversationId,
+        'conv-1',
+      );
+      expect(find.byType(ManoBottomNavBar), findsNothing);
+    });
+  });
+
+  testWidgets('the search pill opens search', (tester) async {
+    final c = await _pump(tester);
+    await tester.tap(find.byType(ManoSearchPill));
+    await tester.pumpAndSettle();
+    expect(c.read(requesterRouterProvider).state.uri.path, '/home/search');
+  });
+
+  testWidgets('a conversation opens its chat', (tester) async {
+    final c = await _pump(tester);
+    await tester.tap(find.text('Bandeja'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(ManoConversationTile).first);
+    await tester.pumpAndSettle();
+    expect(c.read(requesterRouterProvider).state.uri.path, '/inbox/conv-1');
   });
 }

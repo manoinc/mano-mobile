@@ -29,7 +29,12 @@ final manoConfigProvider = Provider<ManoConfig>(
 /// Mano's GraphQL API. Nothing about this depends on how the user signed in --
 /// it only needs a bearer token, whoever minted it.
 final gatewayClientProvider = Provider<GatewayClient>(
-  (ref) => HttpGatewayClient(ref.watch(manoConfigProvider)),
+  (ref) => HttpGatewayClient(ref.watch(gatewayTransportProvider)),
+);
+
+/// The HTTP pipe every gateway adapter shares.
+final gatewayTransportProvider = Provider<GatewayTransport>(
+  (ref) => GatewayTransport(ref.watch(manoConfigProvider)),
 );
 
 /// Persistent credential storage.
