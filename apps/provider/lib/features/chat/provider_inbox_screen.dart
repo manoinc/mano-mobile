@@ -1,11 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mano_session/mano_session.dart';
+import 'package:mano_ui/mano_ui.dart';
 
-import '../../shell/module_placeholder.dart';
-
-class ProviderInboxScreen extends StatelessWidget {
+/// Bandeja: conversations with clients, newest activity first.
+class ProviderInboxScreen extends ConsumerWidget {
   const ProviderInboxScreen({super.key});
 
   @override
-  Widget build(BuildContext context) =>
-      const ModulePlaceholder(title: 'Bandeja', detail: 'PROV-06 · Bandeja');
+  Widget build(BuildContext context, WidgetRef ref) {
+    final conversations = ref.watch(conversationsProvider);
+
+    return Scaffold(
+      body: SafeArea(
+        child: switch (conversations) {
+          AsyncData(:final value) => ManoRefreshList(
+            onRefresh: () => ref.refresh(conversationsProvider.future),
+            emptyMessage: 'Aún no tienes conversaciones con clientes',
+            children: [
+              for (final conversation in value)
+                ManoConversationTile(
+                  avatarUrl: conversation.participantPhotoUrl,
+                  online: conversation.isOnline,
+                  verified: conversation.isVerified,
+                  name: conversation.participantName,
+                  snippet: conversation.lastMessage,
+                  timestampLabel: ManoFormat.relative(
+                    conversation.lastMessageAt,
+                    DateTime.now(),
+                  ),
+                  unreadCount: conversation.unreadCount,
+                  onTap: () => context.push('/inbox/${conversation.id}'),
+                ),
+            ],
+          ),
+          AsyncError() => ManoEmptyState(
+            icon: Icons.cloud_off_rounded,
+            message: 'No se pudo cargar tu bandeja.',
+            ctaLabel: 'Reintentar',
+            onCta: () => ref.invalidate(conversationsProvider),
+          ),
+          _ => const Center(child: CircularProgressIndicator()),
+        },
+      ),
+    );
+  }
 }
