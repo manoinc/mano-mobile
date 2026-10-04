@@ -1,7 +1,7 @@
 import 'package:mano_session/mano_session.dart';
 
 /// An in-memory catalog that filters like the gateway: exact category, substring text.
-final class FakeServiceCatalog implements ServiceCatalog {
+class FakeServiceCatalog implements ServiceCatalog {
   FakeServiceCatalog({this.services = defaultServices});
 
   static const defaultServices = [
