@@ -36,6 +36,8 @@ export 'src/offers/offer_pricing_filter.dart';
 export 'src/onboarding/onboarding_flow.dart';
 export 'src/onboarding/onboarding_notifier.dart';
 export 'src/onboarding/registration_providers.dart';
+export 'src/services/my_offers_provider.dart';
+export 'src/services/offer_editor_notifier.dart';
 export 'src/session_notifier.dart';
 export 'src/session_providers.dart';
 export 'src/session_state.dart';
