@@ -27,46 +27,56 @@ class InboxTabScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final conversations = ref.watch(conversationsProvider);
-    final theme = Theme.of(context);
 
     return Scaffold(
       body: SafeArea(
         child: conversations.when(
-          data: (items) {
-            if (items.isEmpty) {
-              return const Center(child: Text('Aún no tienes conversaciones.'));
-            }
-            final now = DateTime.now();
-            return ListView.separated(
-              itemCount: items.length,
-              separatorBuilder: (context, index) => Divider(
-                height: 1,
-                thickness: 1,
-                color: theme.colorScheme.outlineVariant,
-              ),
-              itemBuilder: (context, index) {
-                final conversation = items[index];
-                return ManoConversationTile(
-                  avatarUrl: conversation.participantPhotoUrl,
-                  online: conversation.isOnline,
-                  verified: conversation.isVerified,
-                  name: conversation.participantName,
-                  snippet: conversation.lastMessage,
-                  timestampLabel: _relativeLabel(
-                    conversation.lastMessageAt,
-                    now,
-                  ),
-                  unreadCount: conversation.unreadCount,
-                  onTap: () => context.push('/inbox/${conversation.id}'),
-                );
-              },
-            );
-          },
+          data: (items) => RefreshIndicator(
+            onRefresh: () => ref.refresh(conversationsProvider.future),
+            child: _list(context, items),
+          ),
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stackTrace) =>
               const Center(child: Text('No se pudo cargar.')),
         ),
       ),
+    );
+  }
+
+  Widget _list(BuildContext context, List<Conversation> items) {
+    // Always scrollable, so even an empty or short list can be pulled.
+    const physics = AlwaysScrollableScrollPhysics();
+    if (items.isEmpty) {
+      return ListView(
+        physics: physics,
+        children: const [
+          SizedBox(height: ManoSpacing.xl * 4),
+          Center(child: Text('Aún no tienes conversaciones.')),
+        ],
+      );
+    }
+    final now = DateTime.now();
+    return ListView.separated(
+      physics: physics,
+      itemCount: items.length,
+      separatorBuilder: (context, index) => Divider(
+        height: 1,
+        thickness: 1,
+        color: Theme.of(context).colorScheme.outlineVariant,
+      ),
+      itemBuilder: (context, index) {
+        final conversation = items[index];
+        return ManoConversationTile(
+          avatarUrl: conversation.participantPhotoUrl,
+          online: conversation.isOnline,
+          verified: conversation.isVerified,
+          name: conversation.participantName,
+          snippet: conversation.lastMessage,
+          timestampLabel: _relativeLabel(conversation.lastMessageAt, now),
+          unreadCount: conversation.unreadCount,
+          onTap: () => context.push('/inbox/${conversation.id}'),
+        );
+      },
     );
   }
 }

@@ -9,12 +9,16 @@ import 'package:mano_ui/mano_ui.dart';
 /// online/verified combinations, so badge and field-mapping tests have
 /// something to prove against.
 final class _FakeConversationRepository implements ConversationRepository {
-  const _FakeConversationRepository(this._conversations);
+  _FakeConversationRepository(this._conversations);
 
   final List<Conversation> _conversations;
+  var calls = 0;
 
   @override
-  Future<List<Conversation>> conversations() async => _conversations;
+  Future<List<Conversation>> conversations() async {
+    calls++;
+    return _conversations;
+  }
 }
 
 final _fakeConversations = [
@@ -40,17 +44,16 @@ final _fakeConversations = [
   ),
 ];
 
-Future<void> _host(
+Future<_FakeConversationRepository> _host(
   WidgetTester tester, {
   List<Conversation>? conversations,
 }) async {
+  final repository = _FakeConversationRepository(
+    conversations ?? _fakeConversations,
+  );
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [
-        conversationRepositoryProvider.overrideWithValue(
-          _FakeConversationRepository(conversations ?? _fakeConversations),
-        ),
-      ],
+      overrides: [conversationRepositoryProvider.overrideWithValue(repository)],
       child: MaterialApp(
         theme: ManoTheme.light(),
         home: const InboxTabScreen(),
@@ -58,6 +61,7 @@ Future<void> _host(
     ),
   );
   await tester.pumpAndSettle();
+  return repository;
 }
 
 void main() {
@@ -142,4 +146,27 @@ void main() {
       expect(find.text('Aún no tienes conversaciones.'), findsOneWidget);
     },
   );
+
+  testWidgets('pulling down refetches the conversations', (tester) async {
+    final repository = await _host(tester);
+    expect(repository.calls, 1);
+
+    await tester.fling(find.text('Camila Ríos'), const Offset(0, 400), 1000);
+    await tester.pumpAndSettle();
+
+    expect(repository.calls, 2);
+  });
+
+  testWidgets('the empty list can be pulled to refresh too', (tester) async {
+    final repository = await _host(tester, conversations: []);
+
+    await tester.fling(
+      find.text('Aún no tienes conversaciones.'),
+      const Offset(0, 400),
+      1000,
+    );
+    await tester.pumpAndSettle();
+
+    expect(repository.calls, 2);
+  });
 }
