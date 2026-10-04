@@ -75,4 +75,14 @@ void main() {
       expect(taps, 1);
     });
   });
+
+  testWidgets('a long price never overflows a narrow card', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ManoTheme.light(),
+        home: Scaffold(body: Center(child: SizedBox(width: 300, child: _card()))),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+  });
 }

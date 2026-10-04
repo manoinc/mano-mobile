@@ -24,25 +24,27 @@ final class _Catalog implements ServiceCatalog {
 }
 
 void main() {
-  test('offeredServiceProvider resolves a title, null when unknown', () async {
+  test('jobServiceProvider resolves a title, null when unknown', () async {
     final c = ProviderContainer.test(
       overrides: [serviceCatalogProvider.overrideWithValue(_Catalog())],
     );
-    expect(await c.read(offeredServiceProvider('svc-1').future), _service);
-    expect(await c.read(offeredServiceProvider('nope').future), isNull);
+    expect(await c.read(jobServiceProvider('svc-1').future), _service);
+    expect(await c.read(jobServiceProvider('nope').future), isNull);
   });
 
-  test('offeredServiceProvider does not retry on its own', () async {
+  test('jobServiceProvider does not retry on its own', () async {
     final catalog = _Catalog();
-    final c = ProviderContainer.test(
+    // A plain container keeps Riverpod's default retry, which the test helper turns off.
+    final c = ProviderContainer(
       overrides: [serviceCatalogProvider.overrideWithValue(catalog)],
     );
-    c.listen(offeredServiceProvider('boom'), (_, _) {});
+    addTearDown(c.dispose);
+    c.listen(jobServiceProvider('boom'), (_, _) {});
     await expectLater(
-      c.read(offeredServiceProvider('boom').future),
+      c.read(jobServiceProvider('boom').future),
       throwsStateError,
     );
-    await Future<void>.delayed(const Duration(milliseconds: 500));
+    await Future<void>.delayed(const Duration(seconds: 1));
     expect(catalog.calls, 1);
   });
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_session/mano_session.dart';
@@ -43,6 +44,9 @@ class RequesterApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ManoTheme.light(),
       darkTheme: ManoTheme.dark(),
+      locale: const Locale('es', 'CO'),
+      supportedLocales: const [Locale('es', 'CO')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       home: ManoRoot(onFirstFrame: FlutterNativeSplash.remove),
     );
   }

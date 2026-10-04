@@ -13,6 +13,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # Spanish month and weekday names in Material pickers.
+  flutter_localizations:
+    sdk: flutter
   # Holds the system splash up until Flutter has painted, so the m never
   # flickers through a blank window on its way into the opening animation.
   flutter_native_splash: ^2.4.8

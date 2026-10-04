@@ -57,7 +57,7 @@ void main() {
     await tester.tap(find.text('Entendido'));
     await tester.pumpAndSettle();
 
-    await tester.pageBack();
+    await tester.tap(find.byType(BackButton)); // locale-proof, unlike pageBack()
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('activity-job-job-1')), findsNothing);
     await _openFilter(tester, 'Cancelados');

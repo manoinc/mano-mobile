@@ -102,7 +102,17 @@ class ManoRequestCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: ManoSpacing.sm),
-                  ManoPriceTag(amountLabel: amountLabel, rateLabel: rateLabel),
+                  // A price is never truncated; it shrinks instead at large text sizes.
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: ManoPriceTag(
+                        amountLabel: amountLabel,
+                        rateLabel: rateLabel,
+                      ),
+                    ),
+                  ),
                 ],
               ),
               if (actions != null) ...[

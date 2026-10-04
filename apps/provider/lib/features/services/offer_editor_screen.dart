@@ -248,7 +248,7 @@ class _ServiceTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final service = ref.watch(offeredServiceProvider(jobServiceId)).value;
+    final service = ref.watch(jobServiceProvider(jobServiceId)).value;
     return Text(
       service?.title ?? 'Servicio',
       style: Theme.of(context).textTheme.bodyLarge,

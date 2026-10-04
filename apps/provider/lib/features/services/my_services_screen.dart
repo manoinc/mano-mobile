@@ -92,7 +92,7 @@ class _OfferTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final service = ref.watch(offeredServiceProvider(offer.jobServiceId)).value;
+    final service = ref.watch(jobServiceProvider(offer.jobServiceId)).value;
     final (label, tone) = offerBadge(offer.status);
 
     return ManoOfferCard(
