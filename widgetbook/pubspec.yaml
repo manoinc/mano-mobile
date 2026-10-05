@@ -1,0 +1,25 @@
+name: mano_widgetbook
+description: >
+  Mano's component catalogue: every mano_ui widget, with knobs, in light and
+  dark, at phone sizes. Built for the web and published inside the docs site.
+publish_to: none
+resolution: workspace
+version: 0.1.0
+
+environment:
+  sdk: ^3.13.2
+
+# mano_ui only, like a screen would see it: no domain, no Riverpod.
+dependencies:
+  flutter:
+    sdk: flutter
+  mano_ui: ^0.1.0
+  widgetbook: ^3.25.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

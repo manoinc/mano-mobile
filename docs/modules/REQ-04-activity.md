@@ -148,7 +148,7 @@ them, so these are deleted along with their tests:
 
 ## Backend gaps
 
-- The gateway stubs jobs and service requests (`docs/backend-contract.md`), so
+- The gateway stubs jobs and service requests (`docs/develop/backend-contract.md`), so
   both repositories are mocks.
 - `JobRepository.rebook` creates a request in the job repository's own memory.
   `MockServiceRequestRepository` never sees it, so with mocks a rebooked

@@ -13,6 +13,7 @@ Pub workspace — one `pub get`, one `pubspec.lock` at the root.
     packages/mano_data     adapters: GraphQL gateway (catalog live), in-memory mocks, secure storage
     packages/mano_ui       theme + dumb widgets — Flutter only
     packages/mano_session  composition root; the only member using Riverpod
+    widgetbook             component catalogue (Widgetbook), published in the docs
 
 Arrows point one way: `apps → mano_session → mano_data → mano_domain`, plus
 `apps → mano_ui`. Enforced by the build, not by review —
@@ -30,19 +31,24 @@ See README.md for the rationale.
 
 ```bash
 dart analyze                                     # whole workspace, from root
-cd packages/mano_domain  && dart test            # 71 — no Flutter binding
-cd packages/mano_data    && flutter test         # 49
-cd packages/mano_session && flutter test         # 42
-cd packages/mano_ui      && flutter test         # 169
-cd apps/requester        && flutter test         # 63
-cd apps/provider         && flutter test         # 10
+cd packages/mano_domain  && dart test            # 67 — no Flutter binding
+cd packages/mano_data    && flutter test         # 53
+cd packages/mano_session && flutter test         # 130
+cd packages/mano_ui      && flutter test         # 198
+cd apps/requester        && flutter test         # 119
+cd apps/provider         && flutter test         # 87
+cd widgetbook            && flutter test         # 71 — every use case renders, every widget covered
+tools/docs.sh serve                              # the handbook at localhost:8000
 cd apps/<app> && flutter test integration_test -d RFGL20WAR9E  # on the A36, one at a time
 dart tools/generate_logo_paths.dart              # after changing tools/brand/*.svg
 cd apps/requester && flutter run -d RFGL20WAR9E  # the A36
 ```
 
-Architecture conventions and the "adding a module" recipe: `docs/architecture.md`.
-What the gateway really serves versus what is mocked: `docs/backend-contract.md`.
+Docs: the Mano Handbook (`docs/`, Zensical through Docker via `tools/docs.sh`) and the
+Widgetbook catalogue (`widgetbook/`). A new `mano_ui` widget needs a Widgetbook use case,
+and the catalogue test fails without one. Recipes: `docs/develop/adding-a-screen.md`,
+`docs/develop/adding-a-component.md`. The open polish backlog is in `POLISH.md`.
+What the gateway really serves versus what is mocked: `docs/develop/backend-contract.md`.
 
 ## Coding style 
 
@@ -52,7 +58,7 @@ Hexagonal architecture. Business logic must not depend on the presentation frame
 Use TDD to make sure the code works E2E. 
 The code must be structured in such a clean way that it looks the same in all apps and we don't have to duplicate effort across them. Only `android/` exists today; iOS is planned, so keep everything platform-agnostic.
 
-Avoid extensive verbose comments or documentation inside the code, all comments must be one-liners, concise and easy to understand. Extensive documentation must sit outside the code in markdown files or using Mkdocs.
+Avoid extensive verbose comments or documentation inside the code, all comments must be one-liners, concise and easy to understand. Extensive documentation must sit outside the code, in the handbook's markdown files (`docs/`).
 DO NOT coauthor any commits.
 
 ## Skills 
@@ -75,7 +81,7 @@ Auth: Keycloak was dropped, because it needs an in-app browser tab, which breaks
 the native feel. SuperTokens is being trialled (Flutter SDK; the Rust side is
 hand-built). Until it lands, sign-in reports "not configured", the gateway is
 anonymous, and every port except the catalog runs on in-memory mocks. Local
-gateway setup and the catalog seed are in `docs/backend-contract.md`.
+gateway setup and the catalog seed are in `docs/develop/backend-contract.md`.
 
 ## Design
 

@@ -14,7 +14,7 @@ import '../screens/profile_tab_screen.dart';
 import '../screens/projects_tab_screen.dart';
 import 'nav_shell.dart';
 
-/// The nav shell's tabs and each module's routes (docs/modules/README.md).
+/// The nav shell's tabs and each module's routes (docs/modules/index.md).
 ///
 /// Who sees this router at all is [ManoRoot]'s decision. Built once, not per
 /// rebuild: a fresh [GoRouter] would reset each tab's navigation state.

@@ -1,0 +1,98 @@
+# Mano's handbook. Build and serve through Docker (tools/docs.sh), so the repo carries no Python.
+[project]
+site_name = "Mano Handbook"
+site_description = "How Mano looks, how it works, and how to build on it."
+repo_url = "https://github.com/manoinc/mano-mobile"
+repo_name = "manoinc/mano-mobile"
+docs_dir = "docs"
+site_dir = "site"
+extra_css = ["assets/stylesheets/mano.css"]
+
+nav = [
+  { "Home" = "index.md" },
+  { "Brand" = [
+    "brand/index.md",
+    "brand/colour.md",
+    "brand/typography.md",
+    "brand/layout.md",
+    "brand/motion.md",
+    "brand/logo.md",
+    "brand/voice.md",
+  ] },
+  { "Components" = [
+    "components/index.md",
+    "components/patterns.md",
+    { "Open the catalogue ↗" = "widgetbook/index.html" },
+  ] },
+  { "Product" = [
+    "product/index.md",
+    "product/requester.md",
+    "product/provider.md",
+    "product/lifecycle.md",
+  ] },
+  { "Develop" = [
+    "develop/index.md",
+    "develop/architecture.md",
+    "develop/navigation.md",
+    "develop/adding-a-screen.md",
+    "develop/adding-a-component.md",
+    "develop/testing.md",
+    "develop/backend-contract.md",
+    "develop/documentation.md",
+  ] },
+  { "Modules" = [
+    "modules/index.md",
+    "modules/REQ-01-explore.md",
+    "modules/REQ-02-offers.md",
+    "modules/REQ-03-booking.md",
+    "modules/REQ-04-activity.md",
+    "modules/REQ-05-chat.md",
+    "modules/PROV-01-onboarding.md",
+    "modules/PROV-02-services.md",
+    "modules/PROV-03-availability.md",
+    "modules/PROV-04-requests.md",
+    "modules/PROV-05-agenda.md",
+    "modules/PROV-06-chat.md",
+  ] },
+]
+
+[project.theme]
+logo = "assets/images/mano-monogram.svg"
+favicon = "assets/images/mano-monogram.svg"
+font.text = "Poppins"
+font.code = "JetBrains Mono"
+features = [
+  "navigation.tabs",
+  "navigation.sections",
+  "navigation.top",
+  "content.code.copy",
+  "search.highlight",
+]
+
+[[project.theme.palette]]
+scheme = "default"
+primary = "custom"
+accent = "custom"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+scheme = "slate"
+primary = "custom"
+accent = "custom"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to light mode"
+
+[project.markdown_extensions]
+admonition = {}
+attr_list = {}
+md_in_html = {}
+tables = {}
+toc = { permalink = true }
+pymdownx.details = {}
+pymdownx.tabbed = { alternate_style = true }
+pymdownx.highlight = {}
+pymdownx.inlinehilite = {}
+pymdownx.superfences.custom_fences = [
+  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+]

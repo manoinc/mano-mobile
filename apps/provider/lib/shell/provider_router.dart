@@ -12,7 +12,7 @@ import '../features/services/my_services_screen.dart';
 import '../features/services/offer_editor_screen.dart';
 import 'provider_nav_shell.dart';
 
-/// The provider's tabs and each module's routes (docs/modules/README.md).
+/// The provider's tabs and each module's routes (docs/modules/index.md).
 /// Built once, not per rebuild, so each tab keeps its navigation state.
 final providerRouterProvider = Provider<GoRouter>((ref) {
   final rootKey = GlobalKey<NavigatorState>();

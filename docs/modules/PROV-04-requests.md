@@ -112,7 +112,7 @@ and has no actions slot.
 
 - `myServiceRequests`, `acceptServiceRequest` and `rejectServiceRequest` are
   gateway stubs, so this screen runs on the mock only
-  (docs/backend-contract.md).
+  (docs/develop/backend-contract.md).
 - Accepting must create the job server-side; the mock fakes it with
   `onAccepted`.
 - "Chat before deciding" can only open the inbox: neither `ServiceRequest`

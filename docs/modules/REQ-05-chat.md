@@ -93,6 +93,6 @@ PROV-06 extracted `ManoChatThread`, `ManoChatHeader`, `ManoRefreshList` and `Man
 
 ## Backend gaps blocking go-live
 
-- The gateway has no conversations or messaging API (see `docs/backend-contract.md`). Both ports are mock only, and a `GatewayChatRepository` needs a real-time transport, for example a GraphQL subscription or WebSocket for `watch`.
+- The gateway has no conversations or messaging API (see `docs/develop/backend-contract.md`). Both ports are mock only, and a `GatewayChatRepository` needs a real-time transport, for example a GraphQL subscription or WebSocket for `watch`.
 - The mocks share state in memory only (`MockChatRepository` updates `MockConversationRepository` on read and on each message), so nothing survives a restart until real adapters back both ports.
 - `Message` has no client-generated id or delivery status. Dedupe relies on the server returning the same id on `send` and on `watch`. An idempotency key on `send` would make retries safe against duplicate delivery.

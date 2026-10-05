@@ -125,7 +125,7 @@ leads to is covered in mano_session, and the flow is left for the device.
 - Scheduling is a stub on mano-gateway. `workerAvailability`,
   `myAvailabilityRules`, `upsertAvailabilityRule`, `removeAvailabilityRule`,
   `blockCalendar` and `unblockCalendar` exist in the scheduler but are not
-  wired (docs/backend-contract.md).
+  wired (docs/develop/backend-contract.md).
 - No GraphQL operation exists to issue or revoke a calendar feed, and there is
   no `.ics` route. The scheduler has to implement both before "Sincroniza tu
   agenda" can be real. Mock URLs look like

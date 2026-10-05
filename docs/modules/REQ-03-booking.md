@@ -85,7 +85,7 @@ No new widgets. `ManoTextField` gained optional `minLines` / `maxLines`
 
 - `AvailabilityRepository` (`workerAvailability`) and `JobRepository`
   (`bookSlot`) are gateway stubs; the scheduler and taskmanager implement them
-  but are not wired (docs/backend-contract.md).
+  but are not wired (docs/develop/backend-contract.md).
 - `ServiceRequestRepository.request` is likewise mocked.
 - `MockJobRepository.bookSlot` does not check the slot is still free; the real
   backend must reject a taken slot (it would surface as `DataRejected` and

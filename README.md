@@ -61,12 +61,13 @@ Detailed docs live in [`docs/`](docs/). This README is just the map.
 ## Testing
 
 ```bash
-cd packages/mano_domain  && dart test        #  71 — no Flutter binding needed
-cd packages/mano_data    && flutter test     #  49 — gateway adapters via MockClient, mocks
-cd packages/mano_session && flutter test     #  42 — fake repositories, no device
-cd packages/mano_ui      && flutter test     # 169 — widgets take strings & callbacks
-cd apps/requester        && flutter test     #  63
-cd apps/provider         && flutter test     #  10
+cd packages/mano_domain  && dart test        #  67 — no Flutter binding needed
+cd packages/mano_data    && flutter test     #  53 — gateway adapters via MockClient, mocks
+cd packages/mano_session && flutter test     # 130 — fake repositories, no device
+cd packages/mano_ui      && flutter test     # 198 — widgets take strings & callbacks
+cd apps/requester        && flutter test     # 119
+cd apps/provider         && flutter test     #  87
+cd widgetbook            && flutter test     #  71 — every use case renders
 cd apps/requester        && flutter test integration_test -d RFGL20WAR9E   # on the phone
 ```
 
@@ -74,10 +75,13 @@ No host test opens a browser, touches a keystore, or makes a network request.
 
 ## Docs
 
-- [docs/architecture.md](docs/architecture.md): layers, conventions, adding a module
-- [docs/backend-contract.md](docs/backend-contract.md): gateway operations, live versus stubbed
-- [docs/modules/](docs/modules/README.md): one page per screen module
-- [docs/navigation-shell.md](docs/navigation-shell.md): requester routing
+The **Mano Handbook** lives in [`docs/`](docs/): the brand system, components,
+product journeys and developer guides. Every widget is also live in the
+[`widgetbook/`](widgetbook/) catalogue.
+
+```bash
+tools/docs.sh serve   # http://localhost:8000 (Zensical in Docker, catalogue at /widgetbook/)
+```
 
 ## Quick start
 

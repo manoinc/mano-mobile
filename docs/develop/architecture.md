@@ -3,10 +3,16 @@
 Hexagonal (ports and adapters), split into a Pub workspace so the boundaries are
 enforced by the build rather than by review.
 
-```
-apps/requester ─┐
-apps/provider ──┼─> mano_session ─> mano_data ─> mano_domain
-                └─> mano_ui
+```mermaid
+flowchart LR
+    R[apps/requester] --> S[mano_session]
+    P[apps/provider] --> S
+    R --> U[mano_ui]
+    P --> U
+    W[widgetbook] --> U
+    S --> D[mano_data]
+    S --> M[mano_domain]
+    D --> M
 ```
 
 | Layer | Package | Holds | May import |
@@ -16,6 +22,7 @@ apps/provider ──┼─> mano_session ─> mano_data ─> mano_domain
 | Composition | `mano_session` | one Riverpod `Provider<Port>` per port, plus feature notifiers | `mano_data`, `mano_domain`, Riverpod |
 | Design system | `mano_ui` | tokens, `ManoFormat`, dumb widgets (strings, bools, callbacks) | Flutter only |
 | Apps | `apps/*` | routes, screens, domain → widget mapping | `mano_session`, `mano_ui` |
+| Catalogue | `widgetbook` | a use case per component | `mano_ui` |
 
 `depend_on_referenced_packages` is an error in `mano_domain` and `mano_ui`, so a
 cross-boundary import fails `dart analyze`.
@@ -48,34 +55,22 @@ cross-boundary import fails `dart analyze`.
 
 Nothing above `mano_session` changes.
 
-## Adding a screen module
+## A request, end to end
 
-1. **Domain:** if the port is missing an operation, add it to the port, the mock
-   and the gateway adapter, test-first.
-2. **State:** put feature state in `mano_session/lib/src/<module>/` as a
-   `Notifier`/`AsyncNotifier` over the port provider, and export it from
-   `mano_session.dart`. If both apps need the same state, it lives here once.
-3. **Screens:** they go in `apps/<app>/lib/features/<module>/`. Routes are
-   already registered in `shell/app_router.dart` (requester) and
-   `shell/provider_router.dart` (provider).
-4. **Shared widgets:** reuse `mano_ui` first. A widget two modules need goes in
-   `mano_ui` as a new file with its own test.
-5. **Tests:**
-   - Widget tests go in `apps/<app>/test/features/<module>/`, using
-     `test/support/pump_app.dart` (`pumpRouterAt(tester, '/route',
-     overrides: [...])`).
-   - The flow test goes in `apps/<app>/integration_test/<module>_flow_test.dart`
-     and runs on the device.
-6. **Docs:** write `docs/modules/<ID>-<module>.md`.
+Taking "accept a request" in the provider app as the example:
 
-## Testing
+```mermaid
+sequenceDiagram
+    participant Screen as RequestsScreen (app)
+    participant N as RequestActions (mano_session)
+    participant Port as ServiceRequestRepository (mano_domain)
+    participant A as Mock / Gateway adapter (mano_data)
+    Screen->>N: accept(id)
+    N->>Port: accept(id)
+    Port->>A: implemented by
+    A-->>N: Result<ServiceRequest, DataFailure>
+    N->>N: on Ok, invalidate myServiceRequestsProvider + myJobsProvider
+    N-->>Screen: Result → snackbar
+```
 
-| Suite | Command | Runs on |
-|---|---|---|
-| Domain | `cd packages/mano_domain && dart test` | host, no Flutter |
-| Data, session, UI | `flutter test` in each package | host |
-| Apps (widget) | `flutter test` in each app | host |
-| Apps (integration) | `flutter test integration_test -d RFGL20WAR9E` | the A36 |
-
-`flutter test integration_test` always targets a device. Only one run can use
-the phone at a time.
+Next: [Adding a screen](adding-a-screen.md).

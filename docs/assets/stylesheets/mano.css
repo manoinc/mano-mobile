@@ -1,0 +1,46 @@
+/* Mano's palette on the handbook; values mirror ManoColors in mano_theme.dart. */
+:root {
+  --mano-flame: #ff4a1c;
+  --mano-clay: #c1602e;
+  --mano-ink: #201e1d;
+  --mano-muted: #4a4644;
+  --mano-faint: #8a8481;
+  --mano-sand: #f7f5f3;
+  --mano-stone: #ede9e6;
+}
+
+[data-md-color-primary="custom"] {
+  --md-primary-fg-color: var(--mano-ink);
+  --md-primary-fg-color--light: var(--mano-muted);
+  --md-primary-fg-color--dark: var(--mano-ink);
+  --md-primary-bg-color: #ffffff;
+}
+
+[data-md-color-accent="custom"] {
+  --md-accent-fg-color: var(--mano-flame);
+}
+
+[data-md-color-scheme="default"] {
+  --md-typeset-a-color: var(--mano-clay);
+}
+
+[data-md-color-scheme="slate"] {
+  --md-typeset-a-color: #e8875c;
+}
+
+/* Colour swatches on brand/colour.md. */
+.swatch {
+  display: inline-block;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 14px;
+  border: 1px solid var(--mano-stone);
+  vertical-align: middle;
+}
+
+/* Do / don't pairs. */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+}

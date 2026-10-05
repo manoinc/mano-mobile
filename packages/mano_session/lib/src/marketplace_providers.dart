@@ -6,7 +6,7 @@ import 'conversation_providers.dart';
 import 'session_providers.dart';
 
 // One provider per marketplace port. The catalog is live on the gateway; the
-// rest are stubs there, so they default to in-memory mocks (docs/backend-contract.md).
+// rest are stubs there, so they default to in-memory mocks (docs/develop/backend-contract.md).
 
 final serviceCatalogProvider = Provider<ServiceCatalog>(
   (ref) => GatewayServiceCatalog(ref.watch(gatewayTransportProvider)),

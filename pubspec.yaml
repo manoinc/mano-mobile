@@ -18,6 +18,7 @@
 #   mano_ui       depends on Flutter only, never on mano_domain, so a widget
 #                 cannot accept a domain entity.
 #   mano_session  is the only member that may depend on Riverpod.
+#   widgetbook    the component catalogue; depends on mano_ui only.
 name: _
 publish_to: none
 
@@ -31,3 +32,4 @@ workspace:
   - packages/mano_session
   - apps/requester
   - apps/provider
+  - widgetbook

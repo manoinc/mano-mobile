@@ -203,7 +203,7 @@ shared copy would have to move into `mano_session` or `mano_ui`.
 
 ## Backend gaps
 
-- The gateway stubs jobs (`docs/backend-contract.md`), so `JobRepository` is a
+- The gateway stubs jobs (`docs/develop/backend-contract.md`), so `JobRepository` is a
   mock.
 - `Job` doesn't record when work actually started. The hour logger prefills
   from the **scheduled** `start`, so a job started late or early prefills
