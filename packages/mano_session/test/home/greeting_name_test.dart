@@ -35,4 +35,16 @@ void main() {
     );
     expect(resolveGreetingName(null, null, onboardingName: ' '), isNull);
   });
+
+  test('the profile photo only shows beside the profile name', () {
+    const andres = ProviderProfile(
+      party: Party(id: 'p1', displayName: 'Andrés Castro', photoUrl: 'a.jpg'),
+      bio: '',
+      zones: [],
+      yearsExperience: 0,
+      verified: true,
+    );
+    expect(greetingPhoto(andres, name: 'Andrés'), 'a.jpg');
+    expect(greetingPhoto(andres, name: 'Lucía'), isNull);
+  });
 }

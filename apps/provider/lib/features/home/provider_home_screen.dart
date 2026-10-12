@@ -29,7 +29,7 @@ class ProviderHomeScreen extends ConsumerWidget {
             if (name != null)
               ManoGreetingHeader(
                 name: name,
-                photoUrl: greetingPhoto(profile.value),
+                photoUrl: greetingPhoto(profile.value, name: name),
               )
             else if (profile.isLoading)
               const SizedBox(height: ManoSpacing.xl)

@@ -27,8 +27,9 @@ String? resolveGreetingName(
     (onboardingName.trim().isEmpty ? null : onboardingName.trim()) ??
     greetingFirstName(profile);
 
-/// The profile photo for the greeting, or null when there is none.
-String? greetingPhoto(ProviderProfile? profile) {
+/// The profile photo, only when greeting the profile's own [name].
+String? greetingPhoto(ProviderProfile? profile, {required String name}) {
+  if (greetingFirstName(profile) != name) return null;
   final url = profile?.party.photoUrl ?? '';
   return url.isEmpty ? null : url;
 }
