@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/mano_theme.dart';
-
-/// How far one of my messages got: out, on their phone, or seen.
-enum ManoReceipt { sent, delivered, read }
+import 'mano_receipt_mark.dart';
 
 /// One chat message; [mine] puts it on the right in ink.
 ///
@@ -53,12 +51,92 @@ class ManoChatBubble extends StatelessWidget {
           );
   }
 
+  // Time and receipt share the last text line when they fit, else take their own.
+  Widget _withMeta(
+    BuildContext context, {
+    required double maxWidth,
+    required TextStyle? bodyStyle,
+    required TextStyle? timeStyle,
+    required String time,
+    required ManoReceiptMark? mark,
+    required Widget meta,
+  }) {
+    final direction = Directionality.of(context);
+    final scaler = MediaQuery.textScalerOf(context);
+    final body = TextPainter(
+      text: TextSpan(text: text, style: bodyStyle),
+      textDirection: direction,
+      textScaler: scaler,
+    )..layout(maxWidth: maxWidth);
+    final stamp = TextPainter(
+      text: TextSpan(text: time, style: timeStyle),
+      textDirection: direction,
+      textScaler: scaler,
+    )..layout();
+    final metaWidth =
+        stamp.width + (mark == null ? 0 : ManoSpacing.xs + mark.width);
+    final metaHeight = mark == null
+        ? stamp.height
+        : (stamp.height > mark.size ? stamp.height : mark.size);
+    final lines = body.computeLineMetrics();
+    final lastLine = lines.isEmpty ? body.width : lines.last.width;
+    final inline = lastLine + ManoSpacing.sm + metaWidth <= maxWidth;
+    final width = inline
+        ? (body.width > lastLine + ManoSpacing.sm + metaWidth
+              ? body.width
+              : lastLine + ManoSpacing.sm + metaWidth)
+        : (body.width > metaWidth ? body.width : metaWidth);
+    final height = inline ? body.height : body.height + metaHeight;
+    return SizedBox(
+      width: width,
+      height: height,
+      child: Stack(
+        children: [
+          Positioned(
+            left: 0,
+            top: 0,
+            right: 0,
+            child: Text(text, style: bodyStyle),
+          ),
+          Positioned(right: 0, bottom: 0, child: meta),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final foreground = mine ? Colors.white : ManoColors.ink;
     final quiet = mine ? ManoColors.stone : ManoColors.faint;
+    final bodyStyle = textTheme.bodyMedium?.copyWith(color: foreground);
+    final timeStyle = textTheme.labelSmall?.copyWith(color: quiet);
     final time = timeLabel;
+    final mark = mine && receipt != null
+        ? ManoReceiptMark(receipt: receipt!, color: quiet)
+        : null;
+
+    Widget content = Text(text, style: bodyStyle);
+    if (time != null) {
+      final meta = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(time, key: const Key('chat-bubble-time'), style: timeStyle),
+          if (mark != null) ...[const SizedBox(width: ManoSpacing.xs), mark],
+        ],
+      );
+      content = LayoutBuilder(
+        builder: (context, constraints) => _withMeta(
+          context,
+          maxWidth: constraints.maxWidth,
+          bodyStyle: bodyStyle,
+          timeStyle: timeStyle,
+          time: time,
+          mark: mark,
+          meta: meta,
+        ),
+      );
+    }
     return Align(
       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
@@ -73,77 +151,12 @@ class ManoChatBubble extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: ManoSpacing.md,
+              horizontal: ManoSpacing.sm + ManoSpacing.xs,
               vertical: ManoSpacing.sm,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  text,
-                  style: textTheme.bodyMedium?.copyWith(color: foreground),
-                ),
-                if (time != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: ManoSpacing.xs),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          time,
-                          key: const Key('chat-bubble-time'),
-                          style: textTheme.labelSmall?.copyWith(color: quiet),
-                        ),
-                        if (mine && receipt != null) ...[
-                          const SizedBox(width: ManoSpacing.xs),
-                          _Receipt(receipt: receipt!),
-                        ],
-                      ],
-                    ),
-                  ),
-              ],
-            ),
+            child: content,
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// Signal-style circle: outlined once sent, filled once delivered, flame once read.
-class _Receipt extends StatelessWidget {
-  const _Receipt({required this.receipt});
-
-  final ManoReceipt receipt;
-
-  @override
-  Widget build(BuildContext context) {
-    final (icon, color, label) = switch (receipt) {
-      ManoReceipt.sent => (
-        Icons.check_circle_outline_rounded,
-        ManoColors.stone,
-        'Enviado',
-      ),
-      ManoReceipt.delivered => (
-        Icons.check_circle_rounded,
-        ManoColors.stone,
-        'Entregado',
-      ),
-      ManoReceipt.read => (
-        Icons.check_circle_rounded,
-        ManoColors.flame,
-        'Leído',
-      ),
-    };
-    return Semantics(
-      label: label,
-      excludeSemantics: true,
-      child: Icon(
-        icon,
-        key: Key('chat-receipt-${receipt.name}'),
-        size: 14,
-        color: color,
       ),
     );
   }

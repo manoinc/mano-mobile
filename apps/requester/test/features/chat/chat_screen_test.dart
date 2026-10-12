@@ -264,6 +264,12 @@ void main() {
     );
   });
 
+  testWidgets('the inbox opens with a large Mensajes title', (tester) async {
+    await pumpRouterAt(tester, '/inbox');
+
+    expect(find.text('Mensajes'), findsOneWidget);
+  });
+
   testWidgets('tapping a Bandeja conversation opens its chat', (tester) async {
     final container = await pumpRouterAt(tester, '/inbox');
 

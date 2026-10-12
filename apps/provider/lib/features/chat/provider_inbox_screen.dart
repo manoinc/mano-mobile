@@ -14,36 +14,55 @@ class ProviderInboxScreen extends ConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: switch (conversations) {
-          AsyncData(:final value) => ManoRefreshList(
-            onRefresh: () => ref.refresh(conversationsProvider.future),
-            emptyMessage: 'Aún no tienes conversaciones con clientes',
-            children: [
-              for (final conversation in value)
-                ManoConversationTile(
-                  key: ValueKey(conversation.id),
-                  avatarUrl: conversation.participantPhotoUrl,
-                  online: conversation.isOnline,
-                  verified: conversation.isVerified,
-                  name: conversation.participantName,
-                  snippet: conversation.lastMessage,
-                  timestampLabel: ManoFormat.relative(
-                    conversation.lastMessageAt,
-                    DateTime.now(),
-                  ),
-                  unreadCount: conversation.unreadCount,
-                  onTap: () => context.push('/inbox/${conversation.id}'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                ManoSpacing.md,
+                ManoSpacing.md,
+                ManoSpacing.md,
+                ManoSpacing.sm,
+              ),
+              child: Text(
+                'Mensajes',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+            ),
+            Expanded(
+              child: switch (conversations) {
+                AsyncData(:final value) => ManoRefreshList(
+                  onRefresh: () => ref.refresh(conversationsProvider.future),
+                  emptyMessage: 'Aún no tienes conversaciones con clientes',
+                  children: [
+                    for (final conversation in value)
+                      ManoConversationTile(
+                        key: ValueKey(conversation.id),
+                        avatarUrl: conversation.participantPhotoUrl,
+                        online: conversation.isOnline,
+                        verified: conversation.isVerified,
+                        name: conversation.participantName,
+                        snippet: conversation.lastMessage,
+                        timestampLabel: ManoFormat.relative(
+                          conversation.lastMessageAt,
+                          DateTime.now(),
+                        ),
+                        unreadCount: conversation.unreadCount,
+                        onTap: () => context.push('/inbox/${conversation.id}'),
+                      ),
+                  ],
                 ),
-            ],
-          ),
-          AsyncError() => ManoEmptyState(
-            icon: Icons.cloud_off_rounded,
-            message: 'No se pudo cargar tu bandeja.',
-            ctaLabel: 'Reintentar',
-            onCta: () => ref.invalidate(conversationsProvider),
-          ),
-          _ => const Center(child: CircularProgressIndicator()),
-        },
+                AsyncError() => ManoEmptyState(
+                  icon: Icons.cloud_off_rounded,
+                  message: 'No se pudo cargar tu bandeja.',
+                  ctaLabel: 'Reintentar',
+                  onCta: () => ref.invalidate(conversationsProvider),
+                ),
+                _ => const Center(child: CircularProgressIndicator()),
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

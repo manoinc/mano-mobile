@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../format/mano_format.dart';
 import '../theme/mano_theme.dart';
 import 'mano_chat_bubble.dart';
+import 'mano_receipt_mark.dart';
 
 /// Delivery state of a [ManoChatEntry].
 enum ManoChatEntryStatus { sent, pending, failed }

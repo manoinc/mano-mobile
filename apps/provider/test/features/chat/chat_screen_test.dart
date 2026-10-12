@@ -217,6 +217,16 @@ void main() {
     expect(find.widgetWithText(ManoChatBubble, '¿Ya vienes?'), findsOneWidget);
   });
 
+  testWidgets('the inbox opens with a large Mensajes title', (tester) async {
+    await pumpRouterAt(
+      tester,
+      '/inbox',
+      session: FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
+    );
+
+    expect(find.text('Mensajes'), findsOneWidget);
+  });
+
   testWidgets('leaving the chat refreshes the inbox snippet', (tester) async {
     final container = await pumpRouterAt(
       tester,
