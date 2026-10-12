@@ -51,3 +51,4 @@ export 'src/services/offer_editor_notifier.dart';
 export 'src/session_notifier.dart';
 export 'src/session_providers.dart';
 export 'src/session_state.dart';
+export 'src/wallet/wallet_providers.dart';

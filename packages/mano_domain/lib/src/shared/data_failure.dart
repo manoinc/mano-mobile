@@ -43,3 +43,29 @@ final class DataUnavailable extends DataFailure {
   @override
   String toString() => 'DataUnavailable(detail: $detail)';
 }
+
+/// A wallet cannot cover a cost.
+final class InsufficientCoins extends DataFailure {
+  const InsufficientCoins({required this.needed, required this.available});
+
+  final int needed;
+  final int available;
+
+  int get missing => needed - available;
+
+  @override
+  bool operator ==(Object other) =>
+      other is InsufficientCoins &&
+      other.needed == needed &&
+      other.available == available;
+
+  @override
+  int get hashCode => Object.hash(needed, available);
+
+  @override
+  String get message => 'No tienes suficientes Mano coins.';
+
+  @override
+  String toString() =>
+      'InsufficientCoins(needed: $needed, available: $available)';
+}

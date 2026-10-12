@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../wallet/recharge_sheet.dart';
+import '../wallet/wallet_labels.dart';
+import 'insufficient_coins_sheet.dart';
 import 'reject_sheet.dart';
 import 'request_actions_row.dart';
 import 'request_detail_sheet.dart';
@@ -94,12 +97,19 @@ class _RequestsSectionState extends ConsumerState<RequestsSection> {
         scheduleLabel: scheduleLabel(request),
         amountLabel: ManoFormat.cop(request.offer.amountCop),
         rateLabel: rateLabel(request.offer.rateType),
+        categoryLabel: request.category.isEmpty
+            ? null
+            : ServiceCategories.labelOf(request.category),
+        zoneLabel: request.neighborhood.isEmpty ? null : request.neighborhood,
+        photoUrl: request.hasPhotos ? request.photoUrls.first : null,
+        photoCount: request.photoUrls.length,
         statusLabel: request.canRespond ? null : status,
         statusTone: tone,
         onTap: () => _openDetail(request),
         actions: request.canRespond
             ? RequestActionsRow(
                 busy: _busyId == request.id,
+                acceptLabel: 'Aceptar · ${coinsLabel(request.leadCost)}',
                 onAccept: () => _accept(request),
                 onReject: () => _reject(request),
               )
@@ -123,15 +133,27 @@ class _RequestsSectionState extends ConsumerState<RequestsSection> {
     }
   }
 
-  Future<void> _accept(ServiceRequest request) => _answer(
-    request,
-    () => ref.read(requestActionsProvider.notifier).accept(request.id),
-    success: 'Solicitud aceptada · quedó en tu agenda',
-    action: SnackBarAction(
-      label: 'Ver agenda',
-      onPressed: () => context.go('/agenda'),
-    ),
-  );
+  Future<void> _accept(ServiceRequest request) async {
+    setState(() => _busyId = request.id);
+    final result = await ref
+        .read(requestActionsProvider.notifier)
+        .respond(request);
+    if (!mounted) return;
+    setState(() => _busyId = null);
+    if (result.failureOrNull case final InsufficientCoins failure) {
+      final recharge = await showInsufficientCoinsSheet(context, failure);
+      if (recharge == true && mounted) await showRechargeSheet(context);
+      return;
+    }
+    _announce(
+      result,
+      success: 'Solicitud aceptada · quedó en tu agenda',
+      action: SnackBarAction(
+        label: 'Ver agenda',
+        onPressed: () => context.go('/agenda'),
+      ),
+    );
+  }
 
   Future<void> _reject(ServiceRequest request) async {
     final reason = await showRejectSheet(context);
@@ -155,6 +177,14 @@ class _RequestsSectionState extends ConsumerState<RequestsSection> {
     final result = await run();
     if (!mounted) return;
     setState(() => _busyId = null);
+    _announce(result, success: success, action: action);
+  }
+
+  void _announce(
+    Result<ServiceRequest, DataFailure> result, {
+    required String success,
+    SnackBarAction? action,
+  }) {
     final ok = result.isOk;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()

@@ -48,7 +48,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await _tap(tester, _inCard('request-1', 'Aceptar'));
+    await _tap(tester, _inCard('request-1', 'Aceptar · 2 coins'));
     expect(
       find.text('Solicitud aceptada · quedó en tu agenda'),
       findsOneWidget,

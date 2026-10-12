@@ -5,10 +5,10 @@ import 'package:mano_provider/features/agenda/agenda_screen.dart';
 import 'package:mano_provider/features/availability/availability_view.dart';
 import 'package:mano_provider/features/chat/chat_screen.dart';
 import 'package:mano_provider/features/chat/provider_inbox_screen.dart';
+import 'package:mano_provider/features/wallet/wallet_screen.dart';
 import 'package:mano_provider/features/home/provider_home_screen.dart';
 import 'package:mano_provider/features/profile/provider_profile_screen.dart';
 import 'package:mano_provider/features/services/offer_editor_screen.dart';
-import 'package:mano_provider/shell/module_placeholder.dart';
 import 'package:mano_provider/shell/provider_nav_shell.dart';
 import 'package:mano_ui/mano_ui.dart';
 
@@ -32,7 +32,7 @@ void main() {
     await pumpRouterAt(tester, '/agenda');
     final tabs = {
       'Bandeja': ProviderInboxScreen,
-      'Billetera': ModulePlaceholder,
+      'Billetera': WalletScreen,
       'Perfil': ProviderProfileScreen,
       'Inicio': ProviderHomeScreen,
       'Agenda': AgendaScreen,

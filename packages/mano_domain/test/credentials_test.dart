@@ -4,7 +4,10 @@ import 'package:test/test.dart';
 void main() {
   group('Credentials', () {
     test('trims and lower-cases the email, keeps the password verbatim', () {
-      final credentials = Credentials(email: '  Ana@Mano.CO ', password: ' pw ');
+      final credentials = Credentials(
+        email: '  Ana@Mano.CO ',
+        password: ' pw ',
+      );
 
       expect(credentials.email, 'ana@mano.co');
       expect(credentials.password, ' pw ');

@@ -7,6 +7,30 @@ const mockClient = Party(
   photoUrl: 'https://randomuser.me/api/portraits/women/68.jpg',
 );
 
+const mockClients = [
+  mockClient,
+  Party(
+    id: 'client-2',
+    displayName: 'Camilo Restrepo',
+    photoUrl: 'https://randomuser.me/api/portraits/men/45.jpg',
+  ),
+  Party(
+    id: 'client-3',
+    displayName: 'Valentina Ospina',
+    photoUrl: 'https://randomuser.me/api/portraits/women/26.jpg',
+  ),
+  Party(
+    id: 'client-4',
+    displayName: 'Sebastián Gómez',
+    photoUrl: 'https://randomuser.me/api/portraits/men/22.jpg',
+  ),
+  Party(
+    id: 'client-5',
+    displayName: 'Mariana Torres',
+    photoUrl: 'https://randomuser.me/api/portraits/women/90.jpg',
+  ),
+];
+
 const mockProviders = [
   Party(
     id: 'provider-1',
@@ -67,3 +91,7 @@ Party mockProviderFor(ServiceOffer offer) => mockProviders.firstWhere(
 
 String mockTitleFor(ServiceOffer offer) =>
     mockServiceTitles[offer.jobServiceId] ?? 'Servicio';
+
+// Job photos; every URL answers 200 on Unsplash.
+String mockPhoto(String id) =>
+    'https://images.unsplash.com/photo-$id?w=600&h=400&fit=crop';

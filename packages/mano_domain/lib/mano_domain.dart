@@ -49,3 +49,8 @@ export 'src/session/session.dart';
 export 'src/session/session_repository.dart';
 export 'src/shared/data_failure.dart';
 export 'src/shared/party.dart';
+export 'src/wallet/coin_pack.dart';
+export 'src/wallet/coin_transaction.dart';
+export 'src/wallet/lead_pricing.dart';
+export 'src/wallet/wallet.dart';
+export 'src/wallet/wallet_repository.dart';

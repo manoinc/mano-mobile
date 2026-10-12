@@ -13,15 +13,18 @@ void main() {
       ]);
     });
 
-    test('normalizes English, Spanish and stray casing to the canonical id', () {
-      expect(ServiceCategories.normalize('Plumbing'), 'plumbing');
-      expect(ServiceCategories.normalize(' Plomería '), 'plumbing');
-      expect(ServiceCategories.normalize('JARDINERIA'), 'gardening');
-      expect(ServiceCategories.normalize('Gardening'), 'gardening');
-      expect(ServiceCategories.normalize('limpieza'), 'cleaning');
-      expect(ServiceCategories.normalize('Electricidad'), 'electrical');
-      expect(ServiceCategories.normalize('pintura'), 'painting');
-    });
+    test(
+      'normalizes English, Spanish and stray casing to the canonical id',
+      () {
+        expect(ServiceCategories.normalize('Plumbing'), 'plumbing');
+        expect(ServiceCategories.normalize(' Plomería '), 'plumbing');
+        expect(ServiceCategories.normalize('JARDINERIA'), 'gardening');
+        expect(ServiceCategories.normalize('Gardening'), 'gardening');
+        expect(ServiceCategories.normalize('limpieza'), 'cleaning');
+        expect(ServiceCategories.normalize('Electricidad'), 'electrical');
+        expect(ServiceCategories.normalize('pintura'), 'painting');
+      },
+    );
 
     test('keeps an unknown category, only trimmed', () {
       expect(ServiceCategories.normalize('  Carpintería '), 'Carpintería');

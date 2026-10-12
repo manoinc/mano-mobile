@@ -34,8 +34,9 @@ void main() {
 
     expect(_card('activity-request-request-1'), findsOneWidget);
     expect(_card('activity-request-request-2'), findsOneWidget);
-    expect(find.byType(ManoProjectCard), findsNWidgets(2));
-    expect(find.text('Pendiente'), findsNWidgets(2));
+    expect(find.byType(ManoProjectCard), findsWidgets);
+    expect(find.text('Pendiente'), findsWidgets);
+    expect(_card('activity-request-request-3'), findsNothing);
   });
 
   testWidgets('a job card shows title, provider, date, price and status', (
@@ -132,7 +133,7 @@ void main() {
     await tester.tap(_card('activity-request-request-1'));
     await tester.pumpAndSettle();
     expect(
-      find.textContaining('¿Podrías venir el sábado en la mañana?'),
+      find.textContaining('Acabamos de mudarnos'),
       findsOneWidget,
     );
 

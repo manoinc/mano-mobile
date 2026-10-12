@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/mano_theme.dart';
 import 'mano_avatar.dart';
+import 'mano_photo_gallery.dart';
 import 'mano_price_tag.dart';
 import 'mano_status_chip.dart';
 
@@ -19,6 +20,10 @@ class ManoRequestCard extends StatelessWidget {
     this.statusLabel,
     this.statusTone = ManoStatusTone.neutral,
     this.actions,
+    this.categoryLabel,
+    this.zoneLabel,
+    this.photoUrl,
+    this.photoCount = 0,
     super.key,
   });
 
@@ -35,6 +40,14 @@ class ManoRequestCard extends StatelessWidget {
   final String? statusLabel;
   final ManoStatusTone statusTone;
 
+  /// Shown as "Category · Zone" above the title; either may be null.
+  final String? categoryLabel;
+  final String? zoneLabel;
+
+  /// The lead's first photo as a thumbnail, with [photoCount] when more than one.
+  final String? photoUrl;
+  final int photoCount;
+
   /// Sits under the details, e.g. accept and reject buttons.
   final Widget? actions;
 
@@ -43,6 +56,8 @@ class ManoRequestCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final status = statusLabel;
+    final photo = photoUrl;
+    final caption = [categoryLabel, zoneLabel].whereType<String>().join(' · ');
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -74,20 +89,49 @@ class ManoRequestCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: ManoSpacing.sm),
-              Text(
-                title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: textTheme.titleMedium?.copyWith(color: scheme.onSurface),
-              ),
-              const SizedBox(height: ManoSpacing.xs),
-              Text(
-                message,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: textTheme.bodyMedium?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (caption.isNotEmpty) ...[
+                          Text(
+                            caption,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: textTheme.labelMedium?.copyWith(
+                              color: ManoColors.clay,
+                            ),
+                          ),
+                          const SizedBox(height: ManoSpacing.xs),
+                        ],
+                        Text(
+                          title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: textTheme.titleMedium?.copyWith(
+                            color: scheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: ManoSpacing.xs),
+                        Text(
+                          message,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (photo != null) ...[
+                    const SizedBox(width: ManoSpacing.sm),
+                    _Thumbnail(url: photo, count: photoCount),
+                  ],
+                ],
               ),
               const SizedBox(height: ManoSpacing.sm),
               Row(
@@ -121,6 +165,53 @@ class ManoRequestCard extends StatelessWidget {
               ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Thumbnail extends StatelessWidget {
+  const _Thumbnail({required this.url, required this.count});
+
+  final String url;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      key: const Key('request-card-photo'),
+      borderRadius: BorderRadius.circular(ManoRadius.card),
+      child: SizedBox(
+        width: 84,
+        height: 84,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ManoPhoto(url: url),
+            if (count > 1)
+              Positioned(
+                right: ManoSpacing.xs,
+                bottom: ManoSpacing.xs,
+                child: DecoratedBox(
+                  decoration: const BoxDecoration(
+                    color: ManoColors.ink,
+                    borderRadius: BorderRadius.all(Radius.circular(99)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: ManoSpacing.sm,
+                      vertical: 2,
+                    ),
+                    child: Text(
+                      '$count',
+                      style: Theme.of(context).textTheme.labelSmall
+                          ?.copyWith(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

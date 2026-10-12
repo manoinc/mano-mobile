@@ -1,5 +1,6 @@
 import '../catalog/service_offer.dart';
 import '../shared/party.dart';
+import '../wallet/lead_pricing.dart';
 
 enum ServiceRequestStatus { pending, accepted, rejected, cancelled }
 
@@ -16,6 +17,9 @@ final class ServiceRequest {
     required this.createdAt,
     this.proposedStart,
     this.rejectionReason,
+    this.category = '',
+    this.neighborhood = '',
+    this.photoUrls = const [],
   });
 
   final String id;
@@ -28,6 +32,18 @@ final class ServiceRequest {
   final ServiceRequestStatus status;
   final String? rejectionReason;
   final DateTime createdAt;
+
+  /// Canonical [ServiceCategories] id; empty when unknown.
+  final String category;
+
+  /// Where the job is, as the client names it; empty when not given.
+  final String neighborhood;
+  final List<String> photoUrls;
+
+  /// Coins the provider pays to answer this lead.
+  int get leadCost => LeadPricing.costFor(category);
+
+  bool get hasPhotos => photoUrls.isNotEmpty;
 
   bool get canRespond => status == ServiceRequestStatus.pending;
 
@@ -47,6 +63,9 @@ final class ServiceRequest {
     status: status ?? this.status,
     rejectionReason: rejectionReason ?? this.rejectionReason,
     createdAt: createdAt,
+    category: category,
+    neighborhood: neighborhood,
+    photoUrls: photoUrls,
   );
 
   @override
@@ -61,7 +80,10 @@ final class ServiceRequest {
       other.proposedStart == proposedStart &&
       other.status == status &&
       other.rejectionReason == rejectionReason &&
-      other.createdAt == createdAt;
+      other.createdAt == createdAt &&
+      other.category == category &&
+      other.neighborhood == neighborhood &&
+      _sameList(other.photoUrls, photoUrls);
 
   @override
   int get hashCode => Object.hash(
@@ -75,8 +97,15 @@ final class ServiceRequest {
     status,
     rejectionReason,
     createdAt,
+    category,
+    neighborhood,
+    Object.hashAll(photoUrls),
   );
 
   @override
   String toString() => 'ServiceRequest($id, $status)';
+
+  static bool _sameList(List<String> a, List<String> b) =>
+      a.length == b.length &&
+      [for (var i = 0; i < a.length; i++) a[i] == b[i]].every((e) => e);
 }

@@ -51,7 +51,13 @@ void main() {
         final pending = await c.read(
           requestsByStatusProvider(ServiceRequestStatus.pending).future,
         );
-        expect(_ids(pending), ['request-1', 'request-2']);
+        expect(_ids(pending), [
+          'request-1',
+          'request-2',
+          'request-6',
+          'request-7',
+          'request-8',
+        ]);
       },
     );
   });
