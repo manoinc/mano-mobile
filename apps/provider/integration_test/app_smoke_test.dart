@@ -26,7 +26,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(ProviderNavShell), findsOneWidget);
-    for (final tab in ['Agenda', 'Bandeja', 'Servicios', 'Inicio']) {
+    for (final tab in ['Agenda', 'Bandeja', 'Billetera', 'Perfil', 'Inicio']) {
       await tester.tap(find.text(tab));
       await tester.pumpAndSettle();
     }

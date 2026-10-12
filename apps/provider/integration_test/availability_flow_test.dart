@@ -40,12 +40,12 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Servicios'));
+    await tester.tap(find.text('Perfil'));
     await tester.pumpAndSettle();
     // The entry link belongs to PROV-02, so drive the router directly.
     ProviderScope.containerOf(tester.element(find.byType(ProviderNavShell)))
         .read(providerRouterProvider)
-        .push('/services/availability');
+        .push('/agenda/availability');
     await tester.pumpAndSettle();
     expect(find.byType(AvailabilityScreen), findsOneWidget);
 

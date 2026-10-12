@@ -94,9 +94,9 @@ class _CalendarViewState extends ConsumerState<_CalendarView> {
 
   Widget _content(BuildContext context, List<Job> jobs) {
     final byDay = {
-      for (final group in groupJobsByDay([
-        ...jobs,
-      ]..sort((a, b) => a.start.compareTo(b.start))))
+      for (final group in groupJobsByDay(
+        [...jobs]..sort((a, b) => a.start.compareTo(b.start)),
+      ))
         group.day: group.jobs,
     };
     final dayJobs = byDay[_selected] ?? const <Job>[];

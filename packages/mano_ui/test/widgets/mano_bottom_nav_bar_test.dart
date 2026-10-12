@@ -29,6 +29,24 @@ void main() {
       }
     });
 
+    testWidgets('without an action five items spread across the bar', (
+      tester,
+    ) async {
+      final tapped = <int>[];
+      final five = [
+        ...items,
+        const ManoNavItem(icon: Icons.wallet_outlined, label: 'Billetera'),
+      ];
+      await tester.pumpWidget(
+        _host(
+          ManoBottomNavBar(items: five, currentIndex: 0, onTap: tapped.add),
+        ),
+      );
+
+      await tester.tap(find.text('Billetera'));
+      expect(tapped, [4]);
+    });
+
     testWidgets('renders every item label', (tester) async {
       await tester.pumpWidget(
         _host(

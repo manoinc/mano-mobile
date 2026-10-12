@@ -27,7 +27,11 @@ class _WelcomeStepState extends ConsumerState<WelcomeStep> {
   }
 
   // Resolves to the copy to show inside the sheet, or closes it on success.
-  Future<String?> _signIn(BuildContext sheet, String email, String password) async {
+  Future<String?> _signIn(
+    BuildContext sheet,
+    String email,
+    String password,
+  ) async {
     // Captured first: a successful sign-in replaces this screen, and its ref with it.
     final session = ref.read(sessionProvider.notifier);
     final failure = await session.signIn(

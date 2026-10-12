@@ -10,7 +10,7 @@ import 'package:mano_ui/mano_ui.dart';
 import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
 
-const _route = '/services/availability';
+const _route = '/agenda/availability';
 
 Future<ProviderContainer> _open(
   WidgetTester tester, {

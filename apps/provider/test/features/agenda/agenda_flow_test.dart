@@ -60,7 +60,9 @@ void main() {
     await _tap(tester, find.text('Sí, finalizar'));
     expect(find.widgetWithText(ManoStatusChip, 'Finalizado'), findsOneWidget);
 
-    await tester.tap(find.byType(BackButton)); // locale-proof, unlike pageBack()
+    await tester.tap(
+      find.byType(BackButton),
+    ); // locale-proof, unlike pageBack()
     await tester.pumpAndSettle();
     await _openFilter(tester, 'En curso');
     await _tap(tester, find.byKey(const Key('agenda-job-job-3')));

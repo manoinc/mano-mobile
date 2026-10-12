@@ -29,7 +29,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Servicios'));
+    await tester.tap(find.text('Perfil'));
     await tester.pumpAndSettle();
     expect(find.text('Mis servicios'), findsOneWidget);
 

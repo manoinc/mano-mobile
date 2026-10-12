@@ -75,7 +75,7 @@ class _RequestsSectionState extends ConsumerState<RequestsSection> {
         icon: Icons.inbox_outlined,
         message: _filter.emptyMessage,
         ctaLabel: 'Ver mis servicios',
-        onCta: () => context.go('/services'),
+        onCta: () => context.go('/profile/services'),
       );
     }
     return Column(children: [for (final r in requests) _card(r)]);

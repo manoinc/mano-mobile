@@ -10,6 +10,7 @@ import '../features/chat/provider_inbox_screen.dart';
 import '../features/home/provider_home_screen.dart';
 import '../features/services/my_services_screen.dart';
 import '../features/services/offer_editor_screen.dart';
+import 'module_placeholder.dart';
 import 'provider_nav_shell.dart';
 
 /// The provider's tabs and each module's routes (docs/modules/index.md).
@@ -19,8 +20,7 @@ final providerRouterProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
     navigatorKey: rootKey,
     initialLocation: '/home',
-    // Solicitudes folded into Inicio; old links still land.
-    redirect: (context, state) => state.uri.path == '/requests' ? '/home' : null,
+    redirect: (context, state) => _legacy(state.uri.path),
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -40,6 +40,10 @@ final providerRouterProvider = Provider<GoRouter>((ref) {
                 path: '/agenda',
                 builder: (context, state) => const AgendaScreen(),
                 routes: [
+                  GoRoute(
+                    path: 'availability',
+                    builder: (context, state) => const AvailabilityScreen(),
+                  ),
                   GoRoute(
                     path: 'job/:id',
                     builder: (context, state) =>
@@ -69,23 +73,40 @@ final providerRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/services',
-                builder: (context, state) => const MyServicesScreen(),
+                path: '/wallet',
+                builder: (context, state) => const ModulePlaceholder(
+                  title: 'Billetera',
+                  detail: 'Tus Mano coins para responder solicitudes.',
+                ),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                builder: (context, state) => const ModulePlaceholder(
+                  title: 'Perfil',
+                  detail: 'Ganancias, reseñas y tus servicios.',
+                ),
                 routes: [
                   GoRoute(
-                    path: 'availability',
-                    builder: (context, state) => const AvailabilityScreen(),
-                  ),
-                  GoRoute(
-                    path: 'new',
-                    parentNavigatorKey: rootKey,
-                    builder: (context, state) => const OfferEditorScreen(),
-                  ),
-                  GoRoute(
-                    path: 'offer/:id',
-                    parentNavigatorKey: rootKey,
-                    builder: (context, state) =>
-                        OfferEditorScreen(offerId: state.pathParameters['id']!),
+                    path: 'services',
+                    builder: (context, state) => const MyServicesScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'new',
+                        parentNavigatorKey: rootKey,
+                        builder: (context, state) => const OfferEditorScreen(),
+                      ),
+                      GoRoute(
+                        path: 'offer/:id',
+                        parentNavigatorKey: rootKey,
+                        builder: (context, state) => OfferEditorScreen(
+                          offerId: state.pathParameters['id']!,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -99,3 +120,11 @@ final providerRouterProvider = Provider<GoRouter>((ref) {
   ref.onDispose(router.dispose);
   return router;
 });
+
+// Links from before the tabs moved still land.
+String? _legacy(String path) => switch (path) {
+  '/requests' => '/home',
+  '/services/availability' => '/agenda/availability',
+  _ when path.startsWith('/services') => '/profile$path',
+  _ => null,
+};

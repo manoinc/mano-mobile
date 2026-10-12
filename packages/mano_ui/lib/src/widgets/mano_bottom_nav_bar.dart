@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/mano_motion.dart';
 import '../theme/mano_theme.dart';
 
-/// One of the four ordinary destinations on [ManoBottomNavBar].
+/// One of the ordinary destinations on [ManoBottomNavBar].
 ///
 /// Just an icon and a label -- the bar decides colour and position, and the
 /// screen decides what the tap means.
@@ -15,8 +15,8 @@ class ManoNavItem {
   final String label;
 }
 
-/// The app's 5-slot bottom bar: four destinations either side of a raised
-/// CREATE action.
+/// The app's bottom bar: destinations spread evenly, or split either side of
+/// a raised CREATE action.
 ///
 /// The centre action is not one of [items] and never touches [currentIndex]
 /// -- it starts a flow rather than navigating to a tab, which is why it gets
@@ -30,14 +30,14 @@ class ManoBottomNavBar extends StatelessWidget {
     super.key,
   });
 
-  /// Exactly 4 items: the two either side of the center action button.
+  /// With a centre action, an even count split half either side of it.
   final List<ManoNavItem> items;
 
-  /// Index into [items] (0..3) -- NOT an index into a 5-slot row. The center
+  /// Index into [items] -- NOT an index into the row of slots. The center
   /// action button is not one of [items] and never affects this index.
   final int currentIndex;
   final ValueChanged<int> onTap;
-  /// The raised centre action; omitted, the four items spread evenly.
+  /// The raised centre action; omitted, the items spread evenly.
   final VoidCallback? onActionTap;
 
   @override
@@ -56,11 +56,11 @@ class ManoBottomNavBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Expanded(child: _sideItem(context, 0)),
-              Expanded(child: _sideItem(context, 1)),
-              if (onActionTap != null) _ActionButton(onTap: onActionTap!),
-              Expanded(child: _sideItem(context, 2)),
-              Expanded(child: _sideItem(context, 3)),
+              for (var i = 0; i < items.length; i++) ...[
+                if (onActionTap != null && i == items.length ~/ 2)
+                  _ActionButton(onTap: onActionTap!),
+                Expanded(child: _sideItem(context, i)),
+              ],
             ],
           ),
         ),

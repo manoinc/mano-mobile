@@ -8,7 +8,9 @@ import 'support/fake_session_repository.dart';
 import 'support/pump_app.dart';
 
 void main() {
-  testWidgets('Material widgets such as date pickers speak Spanish', (tester) async {
+  testWidgets('Material widgets such as date pickers speak Spanish', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [

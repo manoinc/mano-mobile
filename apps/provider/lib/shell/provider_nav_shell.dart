@@ -12,7 +12,11 @@ class ProviderNavShell extends StatelessWidget {
     ManoNavItem(icon: Icons.home_outlined, label: 'Inicio'),
     ManoNavItem(icon: Icons.calendar_today_outlined, label: 'Agenda'),
     ManoNavItem(icon: Icons.chat_bubble_outline, label: 'Bandeja'),
-    ManoNavItem(icon: Icons.handyman_outlined, label: 'Servicios'),
+    ManoNavItem(
+      icon: Icons.account_balance_wallet_outlined,
+      label: 'Billetera',
+    ),
+    ManoNavItem(icon: Icons.person_outline, label: 'Perfil'),
   ];
 
   @override

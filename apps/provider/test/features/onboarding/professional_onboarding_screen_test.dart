@@ -110,8 +110,14 @@ void main() {
       ),
     );
     await _tapText(tester, 'Ya tengo cuenta');
-    await tester.enterText(find.byKey(const Key('mano-credentials-email')), 'pro@mano.co');
-    await tester.enterText(find.byKey(const Key('mano-credentials-password')), 'secret');
+    await tester.enterText(
+      find.byKey(const Key('mano-credentials-email')),
+      'pro@mano.co',
+    );
+    await tester.enterText(
+      find.byKey(const Key('mano-credentials-password')),
+      'secret',
+    );
     await tester.pump();
     await _tapText(tester, 'Entrar');
 
@@ -128,8 +134,14 @@ void main() {
     );
     await _pump(tester, session: repository);
     await _tapText(tester, 'Ya tengo cuenta');
-    await tester.enterText(find.byKey(const Key('mano-credentials-email')), 'pro@mano.co');
-    await tester.enterText(find.byKey(const Key('mano-credentials-password')), 'secret');
+    await tester.enterText(
+      find.byKey(const Key('mano-credentials-email')),
+      'pro@mano.co',
+    );
+    await tester.enterText(
+      find.byKey(const Key('mano-credentials-password')),
+      'secret',
+    );
     await tester.pump();
     await _tapText(tester, 'Entrar');
 

@@ -41,7 +41,7 @@ void main() {
     tester,
   ) async {
     final offers = FakeOfferManagement();
-    final c = await pump(tester, '/services/new', offers);
+    final c = await pump(tester, '/profile/services/new', offers);
 
     expect(find.byType(OfferEditorScreen), findsOneWidget);
     expect(find.byType(ManoSearchField), findsOneWidget);
@@ -68,7 +68,7 @@ void main() {
     await tester.tap(find.text('Publicar'));
     await tester.pumpAndSettle();
 
-    expect(routerPath(c), '/services');
+    expect(routerPath(c), '/profile/services');
     final card = tester.widget<ManoOfferCard>(find.byType(ManoOfferCard));
     expect(card.title, 'Reparación de fugas');
     expect(card.zone, 'Zona: Suba');
@@ -78,7 +78,7 @@ void main() {
     tester,
   ) async {
     final offers = FakeOfferManagement([offer('o1')]);
-    final c = await pump(tester, '/services/offer/o1', offers);
+    final c = await pump(tester, '/profile/services/offer/o1', offers);
 
     expect(find.byType(ManoSearchField), findsNothing);
     expect(find.text('Limpieza profunda'), findsOneWidget);
@@ -91,7 +91,7 @@ void main() {
     await tester.tap(find.text('Guardar cambios'));
     await tester.pumpAndSettle();
 
-    expect(routerPath(c), '/services');
+    expect(routerPath(c), '/profile/services');
     final card = tester.widget<ManoOfferCard>(find.byType(ManoOfferCard));
     expect(card.amountLabel, ManoFormat.cop(150000));
   });
@@ -99,21 +99,21 @@ void main() {
   testWidgets('pausing returns to the list showing it paused', (tester) async {
     final c = await pump(
       tester,
-      '/services/offer/o1',
+      '/profile/services/offer/o1',
       FakeOfferManagement([offer('o1')]),
     );
     await tester.ensureVisible(find.text('Pausar'));
     await tester.tap(find.text('Pausar'));
     await tester.pumpAndSettle();
 
-    expect(routerPath(c), '/services');
+    expect(routerPath(c), '/profile/services');
     expect(find.widgetWithText(ManoStatusChip, 'Pausada'), findsOneWidget);
   });
 
   testWidgets('a paused offer can be reactivated', (tester) async {
     await pump(
       tester,
-      '/services/offer/o1',
+      '/profile/services/offer/o1',
       FakeOfferManagement([offer('o1', status: OfferStatus.paused)]),
     );
     expect(find.text('Pausar'), findsNothing);
@@ -126,7 +126,7 @@ void main() {
   testWidgets('deleting asks first, then removes the offer', (tester) async {
     final c = await pump(
       tester,
-      '/services/offer/o1',
+      '/profile/services/offer/o1',
       FakeOfferManagement([offer('o1')]),
     );
     await tester.ensureVisible(find.text('Eliminar'));
@@ -142,20 +142,20 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(routerPath(c), '/services');
+    expect(routerPath(c), '/profile/services');
     expect(find.text('Publicar mi primer servicio'), findsOneWidget);
   });
 
   testWidgets('a failed mutation shows a notice and stays', (tester) async {
     final offers = FakeOfferManagement([offer('o1')])
       ..fail = const DataUnavailable();
-    final c = await pump(tester, '/services/offer/o1', offers);
+    final c = await pump(tester, '/profile/services/offer/o1', offers);
 
     await tester.ensureVisible(find.text('Pausar'));
     await tester.tap(find.text('Pausar'));
     await tester.pumpAndSettle();
 
-    expect(routerPath(c), '/services/offer/o1');
+    expect(routerPath(c), '/profile/services/offer/o1');
     expect(
       find.widgetWithText(ManoNotice, const DataUnavailable().message),
       findsOneWidget,
@@ -163,7 +163,7 @@ void main() {
   });
 
   testWidgets('an unknown offer shows an error with retry', (tester) async {
-    await pump(tester, '/services/offer/nope', FakeOfferManagement());
+    await pump(tester, '/profile/services/offer/nope', FakeOfferManagement());
     expect(find.text('No pudimos cargar esta oferta'), findsOneWidget);
     expect(find.text('Reintentar'), findsOneWidget);
   });

@@ -13,7 +13,7 @@ void main() {
     FakeOfferManagement offers,
   ) => pumpRouterAt(
     tester,
-    '/services',
+    '/profile/services',
     overrides: [
       offerManagementProvider.overrideWithValue(offers),
       serviceCatalogProvider.overrideWithValue(FakeServiceCatalog()),
@@ -67,21 +67,21 @@ void main() {
     final c = await pump(tester, FakeOfferManagement([offer('o1')]));
     await tester.tap(find.byType(ManoOfferCard));
     await tester.pumpAndSettle();
-    expect(routerPath(c), '/services/offer/o1');
+    expect(routerPath(c), '/profile/services/offer/o1');
   });
 
   testWidgets('the availability entry opens the calendar', (tester) async {
     final c = await pump(tester, FakeOfferManagement([offer('o1')]));
     await tester.tap(find.text('Disponibilidad y calendario'));
     await tester.pumpAndSettle();
-    expect(routerPath(c), '/services/availability');
+    expect(routerPath(c), '/agenda/availability');
   });
 
   testWidgets('a new offer is one tap away from the list', (tester) async {
     final c = await pump(tester, FakeOfferManagement([offer('o1')]));
     await tester.tap(find.text('Nueva oferta'));
     await tester.pumpAndSettle();
-    expect(routerPath(c), '/services/new');
+    expect(routerPath(c), '/profile/services/new');
   });
 
   testWidgets('no offers invites publishing the first one', (tester) async {
@@ -89,7 +89,7 @@ void main() {
     expect(find.text('Publicar mi primer servicio'), findsOneWidget);
     await tester.tap(find.text('Publicar mi primer servicio'));
     await tester.pumpAndSettle();
-    expect(routerPath(c), '/services/new');
+    expect(routerPath(c), '/profile/services/new');
   });
 
   testWidgets('a failed load can be retried', (tester) async {
