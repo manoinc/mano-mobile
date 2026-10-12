@@ -54,6 +54,15 @@ final class InsufficientCoins extends DataFailure {
   int get missing => needed - available;
 
   @override
+  bool operator ==(Object other) =>
+      other is InsufficientCoins &&
+      other.needed == needed &&
+      other.available == available;
+
+  @override
+  int get hashCode => Object.hash(needed, available);
+
+  @override
   String get message => 'No tienes suficientes Mano coins.';
 
   @override

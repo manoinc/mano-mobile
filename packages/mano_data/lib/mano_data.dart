@@ -26,3 +26,4 @@ export 'src/messaging/mock_conversation_repository.dart';
 export 'src/onboarding/mock_provider_onboarding_repository.dart';
 export 'src/requests/mock_service_request_repository.dart';
 export 'src/scheduling/mock_availability_repository.dart';
+export 'src/wallet/mock_wallet_repository.dart';
