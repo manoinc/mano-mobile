@@ -5,7 +5,6 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../agenda/agenda_labels.dart';
-import 'home_labels.dart';
 import 'requests_section.dart';
 
 /// Inicio: who's next, then what needs an answer.

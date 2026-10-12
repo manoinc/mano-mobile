@@ -34,6 +34,8 @@ export 'src/chat/chat_thread_item.dart';
 export 'src/chat/chat_thread_notifier.dart';
 export 'src/conversation_providers.dart';
 export 'src/explore/service_search.dart';
+export 'src/home/greeting_name.dart';
+export 'src/home/home_sections.dart';
 export 'src/marketplace_providers.dart';
 export 'src/offers/offer_pricing_filter.dart';
 export 'src/onboarding/onboarding_flow.dart';
