@@ -16,6 +16,19 @@ void main() {
   ];
 
   group('the bottom nav bar', () {
+    testWidgets('without an action it renders no centre button', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          ManoBottomNavBar(items: items, currentIndex: 0, onTap: (_) {}),
+        ),
+      );
+
+      expect(find.byIcon(Icons.add), findsNothing);
+      for (final item in items) {
+        expect(find.text(item.label), findsOneWidget);
+      }
+    });
+
     testWidgets('renders every item label', (tester) async {
       await tester.pumpWidget(
         _host(

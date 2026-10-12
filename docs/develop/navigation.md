@@ -27,7 +27,7 @@ shell for signed-in users and guests.
 ## Provider (`apps/provider/lib/shell/provider_router.dart`)
 
 ```
-/requests                          RequestsScreen        PROV-04
+/home                              ProviderHomeScreen    PROV-04 (requests live here)
 /agenda                            AgendaScreen          PROV-05
   /agenda/job/:id                  AgendaJobScreen       PROV-05
 /inbox                             ProviderInboxScreen   PROV-06

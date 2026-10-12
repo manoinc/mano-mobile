@@ -5,6 +5,7 @@ import 'package:mano_provider/main.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/agenda_calendar.dart';
 import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
 
@@ -37,6 +38,7 @@ void main() {
   testWidgets('a provider works a fixed job and logs hours on an hourly one', (
     tester,
   ) async {
+    useTallPhone(tester);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -51,7 +53,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await _tap(tester, find.text('Agenda'));
-    await _openFilter(tester, 'Próximos');
+    await selectAgendaDay(tester, DateTime.now().add(const Duration(days: 2)));
     await _tap(tester, find.byKey(const Key('agenda-job-job-1')));
     await _tap(tester, find.text('Iniciar trabajo'));
     await _tap(tester, find.text('Finalizar trabajo'));

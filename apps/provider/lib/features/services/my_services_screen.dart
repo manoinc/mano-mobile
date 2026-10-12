@@ -48,6 +48,22 @@ class MyServicesScreen extends ConsumerWidget {
               onTap: () => context.push('/services/availability'),
             ),
             const Divider(color: ManoColors.stone, height: 1),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: ManoSpacing.md,
+              ),
+              leading: const Icon(
+                Icons.add_circle_outline,
+                color: ManoColors.muted,
+              ),
+              title: Text('Nueva oferta', style: textTheme.bodyLarge),
+              trailing: const Icon(
+                Icons.chevron_right,
+                color: ManoColors.faint,
+              ),
+              onTap: () => context.push('/services/new'),
+            ),
+            const Divider(color: ManoColors.stone, height: 1),
             const SizedBox(height: ManoSpacing.md),
             Expanded(
               child: switch (offers) {

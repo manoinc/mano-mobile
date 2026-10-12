@@ -60,7 +60,7 @@ Future<void> _pump(
   List<Override> overrides = const [],
 }) => pumpRouterAt(
   tester,
-  '/requests',
+  '/home',
   session: FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
   overrides: overrides,
 );
@@ -117,7 +117,7 @@ void main() {
     (tester) async {
       final c = await pumpRouterAt(
         tester,
-        '/requests',
+        '/home',
         session: FakeSessionRepository(
           onRestore: () async => Ok(fakeSession()),
         ),
@@ -195,7 +195,7 @@ void main() {
   ) async {
     final c = await pumpRouterAt(
       tester,
-      '/requests',
+      '/home',
       session: FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
     );
     await _tapInCard(tester, 'request-1', 'Laura Pérez');

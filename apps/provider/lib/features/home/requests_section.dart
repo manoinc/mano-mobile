@@ -26,48 +26,33 @@ enum _Filter {
   final List<ServiceRequestStatus> statuses;
 }
 
-/// The provider's incoming requests: answer pending ones, review the rest.
-class RequestsScreen extends ConsumerStatefulWidget {
-  const RequestsScreen({super.key});
+/// Home's requests block: answer pending ones, review the rest.
+class RequestsSection extends ConsumerStatefulWidget {
+  const RequestsSection({super.key});
 
   @override
-  ConsumerState<RequestsScreen> createState() => _RequestsScreenState();
+  ConsumerState<RequestsSection> createState() => _RequestsSectionState();
 }
 
-class _RequestsScreenState extends ConsumerState<RequestsScreen> {
+class _RequestsSectionState extends ConsumerState<RequestsSection> {
   _Filter _filter = _Filter.pending;
   String? _busyId;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            ManoSpacing.md,
-            ManoSpacing.md,
-            ManoSpacing.md,
-            0,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Solicitudes',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: ManoSpacing.md),
-              ManoProjectFilterTabs(
-                labels: [for (final f in _Filter.values) f.label],
-                selectedIndex: _filter.index,
-                onSelected: (i) => setState(() => _filter = _Filter.values[i]),
-              ),
-              const SizedBox(height: ManoSpacing.md),
-              Expanded(child: _list()),
-            ],
-          ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Solicitudes', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: ManoSpacing.md),
+        ManoProjectFilterTabs(
+          labels: [for (final f in _Filter.values) f.label],
+          selectedIndex: _filter.index,
+          onSelected: (i) => setState(() => _filter = _Filter.values[i]),
         ),
-      ),
+        const SizedBox(height: ManoSpacing.md),
+        _list(),
+      ],
     );
   }
 
@@ -93,10 +78,7 @@ class _RequestsScreenState extends ConsumerState<RequestsScreen> {
         onCta: () => context.go('/services'),
       );
     }
-    return ListView(
-      padding: const EdgeInsets.only(bottom: ManoSpacing.lg),
-      children: [for (final r in requests) _card(r)],
-    );
+    return Column(children: [for (final r in requests) _card(r)]);
   }
 
   Widget _card(ServiceRequest request) {

@@ -26,14 +26,13 @@ WidgetbookCategory navigation() => WidgetbookCategory(
         alignment: Alignment.bottomCenter,
         child: ManoBottomNavBar(
           items: const [
-            ManoNavItem(icon: Icons.inbox_outlined, label: 'Solicitudes'),
+            ManoNavItem(icon: Icons.home_outlined, label: 'Inicio'),
             ManoNavItem(icon: Icons.calendar_today_outlined, label: 'Agenda'),
             ManoNavItem(icon: Icons.chat_bubble_outline, label: 'Bandeja'),
             ManoNavItem(icon: Icons.handyman_outlined, label: 'Servicios'),
           ],
           currentIndex: context.knobs.int.slider(label: 'Tab', initialValue: 0, min: 0, max: 3),
           onTap: (_) {},
-          onActionTap: noop,
         ),
       ),
     }),

@@ -39,6 +39,30 @@ WidgetbookCategory cards() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoIntegrationRow', {
+      'Default': (context) {
+        final connected = context.knobs.boolean(label: 'Connected');
+        return _padded(
+        ManoIntegrationRow(
+          leading: DecoratedBox(
+            decoration: BoxDecoration(
+              color: ManoColors.sand,
+              borderRadius: BorderRadius.circular(ManoRadius.card),
+            ),
+            child: const SizedBox.square(
+              dimension: 44,
+              child: Icon(Icons.calendar_month, color: ManoColors.muted),
+            ),
+          ),
+          title: 'Google Calendar',
+          status: connected ? 'Conectado' : 'No conectado',
+          actionLabel: connected ? 'Copiar enlace' : 'Conectar',
+          onAction: noop,
+          onMore: connected ? noop : null,
+        ),
+        );
+      },
+    }),
     component('ManoOfferCard', {
       'Requester (offers list)': (context) => _padded(
         ManoOfferCard(

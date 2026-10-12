@@ -7,7 +7,7 @@ import '../features/agenda/agenda_screen.dart';
 import '../features/availability/availability_screen.dart';
 import '../features/chat/chat_screen.dart';
 import '../features/chat/provider_inbox_screen.dart';
-import '../features/requests/requests_screen.dart';
+import '../features/home/provider_home_screen.dart';
 import '../features/services/my_services_screen.dart';
 import '../features/services/offer_editor_screen.dart';
 import 'provider_nav_shell.dart';
@@ -18,7 +18,9 @@ final providerRouterProvider = Provider<GoRouter>((ref) {
   final rootKey = GlobalKey<NavigatorState>();
   final router = GoRouter(
     navigatorKey: rootKey,
-    initialLocation: '/requests',
+    initialLocation: '/home',
+    // Solicitudes folded into Inicio; old links still land.
+    redirect: (context, state) => state.uri.path == '/requests' ? '/home' : null,
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -27,8 +29,8 @@ final providerRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/requests',
-                builder: (context, state) => const RequestsScreen(),
+                path: '/home',
+                builder: (context, state) => const ProviderHomeScreen(),
               ),
             ],
           ),

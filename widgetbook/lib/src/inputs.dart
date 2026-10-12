@@ -115,6 +115,16 @@ WidgetbookCategory inputs() => WidgetbookCategory(
         );
       },
     }),
+    component('ManoMonthCalendar', {
+      'Default': (context) => _padded(
+        _MonthCalendarDemo(
+          withMarks: context.knobs.boolean(label: 'Days with events', initialValue: true),
+        ),
+      ),
+    }),
+    component('ManoTimeRangePicker', {
+      'Default': (context) => _padded(_TimeRangeDemo()),
+    }),
     component('ManoSlotGrid', {
       'Default': (context) => _padded(
         ManoSlotGrid(
@@ -142,6 +152,51 @@ WidgetbookCategory inputs() => WidgetbookCategory(
     }),
   ],
 );
+
+class _MonthCalendarDemo extends StatefulWidget {
+  const _MonthCalendarDemo({required this.withMarks});
+
+  final bool withMarks;
+
+  @override
+  State<_MonthCalendarDemo> createState() => _MonthCalendarDemoState();
+}
+
+class _MonthCalendarDemoState extends State<_MonthCalendarDemo> {
+  DateTime _month = DateTime(2026, 10);
+  DateTime _selected = DateTime(2026, 10, 15);
+
+  @override
+  Widget build(BuildContext context) => ManoMonthCalendar(
+    month: _month,
+    selected: _selected,
+    markedDays: widget.withMarks
+        ? {DateTime(2026, 10, 7), DateTime(2026, 10, 15), DateTime(2026, 10, 22)}
+        : const {},
+    onSelect: (d) => setState(() => _selected = d),
+    onMonthChanged: (m) => setState(() => _month = m),
+  );
+}
+
+class _TimeRangeDemo extends StatefulWidget {
+  @override
+  State<_TimeRangeDemo> createState() => _TimeRangeDemoState();
+}
+
+class _TimeRangeDemoState extends State<_TimeRangeDemo> {
+  int _start = 8 * 60;
+  int _end = 12 * 60;
+
+  @override
+  Widget build(BuildContext context) => ManoTimeRangePicker(
+    startMinutes: _start,
+    endMinutes: _end,
+    onChanged: (s, e) => setState(() {
+      _start = s;
+      _end = e;
+    }),
+  );
+}
 
 Widget _padded(Widget child) =>
     Center(child: Padding(padding: const EdgeInsets.all(ManoSpacing.lg), child: child));

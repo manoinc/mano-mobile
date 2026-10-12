@@ -31,20 +31,13 @@ class _CalendarFeedSectionState extends ConsumerState<CalendarFeedSection> {
           'Suscríbete a este enlace desde Google Calendar o Apple Calendar '
           'para ver tus trabajos de Mano junto a tus otros compromisos.',
       child: switch (feed) {
-        AsyncData(value: final feed?) => _Linked(
-          url: feed.url,
-          busy: _busy,
-          onCopy: () => _copy(feed.url),
-          onReissue: _reissue,
-          onRevoke: () => _run(_actions.revokeFeed),
+        AsyncData(value: final feed?) => _row(
+          connected: true,
+          action: () => _copy(feed.url),
         ),
-        AsyncData() => Padding(
-          padding: const EdgeInsets.only(top: ManoSpacing.sm),
-          child: ManoPrimaryButton(
-            label: 'Generar enlace',
-            busy: _busy,
-            onPressed: () => _run(_actions.issueFeed),
-          ),
+        AsyncData() => _row(
+          connected: false,
+          action: _busy ? null : () => _run(_actions.issueFeed),
         ),
         AsyncError() => AvailabilityLoadError(
           message: 'No pudimos cargar tu enlace.',
@@ -54,6 +47,52 @@ class _CalendarFeedSectionState extends ConsumerState<CalendarFeedSection> {
       },
     );
   }
+
+  Widget _row({required bool connected, required VoidCallback? action}) {
+    return ManoIntegrationRow(
+      leading: const DecoratedBox(
+        decoration: BoxDecoration(
+          color: ManoColors.sand,
+          borderRadius: BorderRadius.all(Radius.circular(ManoRadius.card)),
+        ),
+        child: SizedBox.square(
+          dimension: 44,
+          child: Icon(Icons.calendar_month, color: ManoColors.muted),
+        ),
+      ),
+      title: 'Google Calendar',
+      status: connected ? 'Conectado' : 'No conectado',
+      actionLabel: connected ? 'Copiar enlace' : 'Conectar',
+      onAction: action,
+      onMore: connected ? _openMore : null,
+    );
+  }
+
+  Future<void> _openMore() => showManoSheet<void>(
+    context: context,
+    builder: (sheetContext) => ManoActionSheet(
+      title: 'Google Calendar',
+      onClose: () => Navigator.of(sheetContext).pop(),
+      actions: [
+        ManoSheetAction(
+          label: 'Generar nuevo enlace',
+          icon: Icons.refresh,
+          onPressed: () {
+            Navigator.of(sheetContext).pop();
+            _reissue();
+          },
+        ),
+        ManoSheetAction(
+          label: 'Desactivar enlace',
+          icon: Icons.link_off,
+          onPressed: () {
+            Navigator.of(sheetContext).pop();
+            _run(_actions.revokeFeed);
+          },
+        ),
+      ],
+    ),
+  );
 
   Future<void> _copy(String url) async {
     await Clipboard.setData(ClipboardData(text: url));
@@ -90,60 +129,4 @@ class _CalendarFeedSectionState extends ConsumerState<CalendarFeedSection> {
   void _snack(String message) => ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(content: Text(message)));
-}
-
-class _Linked extends StatelessWidget {
-  const _Linked({
-    required this.url,
-    required this.busy,
-    required this.onCopy,
-    required this.onReissue,
-    required this.onRevoke,
-  });
-
-  final String url;
-  final bool busy;
-  final VoidCallback onCopy;
-  final VoidCallback onReissue;
-  final VoidCallback onRevoke;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SizedBox(height: ManoSpacing.sm),
-        Container(
-          padding: const EdgeInsets.all(ManoSpacing.md),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(ManoRadius.card),
-          ),
-          child: Text(
-            url,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: ManoColors.muted,
-            ),
-          ),
-        ),
-        const SizedBox(height: ManoSpacing.md),
-        ManoOutlineButton(label: 'Copiar enlace', onPressed: onCopy),
-        const SizedBox(height: ManoSpacing.sm),
-        ManoQuietButton(
-          label: 'Generar nuevo enlace',
-          busy: busy,
-          onPressed: onReissue,
-        ),
-        ManoQuietButton(
-          label: 'Desactivar enlace',
-          busy: busy,
-          onPressed: onRevoke,
-        ),
-      ],
-    );
-  }
 }
