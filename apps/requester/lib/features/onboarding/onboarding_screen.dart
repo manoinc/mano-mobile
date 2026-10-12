@@ -91,8 +91,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
   bool get _still => MediaQuery.disableAnimationsOf(context);
 
-  OnboardingFlowNotifier get _flow =>
-      ref.read(onboardingFlowProvider.notifier);
+  OnboardingFlowNotifier get _flow => ref.read(onboardingFlowProvider.notifier);
 
   @override
   Widget build(BuildContext context) {

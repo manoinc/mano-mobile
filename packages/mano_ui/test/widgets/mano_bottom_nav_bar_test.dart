@@ -163,50 +163,31 @@ void main() {
       },
     );
 
-    testWidgets(
-      'tapping a side item wiggles it briefly, then it settles level',
-      (tester) async {
-        await tester.pumpWidget(
-          _host(
-            ManoBottomNavBar(
-              items: items,
-              currentIndex: 0,
-              onTap: (_) {},
-              onActionTap: () {},
-            ),
+    testWidgets('tapping a side item never rotates it', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          ManoBottomNavBar(
+            items: items,
+            currentIndex: 0,
+            onTap: (_) {},
+            onActionTap: () {},
           ),
-        );
+        ),
+      );
 
-        // `AnimatedScale` also wraps its child in a `Transform` internally,
-        // so more than one is an ancestor of the label -- `.first` is the
-        // innermost, which is the wiggle's own.
-        Matrix4 rotationOf(String label) => tester
-            .widget<Transform>(
-              find
-                  .ancestor(of: find.text(label), matching: find.byType(Transform))
-                  .first,
-            )
-            .transform;
+      bool rotated(String label) => tester
+          .widgetList<Transform>(
+            find.ancestor(of: find.text(label), matching: find.byType(Transform)),
+          )
+          .any((t) => t.transform.storage[1] != 0);
 
-        expect(rotationOf(items[2].label), Matrix4.identity());
+      await tester.tap(find.text(items[2].label));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 80));
+      expect(rotated(items[2].label), isFalse);
 
-        await tester.tap(find.text(items[2].label));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 80));
-
-        expect(
-          rotationOf(items[2].label),
-          isNot(Matrix4.identity()),
-          reason: 'mid-flight the tapped icon should be tilted, not level',
-        );
-
-        await tester.pumpAndSettle();
-        expect(
-          rotationOf(items[2].label),
-          Matrix4.identity(),
-          reason: 'the wiggle is a brief detail, not a resting tilt',
-        );
-      },
-    );
+      await tester.pumpAndSettle();
+      expect(rotated(items[2].label), isFalse);
+    });
   });
 }

@@ -92,7 +92,7 @@ class ManoBottomNavBar extends StatelessWidget {
 }
 
 /// A side item's hit area: a ripple that spreads and fades like a drop
-/// landing on still water, plus a brief wiggle on the icon -- rather than the
+/// landing on still water -- rather than the
 /// platform's own ink splash, which reads as a hard-edged square once it hits
 /// the narrow column each item sits in.
 class _TappableNavItem extends StatefulWidget {
@@ -114,34 +114,18 @@ class _TappableNavItemState extends State<_TappableNavItem>
     duration: const Duration(milliseconds: 450),
   );
 
-  late final AnimationController _wiggleController = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 350),
-  );
-
-  /// A small tilt one way, a smaller one back, then level -- big enough to
-  /// read as a wiggle, small enough to stay a detail rather than a gesture.
-  late final Animation<double> _wiggle =
-      TweenSequence<double>([
-        TweenSequenceItem(tween: Tween(begin: 0, end: -0.12), weight: 1),
-        TweenSequenceItem(tween: Tween(begin: -0.12, end: 0.08), weight: 1),
-        TweenSequenceItem(tween: Tween(begin: 0.08, end: 0), weight: 1),
-      ]).animate(CurvedAnimation(parent: _wiggleController, curve: Curves.easeOut));
-
   void _set(bool down) {
     if (_down != down) setState(() => _down = down);
   }
 
   void _handleTap() {
     _rippleController.forward(from: 0);
-    _wiggleController.forward(from: 0);
     widget.onTap();
   }
 
   @override
   void dispose() {
     _rippleController.dispose();
-    _wiggleController.dispose();
     super.dispose();
   }
 
@@ -185,12 +169,7 @@ class _TappableNavItemState extends State<_TappableNavItem>
                     );
                   },
                 ),
-                AnimatedBuilder(
-                  animation: _wiggle,
-                  builder: (context, child) =>
-                      Transform.rotate(angle: _wiggle.value, child: child),
-                  child: widget.child,
-                ),
+                widget.child,
               ],
             ),
           ),

@@ -96,6 +96,49 @@ void main() {
     });
   });
 
+  group('neutral surfaces', () {
+    test('light surface containers are warm greys, never tinted pink', () {
+      final scheme = ManoTheme.light().colorScheme;
+      expect(scheme.surfaceContainerLowest, Colors.white);
+      expect(scheme.surfaceContainerLow, ManoColors.sand);
+      expect(scheme.surfaceContainer, ManoColors.sand);
+      expect(scheme.surfaceContainerHigh, ManoColors.stone);
+      expect(scheme.surfaceContainerHighest, ManoColors.stone);
+      expect(scheme.surfaceTint, Colors.transparent);
+    });
+
+    test('secondary and tertiary containers are neutral and distinguishable', () {
+      for (final theme in [ManoTheme.light(), ManoTheme.dark()]) {
+        final s = theme.colorScheme;
+        for (final c in [s.secondaryContainer, s.tertiaryContainer]) {
+          final hsl = HSLColor.fromColor(c);
+          final warm = hsl.hue >= 10 && hsl.hue <= 50 || hsl.saturation < 0.15;
+          expect(warm, isTrue, reason: 'container $c drifts off the warm palette');
+        }
+        expect(s.tertiaryContainer, isNot(s.surfaceContainerHighest));
+      }
+    });
+
+    test('dark containers stay on the warm dark ground', () {
+      final s = ManoTheme.dark().colorScheme;
+      expect(s.surfaceTint, Colors.transparent);
+      expect(s.surfaceContainerHighest, isNot(s.surface));
+    });
+
+    test('components drop the elevation tint', () {
+      for (final theme in [ManoTheme.light(), ManoTheme.dark()]) {
+        expect(theme.cardTheme.surfaceTintColor, Colors.transparent);
+        expect(theme.cardTheme.color, theme.colorScheme.surfaceContainerLowest);
+        expect(theme.appBarTheme.backgroundColor, theme.colorScheme.surface);
+        expect(theme.appBarTheme.surfaceTintColor, Colors.transparent);
+        expect(theme.appBarTheme.scrolledUnderElevation, 0);
+        expect(theme.chipTheme.backgroundColor, theme.colorScheme.surfaceContainerHighest);
+        expect(theme.bottomSheetTheme.surfaceTintColor, Colors.transparent);
+        expect(theme.dialogTheme.surfaceTintColor, Colors.transparent);
+      }
+    });
+  });
+
   group('motion', () {
     test('carries the stylesheet entrance curve', () {
       expect(ManoMotion.entrance, const Cubic(0.23, 1, 0.32, 1));

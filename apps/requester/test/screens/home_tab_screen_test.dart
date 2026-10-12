@@ -97,6 +97,10 @@ void main() {
 
     expect(find.text('Limpieza profunda'), findsOneWidget);
     expect(find.textContaining('80.000'), findsOneWidget);
+    await tester.ensureVisible(find.byType(ManoListingCarousel));
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(ManoListingCarousel), const Offset(-400, 0));
+    await tester.pumpAndSettle();
     expect(find.text('Reparación de tuberías'), findsOneWidget);
     expect(find.textContaining('75.000'), findsOneWidget);
   });
