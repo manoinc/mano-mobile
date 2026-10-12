@@ -128,6 +128,22 @@ WidgetbookCategory cards() => WidgetbookCategory(
           ),
         ),
       ),
+      'Lead with photos': (context) => _padded(
+        ManoRequestCard(
+          clientName: 'Camilo Restrepo',
+          clientPhotoUrl: samplePhoto,
+          title: 'Fuga debajo del lavaplatos',
+          message: 'Se me está filtrando el lavaplatos de la cocina, gotea debajo del mueble.',
+          scheduleLabel: '12 oct, 9:00 a. m.',
+          amountLabel: ManoFormat.cop(45000),
+          rateLabel: '/hora',
+          categoryLabel: 'Plomería',
+          zoneLabel: 'Laureles',
+          photoUrl: sampleListingPhoto,
+          photoCount: 2,
+          onTap: noop,
+        ),
+      ),
       'Answered': (context) => _padded(
         ManoRequestCard(
           clientName: 'Laura Pérez',

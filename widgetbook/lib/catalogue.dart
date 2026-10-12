@@ -9,6 +9,7 @@ import 'src/foundations.dart';
 import 'src/inputs.dart';
 import 'src/navigation.dart';
 import 'src/overlays.dart';
+import 'src/wallet.dart';
 
 /// Every mano_ui component, grouped the way docs/design describes them.
 List<WidgetbookNode> catalogue() => [
@@ -21,4 +22,5 @@ List<WidgetbookNode> catalogue() => [
   overlays(),
   navigation(),
   chat(),
+  wallet(),
 ];
