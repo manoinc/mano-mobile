@@ -4,7 +4,18 @@ import 'package:mano_domain/mano_domain.dart';
 import '../marketplace_providers.dart';
 import 'provider_profile_validation.dart';
 
-enum ProviderOnboardingStep { welcome, profile, documents, review, pending }
+enum ProviderOnboardingStep {
+  welcome,
+  name,
+  phone,
+  zone,
+  services,
+  experience,
+  bio,
+  documents,
+  review,
+  pending,
+}
 
 enum ProviderDocument {
   idFront('id-front', required: true),
@@ -35,12 +46,25 @@ final class ProviderOnboardingFailed extends ProviderOnboardingStatus {
   final DataFailure failure;
 }
 
+const _questions = [
+  ProviderOnboardingStep.name,
+  ProviderOnboardingStep.phone,
+  ProviderOnboardingStep.zone,
+  ProviderOnboardingStep.services,
+  ProviderOnboardingStep.experience,
+  ProviderOnboardingStep.bio,
+  ProviderOnboardingStep.documents,
+];
+
 final class ProviderOnboardingState {
   const ProviderOnboardingState({
     this.step = ProviderOnboardingStep.welcome,
     this.displayName = '',
     this.phone = '',
     this.workZone = '',
+    this.categories = const [],
+    this.experience = '',
+    this.bio = '',
     this.attached = const {},
     this.showProblems = false,
     this.status = const ProviderOnboardingIdle(),
@@ -50,6 +74,11 @@ final class ProviderOnboardingState {
   final String displayName;
   final String phone;
   final String workZone;
+  final List<String> categories;
+
+  /// Years as typed; parsed only when the draft is built.
+  final String experience;
+  final String bio;
 
   /// Attached documents and their (placeholder) local paths.
   final Map<ProviderDocument, String> attached;
@@ -59,10 +88,30 @@ final class ProviderOnboardingState {
 
   final ProviderOnboardingStatus status;
 
-  bool get profileComplete =>
-      validateDisplayName(displayName) == null &&
-      validatePhone(phone) == null &&
-      validateWorkZone(workZone) == null;
+  /// What the app greets with: the first word of the name.
+  String get firstName {
+    final trimmed = displayName.trim();
+    final space = trimmed.indexOf(' ');
+    return space < 0 ? trimmed : trimmed.substring(0, space);
+  }
+
+  /// Whether the current question can be answered as it stands.
+  bool get stepComplete => switch (step) {
+    ProviderOnboardingStep.name => validateDisplayName(displayName) == null,
+    ProviderOnboardingStep.phone => validatePhone(phone) == null,
+    ProviderOnboardingStep.zone => validateWorkZone(workZone) == null,
+    ProviderOnboardingStep.services => validateServices(categories) == null,
+    ProviderOnboardingStep.experience => validateExperience(experience) == null,
+    ProviderOnboardingStep.bio => validateBio(bio) == null,
+    ProviderOnboardingStep.documents => documentsComplete,
+    _ => true,
+  };
+
+  /// Position among the questions as a 0..1 fraction; zero off them.
+  double get progress {
+    final i = _questions.indexOf(step);
+    return i < 0 ? 0 : (i + 1) / _questions.length;
+  }
 
   bool get documentsComplete => ProviderDocument.values
       .where((d) => d.required)
@@ -72,10 +121,10 @@ final class ProviderOnboardingState {
     displayName: displayName.trim(),
     phone: normalizePhone(phone) ?? phone.trim(),
     workZone: workZone.trim(),
-    documentPaths: [
-      for (final d in ProviderDocument.values)
-        ?attached[d],
-    ],
+    categories: categories,
+    yearsExperience: int.tryParse(experience.trim()) ?? 0,
+    bio: bio.trim(),
+    documentPaths: [for (final d in ProviderDocument.values) ?attached[d]],
   );
 
   ProviderOnboardingState copyWith({
@@ -83,6 +132,9 @@ final class ProviderOnboardingState {
     String? displayName,
     String? phone,
     String? workZone,
+    List<String>? categories,
+    String? experience,
+    String? bio,
     Map<ProviderDocument, String>? attached,
     bool? showProblems,
     ProviderOnboardingStatus? status,
@@ -91,19 +143,29 @@ final class ProviderOnboardingState {
     displayName: displayName ?? this.displayName,
     phone: phone ?? this.phone,
     workZone: workZone ?? this.workZone,
+    categories: categories ?? this.categories,
+    experience: experience ?? this.experience,
+    bio: bio ?? this.bio,
     attached: attached ?? this.attached,
     showProblems: showProblems ?? this.showProblems,
     status: status ?? this.status,
   );
 }
 
-/// A professional's sign-up: profile, documents, then submission for review.
+/// A professional's sign-up: one question at a time, then review.
+const _flow = [
+  ProviderOnboardingStep.welcome,
+  ..._questions,
+  ProviderOnboardingStep.review,
+  ProviderOnboardingStep.pending,
+];
+
 final class ProviderOnboardingNotifier
     extends Notifier<ProviderOnboardingState> {
   @override
   ProviderOnboardingState build() => const ProviderOnboardingState();
 
-  void start() => _goTo(ProviderOnboardingStep.profile);
+  void start() => _goTo(ProviderOnboardingStep.name);
 
   void editDisplayName(String value) =>
       state = state.copyWith(displayName: value);
@@ -112,35 +174,44 @@ final class ProviderOnboardingNotifier
 
   void editWorkZone(String value) => state = state.copyWith(workZone: value);
 
+  void toggleCategory(String id) {
+    final chosen = [...state.categories];
+    if (!chosen.remove(id)) chosen.add(id);
+    state = state.copyWith(categories: chosen);
+  }
+
+  void editExperience(String value) =>
+      state = state.copyWith(experience: value);
+
+  void editBio(String value) => state = state.copyWith(bio: value);
+
   // No picker yet, so a fixed placeholder stands in for the chosen file.
   void attach(ProviderDocument document) => state = state.copyWith(
     attached: {...state.attached, document: 'placeholder://${document.slug}'},
   );
 
-  /// Advances if the current step is complete; otherwise starts showing why not.
+  /// Advances if the current question is answered; otherwise shows why not.
   void next() {
-    final next = switch (state.step) {
-      ProviderOnboardingStep.profile when state.profileComplete =>
-        ProviderOnboardingStep.documents,
-      ProviderOnboardingStep.documents when state.documentsComplete =>
-        ProviderOnboardingStep.review,
-      _ => null,
-    };
-    if (next == null) {
+    if (!state.stepComplete) {
       state = state.copyWith(showProblems: true);
-    } else {
-      _goTo(next);
+      return;
     }
+    final i = _flow.indexOf(state.step);
+    if (i >= 0 && i < _flow.length - 1) _goTo(_flow[i + 1]);
+  }
+
+  /// Passes over the optional bio without answering it.
+  void skip() {
+    if (state.step != ProviderOnboardingStep.bio) return;
+    state = state.copyWith(bio: '');
+    next();
   }
 
   void back() {
-    final previous = switch (state.step) {
-      ProviderOnboardingStep.profile => ProviderOnboardingStep.welcome,
-      ProviderOnboardingStep.documents => ProviderOnboardingStep.profile,
-      ProviderOnboardingStep.review => ProviderOnboardingStep.documents,
-      ProviderOnboardingStep.welcome || ProviderOnboardingStep.pending => null,
-    };
-    if (previous != null) _goTo(previous);
+    final i = _flow.indexOf(state.step);
+    if (i > 0 && state.step != ProviderOnboardingStep.pending) {
+      _goTo(_flow[i - 1]);
+    }
   }
 
   void acknowledgeFailure() {
@@ -181,3 +252,8 @@ final providerOnboardingProvider =
     NotifierProvider<ProviderOnboardingNotifier, ProviderOnboardingState>(
       ProviderOnboardingNotifier.new,
     );
+
+/// The first name the professional gave, for greetings ("Hola, Ana").
+final providerFirstNameProvider = Provider<String>(
+  (ref) => ref.watch(providerOnboardingProvider.select((s) => s.firstName)),
+);

@@ -19,6 +19,7 @@ class DocumentsStep extends ConsumerWidget {
       onBack: notifier.back,
       headline: 'Tus documentos',
       subhead: 'Nuestro equipo los revisa para verificar tu identidad.',
+      progress: state.progress,
       primaryLabel: 'Continuar',
       onPrimary: state.documentsComplete ? notifier.next : null,
       children: [

@@ -38,10 +38,17 @@ void main() {
 
     await _tapText(tester, 'Crear cuenta profesional');
 
-    await tester.enterText(_field('Nombre para mostrar'), 'Ana Gómez');
+    await tester.enterText(_field('Nombre completo'), 'Ana Gómez');
+    await _tapText(tester, 'Continuar');
     await tester.enterText(_field('Celular'), '300 123 4567');
+    await _tapText(tester, 'Continuar');
     await tester.enterText(_field('Zona de cobertura'), 'Chapinero');
     await _tapText(tester, 'Continuar');
+    await _tapText(tester, 'Plomería');
+    await _tapText(tester, 'Continuar');
+    await tester.enterText(_field('Años de experiencia'), '5');
+    await _tapText(tester, 'Continuar');
+    await _tapText(tester, 'Omitir');
 
     await _tapText(tester, 'Adjuntar');
     await _tapText(tester, 'Adjuntar');

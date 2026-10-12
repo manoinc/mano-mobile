@@ -37,6 +37,18 @@ class ReviewStep extends ConsumerWidget {
         _SummaryRow(label: 'Celular', value: draft.phone),
         _SummaryRow(label: 'Zona de cobertura', value: draft.workZone),
         _SummaryRow(
+          label: 'Servicios',
+          value: draft.categories.map(ServiceCategories.labelOf).join(', '),
+        ),
+        _SummaryRow(
+          label: 'Experiencia',
+          value: draft.yearsExperience == 1
+              ? '1 año'
+              : '${draft.yearsExperience} años',
+        ),
+        if (draft.bio.isNotEmpty)
+          _SummaryRow(label: 'Descripción', value: draft.bio),
+        _SummaryRow(
           label: 'Documentos',
           value: [
             for (final d in ProviderDocument.values)

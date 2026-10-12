@@ -14,7 +14,8 @@ library;
 // Re-exported so the apps can declare their configuration without depending
 // on `mano_data` directly. An app that could import the adapters could also
 // construct one, and the composition seam would stop being a seam.
-export 'package:mano_data/mano_data.dart' show InMemorySessionRepository, ManoConfig;
+export 'package:mano_data/mano_data.dart'
+    show InMemorySessionRepository, ManoConfig;
 
 // The domain's vocabulary -- Session, AuthFailure and its cases,
 // AuthenticatedUser, ManoRole -- re-exported in full, unlike mano_data above.

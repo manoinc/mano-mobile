@@ -16,12 +16,20 @@ final class WorkerProfileDraft {
     required this.displayName,
     required this.phone,
     required this.workZone,
+    this.categories = const [],
+    this.yearsExperience = 0,
+    this.bio = '',
     this.documentPaths = const [],
   });
 
   final String displayName;
   final String phone;
   final String workZone;
+
+  /// Canonical service category ids the professional offers.
+  final List<String> categories;
+  final int yearsExperience;
+  final String bio;
 
   /// Local files to upload: ID and optional certificates.
   final List<String> documentPaths;
@@ -32,11 +40,21 @@ final class WorkerProfileDraft {
       other.displayName == displayName &&
       other.phone == phone &&
       other.workZone == workZone &&
+      _listEquals(other.categories, categories) &&
+      other.yearsExperience == yearsExperience &&
+      other.bio == bio &&
       _listEquals(other.documentPaths, documentPaths);
 
   @override
-  int get hashCode =>
-      Object.hash(displayName, phone, workZone, Object.hashAll(documentPaths));
+  int get hashCode => Object.hash(
+    displayName,
+    phone,
+    workZone,
+    Object.hashAll(categories),
+    yearsExperience,
+    bio,
+    Object.hashAll(documentPaths),
+  );
 
   @override
   String toString() => 'WorkerProfileDraft($displayName, $workZone)';
