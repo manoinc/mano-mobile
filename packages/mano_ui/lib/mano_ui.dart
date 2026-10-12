@@ -39,6 +39,7 @@ export 'src/widgets/mano_empty_state.dart';
 export 'src/widgets/mano_greeting_header.dart';
 export 'src/widgets/mano_hero_scaffold.dart';
 export 'src/widgets/mano_initials_avatar.dart';
+export 'src/widgets/mano_integration_row.dart';
 export 'src/widgets/mano_listing_card.dart';
 export 'src/widgets/mano_message_composer.dart';
 export 'src/widgets/mano_month_calendar.dart';

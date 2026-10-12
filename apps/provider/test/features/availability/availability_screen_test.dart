@@ -63,8 +63,8 @@ void main() {
     expect(find.text('lun – vie · 8:00 a. m. – 12:00 p. m.'), findsOneWidget);
     expect(find.text('sáb · 9:00 a. m. – 1:00 p. m.'), findsOneWidget);
     expect(find.text('No tienes fechas bloqueadas.'), findsOneWidget);
-    await _scrollTo(tester, find.text('Generar enlace'));
-    expect(find.byType(ManoPrimaryButton), findsOneWidget);
+    await _scrollTo(tester, find.text('Google Calendar'));
+    expect(find.text('Conectar'), findsOneWidget);
   });
 
   testWidgets('a failed read shows an error with retry', (tester) async {
@@ -155,7 +155,7 @@ void main() {
     expect(await c.read(availabilityRepositoryProvider).myBlocks(), isEmpty);
   });
 
-  testWidgets('issues, copies, reissues and revokes the calendar link', (
+  testWidgets('connects, copies, reissues and revokes the calendar link', (
     tester,
   ) async {
     String? copied;
@@ -168,37 +168,38 @@ void main() {
         return null;
       },
     );
-    await _open(tester);
+    final c = await _open(tester);
+    String? url() => c.read(myCalendarFeedProvider).value?.url;
 
-    await _scrollTo(tester, find.text('Generar enlace'));
-    await tester.tap(find.text('Generar enlace'));
+    await _scrollTo(tester, find.text('Google Calendar'));
+    expect(find.text('No conectado'), findsOneWidget);
+    expect(find.byTooltip('Más opciones'), findsNothing);
+    await tester.tap(find.text('Conectar'));
     await tester.pumpAndSettle();
-    final url = find.textContaining('https://');
-    expect(url, findsOneWidget);
-    final first = tester.widget<Text>(url).data;
-    expect(find.byType(ManoPrimaryButton), findsNothing);
+    final first = url();
+    expect(first, startsWith('https://'));
+    expect(find.text('Conectado'), findsOneWidget);
+    expect(find.text('Generar enlace'), findsNothing);
 
-    await _scrollTo(tester, find.text('Copiar enlace'));
     await tester.tap(find.text('Copiar enlace'));
     await tester.pump();
     expect(copied, first);
     expect(find.text('Enlace copiado'), findsOneWidget);
 
-    await _scrollTo(tester, find.text('Generar nuevo enlace'));
+    await tester.tap(find.byTooltip('Más opciones'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Generar nuevo enlace'));
     await tester.pumpAndSettle();
     expect(find.textContaining('dejará de funcionar'), findsOneWidget);
     await tester.tap(find.widgetWithText(ManoPrimaryButton, 'Generar'));
     await tester.pumpAndSettle();
-    expect(
-      tester.widget<Text>(find.textContaining('https://')).data,
-      isNot(first),
-    );
+    expect(url(), isNot(first));
 
-    await _scrollTo(tester, find.text('Desactivar enlace'));
+    await tester.tap(find.byTooltip('Más opciones'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Desactivar enlace'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('https://'), findsNothing);
-    expect(find.text('Generar enlace'), findsOneWidget);
+    expect(url(), isNull);
+    expect(find.text('No conectado'), findsOneWidget);
   });
 }
