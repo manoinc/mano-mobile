@@ -7,12 +7,14 @@ class RequestActionsRow extends StatelessWidget {
     required this.onAccept,
     required this.onReject,
     this.busy = false,
+    this.acceptLabel = 'Aceptar',
     super.key,
   });
 
   final VoidCallback onAccept;
   final VoidCallback onReject;
   final bool busy;
+  final String acceptLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,7 @@ class RequestActionsRow extends StatelessWidget {
         const SizedBox(width: ManoSpacing.sm),
         Expanded(
           child: ManoOutlineButton(
-            label: 'Aceptar',
+            label: acceptLabel,
             onPressed: onAccept,
             busy: busy,
           ),
