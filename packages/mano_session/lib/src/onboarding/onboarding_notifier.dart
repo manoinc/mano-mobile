@@ -42,11 +42,16 @@ final class OnboardingFlowNotifier extends Notifier<OnboardingFlow> {
 
   void skipRegistration() => _browse();
 
-  void acknowledgeWelcome() => state = const OnboardingBrowsing();
+  void acknowledgeWelcome() => state = OnboardingBrowsing(
+    name: switch (state) {
+      OnboardingBrowsing(:final name) => name,
+      _ => '',
+    },
+  );
 
-  void _browse({bool showWelcome = false}) {
+  void _browse({bool showWelcome = false, String name = ''}) {
     _session.browseAsGuest();
-    state = OnboardingBrowsing(showWelcome: showWelcome);
+    state = OnboardingBrowsing(showWelcome: showWelcome, name: name);
   }
 
   void editName({String? givenName, String? familyName}) => _edit(
@@ -110,7 +115,7 @@ final class OnboardingFlowNotifier extends Notifier<OnboardingFlow> {
       if (state case final OnboardingRegistration current) {
         switch (result) {
           case Ok():
-            _browse(showWelcome: true);
+            _browse(showWelcome: true, name: flow.draft.greetingName);
           case Err(:final failure):
             state = current.copyWith(status: RegistrationFailed(failure));
         }

@@ -47,4 +47,18 @@ void main() {
     expect(greetingPhoto(andres, name: 'Andrés'), 'a.jpg');
     expect(greetingPhoto(andres, name: 'Lucía'), isNull);
   });
+
+  test(
+    'a requester is greeted by account, else by the name they registered',
+    () {
+      const browsing = OnboardingBrowsing(name: 'Ana');
+      expect(
+        requesterGreetingName(_user(username: 'Laura'), browsing),
+        'Laura',
+      );
+      expect(requesterGreetingName(null, browsing), 'Ana');
+      expect(requesterGreetingName(null, const OnboardingBrowsing()), isNull);
+      expect(requesterGreetingName(null, const OnboardingTour()), isNull);
+    },
+  );
 }

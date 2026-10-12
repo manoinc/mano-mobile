@@ -77,9 +77,12 @@ final class OnboardingRegistration extends OnboardingFlow {
 
 /// Through the front door, looking around without an account.
 final class OnboardingBrowsing extends OnboardingFlow {
-  const OnboardingBrowsing({this.showWelcome = false});
+  const OnboardingBrowsing({this.showWelcome = false, this.name = ''});
 
   /// One-shot, cleared once shown -- the same contract as
   /// `SessionNotifier.acknowledgeFailure`.
   final bool showWelcome;
+
+  /// First name typed while registering, kept for the greeting; '' if none.
+  final String name;
 }

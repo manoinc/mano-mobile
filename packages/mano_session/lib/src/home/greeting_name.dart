@@ -1,5 +1,7 @@
 import 'package:mano_domain/mano_domain.dart';
 
+import '../onboarding/onboarding_flow.dart';
+
 const _placeholders = {'profesional', 'solicitante'};
 
 /// The name to greet, or null when there is none worth saying.
@@ -10,6 +12,14 @@ String? greetingName(AuthenticatedUser? user) {
   if (_placeholders.contains(name.toLowerCase())) return null;
   return name;
 }
+
+/// The requester's name: the account's, else the one typed while registering.
+String? requesterGreetingName(AuthenticatedUser? user, OnboardingFlow flow) =>
+    greetingName(user) ??
+    switch (flow) {
+      OnboardingBrowsing(:final name) when name.isNotEmpty => name,
+      _ => null,
+    };
 
 /// The professional's first name from their profile, or null when blank.
 String? greetingFirstName(ProviderProfile? profile) {

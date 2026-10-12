@@ -14,5 +14,11 @@ void main() {
 
       expect(find.text('Hola, Jessica'), findsOneWidget);
     });
+
+    testWidgets('without a name it still says hello', (tester) async {
+      await tester.pumpWidget(_host(const ManoGreetingHeader()));
+
+      expect(find.text('Hola'), findsOneWidget);
+    });
   });
 }

@@ -8,9 +8,10 @@ import 'mano_avatar.dart';
 /// Takes a name and, optionally, a photo -- no session, no user entity. The
 /// screen resolves whatever "name" means and hands over plain strings.
 class ManoGreetingHeader extends StatelessWidget {
-  const ManoGreetingHeader({required this.name, this.photoUrl, super.key});
+  const ManoGreetingHeader({this.name, this.photoUrl, super.key});
 
-  final String name;
+  /// Omitted, the greeting is a plain "Hola".
+  final String? name;
 
   /// Shows a small avatar before the greeting when given.
   final String? photoUrl;
@@ -19,7 +20,7 @@ class ManoGreetingHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final greeting = Text(
-      'Hola, $name',
+      name == null ? 'Hola' : 'Hola, $name',
       style: Theme.of(context).textTheme.headlineSmall
           ?.copyWith(color: scheme.onSurface),
     );

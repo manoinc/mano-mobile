@@ -138,7 +138,7 @@ void main() {
     expect(_query(container), isEmpty);
   });
 
-  testWidgets('a guest gets a neutral headline instead of a greeting', (
+  testWidgets('a nameless guest still gets a greeting', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -154,8 +154,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Encuentra ayuda para tu hogar'), findsOneWidget);
-    expect(find.textContaining('Hola'), findsNothing);
+    expect(find.text('Hola'), findsOneWidget);
   });
 
   testWidgets('tapping a category opens search filtered to it', (tester) async {

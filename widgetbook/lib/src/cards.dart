@@ -247,6 +247,7 @@ WidgetbookCategory cards() => WidgetbookCategory(
           name: context.knobs.string(label: 'Name', initialValue: 'Laura'),
         ),
       ),
+      'Without a name': (context) => _padded(const ManoGreetingHeader()),
     }),
   ],
 );

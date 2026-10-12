@@ -42,7 +42,7 @@ class HomeTabScreen extends ConsumerWidget {
     final signedIn = ref.watch(hasAccountProvider);
     final categories = ref.watch(serviceCategoriesProvider);
     final sections = ref.watch(homeSectionsProvider);
-    final name = greetingName(user);
+    final name = requesterGreetingName(user, ref.watch(onboardingFlowProvider));
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -66,13 +66,7 @@ class HomeTabScreen extends ConsumerWidget {
                       ref.read(onboardingFlowProvider.notifier).startSignIn(),
                 ),
               ),
-            if (name != null)
-              ManoGreetingHeader(name: name)
-            else
-              Text(
-                'Encuentra ayuda para tu hogar',
-                style: textTheme.headlineSmall,
-              ),
+            ManoGreetingHeader(name: name),
             const SizedBox(height: ManoSpacing.md),
             // There is no address feature yet, so this is a neutral
             // placeholder label rather than invented data claiming to be the
