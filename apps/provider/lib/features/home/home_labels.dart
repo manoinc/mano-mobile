@@ -10,3 +10,15 @@ String? greetingName(AuthenticatedUser? user) {
   if (_placeholders.contains(name.toLowerCase())) return null;
   return name;
 }
+
+/// The professional's first name from their profile, or null when blank.
+String? greetingFirstName(ProviderProfile? profile) {
+  final name = profile?.firstName.trim() ?? '';
+  return name.isEmpty ? null : name;
+}
+
+/// The profile photo for the greeting, or null when there is none.
+String? greetingPhoto(ProviderProfile? profile) {
+  final url = profile?.party.photoUrl ?? '';
+  return url.isEmpty ? null : url;
+}
