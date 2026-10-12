@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mano_provider/features/home/home_labels.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
@@ -35,28 +34,6 @@ Future<ProviderContainer> _pump(
 );
 
 void main() {
-  group('greetingName', () {
-    AuthenticatedUser user({String? username, String? email}) =>
-        AuthenticatedUser(
-          subject: 'sub-1',
-          username: username,
-          email: email,
-          roles: const {},
-        );
-
-    test('uses a real name', () {
-      expect(greetingName(user(username: 'Andrés')), 'Andrés');
-    });
-
-    test('is null for no user, blanks, the bare subject and placeholders', () {
-      expect(greetingName(null), isNull);
-      expect(greetingName(user(username: '  ')), isNull);
-      expect(greetingName(user()), isNull);
-      expect(greetingName(user(username: 'Profesional')), isNull);
-      expect(greetingName(user(username: 'solicitante')), isNull);
-    });
-  });
-
   testWidgets('greets a user who has a name', (tester) async {
     await _pump(tester, session: _sessionFor(username: 'Andrés'));
     expect(find.text('Hola, Andrés'), findsOneWidget);

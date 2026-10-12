@@ -6,6 +6,7 @@ import 'src/cards.dart';
 import 'src/chat.dart';
 import 'src/feedback.dart';
 import 'src/foundations.dart';
+import 'src/home_sections.dart';
 import 'src/inputs.dart';
 import 'src/navigation.dart';
 import 'src/overlays.dart';
@@ -19,6 +20,7 @@ List<WidgetbookNode> catalogue() => [
   actions(),
   inputs(),
   cards(),
+  homeSections(),
   feedback(),
   overlays(),
   navigation(),

@@ -68,6 +68,7 @@ export 'src/widgets/mano_request_card.dart';
 export 'src/widgets/mano_review_tile.dart';
 export 'src/widgets/mano_search_field.dart';
 export 'src/widgets/mano_search_pill.dart';
+export 'src/widgets/mano_section_header.dart';
 export 'src/widgets/mano_sheet.dart';
 export 'src/widgets/mano_slot_grid.dart';
 export 'src/widgets/mano_stat_tile.dart';

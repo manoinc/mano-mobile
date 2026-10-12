@@ -1,4 +1,4 @@
-import 'package:mano_session/mano_session.dart';
+import 'package:mano_domain/mano_domain.dart';
 
 const _placeholders = {'profesional', 'solicitante'};
 
