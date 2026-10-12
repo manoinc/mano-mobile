@@ -31,6 +31,13 @@ void main() {
 
     await tester.tap(find.text('Perfil'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Tus servicios y habilidades'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('Tus servicios y habilidades'));
+    await tester.pumpAndSettle();
     expect(find.text('Mis servicios'), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.add));

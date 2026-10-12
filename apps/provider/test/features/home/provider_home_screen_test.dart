@@ -62,13 +62,34 @@ void main() {
     expect(find.text('Hola, Andrés'), findsOneWidget);
   });
 
-  testWidgets('shows a plain title when there is no usable name', (
+  testWidgets('greets by the profile first name when the user has none', (
     tester,
   ) async {
     await _pump(tester, session: _sessionFor(username: 'Profesional'));
+    expect(find.text('Hola, Andrés'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(ManoGreetingHeader),
+        matching: find.byType(ManoAvatar),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('shows a plain title when no name is available at all', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      session: _sessionFor(username: 'Profesional'),
+      overrides: [
+        providerProfileRepositoryProvider.overrideWithValue(
+          _NamelessProfiles(),
+        ),
+      ],
+    );
     expect(find.text('Inicio'), findsWidgets);
     expect(find.byType(ManoGreetingHeader), findsNothing);
-    expect(find.textContaining('Hola'), findsNothing);
   });
 
   testWidgets('shows the next job and opens it', (tester) async {
@@ -90,4 +111,24 @@ void main() {
     expect(find.text('Próximo trabajo'), findsNothing);
     expect(find.text('Solicitudes'), findsWidgets);
   });
+}
+
+class _NamelessProfiles implements ProviderProfileRepository {
+  @override
+  Future<ProviderProfile> profile() async => const ProviderProfile(
+    party: Party(id: 'p', displayName: ' ', photoUrl: ''),
+    bio: '',
+    zones: [],
+    yearsExperience: 0,
+    verified: false,
+  );
+
+  @override
+  Future<ProviderStats> stats() => throw UnimplementedError();
+
+  @override
+  Future<List<Review>> reviews() => throw UnimplementedError();
+
+  @override
+  Future<ReferralProgram> referral() => throw UnimplementedError();
 }

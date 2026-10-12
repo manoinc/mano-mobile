@@ -40,6 +40,7 @@ void main() {
         'Overlays',
         'Navigation & layout',
         'Chat',
+        'Profile & earnings',
       ]),
     );
   });

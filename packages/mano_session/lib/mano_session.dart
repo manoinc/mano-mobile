@@ -40,6 +40,7 @@ export 'src/offers/offer_pricing_filter.dart';
 export 'src/onboarding/onboarding_flow.dart';
 export 'src/onboarding/onboarding_notifier.dart';
 export 'src/onboarding/registration_providers.dart';
+export 'src/profile/profile_providers.dart';
 export 'src/provider_onboarding/provider_onboarding_notifier.dart';
 export 'src/provider_onboarding/provider_profile_validation.dart';
 export 'src/requests/request_actions.dart';

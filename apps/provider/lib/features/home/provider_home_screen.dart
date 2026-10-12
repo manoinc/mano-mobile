@@ -14,7 +14,11 @@ class ProviderHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final name = greetingName(ref.watch(currentUserProvider));
+    final profile = ref.watch(providerProfileProvider);
+    final name = resolveGreetingName(
+      ref.watch(currentUserProvider),
+      profile.value,
+    );
     final next = ref.watch(upcomingJobsProvider).value?.firstOrNull;
 
     return Scaffold(
@@ -23,7 +27,12 @@ class ProviderHomeScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(ManoSpacing.md),
           children: [
             if (name != null)
-              ManoGreetingHeader(name: name)
+              ManoGreetingHeader(
+                name: name,
+                photoUrl: greetingPhoto(profile.value),
+              )
+            else if (profile.isLoading)
+              const SizedBox(height: ManoSpacing.xl)
             else
               Text('Inicio', style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: ManoSpacing.lg),
