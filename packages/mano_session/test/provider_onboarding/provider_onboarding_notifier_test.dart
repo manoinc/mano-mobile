@@ -35,14 +35,40 @@ final class _RecordingOnboarding implements ProviderOnboardingRepository {
   return (c: c, n: c.read(providerOnboardingProvider.notifier));
 }
 
-void _fillProfile(ProviderOnboardingNotifier n) => n
-  ..editDisplayName('Ana Gómez')
-  ..editPhone('300 123 4567')
-  ..editWorkZone('Chapinero');
+const _toDocuments = [
+  ProviderOnboardingStep.name,
+  ProviderOnboardingStep.phone,
+  ProviderOnboardingStep.zone,
+  ProviderOnboardingStep.services,
+  ProviderOnboardingStep.experience,
+  ProviderOnboardingStep.bio,
+  ProviderOnboardingStep.documents,
+];
+
+void _answerAll(ProviderOnboardingNotifier n) {
+  n
+    ..start()
+    ..editDisplayName('Ana Gómez')
+    ..next()
+    ..editPhone('300 123 4567')
+    ..next()
+    ..editWorkZone('Chapinero')
+    ..next()
+    ..toggleCategory(ServiceCategories.plumbing)
+    ..toggleCategory(ServiceCategories.electrical)
+    ..next()
+    ..editExperience('5')
+    ..next()
+    ..editBio('Plomera con 5 años.')
+    ..next();
+}
 
 void _attachIds(ProviderOnboardingNotifier n) => n
   ..attach(ProviderDocument.idFront)
   ..attach(ProviderDocument.idBack);
+
+ProviderOnboardingStep _step(ProviderContainer c) =>
+    c.read(providerOnboardingProvider).step;
 
 void main() {
   group('validation', () {
@@ -65,6 +91,25 @@ void main() {
       expect(validateWorkZone(' '), ProfileProblem.empty);
       expect(validateWorkZone('Chapinero'), isNull);
     });
+
+    test('at least one service is needed', () {
+      expect(validateServices(const []), ProfileProblem.empty);
+      expect(validateServices(const ['plumbing']), isNull);
+    });
+
+    test('experience is whole years from 0 to 60', () {
+      expect(validateExperience(''), ProfileProblem.empty);
+      expect(validateExperience('abc'), ProfileProblem.invalid);
+      expect(validateExperience('-1'), ProfileProblem.invalid);
+      expect(validateExperience('61'), ProfileProblem.invalid);
+      expect(validateExperience('0'), isNull);
+      expect(validateExperience('12'), isNull);
+    });
+
+    test('bio is optional but bounded', () {
+      expect(validateBio(''), isNull);
+      expect(validateBio('a' * 281), ProfileProblem.invalid);
+    });
   });
 
   test('starts on the welcome step, idle and empty', () {
@@ -75,58 +120,134 @@ void main() {
     expect(s.attached, isEmpty);
   });
 
-  test('start moves to the profile step', () {
+  test('start moves to the name question', () {
     final (:c, :n) = _setUp();
     n.start();
-    expect(
-      c.read(providerOnboardingProvider).step,
-      ProviderOnboardingStep.profile,
-    );
+    expect(_step(c), ProviderOnboardingStep.name);
   });
 
-  test('next on an invalid profile stays and shows problems', () {
+  test('next on an unanswered question stays and shows problems', () {
     final (:c, :n) = _setUp();
     n
       ..start()
       ..next();
     final s = c.read(providerOnboardingProvider);
-    expect(s.step, ProviderOnboardingStep.profile);
+    expect(s.step, ProviderOnboardingStep.name);
     expect(s.showProblems, isTrue);
   });
 
-  test('next on a valid profile moves to documents and hides problems', () {
+  test('each answer moves one question forward and hides problems', () {
     final (:c, :n) = _setUp();
     n
       ..start()
+      ..next()
+      ..editDisplayName('Ana Gómez')
       ..next();
-    _fillProfile(n);
+    expect(_step(c), ProviderOnboardingStep.phone);
+    expect(c.read(providerOnboardingProvider).showProblems, isFalse);
+
+    n
+      ..editPhone('12')
+      ..next();
+    expect(_step(c), ProviderOnboardingStep.phone);
+  });
+
+  test('the questions run in order up to documents', () {
+    final (:c, :n) = _setUp();
+    final seen = <ProviderOnboardingStep>[];
+    n.start();
+    seen.add(_step(c));
+    n
+      ..editDisplayName('Ana')
+      ..next();
+    seen.add(_step(c));
+    n
+      ..editPhone('3001234567')
+      ..next();
+    seen.add(_step(c));
+    n
+      ..editWorkZone('Chapinero')
+      ..next();
+    seen.add(_step(c));
+    n
+      ..toggleCategory(ServiceCategories.cleaning)
+      ..next();
+    seen.add(_step(c));
+    n
+      ..editExperience('0')
+      ..next();
+    seen.add(_step(c));
     n.next();
-    final s = c.read(providerOnboardingProvider);
-    expect(s.step, ProviderOnboardingStep.documents);
-    expect(s.showProblems, isFalse);
+    seen.add(_step(c));
+    expect(seen, _toDocuments);
+  });
+
+  test('services toggle on and off', () {
+    final (:c, :n) = _setUp();
+    n.toggleCategory(ServiceCategories.painting);
+    expect(c.read(providerOnboardingProvider).categories, ['painting']);
+    n.toggleCategory(ServiceCategories.painting);
+    expect(c.read(providerOnboardingProvider).categories, isEmpty);
+  });
+
+  test('the bio can be skipped, clearing nothing it did not have', () {
+    final (:c, :n) = _setUp();
+    n
+      ..start()
+      ..editDisplayName('Ana')
+      ..next()
+      ..editPhone('3001234567')
+      ..next()
+      ..editWorkZone('Chapinero')
+      ..next()
+      ..toggleCategory(ServiceCategories.cleaning)
+      ..next()
+      ..editExperience('2')
+      ..next()
+      ..skip();
+    expect(_step(c), ProviderOnboardingStep.documents);
+    expect(c.read(providerOnboardingProvider).bio, isEmpty);
+  });
+
+  test('skip is ignored on required questions', () {
+    final (:c, :n) = _setUp();
+    n
+      ..start()
+      ..skip();
+    expect(_step(c), ProviderOnboardingStep.name);
+  });
+
+  test('firstName greets with the first word of the name', () {
+    final (:c, :n) = _setUp();
+    n.editDisplayName('  Ana Gómez ');
+    expect(c.read(providerOnboardingProvider).firstName, 'Ana');
+    expect(c.read(providerFirstNameProvider), 'Ana');
+  });
+
+  test('progress grows with each question', () {
+    final (:c, :n) = _setUp();
+    n.start();
+    final first = c.read(providerOnboardingProvider).progress;
+    n
+      ..editDisplayName('Ana')
+      ..next();
+    expect(c.read(providerOnboardingProvider).progress, greaterThan(first));
+    expect(first, greaterThan(0));
   });
 
   test('documents need both ID sides before moving on', () {
     final (:c, :n) = _setUp();
-    n.start();
-    _fillProfile(n);
+    _answerAll(n);
     n
-      ..next()
       ..attach(ProviderDocument.idFront)
       ..next();
     expect(c.read(providerOnboardingProvider).documentsComplete, isFalse);
-    expect(
-      c.read(providerOnboardingProvider).step,
-      ProviderOnboardingStep.documents,
-    );
+    expect(_step(c), ProviderOnboardingStep.documents);
 
     n
       ..attach(ProviderDocument.idBack)
       ..next();
-    expect(
-      c.read(providerOnboardingProvider).step,
-      ProviderOnboardingStep.review,
-    );
+    expect(_step(c), ProviderOnboardingStep.review);
   });
 
   test('attach records a placeholder path per document', () {
@@ -137,37 +258,30 @@ void main() {
     });
   });
 
-  test('back walks the steps and keeps the draft', () {
+  test('back walks every question and keeps the answers', () {
     final (:c, :n) = _setUp();
-    n.start();
-    _fillProfile(n);
-    n.next();
+    _answerAll(n);
     _attachIds(n);
     n
       ..next()
       ..back();
-    expect(
-      c.read(providerOnboardingProvider).step,
-      ProviderOnboardingStep.documents,
-    );
-    n.back();
+    expect(_step(c), ProviderOnboardingStep.documents);
+    for (final expected in _toDocuments.reversed.skip(1)) {
+      n.back();
+      expect(_step(c), expected);
+    }
     final s = c.read(providerOnboardingProvider);
-    expect(s.step, ProviderOnboardingStep.profile);
     expect(s.displayName, 'Ana Gómez');
+    expect(s.categories, hasLength(2));
     expect(s.attached, hasLength(2));
     n.back();
-    expect(
-      c.read(providerOnboardingProvider).step,
-      ProviderOnboardingStep.welcome,
-    );
+    expect(_step(c), ProviderOnboardingStep.welcome);
   });
 
   test('submit sends the draft and lands on pending', () async {
     final repo = _RecordingOnboarding(const Ok(VerificationStatus.pending));
     final (:c, :n) = _setUp(repo);
-    n.start();
-    _fillProfile(n);
-    n.next();
+    _answerAll(n);
     _attachIds(n);
     n.next();
 
@@ -179,21 +293,19 @@ void main() {
         displayName: 'Ana Gómez',
         phone: '3001234567',
         workZone: 'Chapinero',
+        categories: ['plumbing', 'electrical'],
+        yearsExperience: 5,
+        bio: 'Plomera con 5 años.',
         documentPaths: ['placeholder://id-front', 'placeholder://id-back'],
       ),
     );
-    expect(
-      c.read(providerOnboardingProvider).step,
-      ProviderOnboardingStep.pending,
-    );
+    expect(_step(c), ProviderOnboardingStep.pending);
   });
 
   test('a failed submit keeps the data and reports the failure', () async {
     final repo = _RecordingOnboarding(const Err(DataUnavailable()));
     final (:c, :n) = _setUp(repo);
-    n.start();
-    _fillProfile(n);
-    n.next();
+    _answerAll(n);
     _attachIds(n);
     n.next();
 

@@ -22,3 +22,21 @@ String? normalizePhone(String value) {
   if (digits.startsWith('+57')) digits = digits.substring(3);
   return RegExp(r'^3\d{9}$').hasMatch(digits) ? digits : null;
 }
+
+ProfileProblem? validateServices(List<String> categories) =>
+    categories.isEmpty ? ProfileProblem.empty : null;
+
+/// Whole years, 0 to 60.
+ProfileProblem? validateExperience(String value) {
+  if (value.trim().isEmpty) return ProfileProblem.empty;
+  final years = int.tryParse(value.trim());
+  return years == null || years < 0 || years > 60
+      ? ProfileProblem.invalid
+      : null;
+}
+
+const bioMaxLength = 280;
+
+/// Optional: an empty bio is fine.
+ProfileProblem? validateBio(String value) =>
+    value.trim().length > bioMaxLength ? ProfileProblem.invalid : null;
