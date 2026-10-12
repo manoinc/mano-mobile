@@ -12,7 +12,9 @@ abstract interface class AvailabilityRepository {
 
   Future<List<AvailabilityRule>> myRules();
 
-  Future<Result<AvailabilityRule, DataFailure>> upsertRule(AvailabilityRule rule);
+  Future<Result<AvailabilityRule, DataFailure>> upsertRule(
+    AvailabilityRule rule,
+  );
 
   Future<Result<void, DataFailure>> removeRule(String id);
 

@@ -65,8 +65,16 @@ final class ServiceRequest {
 
   @override
   int get hashCode => Object.hash(
-    id, offer, serviceTitle, client, provider, message, proposedStart,
-    status, rejectionReason, createdAt,
+    id,
+    offer,
+    serviceTitle,
+    client,
+    provider,
+    message,
+    proposedStart,
+    status,
+    rejectionReason,
+    createdAt,
   );
 
   @override

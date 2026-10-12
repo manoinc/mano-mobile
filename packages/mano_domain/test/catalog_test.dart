@@ -76,35 +76,38 @@ void main() {
       expect(listing1 == listing2, isFalse);
     });
 
-    test('two listings with identical field values are equal and share a hashCode', () {
-      final listing1 = ServiceListing(
-        id: 'listing1',
-        title: 'Servicio 1',
-        categoryId: 'cat1',
-        professionalName: 'Juan',
-        professionalPhotoUrl: 'https://example.com/photo1.jpg',
-        photoUrl: 'https://example.com/service1.jpg',
-        priceFromCents: 10000,
-        currency: 'COP',
-        rating: 4.5,
-        reviewCount: 10,
-      );
-      final listing2 = ServiceListing(
-        id: 'listing1',
-        title: 'Servicio 1',
-        categoryId: 'cat1',
-        professionalName: 'Juan',
-        professionalPhotoUrl: 'https://example.com/photo1.jpg',
-        photoUrl: 'https://example.com/service1.jpg',
-        priceFromCents: 10000,
-        currency: 'COP',
-        rating: 4.5,
-        reviewCount: 10,
-      );
+    test(
+      'two listings with identical field values are equal and share a hashCode',
+      () {
+        final listing1 = ServiceListing(
+          id: 'listing1',
+          title: 'Servicio 1',
+          categoryId: 'cat1',
+          professionalName: 'Juan',
+          professionalPhotoUrl: 'https://example.com/photo1.jpg',
+          photoUrl: 'https://example.com/service1.jpg',
+          priceFromCents: 10000,
+          currency: 'COP',
+          rating: 4.5,
+          reviewCount: 10,
+        );
+        final listing2 = ServiceListing(
+          id: 'listing1',
+          title: 'Servicio 1',
+          categoryId: 'cat1',
+          professionalName: 'Juan',
+          professionalPhotoUrl: 'https://example.com/photo1.jpg',
+          photoUrl: 'https://example.com/service1.jpg',
+          priceFromCents: 10000,
+          currency: 'COP',
+          rating: 4.5,
+          reviewCount: 10,
+        );
 
-      expect(listing1 == listing2, isTrue);
-      expect(listing1.hashCode == listing2.hashCode, isTrue);
-    });
+        expect(listing1 == listing2, isTrue);
+        expect(listing1.hashCode == listing2.hashCode, isTrue);
+      },
+    );
 
     test('toString is non-empty and mentions the id', () {
       final listing = ServiceListing(

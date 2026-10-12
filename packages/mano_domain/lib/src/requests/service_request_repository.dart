@@ -14,7 +14,10 @@ abstract interface class ServiceRequestRepository {
 
   Future<Result<ServiceRequest, DataFailure>> accept(String id);
 
-  Future<Result<ServiceRequest, DataFailure>> reject(String id, {String? reason});
+  Future<Result<ServiceRequest, DataFailure>> reject(
+    String id, {
+    String? reason,
+  });
 
   Future<Result<ServiceRequest, DataFailure>> cancel(String id);
 }

@@ -46,7 +46,10 @@ final class AvailabilityRule {
 
   @override
   int get hashCode => Object.hash(
-    id, Object.hashAllUnordered(weekdays), startMinutes, durationMinutes,
+    id,
+    Object.hashAllUnordered(weekdays),
+    startMinutes,
+    durationMinutes,
   );
 
   @override

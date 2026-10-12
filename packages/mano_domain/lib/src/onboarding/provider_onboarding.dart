@@ -54,5 +54,7 @@ abstract interface class ProviderOnboardingRepository {
   Future<VerificationStatus> status();
 
   /// Sends profile and documents for staff review.
-  Future<Result<VerificationStatus, DataFailure>> submit(WorkerProfileDraft draft);
+  Future<Result<VerificationStatus, DataFailure>> submit(
+    WorkerProfileDraft draft,
+  );
 }

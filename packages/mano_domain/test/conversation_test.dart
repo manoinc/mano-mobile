@@ -6,8 +6,12 @@ void main() {
     test('two conversations with different field values are unequal', () {
       final conv1 = Conversation(
         id: 'conv1',
-        participantName: 'Juan',
-        participantPhotoUrl: 'https://example.com/photo1.jpg',
+        participant: Party(
+          id: 'p-Juan',
+          displayName: 'Juan',
+          photoUrl: 'https://example.com/photo1.jpg',
+        ),
+        participantRole: ManoRole.provider,
         lastMessage: 'Hola, ¿cómo estás?',
         lastMessageAt: DateTime(2026, 1, 1, 10),
         isOnline: true,
@@ -16,8 +20,12 @@ void main() {
       );
       final conv2 = Conversation(
         id: 'conv2',
-        participantName: 'María',
-        participantPhotoUrl: 'https://example.com/photo2.jpg',
+        participant: Party(
+          id: 'p-María',
+          displayName: 'María',
+          photoUrl: 'https://example.com/photo2.jpg',
+        ),
+        participantRole: ManoRole.provider,
         lastMessage: 'Perfecto, confirmado',
         lastMessageAt: DateTime(2026, 1, 1, 11),
         isOnline: false,
@@ -32,8 +40,12 @@ void main() {
       final lastMessageAt = DateTime(2026, 1, 1, 10);
       final conv1 = Conversation(
         id: 'conv1',
-        participantName: 'Juan',
-        participantPhotoUrl: 'https://example.com/photo1.jpg',
+        participant: Party(
+          id: 'p-Juan',
+          displayName: 'Juan',
+          photoUrl: 'https://example.com/photo1.jpg',
+        ),
+        participantRole: ManoRole.provider,
         lastMessage: 'Hola, ¿cómo estás?',
         lastMessageAt: lastMessageAt,
         isOnline: true,
@@ -42,8 +54,12 @@ void main() {
       );
       final conv2 = Conversation(
         id: 'conv1',
-        participantName: 'Juan',
-        participantPhotoUrl: 'https://example.com/photo1.jpg',
+        participant: Party(
+          id: 'p-Juan',
+          displayName: 'Juan',
+          photoUrl: 'https://example.com/photo1.jpg',
+        ),
+        participantRole: ManoRole.provider,
         lastMessage: 'Hola, ¿cómo estás?',
         lastMessageAt: lastMessageAt,
         isOnline: true,
@@ -58,14 +74,37 @@ void main() {
     test('toString is non-empty and mentions the id', () {
       final conv = Conversation(
         id: 'conv1',
-        participantName: 'Juan',
-        participantPhotoUrl: 'https://example.com/photo1.jpg',
+        participant: Party(
+          id: 'p-Juan',
+          displayName: 'Juan',
+          photoUrl: 'https://example.com/photo1.jpg',
+        ),
+        participantRole: ManoRole.provider,
         lastMessage: 'Hola, ¿cómo estás?',
         lastMessageAt: DateTime(2026, 1, 1, 10),
       );
 
       expect(conv.toString(), isNotEmpty);
       expect(conv.toString(), contains('conv1'));
+    });
+
+    test('exposes the participant name, photo and role', () {
+      final conv = Conversation(
+        id: 'c',
+        participant: const Party(
+          id: 'p1',
+          displayName: 'Ana',
+          photoUrl: 'https://example.com/a.jpg',
+        ),
+        participantRole: ManoRole.provider,
+        lastMessage: 'Hola',
+        lastMessageAt: DateTime(2026, 1, 1),
+      );
+
+      expect(conv.participantName, 'Ana');
+      expect(conv.participantPhotoUrl, 'https://example.com/a.jpg');
+      expect(conv.participant.id, 'p1');
+      expect(conv.participantRole, ManoRole.provider);
     });
   });
 }

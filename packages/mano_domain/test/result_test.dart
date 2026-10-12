@@ -77,7 +77,10 @@ void main() {
 
     test('fold collapses both sides', () {
       expect(const Ok<int, String>(4).fold((v) => 'v$v', (f) => 'f$f'), 'v4');
-      expect(const Err<int, String>('x').fold((v) => 'v$v', (f) => 'f$f'), 'fx');
+      expect(
+        const Err<int, String>('x').fold((v) => 'v$v', (f) => 'f$f'),
+        'fx',
+      );
     });
 
     test('equality is by contents, so tests can compare directly', () {

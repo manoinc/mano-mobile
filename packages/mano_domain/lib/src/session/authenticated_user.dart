@@ -76,12 +76,8 @@ final class AuthenticatedUser {
           _setEquals(roles, other.roles);
 
   @override
-  int get hashCode => Object.hash(
-    subject,
-    username,
-    email,
-    Object.hashAllUnordered(roles),
-  );
+  int get hashCode =>
+      Object.hash(subject, username, email, Object.hashAllUnordered(roles));
 
   @override
   String toString() =>
