@@ -10,12 +10,20 @@ WidgetbookCategory cards() => WidgetbookCategory(
     component('ManoListingCard', {
       'Default': (context) => _padded(
         ManoListingCard(
-          title: context.knobs.string(label: 'Title', initialValue: 'Limpieza profunda de apartamento'),
+          title: context.knobs.string(
+            label: 'Title',
+            initialValue: 'Limpieza profunda de apartamento',
+          ),
           photoUrl: sampleListingPhoto,
           professionalName: 'Carlos Mendoza',
           professionalPhotoUrl: sampleProPhoto,
           priceLabel: 'Desde \$80.000 COP',
-          rating: context.knobs.doubleOrNull.slider(label: 'Rating', initialValue: 4.8, min: 1, max: 5),
+          rating: context.knobs.doubleOrNull.slider(
+            label: 'Rating',
+            initialValue: 4.8,
+            min: 1,
+            max: 5,
+          ),
           onTap: noop,
         ),
       ),
@@ -25,7 +33,11 @@ WidgetbookCategory cards() => WidgetbookCategory(
         ManoListingCarousel(
           height: 230,
           children: [
-            for (final title in ['Limpieza profunda', 'Reparación de tuberías', 'Pintura'])
+            for (final title in [
+              'Limpieza profunda',
+              'Reparación de tuberías',
+              'Pintura',
+            ])
               ManoListingCard(
                 title: title,
                 photoUrl: sampleListingPhoto,
@@ -43,23 +55,23 @@ WidgetbookCategory cards() => WidgetbookCategory(
       'Default': (context) {
         final connected = context.knobs.boolean(label: 'Connected');
         return _padded(
-        ManoIntegrationRow(
-          leading: DecoratedBox(
-            decoration: BoxDecoration(
-              color: ManoColors.sand,
-              borderRadius: BorderRadius.circular(ManoRadius.card),
+          ManoIntegrationRow(
+            leading: DecoratedBox(
+              decoration: BoxDecoration(
+                color: ManoColors.sand,
+                borderRadius: BorderRadius.circular(ManoRadius.card),
+              ),
+              child: const SizedBox.square(
+                dimension: 44,
+                child: Icon(Icons.calendar_month, color: ManoColors.muted),
+              ),
             ),
-            child: const SizedBox.square(
-              dimension: 44,
-              child: Icon(Icons.calendar_month, color: ManoColors.muted),
-            ),
+            title: 'Google Calendar',
+            status: connected ? 'Conectado' : 'No conectado',
+            actionLabel: connected ? 'Copiar enlace' : 'Conectar',
+            onAction: noop,
+            onMore: connected ? noop : null,
           ),
-          title: 'Google Calendar',
-          status: connected ? 'Conectado' : 'No conectado',
-          actionLabel: connected ? 'Copiar enlace' : 'Conectar',
-          onAction: noop,
-          onMore: connected ? noop : null,
-        ),
         );
       },
     }),
@@ -69,7 +81,10 @@ WidgetbookCategory cards() => WidgetbookCategory(
           leading: const ManoInitialsAvatar(initials: 'P', size: 48),
           title: 'Profesional',
           subtitle: 'Por hora',
-          zone: context.knobs.string(label: 'Zone', initialValue: 'Zona: Usaquén'),
+          zone: context.knobs.string(
+            label: 'Zone',
+            initialValue: 'Zona: Usaquén',
+          ),
           amountLabel: ManoFormat.cop(28000),
           rateLabel: '/hora',
           trailing: ManoTextAction(label: 'Agendar', onPressed: noop),
@@ -84,8 +99,14 @@ WidgetbookCategory cards() => WidgetbookCategory(
           amountLabel: ManoFormat.cop(120000),
           rateLabel: 'precio fijo',
           status: context.knobs.boolean(label: 'Paused')
-              ? const ManoStatusChip(label: 'Pausada', tone: ManoStatusTone.neutral)
-              : const ManoStatusChip(label: 'Activa', tone: ManoStatusTone.success),
+              ? const ManoStatusChip(
+                  label: 'Pausada',
+                  tone: ManoStatusTone.neutral,
+                )
+              : const ManoStatusChip(
+                  label: 'Activa',
+                  tone: ManoStatusTone.success,
+                ),
           onTap: noop,
         ),
       ),
@@ -114,16 +135,23 @@ WidgetbookCategory cards() => WidgetbookCategory(
           clientName: 'Laura Pérez',
           clientPhotoUrl: samplePhoto,
           title: 'Reparación de fugas',
-          message: context.knobs.string(label: 'Message', initialValue: 'Tengo una fuga debajo del lavaplatos.'),
+          message: context.knobs.string(
+            label: 'Message',
+            initialValue: 'Tengo una fuga debajo del lavaplatos.',
+          ),
           scheduleLabel: '5 oct, 4:00 p. m.',
           amountLabel: ManoFormat.cop(45000),
           rateLabel: '/hora',
           onTap: noop,
           actions: Row(
             children: [
-              Expanded(child: ManoQuietButton(label: 'Rechazar', onPressed: noop)),
+              Expanded(
+                child: ManoQuietButton(label: 'Rechazar', onPressed: noop),
+              ),
               const SizedBox(width: ManoSpacing.sm),
-              Expanded(child: ManoOutlineButton(label: 'Aceptar', onPressed: noop)),
+              Expanded(
+                child: ManoOutlineButton(label: 'Aceptar', onPressed: noop),
+              ),
             ],
           ),
         ),
@@ -177,7 +205,12 @@ WidgetbookCategory cards() => WidgetbookCategory(
         name: 'Ana Gómez',
         snippet: '¿Aún disponible para el jueves?',
         timestampLabel: '5m',
-        unreadCount: context.knobs.int.slider(label: 'Unread', initialValue: 2, min: 0, max: 12),
+        unreadCount: context.knobs.int.slider(
+          label: 'Unread',
+          initialValue: 2,
+          min: 0,
+          max: 12,
+        ),
         onTap: noop,
       ),
     }),
@@ -193,21 +226,31 @@ WidgetbookCategory cards() => WidgetbookCategory(
       ),
     }),
     component('ManoDetailRow', {
-      'Default': (context) => _padded(const ManoDetailRow(label: 'Zona', value: 'Chapinero')),
-      'Tags': (context) => _padded(const ManoTagList(tags: ['Plomería', 'Electricidad', 'Pintura'])),
+      'Default': (context) =>
+          _padded(const ManoDetailRow(label: 'Zona', value: 'Chapinero')),
+      'Tags': (context) => _padded(
+        const ManoTagList(tags: ['Plomería', 'Electricidad', 'Pintura']),
+      ),
     }),
     component('ManoProfileHeader', {
       'Default': (context) => _padded(
-        const ManoProfileHeader(name: 'Laura Pérez', photoUrl: samplePhoto, onEdit: noop),
+        const ManoProfileHeader(
+          name: 'Laura Pérez',
+          photoUrl: samplePhoto,
+          onEdit: noop,
+        ),
       ),
     }),
     component('ManoGreetingHeader', {
       'Default': (context) => _padded(
-        ManoGreetingHeader(name: context.knobs.string(label: 'Name', initialValue: 'Laura')),
+        ManoGreetingHeader(
+          name: context.knobs.string(label: 'Name', initialValue: 'Laura'),
+        ),
       ),
     }),
   ],
 );
 
-Widget _padded(Widget child) =>
-    Center(child: Padding(padding: const EdgeInsets.all(ManoSpacing.lg), child: child));
+Widget _padded(Widget child) => Center(
+  child: Padding(padding: const EdgeInsets.all(ManoSpacing.lg), child: child),
+);
