@@ -11,11 +11,15 @@ class ManoTextAction extends StatelessWidget {
   const ManoTextAction({
     required this.label,
     required this.onPressed,
+    this.padding = const EdgeInsets.symmetric(horizontal: ManoSpacing.md),
     super.key,
   });
 
   final String label;
   final VoidCallback? onPressed;
+
+  /// Drop the right inset to sit flush with a trailing edge.
+  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +29,7 @@ class ManoTextAction extends StatelessWidget {
       onPressed: onPressed,
       style: TextButton.styleFrom(
         minimumSize: const Size(44, 44),
-        padding: const EdgeInsets.symmetric(horizontal: ManoSpacing.md),
+        padding: padding,
         shape: const StadiumBorder(),
         foregroundColor: ManoColors.clay,
         disabledForegroundColor: ManoColors.faint,

@@ -49,8 +49,11 @@ class ManoIntegrationRow extends StatelessWidget {
             ],
           ),
         ),
-        Flexible(
-          child: ManoTextAction(label: actionLabel, onPressed: onAction),
+        // Not flexible: the title column takes the slack, the action hugs the edge.
+        ManoTextAction(
+          label: actionLabel,
+          onPressed: onAction,
+          padding: const EdgeInsets.only(left: ManoSpacing.md),
         ),
         if (onMore != null)
           IconButton(

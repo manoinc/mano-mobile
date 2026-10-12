@@ -11,6 +11,7 @@ class ManoMonthCalendar extends StatelessWidget {
     required this.markedDays,
     required this.onSelect,
     required this.onMonthChanged,
+    this.blockedDays = const {},
     super.key,
   });
 
@@ -20,6 +21,9 @@ class ManoMonthCalendar extends StatelessWidget {
 
   /// Days that get a dot; the time of day is ignored.
   final Set<DateTime> markedDays;
+
+  /// Days the owner is unavailable; drawn struck through.
+  final Set<DateTime> blockedDays;
   final ValueChanged<DateTime> onSelect;
 
   /// Receives the first of the previous or next month.
@@ -49,6 +53,7 @@ class ManoMonthCalendar extends StatelessWidget {
     final length = DateUtils.getDaysInMonth(month.year, month.month);
     final lead = first.weekday - 1;
     final marked = {for (final d in markedDays) _dateOnly(d)};
+    final blocked = {for (final d in blockedDays) _dateOnly(d)};
     final rows = ((lead + length) / 7).ceil();
 
     return Column(
@@ -69,9 +74,8 @@ class ManoMonthCalendar extends StatelessWidget {
                   child: Text(
                     letter,
                     key: const Key('mano-calendar-weekday'),
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: ManoColors.faint,
-                    ),
+                    style: Theme.of(context).textTheme.labelMedium
+                        ?.copyWith(color: ManoColors.faint),
                   ),
                 ),
               ),
@@ -82,20 +86,33 @@ class ManoMonthCalendar extends StatelessWidget {
           Row(
             children: [
               for (var col = 0; col < 7; col++)
-                Expanded(child: _cell(row * 7 + col - lead + 1, length, marked)),
+                Expanded(
+                  child: _cell(
+                    row * 7 + col - lead + 1,
+                    length,
+                    marked,
+                    blocked,
+                  ),
+                ),
             ],
           ),
       ],
     );
   }
 
-  Widget _cell(int day, int length, Set<DateTime> marked) {
+  Widget _cell(
+    int day,
+    int length,
+    Set<DateTime> marked,
+    Set<DateTime> blocked,
+  ) {
     if (day < 1 || day > length) return const SizedBox(height: _Day.height);
     final date = DateTime(month.year, month.month, day);
     return _Day(
       date: date,
       selected: _dateOnly(selected) == date,
       marked: marked.contains(date),
+      blocked: blocked.contains(date),
       onTap: () => onSelect(date),
     );
   }
@@ -139,16 +156,19 @@ class _Day extends StatelessWidget {
     required this.date,
     required this.selected,
     required this.marked,
+    required this.blocked,
     required this.onTap,
   });
 
-  static const double height = 48;
+  static const double height = 52;
   static const double _disc = 36;
+  static const double _gap = 2;
   static const double _dot = 4;
 
   final DateTime date;
   final bool selected;
   final bool marked;
+  final bool blocked;
   final VoidCallback onTap;
 
   @override
@@ -185,10 +205,16 @@ class _Day extends StatelessWidget {
                 child: Text(
                   '${date.day}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: selected ? Colors.white : ManoColors.ink,
+                    color: selected
+                        ? Colors.white
+                        : blocked
+                        ? ManoColors.faint
+                        : ManoColors.ink,
+                    decoration: blocked ? TextDecoration.lineThrough : null,
                   ),
                 ),
               ),
+              const SizedBox(height: _gap),
               SizedBox(
                 height: _dot,
                 child: marked
@@ -196,7 +222,7 @@ class _Day extends StatelessWidget {
                         key: const Key('mano-calendar-dot'),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: selected ? ManoColors.flame : ManoColors.clay,
+                          color: ManoColors.clay,
                         ),
                         child: const SizedBox.square(dimension: _dot),
                       )
