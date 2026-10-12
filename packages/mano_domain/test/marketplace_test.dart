@@ -132,6 +132,30 @@ void main() {
         expect(_request(s).canCancel, isFalse, reason: '$s');
       }
     });
+
+    test('carries photos, category and zone through copyWith and equality', () {
+      final base = _request(ServiceRequestStatus.pending);
+      final rich = ServiceRequest(
+        id: base.id,
+        offer: base.offer,
+        serviceTitle: base.serviceTitle,
+        client: base.client,
+        provider: base.provider,
+        message: base.message,
+        status: base.status,
+        createdAt: base.createdAt,
+        category: ServiceCategories.plumbing,
+        neighborhood: 'Laureles',
+        photoUrls: const ['https://example.com/a.jpg'],
+      );
+      expect(rich == base, isFalse);
+      expect(rich.copyWith(status: ServiceRequestStatus.accepted).photoUrls, [
+        'https://example.com/a.jpg',
+      ]);
+      expect(rich.copyWith().neighborhood, 'Laureles');
+      expect(rich.leadCost, 3);
+      expect(base.photoUrls, isEmpty);
+    });
   });
 
   group('AvailabilityRule', () {
