@@ -4,33 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_requester/screens/profile_tab_screen.dart';
 import 'package:mano_session/mano_session.dart';
 
-/// Mirrors `_FakeSessionRepository` in mano_session's own
-/// `session_notifier_test.dart`: every outcome is injectable, and
-/// `signOutCalls` lets a test prove the real Log Out action actually
-/// reached the repository rather than just closing over a no-op.
-final class _FakeSessionRepository implements SessionRepository {
-  _FakeSessionRepository({this.onRestore});
-
-  final Future<Result<Session?, AuthFailure>> Function()? onRestore;
-
-  int signOutCalls = 0;
-
-  @override
-  Future<Result<Session, AuthFailure>> signIn() async =>
-      const Err(SignInCancelled());
-
-  @override
-  Future<Result<Session?, AuthFailure>> restore() async =>
-      onRestore?.call() ?? const Ok(null);
-
-  @override
-  Future<Result<Session, AuthFailure>> refresh() async =>
-      const Err(SessionExpired());
-
-  @override
-  Future<void> signOut() async => signOutCalls++;
-}
-
 const _user = AuthenticatedUser(
   subject: 'user-1',
   username: 'mano-test',
@@ -43,8 +16,8 @@ Session _fakeSession() => Session(
   expiresAt: DateTime.now().add(const Duration(minutes: 5)),
 );
 
-Future<_FakeSessionRepository> _host(WidgetTester tester) async {
-  final repository = _FakeSessionRepository(
+Future<InMemorySessionRepository> _host(WidgetTester tester) async {
+  final repository = InMemorySessionRepository(
     onRestore: () async => Ok(_fakeSession()),
   );
   await tester.pumpWidget(

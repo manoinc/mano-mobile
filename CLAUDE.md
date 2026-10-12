@@ -78,9 +78,11 @@ adb reverse tcp:8082 tcp:8082   # mano-gateway
 ```
 
 Auth: Keycloak was dropped, because it needs an in-app browser tab, which breaks
-the native feel. SuperTokens is being trialled (Flutter SDK; the Rust side is
-hand-built). Until it lands, sign-in reports "not configured", the gateway is
-anonymous, and every port except the catalog runs on in-memory mocks. Local
+the native feel. SuperTokens (email + password, native sheet) is wired as
+`SuperTokensSessionRepository`, on only with
+`--dart-define=SUPERTOKENS_API_DOMAIN=…`; no FDI auth server exists yet, so by
+default sign-in reports "not configured", the gateway is anonymous, and every
+port except the catalog runs on in-memory mocks. Read the gateway at `origin/master`. Local
 gateway setup and the catalog seed are in `docs/develop/backend-contract.md`.
 
 ## Design

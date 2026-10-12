@@ -1,11 +1,12 @@
 import '../result.dart';
 import 'auth_failure.dart';
+import 'credentials.dart';
 import 'session.dart';
 
 /// The port through which the app signs a user in and keeps them signed in.
 ///
 /// The domain states what it needs; it does not state how. Nothing here
-/// mentions OAuth, Keycloak, PKCE, browsers or secure storage — an
+/// mentions SuperTokens, HTTP or secure storage — an
 /// implementation is free to use all of those, or none of them. `mano_data`
 /// provides the real one; tests provide a fake in three lines.
 ///
@@ -14,11 +15,11 @@ import 'session.dart';
 /// implementation may still throw an [Error] when *it* is broken — a malformed
 /// response, a violated invariant — and that must not be caught here.
 abstract interface class SessionRepository {
-  /// Signs a user in, interactively if the implementation needs to.
-  ///
-  /// Returns [SignInCancelled] rather than an error when the user simply backs
-  /// out, so the interface can tell "changed their mind" from "was refused".
-  Future<Result<Session, AuthFailure>> signIn();
+  /// Signs an existing account in; wrong details are [SignInRejected].
+  Future<Result<Session, AuthFailure>> signIn(Credentials credentials);
+
+  /// Creates an account and signs it in; a taken email is [SignInRejected].
+  Future<Result<Session, AuthFailure>> signUp(Credentials credentials);
 
   /// Restores a session persisted from a previous run, if there is one.
   ///

@@ -24,6 +24,11 @@ final class SignedOut extends SessionState {
   final AuthFailure? lastFailure;
 }
 
+/// Looking around without an account; the app is open but nothing is theirs.
+final class Guest extends SessionState {
+  const Guest();
+}
+
 /// Somebody is signed in, and the backend has vouched for who they are.
 final class SignedIn extends SessionState {
   const SignedIn(this.session);

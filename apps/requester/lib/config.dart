@@ -9,12 +9,17 @@ import 'package:mano_session/mano_session.dart';
 /// flutter run --dart-define=MANO_GATEWAY=https://api.mano.co/graphql
 /// ```
 ///
-/// Nothing here yet about how a Solicitante signs in — that is still an open
-/// decision, and whichever way it lands will add its own configuration here
-/// or in a config type of its own.
+/// Sign-in is off unless a SuperTokens API domain is given:
+///
+/// ```bash
+/// flutter run --dart-define=SUPERTOKENS_API_DOMAIN=http://localhost:3001
+/// ```
 const ManoConfig requesterConfig = ManoConfig(
   gatewayGraphQlUrl: String.fromEnvironment(
     'MANO_GATEWAY',
     defaultValue: 'http://localhost:8082/graphql',
   ),
+  authApiDomain: bool.hasEnvironment('SUPERTOKENS_API_DOMAIN')
+      ? String.fromEnvironment('SUPERTOKENS_API_DOMAIN')
+      : null,
 );

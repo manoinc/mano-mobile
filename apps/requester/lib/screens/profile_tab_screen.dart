@@ -26,7 +26,7 @@ const _stubMenuEntries = <_StubMenuEntry>[
 ///
 /// Every row is a stub notice except the last one, which is the one real
 /// action here -- and which one it is depends on who is looking. A guest
-/// reaches this tab too (the nav shell is [OnboardingBrowsing]'s destination
+/// reaches this tab too (the nav shell is the [Guest] session's destination
 /// as much as a signed-in session's), and "Omitir" was never meant to be a
 /// one-way door: they get "Iniciar sesión" instead of "Cerrar sesión".
 class ProfileTabScreen extends ConsumerWidget {
@@ -35,7 +35,7 @@ class ProfileTabScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
-    final signedIn = ref.watch(sessionProvider).value is SignedIn;
+    final signedIn = ref.watch(hasAccountProvider);
     final theme = Theme.of(context);
     final divider = Divider(
       height: 1,

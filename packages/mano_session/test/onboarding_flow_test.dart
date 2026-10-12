@@ -25,6 +25,7 @@ final class _FakeRegistrationRepository implements RegistrationRepository {
 ProviderContainer containerWith([RegistrationRepository? repository]) =>
     ProviderContainer.test(
       overrides: [
+        sessionRepositoryProvider.overrideWithValue(InMemorySessionRepository()),
         if (repository != null)
           registrationRepositoryProvider.overrideWithValue(repository),
       ],
@@ -69,6 +70,41 @@ void main() {
 
     final flow = container.read(onboardingFlowProvider) as OnboardingBrowsing;
     expect(flow.showWelcome, isFalse);
+  });
+
+  test('skipping the tour makes the session a guest', () async {
+    final container = containerWith();
+    await container.read(sessionProvider.future);
+
+    flowOf(container).skipTour();
+
+    expect(container.read(sessionProvider).value, isA<Guest>());
+  });
+
+  test('a guest who starts signing in is back at the door', () async {
+    final container = containerWith();
+    await container.read(sessionProvider.future);
+    flowOf(container).skipTour();
+
+    flowOf(container).startSignIn();
+
+    expect(container.read(sessionProvider).value, isA<SignedOut>());
+    expect(container.read(onboardingFlowProvider), isA<OnboardingSignIn>());
+  });
+
+  test('a finished registration browses as a guest, with a welcome', () async {
+    final container = containerWith();
+    await container.read(sessionProvider.future);
+    flowOf(container).startRegistration();
+
+    flowOf(container)
+      ..editName(givenName: 'Ana', familyName: 'Ruiz')
+      ..next()
+      ..editAddress('Cra 7 # 45-10')
+      ..next();
+    await flowOf(container).submit();
+
+    expect(container.read(sessionProvider).value, isA<Guest>());
   });
 
   test('registration opens on the name step with an empty draft', () {

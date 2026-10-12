@@ -23,7 +23,7 @@ class HomeTabScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
-    final signedIn = ref.watch(sessionProvider).value is SignedIn;
+    final signedIn = ref.watch(hasAccountProvider);
     final categories = ref.watch(serviceCategoriesProvider);
     final listings = ref.watch(popularListingsProvider);
     final textTheme = Theme.of(context).textTheme;

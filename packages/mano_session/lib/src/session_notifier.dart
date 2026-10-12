@@ -4,79 +4,121 @@ import 'package:mano_domain/mano_domain.dart';
 import 'session_providers.dart';
 import 'session_state.dart';
 
-/// Holds whether anyone is signed in, and runs the transitions between.
+/// Holds whether anyone is signed in, runs the transitions, and renews the token on demand.
 ///
-/// It orchestrates; it does not decide. Every judgement — whether a grant is
-/// recoverable, whether a stored token is worth keeping, what counts as a
-/// cancellation — was made below, in the domain and its adapters. This class
-/// only converts a [Result] into state a widget can render, which is why it
-/// stays this short and why nothing here needs a rule of its own.
-final class SessionNotifier extends AsyncNotifier<SessionState> {
+/// Modelled failures land in [AsyncData] as a [SignedOut] carrying the reason;
+/// only a bug becomes [AsyncError]. No transition publishes a bare
+/// [AsyncLoading], because the apps' roots switch on `state.value`.
+final class SessionManager extends AsyncNotifier<SessionState> {
+  /// How long before expiry a token is renewed instead of handed out.
+  static const renewalMargin = Duration(minutes: 1);
+
   SessionRepository get _repository => ref.read(sessionRepositoryProvider);
 
-  @override
-  Future<SessionState> build() => _restore();
+  // One renewal at a time; concurrent callers share it.
+  Future<String?>? _renewing;
 
-  Future<SessionState> _restore() async {
-    final result = await _repository.restore();
-    return switch (result) {
-      // Ok(null) is nobody signed in: an ordinary first launch, and not
-      // something to report as a failure.
-      Ok(:final value) => value == null ? const SignedOut() : SignedIn(value),
+  @override
+  Future<SessionState> build() async {
+    return switch (await _repository.restore()) {
+      Ok(value: final session?) => SignedIn(session),
+      Ok() => const SignedOut(),
       Err(:final failure) => SignedOut(lastFailure: failure),
     };
   }
 
-  /// Starts an interactive sign-in.
-  ///
-  /// `AsyncValue.guard` is exactly right here given how failure is split: the
-  /// repository returns modelled failures as data, so they land in
-  /// [AsyncData] as a [SignedOut] carrying the reason. Only a genuine bug can
-  /// throw, and only that becomes [AsyncError]. The two never get confused.
-  ///
-  /// Deliberately does not publish an [AsyncLoading] first. A bare one carries
-  /// no value, and the app's root screen switches on `state.value` — dropping
-  /// it here would blank the whole session for as long as sign-in is in
-  /// flight, sending the app back to its own loading screen instead of
-  /// leaving the current one up with its own button spinning. "Waiting for
-  /// sign-in" is a fact about one screen's button, not about the session,
-  /// so it belongs in the screen's own local state.
-  Future<void> signIn() async {
-    state = await AsyncValue.guard(() async {
-      final result = await _repository.signIn();
-      return switch (result) {
-        Ok(:final value) => SignedIn(value),
-        Err(:final failure) => SignedOut(lastFailure: failure),
-      };
-    });
+  /// Resolves to the failure, or `null` once signed in.
+  Future<AuthFailure?> signIn(Credentials credentials) =>
+      _authenticate(() => _repository.signIn(credentials));
+
+  /// Resolves to the failure, or `null` once the new account is signed in.
+  Future<AuthFailure?> signUp(Credentials credentials) =>
+      _authenticate(() => _repository.signUp(credentials));
+
+  /// Lets somebody without an account into the app; never demotes a signed-in user.
+  void browseAsGuest() {
+    if (state.value is! SignedIn) state = const AsyncData(Guest());
   }
 
-  /// Ends the session.
+  /// Takes a guest back to the door to sign in or register.
+  void leaveGuest() {
+    if (state.value is Guest) state = const AsyncData(SignedOut());
+  }
+
   Future<void> signOut() async {
     await _repository.signOut();
     state = const AsyncData(SignedOut());
   }
 
-  /// Clears a failure the user has already been shown, so it is not repeated
-  /// on the next rebuild.
+  /// Clears a failure the user has already been shown.
   void acknowledgeFailure() {
     if (state.value case SignedOut(lastFailure: != null)) {
       state = const AsyncData(SignedOut());
     }
   }
+
+  /// A token worth sending now, renewed first when it is about to expire; `null` runs anonymously.
+  Future<String?> freshAccessToken() async {
+    if (state.value case SignedIn(:final session)) {
+      if (!session.expiresWithin(renewalMargin)) return session.accessToken;
+      return _renewing ??= _renew(session).whenComplete(() => _renewing = null);
+    }
+    return null;
+  }
+
+  Future<String?> _renew(Session expiring) async {
+    final result = await _repository.refresh();
+    if (state.value is! SignedIn) return null;
+    switch (result) {
+      case Ok(:final value):
+        state = AsyncData(SignedIn(value));
+        return value.accessToken;
+      case Err(failure: AuthUnavailable()) when !expiring.isExpired():
+        return expiring.accessToken;
+      case Err(:final failure):
+        state = AsyncData(SignedOut(lastFailure: failure));
+        return null;
+    }
+  }
+
+  Future<AuthFailure?> _authenticate(
+    Future<Result<Session, AuthFailure>> Function() attempt,
+  ) async {
+    state = await AsyncValue.guard<SessionState>(() async {
+      return switch (await attempt()) {
+        Ok(:final value) => SignedIn(value),
+        Err(:final failure) => SignedOut(lastFailure: failure),
+      };
+    });
+    return switch (state.value) {
+      SignedOut(:final lastFailure) => lastFailure,
+      _ => null,
+    };
+  }
 }
 
 /// The app's session.
-final sessionProvider = AsyncNotifierProvider<SessionNotifier, SessionState>(
-  SessionNotifier.new,
+final sessionProvider = AsyncNotifierProvider<SessionManager, SessionState>(
+  SessionManager.new,
 );
 
-/// The signed-in user, or `null`. Convenience for widgets that only need to
-/// know who is here.
+/// The signed-in user, or `null` for guests and the signed out.
 final currentUserProvider = Provider<AuthenticatedUser?>((ref) {
-  final session = ref.watch(sessionProvider).value;
-  return switch (session) {
+  return switch (ref.watch(sessionProvider).value) {
     SignedIn(:final user) => user,
-    SignedOut() || null => null,
+    _ => null,
   };
 });
+
+/// The bearer token gateway calls carry, or `null` to run anonymously.
+final accessTokenProvider = Provider<String?>((ref) {
+  return switch (ref.watch(sessionProvider).value) {
+    SignedIn(:final session) => session.accessToken,
+    _ => null,
+  };
+});
+
+/// Whether there is an account behind this session; guests are told to make one.
+final hasAccountProvider = Provider<bool>(
+  (ref) => ref.watch(sessionProvider).value is SignedIn,
+);

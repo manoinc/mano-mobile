@@ -65,6 +65,10 @@ class ManoRoot extends ConsumerWidget {
       // Signed in outright skips the doorway; the shell is the destination
       // either way, per [OnboardingBrowsing] below.
       SignedIn() => const RequesterShell(),
+      Guest() => RequesterShell(
+        key: const ValueKey('guest'),
+        showWelcome: flow is OnboardingBrowsing && flow.showWelcome,
+      ),
       SignedOut(:final lastFailure) => _doorway(ref, flow, lastFailure),
       // Still restoring; the opening is holding.
       null => const SizedBox.shrink(),

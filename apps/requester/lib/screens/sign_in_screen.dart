@@ -3,19 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-/// The way in.
-///
-/// Deliberately minimal: one action, wired to [SessionRepository] through
-/// [sessionProvider] and nothing else. What that action actually does --
-/// raise a native form, hand off to a browser, launch a platform sign-in
-/// SDK -- is entirely the adapter's business, chosen once an auth provider
-/// is. This screen doesn't know, and doesn't need to: it renders the brand,
-/// asks the session to sign in, and shows whatever [AuthFailure] comes back.
-///
-/// "Waiting for sign-in" is held here rather than in the session, as local
-/// [_busy] state. It's a fact about this screen's button, not about the
-/// session, and keeping it here is what stops a slow sign-in from blanking
-/// the rest of the app.
+/// The way in: the hero, a credentials sheet, and any failure carried by the session.
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({required this.failure, super.key});
 
@@ -26,16 +14,31 @@ class SignInScreen extends ConsumerStatefulWidget {
 }
 
 class _SignInScreenState extends ConsumerState<SignInScreen> {
-  bool _busy = false;
+  void _openSheet() {
+    showManoSheet<void>(
+      context: context,
+      builder: (sheet) => ManoCredentialsSheet(
+        title: 'Inicia sesión',
+        message: 'Con el correo de tu cuenta Mano.',
+        submitLabel: 'Entrar',
+        onSubmit: (email, password) => _signIn(sheet, email, password),
+      ),
+    );
+  }
 
-  Future<void> _signIn() async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    try {
-      await ref.read(sessionProvider.notifier).signIn();
-    } finally {
-      if (mounted) setState(() => _busy = false);
+  // Resolves to the copy to show inside the sheet, or closes it on success.
+  Future<String?> _signIn(BuildContext sheet, String email, String password) async {
+    // Captured first: a successful sign-in replaces this screen, and its ref with it.
+    final session = ref.read(sessionProvider.notifier);
+    final failure = await session.signIn(
+      Credentials(email: email, password: password),
+    );
+    if (failure != null) {
+      session.acknowledgeFailure();
+      return _messageFor(failure);
     }
+    if (sheet.mounted) Navigator.of(sheet).pop();
+    return null;
   }
 
   @override
@@ -45,8 +48,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     return ManoHeroScaffold(
       headline: 'Tu casa, en buenas manos.',
       primaryLabel: 'Iniciar sesión',
-      onPrimary: _signIn,
-      busy: _busy,
+      onPrimary: _openSheet,
       notice: failure == null
           ? null
           : ManoNotice(
@@ -74,8 +76,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     AuthUnavailable() =>
       'No pudimos conectar con el servicio de inicio de sesión. '
           'Vuelve a intentarlo en un momento.',
-    SignInRejected() =>
-      'No pudimos completar el inicio de sesión. Vuelve a intentarlo.',
+    SignInRejected() => 'Correo o contraseña incorrectos.',
   };
 
   /// The domain says what went wrong; the screen decides how loudly to say

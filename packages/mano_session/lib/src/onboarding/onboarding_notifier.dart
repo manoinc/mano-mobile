@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_domain/mano_domain.dart';
 
+import '../session_notifier.dart';
 import 'onboarding_flow.dart';
 import 'registration_providers.dart';
 
@@ -19,22 +20,34 @@ final class OnboardingFlowNotifier extends Notifier<OnboardingFlow> {
   RegistrationRepository get _registration =>
       ref.read(registrationRepositoryProvider);
 
+  SessionManager get _session => ref.read(sessionProvider.notifier);
+
   @override
   OnboardingFlow build() => const OnboardingTour();
 
   void showSlide(int index) =>
       state = OnboardingTour(index: index.clamp(0, lastSlide));
 
-  void skipTour() => state = const OnboardingBrowsing();
+  void skipTour() => _browse();
 
-  void startSignIn() => state = const OnboardingSignIn();
+  void startSignIn() {
+    _session.leaveGuest();
+    state = const OnboardingSignIn();
+  }
 
-  void startRegistration() =>
-      state = const OnboardingRegistration(draft: RegistrationDraft());
+  void startRegistration() {
+    _session.leaveGuest();
+    state = const OnboardingRegistration(draft: RegistrationDraft());
+  }
 
-  void skipRegistration() => state = const OnboardingBrowsing();
+  void skipRegistration() => _browse();
 
   void acknowledgeWelcome() => state = const OnboardingBrowsing();
+
+  void _browse({bool showWelcome = false}) {
+    _session.browseAsGuest();
+    state = OnboardingBrowsing(showWelcome: showWelcome);
+  }
 
   void editName({String? givenName, String? familyName}) => _edit(
     (draft) => draft.copyWith(givenName: givenName, familyName: familyName),
@@ -95,12 +108,12 @@ final class OnboardingFlowNotifier extends Notifier<OnboardingFlow> {
 
       // The screen may have moved on while this was in flight.
       if (state case final OnboardingRegistration current) {
-        state = switch (result) {
-          Ok() => const OnboardingBrowsing(showWelcome: true),
-          Err(:final failure) => current.copyWith(
-            status: RegistrationFailed(failure),
-          ),
-        };
+        switch (result) {
+          case Ok():
+            _browse(showWelcome: true);
+          case Err(:final failure):
+            state = current.copyWith(status: RegistrationFailed(failure));
+        }
       }
     }
   }

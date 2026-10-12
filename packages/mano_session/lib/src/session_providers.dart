@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_data/mano_data.dart';
 import 'package:mano_domain/mano_domain.dart';
 
+import 'session_notifier.dart';
+
 /// Where this build finds Mano's services.
 ///
 /// Deliberately unimplemented. The two apps will likely authenticate as
@@ -34,7 +36,11 @@ final gatewayClientProvider = Provider<GatewayClient>(
 
 /// The HTTP pipe every gateway adapter shares.
 final gatewayTransportProvider = Provider<GatewayTransport>(
-  (ref) => GatewayTransport(ref.watch(manoConfigProvider)),
+  (ref) => GatewayTransport(
+    ref.watch(manoConfigProvider),
+    // Asked per call, so a token about to expire is renewed before it is sent.
+    accessToken: () => ref.read(sessionProvider.notifier).freshAccessToken(),
+  ),
 );
 
 /// Persistent credential storage.
@@ -44,23 +50,19 @@ final tokenStoreProvider = Provider<TokenStore>(
 
 /// The composition step that matters: an adapter bound to the domain's port.
 ///
-/// Everything above depends on [SessionRepository], the interface — never on
-/// a concrete class. That is what makes this line the *entire* footprint of
-/// an auth-provider decision: no auth vendor has been chosen yet, so this
-/// defaults to [_NoAuthProviderChosen], and the moment one is, replacing this
-/// one override is the whole migration. The UI, the domain, and every test
-/// above this line do not change.
-final sessionRepositoryProvider = Provider<SessionRepository>(
-  (ref) => const _NoAuthProviderChosen(),
-);
+/// SuperTokens when the build names an API domain, otherwise [_NoAuthProviderChosen].
+/// Swapping vendors is this one provider; nothing above it changes.
+final sessionRepositoryProvider = Provider<SessionRepository>((ref) {
+  final apiDomain = ref.watch(manoConfigProvider).authApiDomain;
+  if (apiDomain == null) return const _NoAuthProviderChosen();
+  return SuperTokensSessionRepository(
+    apiDomain: Uri.parse(apiDomain),
+    tokens: ref.watch(tokenStoreProvider),
+  );
+});
 
-/// Stands in for [SessionRepository] until a real provider is wired up here.
-///
-/// [restore] reports `Ok(null)` rather than a failure, so a cold start looks
-/// like an ordinary first launch: the sign-in screen renders cleanly, with no
-/// notice on it. The notice only appears once someone actually tries to sign
-/// in, which is the point at which "there is nothing to try yet" becomes true
-/// information rather than noise on a screen nobody has touched.
+/// Stands in until an API domain is configured: a cold start is an ordinary
+/// first launch, and only an actual attempt reports [AuthUnavailable].
 final class _NoAuthProviderChosen implements SessionRepository {
   const _NoAuthProviderChosen();
 
@@ -72,7 +74,11 @@ final class _NoAuthProviderChosen implements SessionRepository {
   Future<Result<Session?, AuthFailure>> restore() async => const Ok(null);
 
   @override
-  Future<Result<Session, AuthFailure>> signIn() async =>
+  Future<Result<Session, AuthFailure>> signIn(Credentials credentials) async =>
+      const Err(_notWired);
+
+  @override
+  Future<Result<Session, AuthFailure>> signUp(Credentials credentials) async =>
       const Err(_notWired);
 
   @override

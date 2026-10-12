@@ -29,8 +29,7 @@ String authFailureCopy(AuthFailure failure) => switch (failure) {
   AuthUnavailable() =>
     'No pudimos conectar con el servicio de inicio de sesión. '
         'Vuelve a intentarlo en un momento.',
-  SignInRejected() =>
-    'No pudimos completar el inicio de sesión. Vuelve a intentarlo.',
+  SignInRejected() => 'Correo o contraseña incorrectos.',
 };
 
 ManoNoticeTone authFailureTone(AuthFailure failure) => switch (failure) {

@@ -32,6 +32,7 @@ export 'src/widgets/mano_chat_bubble.dart';
 export 'src/widgets/mano_chat_header.dart';
 export 'src/widgets/mano_chat_thread.dart';
 export 'src/widgets/mano_conversation_tile.dart';
+export 'src/widgets/mano_credentials_sheet.dart';
 export 'src/widgets/mano_date_strip.dart';
 export 'src/widgets/mano_detail_row.dart';
 export 'src/widgets/mano_dialog.dart';

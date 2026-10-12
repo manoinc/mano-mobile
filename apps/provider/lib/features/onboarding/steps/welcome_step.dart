@@ -14,17 +14,31 @@ class WelcomeStep extends ConsumerStatefulWidget {
 }
 
 class _WelcomeStepState extends ConsumerState<WelcomeStep> {
-  // Waiting on sign-in belongs to this button, not to the session.
-  bool _busy = false;
+  void _openSignIn() {
+    showManoSheet<void>(
+      context: context,
+      builder: (sheet) => ManoCredentialsSheet(
+        title: 'Inicia sesión',
+        message: 'Con el correo de tu cuenta profesional.',
+        submitLabel: 'Entrar',
+        onSubmit: (email, password) => _signIn(sheet, email, password),
+      ),
+    );
+  }
 
-  Future<void> _signIn() async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    try {
-      await ref.read(sessionProvider.notifier).signIn();
-    } finally {
-      if (mounted) setState(() => _busy = false);
+  // Resolves to the copy to show inside the sheet, or closes it on success.
+  Future<String?> _signIn(BuildContext sheet, String email, String password) async {
+    // Captured first: a successful sign-in replaces this screen, and its ref with it.
+    final session = ref.read(sessionProvider.notifier);
+    final failure = await session.signIn(
+      Credentials(email: email, password: password),
+    );
+    if (failure != null) {
+      session.acknowledgeFailure();
+      return authFailureCopy(failure);
     }
+    if (sheet.mounted) Navigator.of(sheet).pop();
+    return null;
   }
 
   @override
@@ -37,12 +51,9 @@ class _WelcomeStepState extends ConsumerState<WelcomeStep> {
     return ManoHeroScaffold(
       headline: 'Tu oficio, más cerca de tus clientes.',
       primaryLabel: 'Crear cuenta profesional',
-      onPrimary: _busy
-          ? null
-          : ref.read(providerOnboardingProvider.notifier).start,
+      onPrimary: ref.read(providerOnboardingProvider.notifier).start,
       secondaryLabel: 'Ya tengo cuenta',
-      onSecondary: _signIn,
-      busy: _busy,
+      onSecondary: _openSignIn,
       footnote:
           'Con Mano Profesionales recibes solicitudes de hogares en tu zona. '
           'Verificamos tu identidad antes de que publiques servicios.',

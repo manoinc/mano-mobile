@@ -110,11 +110,31 @@ void main() {
       ),
     );
     await _tapText(tester, 'Ya tengo cuenta');
-    expect(find.byType(ManoNotice), findsOneWidget);
+    await tester.enterText(find.byKey(const Key('mano-credentials-email')), 'pro@mano.co');
+    await tester.enterText(find.byKey(const Key('mano-credentials-password')), 'secret');
+    await tester.pump();
+    await _tapText(tester, 'Entrar');
+
+    expect(find.byType(ManoCredentialsSheet), findsOneWidget);
     expect(
       find.textContaining('No pudimos conectar con el servicio'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('good credentials close the sheet and sign in', (tester) async {
+    final repository = FakeSessionRepository(
+      onSignIn: () async => Ok(fakeSession()),
+    );
+    await _pump(tester, session: repository);
+    await _tapText(tester, 'Ya tengo cuenta');
+    await tester.enterText(find.byKey(const Key('mano-credentials-email')), 'pro@mano.co');
+    await tester.enterText(find.byKey(const Key('mano-credentials-password')), 'secret');
+    await tester.pump();
+    await _tapText(tester, 'Entrar');
+
+    expect(repository.lastCredentials?.email, 'pro@mano.co');
+    expect(find.byType(ManoCredentialsSheet), findsNothing);
   });
 
   testWidgets('profile shows inline problems on a refused Continuar', (

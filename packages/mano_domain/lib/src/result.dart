@@ -19,7 +19,7 @@
 /// value, sitting in the state, impossible to confuse with a crash.
 ///
 /// ```dart
-/// switch (await sessionRepository.signIn()) {
+/// switch (await sessionRepository.signIn(credentials)) {
 ///   case Ok(:final value):
 ///     // value is a Session
 ///   case Err(:final failure):

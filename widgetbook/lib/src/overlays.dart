@@ -21,6 +21,13 @@ WidgetbookCategory overlays() => WidgetbookCategory(
         open: (c) => showManoSheet<void>(context: c, builder: (_) => const _Prompt()),
       ),
     }),
+    component('ManoCredentialsSheet', {
+      'Inline': (context) => const Align(alignment: Alignment.bottomCenter, child: _Credentials()),
+      'Open with showManoSheet': (context) => _Launcher(
+        label: 'Iniciar sesión',
+        open: (c) => showManoSheet<void>(context: c, builder: (_) => const _Credentials()),
+      ),
+    }),
     component('ManoActionSheet', {
       'Inline': (context) => const Align(alignment: Alignment.bottomCenter, child: _Actions()),
       'Open with showManoSheet': (context) => _Launcher(
@@ -67,6 +74,18 @@ class _Prompt extends StatelessWidget {
     primaryLabel: 'Iniciar sesión',
     onPrimary: noop,
     onClose: noop,
+  );
+}
+
+class _Credentials extends StatelessWidget {
+  const _Credentials();
+
+  @override
+  Widget build(BuildContext context) => ManoCredentialsSheet(
+    title: 'Inicia sesión',
+    message: 'Con el correo de tu cuenta Mano.',
+    submitLabel: 'Entrar',
+    onSubmit: (_, _) async => 'Correo o contraseña incorrectos.',
   );
 }
 

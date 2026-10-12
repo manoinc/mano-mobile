@@ -40,6 +40,25 @@ void main() {
     await transport.run('{ ok }', accessToken: 't0k');
   });
 
+  test("falls back to the session's token, read at call time", () async {
+    var token = 'first';
+    final seen = <String?>[];
+    final transport = GatewayTransport(
+      _config,
+      httpClient: MockClient((request) async {
+        seen.add(request.headers['Authorization']);
+        return http.Response(jsonEncode({'data': {}}), 200);
+      }),
+      accessToken: () async => token,
+    );
+
+    await transport.run('{ ok }');
+    token = 'second';
+    await transport.run('{ ok }');
+
+    expect(seen, ['Bearer first', 'Bearer second']);
+  });
+
   test('401 is unauthorized', () {
     final transport = _transport((_) async => http.Response('', 401));
     expect(transport.run('{ ok }'), throwsA(isA<GatewayUnauthorized>()));

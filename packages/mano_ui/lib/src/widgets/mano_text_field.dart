@@ -23,6 +23,8 @@ class ManoTextField extends StatelessWidget {
     this.enabled = true,
     this.minLines,
     this.maxLines = 1,
+    this.obscureText = false,
+    this.autofillHints,
     super.key,
   });
 
@@ -48,6 +50,9 @@ class ManoTextField extends StatelessWidget {
   // Set both above 1 for a free-text message.
   final int? minLines;
   final int? maxLines;
+
+  final bool obscureText;
+  final Iterable<String>? autofillHints;
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +83,8 @@ class ManoTextField extends StatelessWidget {
           enabled: enabled,
           minLines: minLines,
           maxLines: maxLines,
+          obscureText: obscureText,
+          autofillHints: autofillHints,
           style: theme.textTheme.titleMedium,
           cursorColor: ManoColors.flame,
           decoration: InputDecoration(

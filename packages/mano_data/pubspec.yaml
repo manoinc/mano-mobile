@@ -1,8 +1,7 @@
 name: mano_data
 description: >
   Adapters implementing the ports declared by mano_domain: credential storage
-  and the GraphQL transport to mano-gateway. No SessionRepository lives here
-  yet -- which auth provider signs users in is still an open decision.
+  the SuperTokens session adapter and the GraphQL transport to mano-gateway.
 version: 0.1.0
 publish_to: none
 resolution: workspace

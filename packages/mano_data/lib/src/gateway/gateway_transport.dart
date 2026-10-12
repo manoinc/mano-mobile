@@ -37,11 +37,18 @@ final class GatewayRejected implements Exception {
 
 /// GraphQL over plain HTTP POST; every gateway adapter goes through this.
 final class GatewayTransport {
-  GatewayTransport(this._config, {http.Client? httpClient})
-    : _http = httpClient ?? http.Client();
+  GatewayTransport(
+    this._config, {
+    http.Client? httpClient,
+    Future<String?> Function()? accessToken,
+  }) : _http = httpClient ?? http.Client(),
+       _accessToken = accessToken; // ignore: prefer_initializing_formals
 
   final ManoConfig _config;
   final http.Client _http;
+
+  // Supplies the session's token when a call does not pass one explicitly.
+  final Future<String?> Function()? _accessToken;
 
   /// Returns the `data` object, or throws one of the `Gateway*` exceptions.
   Future<Map<String, dynamic>> run(
@@ -49,15 +56,14 @@ final class GatewayTransport {
     Map<String, Object?> variables = const {},
     String? accessToken,
   }) async {
+    final bearer = accessToken ?? await _accessToken?.call();
     final http.Response response;
     try {
       response = await _http.post(
         Uri.parse(_config.gatewayGraphQlUrl),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': ?(accessToken == null
-              ? null
-              : 'Bearer $accessToken'),
+          'Authorization': ?(bearer == null ? null : 'Bearer $bearer'),
         },
         body: jsonEncode({'query': document, 'variables': variables}),
       );

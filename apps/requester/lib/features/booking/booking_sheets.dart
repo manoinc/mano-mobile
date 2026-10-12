@@ -12,7 +12,7 @@ import 'package:mano_ui/mano_ui.dart';
 const hourlyNote = 'El precio final depende de las horas trabajadas.';
 
 /// Booking and requesting both need an account; true when one is signed in.
-bool isSignedIn(WidgetRef ref) => ref.read(sessionProvider).value is SignedIn;
+bool isSignedIn(WidgetRef ref) => ref.read(hasAccountProvider);
 
 Future<void> showAccountNeededSheet(BuildContext context, WidgetRef ref) =>
     showManoSheet<void>(

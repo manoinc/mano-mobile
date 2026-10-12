@@ -33,49 +33,26 @@ Widget _app({SessionRepository? session}) => ProviderScope(
   ),
 );
 
-final class _SignedInRepository implements SessionRepository {
-  const _SignedInRepository();
+final _signedInSession = Session(
+  user: const AuthenticatedUser(
+    subject: 'user-1',
+    username: 'ana',
+    roles: {ManoRole.requester},
+  ),
+  accessToken: 'access-1',
+  expiresAt: DateTime.now().add(const Duration(minutes: 30)),
+);
 
-  static final _session = Session(
-    user: const AuthenticatedUser(
-      subject: 'user-1',
-      username: 'ana',
-      roles: {ManoRole.requester},
-    ),
-    accessToken: 'access-1',
-    expiresAt: DateTime.now().add(const Duration(minutes: 30)),
-  );
+InMemorySessionRepository _signedInRepository() => InMemorySessionRepository(
+  onRestore: () async => Ok(_signedInSession),
+  onSignIn: () async => Ok(_signedInSession),
+  onRefresh: () async => Ok(_signedInSession),
+);
 
-  @override
-  Future<Result<Session?, AuthFailure>> restore() async => Ok(_session);
-
-  @override
-  Future<Result<Session, AuthFailure>> signIn() async => Ok(_session);
-
-  @override
-  Future<Result<Session, AuthFailure>> refresh() async => Ok(_session);
-
-  @override
-  Future<void> signOut() async {}
-}
-
-final class _SignInRejectedRepository implements SessionRepository {
-  const _SignInRejectedRepository();
-
-  @override
-  Future<Result<Session?, AuthFailure>> restore() async => const Ok(null);
-
-  @override
-  Future<Result<Session, AuthFailure>> signIn() async =>
-      const Err(SignInRejected(reason: '401'));
-
-  @override
-  Future<Result<Session, AuthFailure>> refresh() async =>
-      const Err(SessionExpired());
-
-  @override
-  Future<void> signOut() async {}
-}
+InMemorySessionRepository _signInRejectedRepository() =>
+    InMemorySessionRepository(
+      onSignIn: () async => const Err(SignInRejected(reason: '401')),
+    );
 
 Future<void> _boot(WidgetTester tester, {SessionRepository? session}) async {
   await tester.pumpWidget(_app(session: session));
@@ -115,7 +92,7 @@ void main() {
     testWidgets('a restored session goes straight home, no carousel', (
       tester,
     ) async {
-      await _boot(tester, session: const _SignedInRepository());
+      await _boot(tester, session: _signedInRepository());
 
       expect(find.byType(RequesterShell), findsOneWidget);
       expect(find.byType(OnboardingScreen), findsNothing);
@@ -191,27 +168,46 @@ void main() {
     ) async {
       // The doorway watches the session directly, so a failure that leaves
       // the location unchanged (there is no location here) still re-renders.
-      await _boot(tester, session: const _SignInRejectedRepository());
+      await _boot(tester, session: _signInRejectedRepository());
       await _toLastSlide(tester);
 
-      // First tap leaves the carousel for SignInScreen; "Iniciar sesión" is
-      // also that screen's own submit button, which is the one that must
-      // actually attempt the sign-in.
+      // First tap leaves the carousel; the second opens the credentials sheet.
       await tester.tap(find.text('Iniciar sesión'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Iniciar sesión'));
       await tester.pumpAndSettle();
-
-      expect(
-        find.text('No pudimos completar el inicio de sesión. Vuelve a intentarlo.'),
-        findsOneWidget,
-      );
-      expect(find.byType(ManoNotice), findsOneWidget);
-
-      tester.widget<ManoNotice>(find.byType(ManoNotice)).onDismiss!.call();
+      await tester.enterText(find.byKey(const Key('mano-credentials-email')), 'ana@mano.co');
+      await tester.enterText(find.byKey(const Key('mano-credentials-password')), 'nope');
+      await tester.pump();
+      await tester.tap(find.text('Entrar'));
       await tester.pumpAndSettle();
 
+      // The refusal shows inside the sheet, where the fix is typed.
+      expect(find.text('Correo o contraseña incorrectos.'), findsOneWidget);
+      expect(find.byType(ManoCredentialsSheet), findsOneWidget);
       expect(find.byType(ManoNotice), findsNothing);
+    });
+
+    testWidgets('good credentials close the sheet and go home', (tester) async {
+      final repository = InMemorySessionRepository(
+        onSignIn: () async => Ok(_signedInSession),
+      );
+      await _boot(tester, session: repository);
+      await _toLastSlide(tester);
+
+      await tester.tap(find.text('Iniciar sesión'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Iniciar sesión'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('mano-credentials-email')), ' Ana@Mano.co ');
+      await tester.enterText(find.byKey(const Key('mano-credentials-password')), 'secret');
+      await tester.pump();
+      await tester.tap(find.text('Entrar'));
+      await tester.pumpAndSettle();
+
+      expect(repository.lastCredentials?.email, 'ana@mano.co');
+      expect(find.byType(ManoCredentialsSheet), findsNothing);
+      expect(find.byType(RequesterShell), findsOneWidget);
     });
   });
 

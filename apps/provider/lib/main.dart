@@ -60,9 +60,6 @@ class _RootState extends ConsumerState<_Root> {
   // Static so the opening plays once per cold start, not per rebuild.
   static bool _opened = false;
 
-  // Until auth exists, finishing onboarding enters the shell locally.
-  bool _browsing = false;
-
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(sessionProvider);
@@ -86,10 +83,9 @@ class _RootState extends ConsumerState<_Root> {
     }
 
     return switch (state.value) {
-      SignedIn() => const ProviderShell(),
-      SignedOut() when _browsing => const ProviderShell(),
+      SignedIn() || Guest() => const ProviderShell(),
       SignedOut() => ProfessionalOnboardingScreen(
-        onFinished: () => setState(() => _browsing = true),
+        onFinished: () => ref.read(sessionProvider.notifier).browseAsGuest(),
       ),
       null => const SizedBox.shrink(),
     };
