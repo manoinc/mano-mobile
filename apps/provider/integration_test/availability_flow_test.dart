@@ -7,6 +7,7 @@ import 'package:mano_provider/main.dart';
 import 'package:mano_provider/shell/provider_nav_shell.dart';
 import 'package:mano_provider/shell/provider_router.dart';
 import 'package:mano_session/mano_session.dart';
+import 'package:mano_ui/mano_ui.dart';
 
 import '../test/support/fake_session_repository.dart';
 import '../test/support/pump_app.dart';
@@ -51,28 +52,24 @@ void main() {
     await tester.tap(find.text('Agregar horario'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('D'));
-    await tester.tap(find.byKey(const Key('rule-start')));
-    await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.text('10:00 a. m.'),
-      100,
-      scrollable: find.byType(Scrollable).last,
+    await tester.drag(
+      find.byKey(const Key('mano-time-wheel-start')),
+      const Offset(0, -4 * ManoTimeRangePicker.itemExtent),
     );
-    await tester.tap(find.text('10:00 a. m.').last);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Guardar'));
     await tester.pumpAndSettle();
     expect(find.text('dom · 10:00 a. m. – 12:00 p. m.'), findsOneWidget);
 
-    await _scrollTo(tester, find.text('Generar enlace'));
-    await tester.tap(find.text('Generar enlace'));
+    await _scrollTo(tester, find.text('Conectar'));
+    await tester.tap(find.text('Conectar'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('https://'), findsOneWidget);
+    expect(find.text('Conectado'), findsOneWidget);
 
-    await _scrollTo(tester, find.text('Desactivar enlace'));
+    await tester.tap(find.byTooltip('Más opciones'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Desactivar enlace'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('https://'), findsNothing);
-    expect(find.text('Generar enlace'), findsOneWidget);
+    expect(find.text('No conectado'), findsOneWidget);
   });
 }

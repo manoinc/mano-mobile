@@ -38,20 +38,12 @@ Future<void> _scrollTo(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> _pick(
-  WidgetTester tester,
-  String key,
-  String label, {
-  double delta = 100,
-}) async {
-  await tester.tap(find.byKey(Key(key)));
-  await tester.pumpAndSettle();
-  await tester.scrollUntilVisible(
-    find.text(label),
-    delta,
-    scrollable: find.byType(Scrollable).last,
+// One wheel step is one half hour; positive moves later.
+Future<void> _spin(WidgetTester tester, String key, int steps) async {
+  await tester.drag(
+    find.byKey(Key(key)),
+    Offset(0, -steps * ManoTimeRangePicker.itemExtent),
   );
-  await tester.tap(find.text(label).last);
   await tester.pumpAndSettle();
 }
 
@@ -87,7 +79,7 @@ void main() {
     await tester.tap(find.text('Agregar horario'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('D'));
-    await _pick(tester, 'rule-start', '10:00 a. m.');
+    await _spin(tester, 'mano-time-wheel-start', 4);
     await tester.tap(find.text('Guardar'));
     await tester.pumpAndSettle();
 
@@ -107,8 +99,8 @@ void main() {
     expect(find.text('Elige al menos un día.'), findsOneWidget);
 
     await tester.tap(find.text('L'));
-    await _pick(tester, 'rule-start', '9:00 a. m.');
-    await _pick(tester, 'rule-end', '8:30 a. m.', delta: -100);
+    await _spin(tester, 'mano-time-wheel-start', 2);
+    await _spin(tester, 'mano-time-wheel-end', -7);
     await tester.tap(find.text('Guardar'));
     await tester.pumpAndSettle();
     expect(

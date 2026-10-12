@@ -68,4 +68,5 @@ export 'src/widgets/mano_step_transition.dart';
 export 'src/widgets/mano_text_action.dart';
 export 'src/widgets/mano_text_field.dart';
 export 'src/widgets/mano_toggle_row.dart';
+export 'src/widgets/mano_time_range_picker.dart';
 export 'src/widgets/mano_weekday_picker.dart';

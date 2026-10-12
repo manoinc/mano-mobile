@@ -5,9 +5,6 @@ import 'package:mano_ui/mano_ui.dart';
 
 import 'availability_labels.dart';
 
-const _step = 30;
-const _day = 24 * 60;
-
 /// Creates or edits one weekly rule; closes itself once the change is saved.
 class RuleEditorSheet extends ConsumerStatefulWidget {
   const RuleEditorSheet({this.rule, super.key});
@@ -66,34 +63,15 @@ class _RuleEditorSheetState extends ConsumerState<RuleEditorSheet> {
               }),
             ),
             const SizedBox(height: ManoSpacing.lg),
-            Row(
-              children: [
-                Expanded(
-                  child: _TimeField(
-                    key: const Key('rule-start'),
-                    label: 'Desde',
-                    value: _start,
-                    options: [for (var m = 0; m < _day; m += _step) m],
-                    onChanged: (m) => setState(() {
-                      _error = null;
-                      _start = m;
-                    }),
-                  ),
-                ),
-                const SizedBox(width: ManoSpacing.md),
-                Expanded(
-                  child: _TimeField(
-                    key: const Key('rule-end'),
-                    label: 'Hasta',
-                    value: _end,
-                    options: [for (var m = _step; m <= _day; m += _step) m],
-                    onChanged: (m) => setState(() {
-                      _error = null;
-                      _end = m;
-                    }),
-                  ),
-                ),
-              ],
+            ManoTimeRangePicker(
+              startMinutes: _start,
+              endMinutes: _end,
+              labelFor: minutesLabel,
+              onChanged: (start, end) => setState(() {
+                _error = null;
+                _start = start;
+                _end = end;
+              }),
             ),
             if (_error != null) ...[
               const SizedBox(height: ManoSpacing.md),
@@ -158,37 +136,5 @@ class _RuleEditorSheetState extends ConsumerState<RuleEditorSheet> {
               : failure.message;
         });
     }
-  }
-}
-
-class _TimeField extends StatelessWidget {
-  const _TimeField({
-    required this.label,
-    required this.value,
-    required this.options,
-    required this.onChanged,
-    super.key,
-  });
-
-  final String label;
-  final int value;
-  final List<int> options;
-  final ValueChanged<int> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButtonFormField<int>(
-      initialValue: value,
-      isExpanded: true,
-      decoration: InputDecoration(labelText: label),
-      borderRadius: BorderRadius.circular(ManoRadius.card),
-      items: [
-        for (final m in options)
-          DropdownMenuItem(value: m, child: Text(minutesLabel(m))),
-      ],
-      onChanged: (m) {
-        if (m != null) onChanged(m);
-      },
-    );
   }
 }

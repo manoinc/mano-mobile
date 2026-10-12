@@ -122,6 +122,9 @@ WidgetbookCategory inputs() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoTimeRangePicker', {
+      'Default': (context) => _padded(_TimeRangeDemo()),
+    }),
     component('ManoSlotGrid', {
       'Default': (context) => _padded(
         ManoSlotGrid(
@@ -172,6 +175,26 @@ class _MonthCalendarDemoState extends State<_MonthCalendarDemo> {
         : const {},
     onSelect: (d) => setState(() => _selected = d),
     onMonthChanged: (m) => setState(() => _month = m),
+  );
+}
+
+class _TimeRangeDemo extends StatefulWidget {
+  @override
+  State<_TimeRangeDemo> createState() => _TimeRangeDemoState();
+}
+
+class _TimeRangeDemoState extends State<_TimeRangeDemo> {
+  int _start = 8 * 60;
+  int _end = 12 * 60;
+
+  @override
+  Widget build(BuildContext context) => ManoTimeRangePicker(
+    startMinutes: _start,
+    endMinutes: _end,
+    onChanged: (s, e) => setState(() {
+      _start = s;
+      _end = e;
+    }),
   );
 }
 
