@@ -2,7 +2,7 @@ import 'package:mano_domain/mano_domain.dart';
 
 import '../mock/mock_fixtures.dart';
 
-/// In-memory [ServiceRequestRepository] with one request per status.
+/// In-memory [ServiceRequestRepository]: realistic leads per category plus one per other status.
 final class MockServiceRequestRepository implements ServiceRequestRepository {
   MockServiceRequestRepository({DateTime Function()? now, this.onAccepted})
     : _now = now ?? DateTime.now {
@@ -12,29 +12,86 @@ final class MockServiceRequestRepository implements ServiceRequestRepository {
         'request-1',
         mockOffers[0],
         ServiceRequestStatus.pending,
-        '¿Podrías venir el sábado en la mañana?',
+        'Acabamos de mudarnos y el apartamento quedó con polvo y residuos de '
+            'obra. Necesito limpieza profunda de 2 habitaciones y 2 baños.',
         today.add(const Duration(days: 3)),
+        category: ServiceCategories.cleaning,
+        title: 'Limpieza profunda post-mudanza',
+        neighborhood: 'Chapinero',
+        photos: ['1527515637462-cff94eecc1ac', '1581578731548-c64695cc6952'],
       ),
       _make(
         'request-2',
         mockOffers[1],
         ServiceRequestStatus.pending,
-        'Tengo una fuga debajo del lavaplatos.',
+        'Se me está filtrando el lavaplatos de la cocina, gotea debajo del '
+            'mueble y ya se humedeció la madera.',
         today.add(const Duration(days: 1)),
+        client: mockClients[1],
+        category: ServiceCategories.plumbing,
+        title: 'Fuga debajo del lavaplatos',
+        neighborhood: 'Laureles',
+        photos: ['1607472586893-edb57bdc0e39', '1558618666-fcd25c85cd64'],
+      ),
+      _make(
+        'request-6',
+        mockOffers[1],
+        ServiceRequestStatus.pending,
+        'Se fue la luz en dos tomas de la sala y el breaker se baja cada vez '
+            'que prendo el aire. Necesito revisar el tablero.',
+        today.add(const Duration(days: 2)),
+        client: mockClients[2],
+        category: ServiceCategories.electrical,
+        title: 'Revisión de tablero y tomas',
+        neighborhood: 'El Poblado',
+        photos: ['1621905251189-08b45d6a269e'],
+      ),
+      _make(
+        'request-7',
+        mockOffers[2],
+        ServiceRequestStatus.pending,
+        'Quiero pintar la sala y el comedor (unos 35 m²) de blanco hueso. '
+            'Las paredes tienen algunas grietas pequeñas.',
+        today.add(const Duration(days: 6)),
+        client: mockClients[3],
+        category: ServiceCategories.painting,
+        title: 'Pintura de sala y comedor',
+        neighborhood: 'Usaquén',
+        photos: ['1595814433015-e6f5ce69614e'],
+      ),
+      _make(
+        'request-8',
+        mockOffers[0],
+        ServiceRequestStatus.pending,
+        'Necesito cortar el pasto y podar los arbustos del antejardín. Hace '
+            'meses nadie le hace mantenimiento.',
+        today.add(const Duration(days: 4)),
+        client: mockClients[4],
+        category: ServiceCategories.gardening,
+        title: 'Mantenimiento de antejardín',
+        neighborhood: 'Envigado',
+        photos: ['1558904541-efa843a96f01', '1416879595882-3373a0480b5b'],
       ),
       _make(
         'request-3',
         mockOffers[1],
         ServiceRequestStatus.accepted,
-        'Revisión del calentador.',
+        'Revisión del calentador: no calienta y hace un ruido raro.',
         today.add(const Duration(days: 5)),
+        category: ServiceCategories.plumbing,
+        title: 'Revisión del calentador',
+        neighborhood: 'Chapinero',
+        photos: ['1584622650111-993a426fbf0a'],
       ),
       _make(
         'request-4',
         mockOffers[0],
         ServiceRequestStatus.rejected,
-        'Limpieza de alfombras.',
+        'Limpieza de alfombras de la sala y dos habitaciones.',
         today.subtract(const Duration(days: 2)),
+        category: ServiceCategories.cleaning,
+        title: 'Lavado de alfombras',
+        neighborhood: 'Chapinero',
         rejectionReason: 'No tengo disponibilidad esa semana.',
       ),
       _make(
@@ -43,6 +100,9 @@ final class MockServiceRequestRepository implements ServiceRequestRepository {
         ServiceRequestStatus.cancelled,
         'Limpieza después de mudanza.',
         today.subtract(const Duration(days: 6)),
+        category: ServiceCategories.cleaning,
+        title: 'Limpieza después de mudanza',
+        neighborhood: 'Chapinero',
       ),
     ]);
   }
@@ -59,12 +119,20 @@ final class MockServiceRequestRepository implements ServiceRequestRepository {
     ServiceRequestStatus status,
     String message,
     DateTime? proposedStart, {
+    Party client = mockClient,
+    String? title,
+    String category = '',
+    String neighborhood = '',
+    List<String> photos = const [],
     String? rejectionReason,
   }) => ServiceRequest(
     id: id,
     offer: offer,
-    serviceTitle: mockTitleFor(offer),
-    client: mockClient,
+    serviceTitle: title ?? mockTitleFor(offer),
+    client: client,
+    category: category,
+    neighborhood: neighborhood,
+    photoUrls: [for (final p in photos) mockPhoto(p)],
     provider: mockProviderFor(offer),
     message: message,
     proposedStart: proposedStart,

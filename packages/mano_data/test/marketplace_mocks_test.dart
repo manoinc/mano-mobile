@@ -71,6 +71,23 @@ void main() {
     late MockServiceRequestRepository requests;
     setUp(() => requests = MockServiceRequestRepository(now: _clock));
 
+    test(
+      'pending leads are real jobs: every category, zone and photos',
+      () async {
+        final pending = await requests.mine(
+          status: ServiceRequestStatus.pending,
+        );
+        expect({
+          for (final r in pending) r.category,
+        }, ServiceCategories.all.map((c) => c.id).toSet());
+        for (final r in pending) {
+          expect(r.neighborhood, isNotEmpty, reason: r.id);
+          expect(r.photoUrls, isNotEmpty, reason: r.id);
+          expect(r.message.length, greaterThan(40), reason: r.id);
+        }
+      },
+    );
+
     test('fixtures cover every status and mine filters by status', () async {
       final statuses = {for (final r in await requests.mine()) r.status};
       expect(statuses, ServiceRequestStatus.values.toSet());
