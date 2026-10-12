@@ -10,6 +10,7 @@ import '../features/chat/provider_inbox_screen.dart';
 import '../features/home/provider_home_screen.dart';
 import '../features/services/my_services_screen.dart';
 import '../features/services/offer_editor_screen.dart';
+import '../features/wallet/wallet_screen.dart';
 import 'module_placeholder.dart';
 import 'provider_nav_shell.dart';
 
@@ -74,10 +75,7 @@ final providerRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/wallet',
-                builder: (context, state) => const ModulePlaceholder(
-                  title: 'Billetera',
-                  detail: 'Tus Mano coins para responder solicitudes.',
-                ),
+                builder: (context, state) => const WalletScreen(),
               ),
             ],
           ),
