@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_data/mano_data.dart';
+import 'package:mano_data/src/mock/mock_fixtures.dart';
 import 'package:mano_domain/mano_domain.dart';
 
 void main() {
@@ -15,12 +16,15 @@ void main() {
       expect(week.totalCop, greaterThan(0));
     });
 
-    test('month has four weekly buckets and earns more than the week', () async {
-      final week = await repo.summary(EarningsPeriod.week);
-      final month = await repo.summary(EarningsPeriod.month);
-      expect(month.buckets, hasLength(4));
-      expect(month.totalCop, greaterThan(week.totalCop));
-    });
+    test(
+      'month has four weekly buckets and earns more than the week',
+      () async {
+        final week = await repo.summary(EarningsPeriod.week);
+        final month = await repo.summary(EarningsPeriod.month);
+        expect(month.buckets, hasLength(4));
+        expect(month.totalCop, greaterThan(week.totalCop));
+      },
+    );
 
     test('lists paid jobs newest first with a payout ahead', () async {
       final week = await repo.summary(EarningsPeriod.week);

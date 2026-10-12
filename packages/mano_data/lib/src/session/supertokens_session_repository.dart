@@ -64,7 +64,9 @@ final class SuperTokensSessionRepository implements SessionRepository {
       return const Err(SessionExpired());
     }
     if (response.statusCode != 200) {
-      return Err(AuthUnavailable(detail: 'refresh returned ${response.statusCode}'));
+      return Err(
+        AuthUnavailable(detail: 'refresh returned ${response.statusCode}'),
+      );
     }
     return Ok(await _adopt(response, email: _current?.user.email));
   }
@@ -110,7 +112,9 @@ final class SuperTokensSessionRepository implements SessionRepository {
     }
 
     if (response.statusCode != 200) {
-      return Err(AuthUnavailable(detail: '$route returned ${response.statusCode}'));
+      return Err(
+        AuthUnavailable(detail: '$route returned ${response.statusCode}'),
+      );
     }
     final body = jsonDecode(response.body) as Map<String, dynamic>;
     return switch (body['status']) {
@@ -131,9 +135,9 @@ final class SuperTokensSessionRepository implements SessionRepository {
     final refreshToken = headers['st-refresh-token'];
     if (refreshToken != null) await _tokens.write(refreshToken);
 
-    final front =
-        jsonDecode(utf8.decode(base64.decode(base64.normalize(frontToken))))
-            as Map<String, dynamic>;
+    final front = jsonDecode(
+      utf8.decode(base64.decode(base64.normalize(frontToken))),
+    ) as Map<String, dynamic>;
     final payload = (front['up'] as Map<String, dynamic>?) ?? const {};
     final roleClaim = payload['st-role'] as Map<String, dynamic>?;
 

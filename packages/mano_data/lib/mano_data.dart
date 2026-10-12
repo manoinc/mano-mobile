@@ -20,7 +20,9 @@ export 'src/session/token_store.dart';
 // Mock implementations pending real gateway-backed adapters.
 export 'src/catalog/mock_catalog_repository.dart';
 export 'src/catalog/mock_offer_management.dart';
+export 'src/earnings/mock_earnings_repository.dart';
 export 'src/jobs/mock_job_repository.dart';
+export 'src/profile/mock_provider_profile_repository.dart';
 export 'src/messaging/mock_chat_repository.dart';
 export 'src/messaging/mock_conversation_repository.dart';
 export 'src/onboarding/mock_provider_onboarding_repository.dart';

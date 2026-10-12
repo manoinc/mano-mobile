@@ -72,10 +72,7 @@ final class ProviderOnboardingState {
     displayName: displayName.trim(),
     phone: normalizePhone(phone) ?? phone.trim(),
     workZone: workZone.trim(),
-    documentPaths: [
-      for (final d in ProviderDocument.values)
-        ?attached[d],
-    ],
+    documentPaths: [for (final d in ProviderDocument.values) ?attached[d]],
   );
 
   ProviderOnboardingState copyWith({
