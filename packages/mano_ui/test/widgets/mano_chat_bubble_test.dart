@@ -62,6 +62,36 @@ void main() {
       expect(find.byKey(const Key('chat-bubble-time')), findsNothing);
     });
 
+    testWidgets('a short message keeps its time on the same line', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const ManoChatBubble(text: 'Hola', timeLabel: '9:00', mine: true),
+      );
+      final text = tester.getRect(find.text('Hola', findRichText: true));
+      final time = tester.getRect(find.byKey(const Key('chat-bubble-time')));
+      expect(time.left, greaterThanOrEqualTo(text.left));
+      expect(time.center.dy, closeTo(text.center.dy, 8));
+      expect(
+        tester.getSize(find.byKey(const Key('chat-bubble-body'))).height,
+        lessThan(40),
+      );
+    });
+
+    testWidgets('a long message drops its time below the text', (tester) async {
+      await _pump(
+        tester,
+        ManoChatBubble(text: 'Hola ' * 40, timeLabel: '9:00', mine: true),
+      );
+      final text = tester.getRect(
+        find.textContaining('Hola', findRichText: true),
+      );
+      final time = tester.getRect(find.byKey(const Key('chat-bubble-time')));
+      expect(time.top, greaterThanOrEqualTo(text.bottom - 20));
+      expect(time.right, closeTo(text.right, 1));
+    });
+
     testWidgets('each receipt draws its own icon', (tester) async {
       for (final receipt in ManoReceipt.values) {
         await _pump(

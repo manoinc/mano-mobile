@@ -48,6 +48,22 @@ WidgetbookCategory chat() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoReceiptMark', {
+      'States': (context) => Padding(
+        padding: const EdgeInsets.all(ManoSpacing.md),
+        child: Container(
+          color: ManoColors.ink,
+          padding: const EdgeInsets.all(ManoSpacing.md),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              for (final receipt in ManoReceipt.values)
+                ManoReceiptMark(receipt: receipt),
+            ],
+          ),
+        ),
+      ),
+    }),
     component('ManoChatHeader', {
       'Default': (context) => Center(
         child: ManoChatHeader(
