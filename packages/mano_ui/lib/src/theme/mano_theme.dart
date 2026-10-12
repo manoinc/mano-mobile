@@ -89,6 +89,16 @@ abstract final class ManoTheme {
           onSurface: isLight ? ManoColors.ink : ManoColors.sand,
           onSurfaceVariant: isLight ? ManoColors.muted : const Color(0xFFC2BCB8),
           outlineVariant: isLight ? ManoColors.stone : const Color(0xFF302C2A),
+          surfaceTint: Colors.transparent,
+          surfaceContainerLowest: isLight ? Colors.white : const Color(0xFF141211),
+          surfaceContainerLow: isLight ? ManoColors.sand : const Color(0xFF1E1B1A),
+          surfaceContainer: isLight ? ManoColors.sand : const Color(0xFF24211F),
+          surfaceContainerHigh: isLight ? ManoColors.stone : const Color(0xFF2B2826),
+          surfaceContainerHighest: isLight ? ManoColors.stone : const Color(0xFF302C2A),
+          secondaryContainer: isLight ? ManoColors.stone : const Color(0xFF302C2A),
+          onSecondaryContainer: isLight ? ManoColors.ink : ManoColors.sand,
+          tertiaryContainer: isLight ? const Color(0xFFF1E3D6) : const Color(0xFF3A2D24),
+          onTertiaryContainer: isLight ? const Color(0xFF6B3A1B) : const Color(0xFFEBCDB4),
         );
 
     return ThemeData(
@@ -108,7 +118,19 @@ abstract final class ManoTheme {
           shape: const StadiumBorder(),
         ),
       ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: scheme.surface,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
+      ),
+      chipTheme: ChipThemeData(backgroundColor: scheme.surfaceContainerHighest),
+      bottomSheetTheme: const BottomSheetThemeData(
+        surfaceTintColor: Colors.transparent,
+      ),
+      dialogTheme: const DialogThemeData(surfaceTintColor: Colors.transparent),
       cardTheme: CardThemeData(
+        color: scheme.surfaceContainerLowest,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(ManoRadius.card),
