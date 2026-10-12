@@ -7,6 +7,17 @@ final conversationRepositoryProvider = Provider<ConversationRepository>(
   (ref) => MockConversationRepository(),
 );
 
-final conversationsProvider = FutureProvider<List<Conversation>>(
-  (ref) => ref.watch(conversationRepositoryProvider).conversations(),
+/// Newest activity first, whatever order the adapter returns.
+final conversationsProvider = FutureProvider<List<Conversation>>((ref) async {
+  final all = await ref.watch(conversationRepositoryProvider).conversations();
+  return [...all]..sort((a, b) => b.lastMessageAt.compareTo(a.lastMessageAt));
+});
+
+/// One conversation from the loaded list; `null` until loaded or when unknown.
+final conversationProvider = Provider.family<Conversation?, String>(
+  (ref, id) => ref
+      .watch(conversationsProvider)
+      .value
+      ?.where((c) => c.id == id)
+      .firstOrNull,
 );

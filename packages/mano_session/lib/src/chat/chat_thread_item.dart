@@ -7,6 +7,9 @@ sealed class ChatThreadItem {
   String get body;
   DateTime get sentAt;
   bool get fromMe;
+
+  /// How far my message got; `null` for theirs and for unconfirmed ones.
+  MessageStatus? get status;
 }
 
 final class ConfirmedChatItem extends ChatThreadItem {
@@ -22,6 +25,9 @@ final class ConfirmedChatItem extends ChatThreadItem {
 
   @override
   bool get fromMe => message.fromMe;
+
+  @override
+  MessageStatus? get status => message.fromMe ? message.status : null;
 
   @override
   bool operator ==(Object other) =>
@@ -52,6 +58,9 @@ final class OutgoingChatItem extends ChatThreadItem {
 
   @override
   bool get fromMe => true;
+
+  @override
+  MessageStatus? get status => null;
 
   OutgoingChatItem copyWith({bool? failed}) => OutgoingChatItem(
     localId: localId,

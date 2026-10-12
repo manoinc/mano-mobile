@@ -76,6 +76,7 @@ final class ChatThreadNotifier extends AsyncNotifier<List<ChatThreadItem>> {
       case Ok(:final value):
         _outgoing.removeAt(index);
         _addConfirmed(value);
+        ref.invalidate(conversationsProvider);
       case Err():
         _outgoing[index] = item.copyWith(failed: true);
     }
@@ -88,13 +89,23 @@ final class ChatThreadNotifier extends AsyncNotifier<List<ChatThreadItem>> {
   }
 
   void _receive(Message message) {
-    _addConfirmed(message);
+    final isNew = _addConfirmed(message);
     if (state.hasValue) _emit();
+    // A new message changes the inbox; a status update does not.
+    if (isNew && ref.mounted) ref.invalidate(conversationsProvider);
   }
 
-  void _addConfirmed(Message message) {
-    if (_confirmed.any((m) => m.id == message.id)) return;
-    _confirmed.add(message);
+  /// Adds or updates by id, never moving a status backwards; true when new.
+  bool _addConfirmed(Message message) {
+    final index = _confirmed.indexWhere((m) => m.id == message.id);
+    if (index < 0) {
+      _confirmed.add(message);
+      return true;
+    }
+    if (message.status.index > _confirmed[index].status.index) {
+      _confirmed[index] = message;
+    }
+    return false;
   }
 
   void _emit() => state = AsyncData(_items());
