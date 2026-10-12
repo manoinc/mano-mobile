@@ -70,11 +70,9 @@ void main() {
     expect(routerPath(c), '/profile/services/offer/o1');
   });
 
-  testWidgets('the availability entry opens the calendar', (tester) async {
-    final c = await pump(tester, FakeOfferManagement([offer('o1')]));
-    await tester.tap(find.text('Disponibilidad y calendario'));
-    await tester.pumpAndSettle();
-    expect(routerPath(c), '/agenda');
+  testWidgets('availability is left to Agenda', (tester) async {
+    await pump(tester, FakeOfferManagement([offer('o1')]));
+    expect(find.text('Disponibilidad y calendario'), findsNothing);
   });
 
   testWidgets('a new offer is one tap away from the list', (tester) async {

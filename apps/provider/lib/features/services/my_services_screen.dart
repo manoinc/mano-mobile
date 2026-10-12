@@ -34,25 +34,6 @@ class MyServicesScreen extends ConsumerWidget {
                 horizontal: ManoSpacing.md,
               ),
               leading: const Icon(
-                Icons.event_available_outlined,
-                color: ManoColors.muted,
-              ),
-              title: Text(
-                'Disponibilidad y calendario',
-                style: textTheme.bodyLarge,
-              ),
-              trailing: const Icon(
-                Icons.chevron_right,
-                color: ManoColors.faint,
-              ),
-              onTap: () => context.go('/agenda?tab=availability'),
-            ),
-            const Divider(color: ManoColors.stone, height: 1),
-            ListTile(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: ManoSpacing.md,
-              ),
-              leading: const Icon(
                 Icons.add_circle_outline,
                 color: ManoColors.muted,
               ),
