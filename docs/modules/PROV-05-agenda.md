@@ -17,17 +17,17 @@ The header reads "Agenda", above a `ManoProjectFilterTabs` row:
 
 | Filter | Jobs | Order |
 |---|---|---|
-| Próximos (default) | `scheduled` | soonest first, grouped by day |
+| Calendario (default) | every job | a `ManoMonthCalendar` (dots on days with jobs) over the selected day's jobs, today first |
 | En curso | `inProgress` | repository order |
 | Historial | `finished` and `cancelled` | newest first |
 
-- **Day headers in Próximos.** Each day gets a header: "Hoy", "Mañana", or
+- **Day header under the calendar.** The selected day gets a header: "Hoy", "Mañana", or
   otherwise `ManoFormat.weekdayShort` + `dayMonth` (for example "vie 9 oct").
 - **Cards.** Every job is a `ManoProjectCard` keyed `agenda-job-<id>`, with the
   **client** in the "professional" slots. A card shows:
   - the service title
   - the client's name and photo
-  - the time: just the hour in Próximos, since the header already gives the
+  - the time: just the hour under the calendar, since the header already gives the
     day, and `ManoFormat.dateTime` elsewhere
   - the price (`ManoFormat.cop`, plus `/hora` for hourly jobs)
   - a `ManoStatusChip`

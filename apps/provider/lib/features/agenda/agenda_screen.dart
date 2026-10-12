@@ -8,7 +8,7 @@ import 'agenda_labels.dart';
 import 'agenda_load_error.dart';
 
 enum _Filter {
-  upcoming('Próximos', 'No tienes trabajos próximos.'),
+  calendar('Calendario', ''),
   inProgress('En curso', 'Ningún trabajo está en curso.'),
   history('Historial', 'Aún no tienes historial.');
 
@@ -18,7 +18,7 @@ enum _Filter {
   final String emptyMessage;
 }
 
-/// The provider's jobs: what's next, what's happening, what's over.
+/// The provider's jobs: a calendar of what's coming, plus what's happening and what's over.
 class AgendaScreen extends StatefulWidget {
   const AgendaScreen({super.key});
 
@@ -27,7 +27,7 @@ class AgendaScreen extends StatefulWidget {
 }
 
 class _AgendaScreenState extends State<AgendaScreen> {
-  _Filter _filter = _Filter.upcoming;
+  _Filter _filter = _Filter.calendar;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +51,11 @@ class _AgendaScreenState extends State<AgendaScreen> {
                 onSelected: (i) => setState(() => _filter = _Filter.values[i]),
               ),
               const SizedBox(height: ManoSpacing.md),
-              Expanded(child: _AgendaList(filter: _filter)),
+              Expanded(
+                child: _filter == _Filter.calendar
+                    ? const _CalendarView()
+                    : _StatusList(filter: _filter),
+              ),
             ],
           ),
         ),
@@ -60,17 +64,86 @@ class _AgendaScreenState extends State<AgendaScreen> {
   }
 }
 
-class _AgendaList extends ConsumerWidget {
-  const _AgendaList({required this.filter});
+class _CalendarView extends ConsumerStatefulWidget {
+  const _CalendarView();
+
+  @override
+  ConsumerState<_CalendarView> createState() => _CalendarViewState();
+}
+
+class _CalendarViewState extends ConsumerState<_CalendarView> {
+  late DateTime _selected = _today();
+  late DateTime _month = DateTime(_selected.year, _selected.month);
+
+  static DateTime _today() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return switch (ref.watch(myJobsProvider)) {
+      AsyncData(value: final jobs) => _content(context, jobs),
+      AsyncError() => AgendaLoadError(
+        message: 'No pudimos cargar tu agenda.',
+        onRetry: () => ref.invalidate(myJobsProvider),
+      ),
+      _ => const Center(child: CircularProgressIndicator()),
+    };
+  }
+
+  Widget _content(BuildContext context, List<Job> jobs) {
+    final byDay = {
+      for (final group in groupJobsByDay([
+        ...jobs,
+      ]..sort((a, b) => a.start.compareTo(b.start))))
+        group.day: group.jobs,
+    };
+    final dayJobs = byDay[_selected] ?? const <Job>[];
+    final textTheme = Theme.of(context).textTheme;
+
+    return ListView(
+      padding: const EdgeInsets.only(bottom: ManoSpacing.lg),
+      children: [
+        ManoMonthCalendar(
+          month: _month,
+          selected: _selected,
+          markedDays: byDay.keys.toSet(),
+          onSelect: (day) => setState(() => _selected = day),
+          onMonthChanged: (month) => setState(() => _month = month),
+        ),
+        const SizedBox(height: ManoSpacing.md),
+        Text(
+          dayLabel(_selected, DateTime.now()),
+          style: textTheme.titleSmall?.copyWith(color: ManoColors.muted),
+        ),
+        const SizedBox(height: ManoSpacing.sm),
+        if (dayJobs.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: ManoSpacing.lg),
+            child: Text(
+              'No tienes trabajos este día.',
+              key: const Key('agenda-empty-day'),
+              textAlign: TextAlign.center,
+              style: textTheme.bodyLarge?.copyWith(color: ManoColors.faint),
+            ),
+          ),
+        for (final job in dayJobs) _JobCard(job: job, timeOnly: true),
+      ],
+    );
+  }
+}
+
+class _StatusList extends ConsumerWidget {
+  const _StatusList({required this.filter});
 
   final _Filter filter;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final jobs = ref.watch(switch (filter) {
-      _Filter.upcoming => upcomingJobsProvider,
       _Filter.inProgress => jobsByStatusProvider(JobStatus.inProgress),
-      _Filter.history => jobHistoryProvider,
+      _ => jobHistoryProvider,
     });
 
     return switch (jobs) {
@@ -82,9 +155,7 @@ class _AgendaList extends ConsumerWidget {
       ),
       AsyncData(value: final jobs) => ListView(
         padding: const EdgeInsets.only(bottom: ManoSpacing.lg),
-        children: filter == _Filter.upcoming
-            ? _byDay(context, jobs)
-            : [for (final job in jobs) _JobCard(job: job, timeOnly: false)],
+        children: [for (final job in jobs) _JobCard(job: job, timeOnly: false)],
       ),
       AsyncError() => AgendaLoadError(
         message: 'No pudimos cargar tu agenda.',
@@ -92,24 +163,6 @@ class _AgendaList extends ConsumerWidget {
       ),
       _ => const Center(child: CircularProgressIndicator()),
     };
-  }
-
-  List<Widget> _byDay(BuildContext context, List<Job> jobs) {
-    final now = DateTime.now();
-    final style = Theme.of(context).textTheme.titleSmall
-        ?.copyWith(color: ManoColors.muted);
-    return [
-      for (final group in groupJobsByDay(jobs)) ...[
-        Padding(
-          padding: const EdgeInsets.only(
-            top: ManoSpacing.sm,
-            bottom: ManoSpacing.sm,
-          ),
-          child: Text(dayLabel(group.day, now), style: style),
-        ),
-        for (final job in group.jobs) _JobCard(job: job, timeOnly: true),
-      ],
-    ];
   }
 }
 
