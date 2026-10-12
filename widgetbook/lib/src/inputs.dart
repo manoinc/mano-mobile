@@ -170,6 +170,7 @@ class _MonthCalendarDemoState extends State<_MonthCalendarDemo> {
   Widget build(BuildContext context) => ManoMonthCalendar(
     month: _month,
     selected: _selected,
+    blockedDays: {DateTime(2026, 10, 9), DateTime(2026, 10, 10)},
     markedDays: widget.withMarks
         ? {DateTime(2026, 10, 7), DateTime(2026, 10, 15), DateTime(2026, 10, 22)}
         : const {},

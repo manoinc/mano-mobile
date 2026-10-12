@@ -27,9 +27,7 @@ class _CalendarFeedSectionState extends ConsumerState<CalendarFeedSection> {
 
     return AvailabilitySection(
       title: 'Sincroniza tu agenda',
-      detail:
-          'Suscríbete a este enlace desde Google Calendar o Apple Calendar '
-          'para ver tus trabajos de Mano junto a tus otros compromisos.',
+      detail: 'Ve tus trabajos junto a tus otros compromisos.',
       child: switch (feed) {
         AsyncData(value: final feed?) => _row(
           connected: true,

@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../features/agenda/agenda_job_screen.dart';
 import '../features/agenda/agenda_screen.dart';
-import '../features/availability/availability_screen.dart';
 import '../features/chat/chat_screen.dart';
 import '../features/chat/provider_inbox_screen.dart';
 import '../features/home/provider_home_screen.dart';
@@ -38,12 +37,12 @@ final providerRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/agenda',
-                builder: (context, state) => const AgendaScreen(),
+                builder: (context, state) => AgendaScreen(
+                  initialTab: state.uri.queryParameters['tab'] == 'availability'
+                      ? AgendaTab.availability
+                      : AgendaTab.calendar,
+                ),
                 routes: [
-                  GoRoute(
-                    path: 'availability',
-                    builder: (context, state) => const AvailabilityScreen(),
-                  ),
                   GoRoute(
                     path: 'job/:id',
                     builder: (context, state) =>
@@ -124,7 +123,8 @@ final providerRouterProvider = Provider<GoRouter>((ref) {
 // Links from before the tabs moved still land.
 String? _legacy(String path) => switch (path) {
   '/requests' => '/home',
-  '/services/availability' => '/agenda/availability',
+  '/agenda/availability' ||
+  '/services/availability' => '/agenda?tab=availability',
   _ when path.startsWith('/services') => '/profile$path',
   _ => null,
 };

@@ -4,30 +4,41 @@ import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../availability/availability_labels.dart';
+import '../availability/availability_view.dart';
 import 'agenda_labels.dart';
 import 'agenda_load_error.dart';
 
-enum _Filter {
+enum AgendaTab {
   calendar('Calendario', ''),
+  availability('Disponibilidad', ''),
   inProgress('En curso', 'Ningún trabajo está en curso.'),
   history('Historial', 'Aún no tienes historial.');
 
-  const _Filter(this.label, this.emptyMessage);
+  const AgendaTab(this.label, this.emptyMessage);
 
   final String label;
   final String emptyMessage;
 }
 
-/// The provider's jobs: a calendar of what's coming, plus what's happening and what's over.
+/// The provider's jobs and availability: a calendar of what's coming and what's blocked, plus what's over.
 class AgendaScreen extends StatefulWidget {
-  const AgendaScreen({super.key});
+  const AgendaScreen({this.initialTab = AgendaTab.calendar, super.key});
+
+  final AgendaTab initialTab;
 
   @override
   State<AgendaScreen> createState() => _AgendaScreenState();
 }
 
 class _AgendaScreenState extends State<AgendaScreen> {
-  _Filter _filter = _Filter.calendar;
+  late AgendaTab _tab = widget.initialTab;
+
+  @override
+  void didUpdateWidget(AgendaScreen old) {
+    super.didUpdateWidget(old);
+    if (old.initialTab != widget.initialTab) _tab = widget.initialTab;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,15 +57,17 @@ class _AgendaScreenState extends State<AgendaScreen> {
               Text('Agenda', style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: ManoSpacing.md),
               ManoProjectFilterTabs(
-                labels: [for (final f in _Filter.values) f.label],
-                selectedIndex: _filter.index,
-                onSelected: (i) => setState(() => _filter = _Filter.values[i]),
+                labels: [for (final t in AgendaTab.values) t.label],
+                selectedIndex: _tab.index,
+                onSelected: (i) => setState(() => _tab = AgendaTab.values[i]),
               ),
               const SizedBox(height: ManoSpacing.md),
               Expanded(
-                child: _filter == _Filter.calendar
-                    ? const _CalendarView()
-                    : _StatusList(filter: _filter),
+                child: switch (_tab) {
+                  AgendaTab.calendar => const _CalendarView(),
+                  AgendaTab.availability => const AvailabilityView(),
+                  _ => _StatusList(tab: _tab),
+                },
               ),
             ],
           ),
@@ -92,6 +105,25 @@ class _CalendarViewState extends ConsumerState<_CalendarView> {
     };
   }
 
+  Future<void> _block() => _report(
+    ref
+        .read(availabilityActionsProvider.notifier)
+        .block(
+          _selected,
+          DateTime(_selected.year, _selected.month, _selected.day + 1),
+        ),
+  );
+
+  Future<void> _unblock(CalendarBlock block) =>
+      _report(ref.read(availabilityActionsProvider.notifier).unblock(block.id));
+
+  Future<void> _report(Future<Result<Object?, DataFailure>> pending) async {
+    final messenger = ScaffoldMessenger.of(context);
+    if (await pending case Err(:final failure)) {
+      messenger.showSnackBar(SnackBar(content: Text(failure.message)));
+    }
+  }
+
   Widget _content(BuildContext context, List<Job> jobs) {
     final byDay = {
       for (final group in groupJobsByDay(
@@ -100,6 +132,8 @@ class _CalendarViewState extends ConsumerState<_CalendarView> {
         group.day: group.jobs,
     };
     final dayJobs = byDay[_selected] ?? const <Job>[];
+    final blocks = ref.watch(myCalendarBlocksProvider).value ?? const [];
+    final block = blockOn(_selected, blocks);
     final textTheme = Theme.of(context).textTheme;
 
     return ListView(
@@ -109,15 +143,37 @@ class _CalendarViewState extends ConsumerState<_CalendarView> {
           month: _month,
           selected: _selected,
           markedDays: byDay.keys.toSet(),
+          blockedDays: blockedDaysOf(blocks),
           onSelect: (day) => setState(() => _selected = day),
           onMonthChanged: (month) => setState(() => _month = month),
         ),
         const SizedBox(height: ManoSpacing.md),
-        Text(
-          dayLabel(_selected, DateTime.now()),
-          style: textTheme.titleSmall?.copyWith(color: ManoColors.muted),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                dayLabel(_selected, DateTime.now()),
+                style: textTheme.titleSmall?.copyWith(color: ManoColors.muted),
+              ),
+            ),
+            if (block != null)
+              ManoTextAction(
+                label: 'Desbloquear día',
+                onPressed: () => _unblock(block),
+              )
+            else if (!_selected.isBefore(_today()))
+              ManoTextAction(label: 'Bloquear día', onPressed: _block),
+          ],
         ),
-        const SizedBox(height: ManoSpacing.sm),
+        if (block != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: ManoSpacing.sm),
+            child: Text(
+              'No recibirás reservas · ${blockLabel(block)}',
+              key: const Key('agenda-blocked-note'),
+              style: textTheme.bodyMedium?.copyWith(color: ManoColors.faint),
+            ),
+          ),
         if (dayJobs.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: ManoSpacing.lg),
@@ -135,21 +191,21 @@ class _CalendarViewState extends ConsumerState<_CalendarView> {
 }
 
 class _StatusList extends ConsumerWidget {
-  const _StatusList({required this.filter});
+  const _StatusList({required this.tab});
 
-  final _Filter filter;
+  final AgendaTab tab;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final jobs = ref.watch(switch (filter) {
-      _Filter.inProgress => jobsByStatusProvider(JobStatus.inProgress),
+    final jobs = ref.watch(switch (tab) {
+      AgendaTab.inProgress => jobsByStatusProvider(JobStatus.inProgress),
       _ => jobHistoryProvider,
     });
 
     return switch (jobs) {
       AsyncData(value: final jobs) when jobs.isEmpty => ManoEmptyState(
         icon: Icons.event_available_outlined,
-        message: filter.emptyMessage,
+        message: tab.emptyMessage,
         ctaLabel: 'Ver solicitudes',
         onCta: () => context.go('/home'),
       ),

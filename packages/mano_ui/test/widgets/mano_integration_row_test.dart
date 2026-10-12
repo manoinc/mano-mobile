@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-Widget _host(Widget child) =>
-    MaterialApp(theme: ManoTheme.light(), home: Scaffold(body: child));
+Widget _host(Widget child) => MaterialApp(
+  theme: ManoTheme.light(),
+  home: Scaffold(body: child),
+);
 
 void main() {
   group('the integration row', () {
@@ -24,6 +26,24 @@ void main() {
       expect(find.text('Google Calendar'), findsOneWidget);
       expect(find.text('No conectado'), findsOneWidget);
       expect(find.text('Conectar'), findsOneWidget);
+    });
+
+    testWidgets('puts the action flush with the right edge', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          ManoIntegrationRow(
+            leading: const Icon(Icons.calendar_month),
+            title: 'Google Calendar',
+            status: 'No conectado',
+            actionLabel: 'Conectar',
+            onAction: () {},
+          ),
+        ),
+      );
+
+      final label = tester.getRect(find.text('Conectar'));
+      final row = tester.getRect(find.byType(ManoIntegrationRow));
+      expect(row.right - label.right, lessThan(ManoSpacing.xs));
     });
 
     testWidgets('fires the single action', (tester) async {

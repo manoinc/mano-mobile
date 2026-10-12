@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:mano_provider/features/availability/availability_screen.dart';
+import 'package:mano_provider/features/availability/availability_view.dart';
 import 'package:mano_provider/main.dart';
 import 'package:mano_provider/shell/provider_nav_shell.dart';
 import 'package:mano_provider/shell/provider_router.dart';
@@ -16,7 +16,10 @@ Future<void> _scrollTo(WidgetTester tester, Finder finder) async {
   await tester.scrollUntilVisible(
     finder,
     200,
-    scrollable: find.byType(Scrollable).first,
+    scrollable: find.descendant(
+      of: find.byType(AvailabilityView),
+      matching: find.byType(Scrollable),
+    ),
   );
   await tester.pumpAndSettle();
 }
@@ -45,9 +48,9 @@ void main() {
     // The entry link belongs to PROV-02, so drive the router directly.
     ProviderScope.containerOf(tester.element(find.byType(ProviderNavShell)))
         .read(providerRouterProvider)
-        .push('/agenda/availability');
+        .go('/agenda?tab=availability');
     await tester.pumpAndSettle();
-    expect(find.byType(AvailabilityScreen), findsOneWidget);
+    expect(find.byType(AvailabilityView), findsOneWidget);
 
     await tester.tap(find.text('Agregar horario'));
     await tester.pumpAndSettle();

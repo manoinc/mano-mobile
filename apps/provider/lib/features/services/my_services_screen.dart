@@ -45,7 +45,7 @@ class MyServicesScreen extends ConsumerWidget {
                 Icons.chevron_right,
                 color: ManoColors.faint,
               ),
-              onTap: () => context.push('/agenda/availability'),
+              onTap: () => context.go('/agenda?tab=availability'),
             ),
             const Divider(color: ManoColors.stone, height: 1),
             ListTile(

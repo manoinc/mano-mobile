@@ -74,7 +74,7 @@ void main() {
     final c = await pump(tester, FakeOfferManagement([offer('o1')]));
     await tester.tap(find.text('Disponibilidad y calendario'));
     await tester.pumpAndSettle();
-    expect(routerPath(c), '/agenda/availability');
+    expect(routerPath(c), '/agenda');
   });
 
   testWidgets('a new offer is one tap away from the list', (tester) async {

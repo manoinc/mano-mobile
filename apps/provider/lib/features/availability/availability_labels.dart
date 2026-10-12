@@ -48,3 +48,24 @@ String blockLabel(CalendarBlock block) {
   final reason = block.reason;
   return reason == null || reason.isEmpty ? dates : '$dates · $reason';
 }
+
+/// Every calendar day the blocks cover; a block ends at the midnight after its last day.
+Set<DateTime> blockedDaysOf(Iterable<CalendarBlock> blocks) {
+  final days = <DateTime>{};
+  for (final block in blocks) {
+    var day = DateTime(block.start.year, block.start.month, block.start.day);
+    while (day.isBefore(block.end)) {
+      days.add(day);
+      day = DateTime(day.year, day.month, day.day + 1);
+    }
+  }
+  return days;
+}
+
+/// The block covering [day], if any.
+CalendarBlock? blockOn(DateTime day, Iterable<CalendarBlock> blocks) {
+  for (final block in blocks) {
+    if (blockedDaysOf([block]).contains(day)) return block;
+  }
+  return null;
+}
