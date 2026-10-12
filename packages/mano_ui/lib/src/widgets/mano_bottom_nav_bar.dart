@@ -26,7 +26,7 @@ class ManoBottomNavBar extends StatelessWidget {
     required this.items,
     required this.currentIndex,
     required this.onTap,
-    required this.onActionTap,
+    this.onActionTap,
     super.key,
   });
 
@@ -37,7 +37,8 @@ class ManoBottomNavBar extends StatelessWidget {
   /// action button is not one of [items] and never affects this index.
   final int currentIndex;
   final ValueChanged<int> onTap;
-  final VoidCallback onActionTap;
+  /// The raised centre action; omitted, the four items spread evenly.
+  final VoidCallback? onActionTap;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +58,7 @@ class ManoBottomNavBar extends StatelessWidget {
             children: [
               Expanded(child: _sideItem(context, 0)),
               Expanded(child: _sideItem(context, 1)),
-              _ActionButton(onTap: onActionTap),
+              if (onActionTap != null) _ActionButton(onTap: onActionTap!),
               Expanded(child: _sideItem(context, 2)),
               Expanded(child: _sideItem(context, 3)),
             ],
