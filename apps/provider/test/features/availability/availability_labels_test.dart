@@ -54,4 +54,21 @@ void main() {
       expect(blockLabel(block), '12 oct');
     });
   });
+
+  group('blockedDaysOf', () {
+    test('lists every day a block covers, the end instant excluded', () {
+      final days = blockedDaysOf([
+        CalendarBlock(
+          id: 'b',
+          start: DateTime(2026, 10, 12),
+          end: DateTime(2026, 10, 15),
+        ),
+      ]);
+      expect(days, {
+        DateTime(2026, 10, 12),
+        DateTime(2026, 10, 13),
+        DateTime(2026, 10, 14),
+      });
+    });
+  });
 }

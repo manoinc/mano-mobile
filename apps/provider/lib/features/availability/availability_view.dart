@@ -9,24 +9,21 @@ import 'block_dates.dart';
 import 'calendar_feed_section.dart';
 import 'rule_editor_sheet.dart';
 
-/// Weekly hours, blocked dates and the calendar link, on one screen.
-class AvailabilityScreen extends ConsumerWidget {
-  const AvailabilityScreen({super.key});
+/// Weekly hours, blocked dates and the calendar link; lives in the Agenda tab.
+class AvailabilityView extends StatelessWidget {
+  const AvailabilityView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Disponibilidad')),
-      body: ListView(
-        padding: const EdgeInsets.all(ManoSpacing.md),
-        children: const [
-          _RulesSection(),
-          SizedBox(height: ManoSpacing.xl),
-          _BlocksSection(),
-          SizedBox(height: ManoSpacing.xl),
-          CalendarFeedSection(),
-        ],
-      ),
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.only(bottom: ManoSpacing.lg),
+      children: const [
+        _RulesSection(),
+        SizedBox(height: ManoSpacing.xl),
+        _BlocksSection(),
+        SizedBox(height: ManoSpacing.xl),
+        CalendarFeedSection(),
+      ],
     );
   }
 }

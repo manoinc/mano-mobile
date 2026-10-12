@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_provider/features/agenda/agenda_job_screen.dart';
 import 'package:mano_provider/features/agenda/agenda_screen.dart';
-import 'package:mano_provider/features/availability/availability_screen.dart';
+import 'package:mano_provider/features/availability/availability_view.dart';
 import 'package:mano_provider/features/chat/chat_screen.dart';
 import 'package:mano_provider/features/chat/provider_inbox_screen.dart';
 import 'package:mano_provider/features/home/provider_home_screen.dart';
@@ -58,7 +58,7 @@ void main() {
 
   testWidgets('availability lives under agenda', (tester) async {
     await pumpRouterAt(tester, '/agenda/availability');
-    expect(find.byType(AvailabilityScreen), findsOneWidget);
+    expect(find.byType(AvailabilityView), findsOneWidget);
   });
 
   // One container per test: re-pumping strands the first one's autoDispose timers.

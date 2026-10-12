@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mano_provider/features/availability/availability_screen.dart';
+import 'package:mano_provider/features/availability/availability_view.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
@@ -33,7 +33,10 @@ Future<void> _scrollTo(WidgetTester tester, Finder finder) async {
   await tester.scrollUntilVisible(
     finder,
     200,
-    scrollable: find.byType(Scrollable).first,
+    scrollable: find.descendant(
+      of: find.byType(AvailabilityView),
+      matching: find.byType(Scrollable),
+    ),
   );
   await tester.pumpAndSettle();
 }
@@ -51,7 +54,7 @@ void main() {
   testWidgets('lists the weekly rules and an empty calendar', (tester) async {
     await _open(tester);
 
-    expect(find.byType(AvailabilityScreen), findsOneWidget);
+    expect(find.byType(AvailabilityView), findsOneWidget);
     expect(find.text('lun – vie · 8:00 a. m. – 12:00 p. m.'), findsOneWidget);
     expect(find.text('sáb · 9:00 a. m. – 1:00 p. m.'), findsOneWidget);
     expect(find.text('No tienes fechas bloqueadas.'), findsOneWidget);
