@@ -1,15 +1,21 @@
 import 'package:mano_domain/mano_domain.dart';
 
 final class MockConversationRepository implements ConversationRepository {
-  MockConversationRepository() : _conversations = [..._fixtures];
+  MockConversationRepository() : _conversations = [..._fixtures] {
+    _sort();
+  }
 
   final List<Conversation> _conversations;
 
   static final List<Conversation> _fixtures = [
     Conversation(
       id: 'conv-1',
-      participantName: 'Ana Gómez',
-      participantPhotoUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
+      participant: Party(
+        id: 'party-1',
+        displayName: 'Ana Gómez',
+        photoUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
+      ),
+      participantRole: ManoRole.provider,
       isOnline: true,
       isVerified: true,
       lastMessage: '¿Aún disponible para el jueves?',
@@ -18,8 +24,12 @@ final class MockConversationRepository implements ConversationRepository {
     ),
     Conversation(
       id: 'conv-2',
-      participantName: 'Luis Martínez',
-      participantPhotoUrl: 'https://randomuser.me/api/portraits/men/76.jpg',
+      participant: Party(
+        id: 'party-2',
+        displayName: 'Luis Martínez',
+        photoUrl: 'https://randomuser.me/api/portraits/men/76.jpg',
+      ),
+      participantRole: ManoRole.provider,
       isOnline: false,
       isVerified: true,
       lastMessage: 'Perfecto, te veo mañana.',
@@ -28,8 +38,12 @@ final class MockConversationRepository implements ConversationRepository {
     ),
     Conversation(
       id: 'conv-3',
-      participantName: 'María Rodríguez',
-      participantPhotoUrl: 'https://randomuser.me/api/portraits/women/58.jpg',
+      participant: Party(
+        id: 'party-3',
+        displayName: 'María Rodríguez',
+        photoUrl: 'https://randomuser.me/api/portraits/women/58.jpg',
+      ),
+      participantRole: ManoRole.provider,
       isOnline: true,
       isVerified: false,
       lastMessage: 'El precio te parece bien?',
@@ -38,8 +52,12 @@ final class MockConversationRepository implements ConversationRepository {
     ),
     Conversation(
       id: 'conv-4',
-      participantName: 'Fernando López',
-      participantPhotoUrl: 'https://randomuser.me/api/portraits/men/12.jpg',
+      participant: Party(
+        id: 'party-4',
+        displayName: 'Fernando López',
+        photoUrl: 'https://randomuser.me/api/portraits/men/12.jpg',
+      ),
+      participantRole: ManoRole.requester,
       isOnline: false,
       isVerified: true,
       lastMessage: 'Listo, tomo nota de eso.',
@@ -48,8 +66,12 @@ final class MockConversationRepository implements ConversationRepository {
     ),
     Conversation(
       id: 'conv-5',
-      participantName: 'Catalina Pérez',
-      participantPhotoUrl: 'https://randomuser.me/api/portraits/women/33.jpg',
+      participant: Party(
+        id: 'party-5',
+        displayName: 'Catalina Pérez',
+        photoUrl: 'https://randomuser.me/api/portraits/women/33.jpg',
+      ),
+      participantRole: ManoRole.requester,
       isOnline: true,
       isVerified: false,
       lastMessage: 'Gracias por tu ayuda, muy profesional.',
@@ -58,8 +80,12 @@ final class MockConversationRepository implements ConversationRepository {
     ),
     Conversation(
       id: 'conv-6',
-      participantName: 'Jorge Sánchez',
-      participantPhotoUrl: 'https://randomuser.me/api/portraits/men/89.jpg',
+      participant: Party(
+        id: 'party-6',
+        displayName: 'Jorge Sánchez',
+        photoUrl: 'https://randomuser.me/api/portraits/men/89.jpg',
+      ),
+      participantRole: ManoRole.requester,
       isOnline: false,
       isVerified: false,
       lastMessage: 'Cuándo puedo pasar por tu oficina?',
@@ -75,8 +101,13 @@ final class MockConversationRepository implements ConversationRepository {
   void markRead(String id) => _update(id, (c) => _copy(c, unreadCount: 0));
 
   /// Called by [MockChatRepository] when a message is sent or received.
-  void recordMessage(String id, String body, DateTime at) =>
-      _update(id, (c) => _copy(c, lastMessage: body, lastMessageAt: at));
+  void recordMessage(String id, String body, DateTime at) {
+    _update(id, (c) => _copy(c, lastMessage: body, lastMessageAt: at));
+    _sort();
+  }
+
+  void _sort() =>
+      _conversations.sort((a, b) => b.lastMessageAt.compareTo(a.lastMessageAt));
 
   void _update(String id, Conversation Function(Conversation) change) {
     final index = _conversations.indexWhere((c) => c.id == id);
@@ -90,8 +121,8 @@ final class MockConversationRepository implements ConversationRepository {
     DateTime? lastMessageAt,
   }) => Conversation(
     id: c.id,
-    participantName: c.participantName,
-    participantPhotoUrl: c.participantPhotoUrl,
+    participant: c.participant,
+    participantRole: c.participantRole,
     isOnline: c.isOnline,
     isVerified: c.isVerified,
     lastMessage: lastMessage ?? c.lastMessage,

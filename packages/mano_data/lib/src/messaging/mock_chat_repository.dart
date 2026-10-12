@@ -81,6 +81,23 @@ final class MockChatRepository implements ChatRepository {
     );
   }
 
+  void _setStatus(Message message, MessageStatus status) {
+    final thread = _threads[message.conversationId]!;
+    final index = thread.indexWhere((m) => m.id == message.id);
+    if (index < 0) return;
+    thread[index] = thread[index].copyWith(status: status);
+    _stream(message.conversationId).add(thread[index]);
+  }
+
+  void _markMineRead(String conversationId) {
+    final thread = _threads[conversationId] ?? const <Message>[];
+    for (final m in List.of(thread)) {
+      if (m.fromMe && m.status != MessageStatus.read) {
+        _setStatus(m, MessageStatus.read);
+      }
+    }
+  }
+
   @override
   Future<List<Message>> messages(String conversationId) async =>
       List.of(_threads[conversationId] ?? const []);
@@ -99,19 +116,21 @@ final class MockChatRepository implements ChatRepository {
     }
     final sent = _msg(conversationId, body.trim(), _now(), fromMe: true);
     _deliver(sent);
+    // Delivered a tick later, so listeners see sent first.
+    Future.microtask(() => _setStatus(sent, MessageStatus.delivered));
     final delay = replyDelay;
     if (delay != null) {
-      Timer(
-        delay,
-        () => _deliver(
+      Timer(delay, () {
+        _deliver(
           _msg(
             conversationId,
             '¡Recibido! Te respondo en un momento.',
             _now(),
             fromMe: false,
           ),
-        ),
-      );
+        );
+        _markMineRead(conversationId);
+      });
     }
     return Ok(sent);
   }

@@ -303,8 +303,50 @@ void main() {
       await Future<void>.delayed(Duration.zero);
 
       expect(sent.fromMe, isTrue);
-      expect(emitted, [sent]);
-      expect((await chat.messages('conv-1')).last, sent);
+      expect(sent.status, MessageStatus.sent);
+      expect(emitted.first, sent);
+      expect((await chat.messages('conv-1')).last.id, sent.id);
+      await sub.cancel();
+    });
+
+    test('my message becomes delivered right after it is sent', () async {
+      final chat = MockChatRepository(now: _clock);
+      final emitted = <Message>[];
+      final sub = chat.watch('conv-1').listen(emitted.add);
+
+      final sent = (await chat.send('conv-1', 'Hola')).valueOrNull!;
+      await Future<void>.delayed(Duration.zero);
+
+      expect(emitted.map((m) => (m.id, m.status)), [
+        (sent.id, MessageStatus.sent),
+        (sent.id, MessageStatus.delivered),
+      ]);
+      expect(
+        (await chat.messages('conv-1')).last.status,
+        MessageStatus.delivered,
+      );
+      await sub.cancel();
+    });
+
+    test('the reply marks my messages read', () async {
+      final chat = MockChatRepository(
+        now: _clock,
+        replyDelay: const Duration(milliseconds: 1),
+      );
+      final emitted = <Message>[];
+      final sub = chat.watch('conv-2').listen(emitted.add);
+
+      final sent = (await chat.send('conv-2', 'Hola')).valueOrNull!;
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      expect(emitted.any((m) => !m.fromMe), isTrue);
+      final mine = (await chat.messages('conv-2'))
+          .where((m) => m.id == sent.id);
+      expect(mine.single.status, MessageStatus.read);
+      expect(
+        emitted.where((m) => m.id == sent.id).map((m) => m.status).last,
+        MessageStatus.read,
+      );
       await sub.cancel();
     });
 
