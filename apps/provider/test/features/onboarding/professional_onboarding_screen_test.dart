@@ -191,6 +191,20 @@ void main() {
     );
   });
 
+  testWidgets('the next question takes the keyboard on its own', (
+    tester,
+  ) async {
+    await _pump(tester);
+    await _tapText(tester, 'Crear cuenta profesional');
+    await _answer(tester, 'Nombre completo', 'Ana Gómez');
+
+    final phone = find.descendant(
+      of: _field('Celular'),
+      matching: find.byType(EditableText),
+    );
+    expect(tester.widget<EditableText>(phone).focusNode.hasFocus, isTrue);
+  });
+
   testWidgets('services need at least one chip', (tester) async {
     await _pump(tester);
     await _tapText(tester, 'Crear cuenta profesional');

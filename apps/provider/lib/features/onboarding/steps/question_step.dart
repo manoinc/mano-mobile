@@ -18,6 +18,16 @@ class QuestionStep extends ConsumerStatefulWidget {
 class _QuestionStepState extends ConsumerState<QuestionStep> {
   // Seeded once; resetting .text on every build would jump the cursor.
   late final _controller = TextEditingController(text: _seed);
+  // Claimed explicitly: autofocus loses to the outgoing step's field mid-transition.
+  final _focus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focus.requestFocus();
+    });
+  }
 
   ProviderOnboardingState get _s => widget.state;
 
@@ -36,13 +46,12 @@ class _QuestionStepState extends ConsumerState<QuestionStep> {
   @override
   void dispose() {
     _controller.dispose();
+    _focus.dispose();
     super.dispose();
   }
 
-  void _next() {
-    FocusScope.of(context).unfocus();
-    _notifier.next();
-  }
+  // The keyboard stays up between questions, as in Nubank.
+  void _next() => _notifier.next();
 
   String? _problem(ProfileProblem? Function(String) validate, String copy) {
     if (!_s.showProblems) return null;
@@ -65,7 +74,7 @@ class _QuestionStepState extends ConsumerState<QuestionStep> {
         ProviderOnboardingStep.name => ManoTextField(
           label: 'Nombre completo',
           controller: _controller,
-          autofocus: true,
+          focusNode: _focus,
           textCapitalization: TextCapitalization.words,
           textInputAction: TextInputAction.done,
           errorText: _problem(
@@ -80,7 +89,7 @@ class _QuestionStepState extends ConsumerState<QuestionStep> {
         ProviderOnboardingStep.phone => ManoTextField(
           label: 'Celular',
           controller: _controller,
-          autofocus: true,
+          focusNode: _focus,
           keyboardType: TextInputType.phone,
           textInputAction: TextInputAction.done,
           errorText: _problem(
@@ -95,7 +104,7 @@ class _QuestionStepState extends ConsumerState<QuestionStep> {
         ProviderOnboardingStep.zone => ManoTextField(
           label: 'Zona de cobertura',
           controller: _controller,
-          autofocus: true,
+          focusNode: _focus,
           textCapitalization: TextCapitalization.words,
           textInputAction: TextInputAction.done,
           errorText: _problem(
@@ -112,7 +121,7 @@ class _QuestionStepState extends ConsumerState<QuestionStep> {
         ProviderOnboardingStep.experience => ManoTextField(
           label: 'Años de experiencia',
           controller: _controller,
-          autofocus: true,
+          focusNode: _focus,
           keyboardType: TextInputType.number,
           textInputAction: TextInputAction.done,
           errorText: _problem(validateExperience, experienceProblemCopy),
@@ -122,7 +131,7 @@ class _QuestionStepState extends ConsumerState<QuestionStep> {
         _ => ManoTextField(
           label: 'Descripción',
           controller: _controller,
-          autofocus: true,
+          focusNode: _focus,
           minLines: 3,
           maxLines: 5,
           textCapitalization: TextCapitalization.sentences,

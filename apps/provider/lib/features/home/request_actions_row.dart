@@ -20,7 +20,9 @@ class RequestActionsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
+        // Narrower than Aceptar, so the coin cost fits one line.
         Expanded(
+          flex: 2,
           child: ManoQuietButton(
             label: 'Rechazar',
             onPressed: onReject,
@@ -29,6 +31,7 @@ class RequestActionsRow extends StatelessWidget {
         ),
         const SizedBox(width: ManoSpacing.sm),
         Expanded(
+          flex: 3,
           child: ManoOutlineButton(
             label: acceptLabel,
             onPressed: onAccept,
