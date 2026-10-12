@@ -63,11 +63,27 @@ Future<void> _tapText(WidgetTester tester, String text) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> _fillProfile(WidgetTester tester) async {
-  await tester.enterText(_field('Nombre para mostrar'), 'Ana Gómez');
-  await tester.enterText(_field('Celular'), '300 123 4567');
-  await tester.enterText(_field('Zona de cobertura'), 'Chapinero');
+Future<void> _answer(WidgetTester tester, String label, String value) async {
+  await tester.enterText(_field(label), value);
   await tester.pump();
+  await _tapText(tester, 'Continuar');
+}
+
+/// Answers every question up to the bio, leaving the bio on screen.
+Future<void> _answerUpToBio(WidgetTester tester) async {
+  await _tapText(tester, 'Crear cuenta profesional');
+  await _answer(tester, 'Nombre completo', 'Ana Gómez');
+  await _answer(tester, 'Celular', '300 123 4567');
+  await _answer(tester, 'Zona de cobertura', 'Chapinero');
+  await _tapText(tester, 'Plomería');
+  await _tapText(tester, 'Electricidad');
+  await _tapText(tester, 'Continuar');
+  await _answer(tester, 'Años de experiencia', '5');
+}
+
+Future<void> _answerAll(WidgetTester tester) async {
+  await _answerUpToBio(tester);
+  await _answer(tester, 'Descripción', 'Plomera con 5 años.');
 }
 
 Future<void> _attach(WidgetTester tester, int index) async {
@@ -78,9 +94,7 @@ Future<void> _attach(WidgetTester tester, int index) async {
 }
 
 Future<void> _reachReview(WidgetTester tester) async {
-  await _tapText(tester, 'Crear cuenta profesional');
-  await _fillProfile(tester);
-  await _tapText(tester, 'Continuar');
+  await _answerAll(tester);
   await _attach(tester, 0);
   // The first row is now attached, so the remaining first is the back side.
   await _attach(tester, 0);
@@ -149,19 +163,27 @@ void main() {
     expect(find.byType(ManoCredentialsSheet), findsNothing);
   });
 
-  testWidgets('profile shows inline problems on a refused Continuar', (
+  testWidgets('each screen asks one question and Continuar waits for it', (
     tester,
   ) async {
     await _pump(tester);
     await _tapText(tester, 'Crear cuenta profesional');
-    expect(find.text('Tu perfil'), findsOneWidget);
+    expect(find.text('¿Cuál es tu nombre?'), findsOneWidget);
+    expect(find.byType(TextField), findsOneWidget);
+    expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    expect(_primaryEnabled(tester), isFalse);
 
+    await tester.enterText(_field('Nombre completo'), 'Ana Gómez');
+    await tester.pump();
+    expect(_primaryEnabled(tester), isTrue);
     await _tapText(tester, 'Continuar');
-    expect(find.text('Escribe tu nombre.'), findsOneWidget);
-    expect(find.text('Escribe tu celular.'), findsOneWidget);
-    expect(find.text('Escribe tu zona de cobertura.'), findsOneWidget);
 
+    expect(find.text('¿Cuál es tu celular?'), findsOneWidget);
+    expect(find.byType(TextField), findsOneWidget);
     await tester.enterText(_field('Celular'), '123');
+    await tester.pump();
+    expect(_primaryEnabled(tester), isFalse);
+    await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pump();
     expect(
       find.text('Escribe un celular de 10 dígitos que empiece por 3.'),
@@ -169,11 +191,34 @@ void main() {
     );
   });
 
-  testWidgets('documents Continuar waits for both ID sides', (tester) async {
+  testWidgets('services need at least one chip', (tester) async {
     await _pump(tester);
     await _tapText(tester, 'Crear cuenta profesional');
-    await _fillProfile(tester);
-    await _tapText(tester, 'Continuar');
+    await _answer(tester, 'Nombre completo', 'Ana Gómez');
+    await _answer(tester, 'Celular', '3001234567');
+    await _answer(tester, 'Zona de cobertura', 'Chapinero');
+
+    expect(find.text('¿Qué servicios ofreces?'), findsOneWidget);
+    expect(_primaryEnabled(tester), isFalse);
+    await _tapText(tester, 'Plomería');
+    expect(_primaryEnabled(tester), isTrue);
+    await _tapText(tester, 'Plomería');
+    expect(_primaryEnabled(tester), isFalse);
+  });
+
+  testWidgets('the bio is optional and can be skipped', (tester) async {
+    await _pump(tester);
+    await _answerUpToBio(tester);
+
+    expect(find.text('Cuéntales algo sobre ti'), findsOneWidget);
+    expect(_primaryEnabled(tester), isTrue);
+    await _tapText(tester, 'Omitir');
+    expect(find.text('Documento de identidad (frente)'), findsOneWidget);
+  });
+
+  testWidgets('documents Continuar waits for both ID sides', (tester) async {
+    await _pump(tester);
+    await _answerAll(tester);
 
     expect(find.text('Documento de identidad (frente)'), findsOneWidget);
     expect(find.text('Documento de identidad (reverso)'), findsOneWidget);
@@ -191,14 +236,12 @@ void main() {
     tester,
   ) async {
     await _pump(tester);
-    await _tapText(tester, 'Crear cuenta profesional');
-    await _fillProfile(tester);
-    await _tapText(tester, 'Continuar');
+    await _answerUpToBio(tester);
 
     await tester.tap(find.byTooltip('Atrás'));
     await tester.pumpAndSettle();
-    expect(find.text('Tu perfil'), findsOneWidget);
-    expect(find.text('Ana Gómez'), findsOneWidget);
+    expect(find.text('¿Cuántos años de experiencia tienes?'), findsOneWidget);
+    expect(find.text('5'), findsOneWidget);
   });
 
   testWidgets('submit lands on pending and Explorar la app finishes', (
@@ -214,9 +257,14 @@ void main() {
     await _reachReview(tester);
 
     expect(find.text('Chapinero'), findsOneWidget);
+    expect(find.text('Plomería, Electricidad'), findsOneWidget);
     await _tapText(tester, 'Enviar a revisión');
 
-    expect(onboarding.submitted.single.documentPaths, hasLength(2));
+    final draft = onboarding.submitted.single;
+    expect(draft.documentPaths, hasLength(2));
+    expect(draft.categories, ['plumbing', 'electrical']);
+    expect(draft.yearsExperience, 5);
+    expect(draft.bio, 'Plomera con 5 años.');
     expect(find.text('Tu cuenta está en revisión'), findsOneWidget);
     await _tapText(tester, 'Explorar la app');
     expect(finished, isTrue);

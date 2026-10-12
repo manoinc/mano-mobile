@@ -5,7 +5,7 @@ import 'package:mano_ui/mano_ui.dart';
 
 import 'steps/documents_step.dart';
 import 'steps/pending_step.dart';
-import 'steps/profile_step.dart';
+import 'steps/question_step.dart';
 import 'steps/review_step.dart';
 import 'steps/welcome_step.dart';
 
@@ -32,8 +32,13 @@ class ProfessionalOnboardingScreen extends ConsumerWidget {
           ProviderOnboardingStep.welcome => const WelcomeStep(
             key: ValueKey('welcome'),
           ),
-          ProviderOnboardingStep.profile => ProfileStep(
-            key: const ValueKey('profile'),
+          ProviderOnboardingStep.name ||
+          ProviderOnboardingStep.phone ||
+          ProviderOnboardingStep.zone ||
+          ProviderOnboardingStep.services ||
+          ProviderOnboardingStep.experience ||
+          ProviderOnboardingStep.bio => QuestionStep(
+            key: ValueKey(step),
             state: state,
           ),
           ProviderOnboardingStep.documents => DocumentsStep(
