@@ -223,7 +223,7 @@ class _OfferEditorScreenState extends ConsumerState<OfferEditorScreen> {
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: Text(s.title),
-                    subtitle: Text(s.category),
+                    subtitle: Text(ServiceCategories.labelOf(s.category)),
                     trailing: s.id == selectedId
                         ? const Icon(
                             Icons.check_circle,

@@ -109,9 +109,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                             const Divider(color: ManoColors.stone, height: 1),
                         itemBuilder: (context, i) => _ResultTile(
                           title: services[i].title,
-                          category: categoryLabel(
+                          category: ServiceCategories.labelOf(
                             services[i].category,
-                            categories,
                           ),
                           description: services[i].description,
                           onTap: () =>

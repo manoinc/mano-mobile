@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-import 'category_icons.dart';
 
 class ServiceDetailScreen extends ConsumerWidget {
   const ServiceDetailScreen({required this.serviceId, super.key});
@@ -14,7 +13,6 @@ class ServiceDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final service = ref.watch(jobServiceProvider(serviceId));
-    final categories = ref.watch(serviceCategoriesProvider).value ?? const [];
     final found = service.value;
 
     return Scaffold(
@@ -37,7 +35,7 @@ class ServiceDetailScreen extends ConsumerWidget {
                     : context.go('/home/search'),
               )
             : _Details(
-                category: categoryLabel(service.category, categories),
+                category: ServiceCategories.labelOf(service.category),
                 title: service.title,
                 description: service.description,
               ),

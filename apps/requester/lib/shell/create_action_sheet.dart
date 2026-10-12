@@ -1,22 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
+
+import '../features/explore/category_icons.dart';
 
 void _showStub(BuildContext context) {
   ScaffoldMessenger.of(
     context,
   ).showSnackBar(const SnackBar(content: Text('Muy pronto')));
 }
-
-/// The categories a job could be about. Mirrors the icon set
-/// `home_tab_screen.dart` maps `ServiceCategory.iconKey` to -- this sheet has
-/// no `mano_domain` catalog to read yet, so the list is local and static.
-const _categories = <({IconData icon, String label})>[
-  (icon: Icons.cleaning_services_outlined, label: 'Limpieza'),
-  (icon: Icons.plumbing, label: 'Plomería'),
-  (icon: Icons.electrical_services, label: 'Electricidad'),
-  (icon: Icons.format_paint_outlined, label: 'Pintura'),
-  (icon: Icons.grass, label: 'Jardinería'),
-];
 
 /// The CREATE action's content -- a real-looking entry point into posting a
 /// job, even though the workflow behind it doesn't exist yet. A single
@@ -72,13 +64,13 @@ class CreateActionSheet extends StatelessWidget {
               height: 92,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                itemCount: _categories.length,
+                itemCount: ServiceCategories.all.length,
                 separatorBuilder: (context, index) =>
                     const SizedBox(width: ManoSpacing.sm),
                 itemBuilder: (context, index) {
-                  final category = _categories[index];
+                  final category = ServiceCategories.all[index];
                   return ManoCategoryChip(
-                    icon: category.icon,
+                    icon: categoryIcon(category.iconKey),
                     label: category.label,
                     selected: false,
                     onTap: () => _showStub(context),

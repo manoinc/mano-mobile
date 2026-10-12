@@ -24,11 +24,3 @@ List<ManoCategoryRailItem> categoryRailItems(
       label: category.label,
     ),
 ];
-
-// The gateway's category is free text; show our label when we know it.
-String categoryLabel(String category, List<ServiceCategory> known) {
-  for (final c in known) {
-    if (c.id == category) return c.label;
-  }
-  return category;
-}

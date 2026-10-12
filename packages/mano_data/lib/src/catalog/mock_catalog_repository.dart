@@ -3,33 +3,7 @@ import 'package:mano_domain/mano_domain.dart';
 final class MockCatalogRepository implements CatalogRepository {
   const MockCatalogRepository();
 
-  static const List<ServiceCategory> _categories = [
-    ServiceCategory(
-      id: 'cleaning',
-      label: 'Limpieza',
-      iconKey: 'cleaning',
-    ),
-    ServiceCategory(
-      id: 'plumbing',
-      label: 'Plomería',
-      iconKey: 'plumbing',
-    ),
-    ServiceCategory(
-      id: 'electrical',
-      label: 'Electricidad',
-      iconKey: 'electrical',
-    ),
-    ServiceCategory(
-      id: 'painting',
-      label: 'Pintura',
-      iconKey: 'painting',
-    ),
-    ServiceCategory(
-      id: 'gardening',
-      label: 'Jardinería',
-      iconKey: 'gardening',
-    ),
-  ];
+  static const List<ServiceCategory> _categories = ServiceCategories.all;
 
   static const List<ServiceListing> _listings = [
     ServiceListing(

@@ -65,6 +65,15 @@ void main() {
     expect((await catalog.service('s1'))?.title, 'Limpieza profunda');
   });
 
+  test("backend spellings of a category map to the app's id", () async {
+    final catalog = _catalog(
+      (_) async => _data({
+        'jobService': {..._serviceJson, 'category': 'Plomería'},
+      }),
+    );
+    expect((await catalog.service('s1'))?.category, 'plumbing');
+  });
+
   test('a rejected service lookup is null', () async {
     final catalog = _catalog(
       (_) async => http.Response(

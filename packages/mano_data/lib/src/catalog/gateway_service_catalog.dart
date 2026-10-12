@@ -88,7 +88,7 @@ Iterable<Map<String, dynamic>> _items(Object? page) =>
 
 JobService _toService(Map<String, dynamic> json) => JobService(
   id: json['id'] as String,
-  category: json['category'] as String,
+  category: ServiceCategories.normalize(json['category'] as String),
   title: json['title'] as String,
   description: json['description'] as String,
 );

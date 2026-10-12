@@ -18,6 +18,7 @@ export 'src/catalog/catalog_repository.dart';
 export 'src/catalog/job_service.dart';
 export 'src/catalog/offer_management.dart';
 export 'src/catalog/service_catalog.dart';
+export 'src/catalog/service_categories.dart';
 export 'src/catalog/service_category.dart';
 export 'src/catalog/service_listing.dart';
 export 'src/catalog/service_offer.dart';
