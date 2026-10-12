@@ -17,11 +17,15 @@ String? greetingFirstName(ProviderProfile? profile) {
   return name.isEmpty ? null : name;
 }
 
-/// The greeting name: the signed-in user's, else the profile's first name.
+/// The greeting name: the account's, else the one typed in onboarding, else the profile's.
 String? resolveGreetingName(
   AuthenticatedUser? user,
-  ProviderProfile? profile,
-) => greetingName(user) ?? greetingFirstName(profile);
+  ProviderProfile? profile, {
+  String onboardingName = '',
+}) =>
+    greetingName(user) ??
+    (onboardingName.trim().isEmpty ? null : onboardingName.trim()) ??
+    greetingFirstName(profile);
 
 /// The profile photo for the greeting, or null when there is none.
 String? greetingPhoto(ProviderProfile? profile) {

@@ -17,6 +17,7 @@ class ProviderHomeScreen extends ConsumerWidget {
     final name = resolveGreetingName(
       ref.watch(currentUserProvider),
       profile.value,
+      onboardingName: ref.watch(providerFirstNameProvider),
     );
     final next = ref.watch(upcomingJobsProvider).value?.firstOrNull;
 

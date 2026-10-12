@@ -1,13 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_session/mano_session.dart';
 
-AuthenticatedUser _user({String? username, String? email}) =>
-    AuthenticatedUser(
-      subject: 'sub-1',
-      username: username,
-      email: email,
-      roles: const {},
-    );
+AuthenticatedUser _user({String? username, String? email}) => AuthenticatedUser(
+  subject: 'sub-1',
+  username: username,
+  email: email,
+  roles: const {},
+);
 
 void main() {
   group('greetingName', () {
@@ -22,5 +21,18 @@ void main() {
       expect(greetingName(_user(username: 'Profesional')), isNull);
       expect(greetingName(_user(username: 'solicitante')), isNull);
     });
+  });
+
+  test('the onboarding name outranks the profile, not the account', () {
+    expect(resolveGreetingName(null, null, onboardingName: 'Lucía'), 'Lucía');
+    expect(
+      resolveGreetingName(
+        _user(username: 'Andrés'),
+        null,
+        onboardingName: 'Lucía',
+      ),
+      'Andrés',
+    );
+    expect(resolveGreetingName(null, null, onboardingName: ' '), isNull);
   });
 }
