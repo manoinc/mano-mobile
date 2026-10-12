@@ -15,6 +15,7 @@ class ManoChatEntry {
     required this.sentAt,
     this.mine = false,
     this.status = ManoChatEntryStatus.sent,
+    this.receipt = ManoReceipt.sent,
   });
 
   final String id;
@@ -22,9 +23,14 @@ class ManoChatEntry {
   final DateTime sentAt;
   final bool mine;
   final ManoChatEntryStatus status;
+
+  /// How far my confirmed message got; ignored on theirs.
+  final ManoReceipt receipt;
 }
 
 /// A chat history, oldest first in [entries], pinned to the newest message.
+///
+/// Confirmed messages from one sender within two minutes read as one group.
 class ManoChatThread extends StatelessWidget {
   const ManoChatThread({
     required this.entries,
@@ -33,6 +39,9 @@ class ManoChatThread extends StatelessWidget {
     super.key,
   });
 
+  /// The longest silence that still keeps messages in one group.
+  static const groupWindow = Duration(minutes: 2);
+
   final List<ManoChatEntry> entries;
   final String emptyMessage;
   final ValueChanged<String> onRetry;
@@ -40,18 +49,45 @@ class ManoChatThread extends StatelessWidget {
   static bool _sameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
+  static bool _joined(ManoChatEntry a, ManoChatEntry b) =>
+      a.status == ManoChatEntryStatus.sent &&
+      b.status == ManoChatEntryStatus.sent &&
+      a.mine == b.mine &&
+      _sameDay(a.sentAt, b.sentAt) &&
+      b.sentAt.difference(a.sentAt) <= groupWindow;
+
   @override
   Widget build(BuildContext context) {
     if (entries.isEmpty) return _Empty(message: emptyMessage);
 
     final rows = <Widget>[];
-    DateTime? previous;
-    for (final entry in entries) {
-      if (previous == null || !_sameDay(previous, entry.sentAt)) {
+    for (var i = 0; i < entries.length; i++) {
+      final entry = entries[i];
+      final previous = i > 0 ? entries[i - 1] : null;
+      final next = i < entries.length - 1 ? entries[i + 1] : null;
+      final newDay =
+          previous == null || !_sameDay(previous.sentAt, entry.sentAt);
+      if (newDay) {
         rows.add(_DaySeparator(label: ManoFormat.dayMonth(entry.sentAt)));
       }
-      previous = entry.sentAt;
-      rows.add(_row(entry));
+      final joinedPrevious = previous != null && _joined(previous, entry);
+      final gap = newDay
+          ? 0.0
+          : joinedPrevious
+          ? ManoSpacing.xs
+          : previous.mine != entry.mine
+          ? ManoSpacing.md
+          : ManoSpacing.sm;
+      rows.add(
+        Padding(
+          padding: EdgeInsets.only(top: gap),
+          child: _row(
+            entry,
+            isFirst: !joinedPrevious,
+            isLast: next == null || !_joined(entry, next),
+          ),
+        ),
+      );
     }
     final newestFirst = rows.reversed.toList();
 
@@ -67,11 +103,18 @@ class ManoChatThread extends StatelessWidget {
     );
   }
 
-  Widget _row(ManoChatEntry entry) => switch (entry.status) {
+  Widget _row(
+    ManoChatEntry entry, {
+    required bool isFirst,
+    required bool isLast,
+  }) => switch (entry.status) {
     ManoChatEntryStatus.sent => ManoChatBubble(
       text: entry.text,
-      timeLabel: ManoFormat.time(entry.sentAt),
       mine: entry.mine,
+      timeLabel: isLast ? ManoFormat.time(entry.sentAt) : null,
+      receipt: entry.mine && isLast ? entry.receipt : null,
+      isFirstInGroup: isFirst,
+      isLastInGroup: isLast,
     ),
     ManoChatEntryStatus.pending => Opacity(
       key: const Key('chat-item-pending'),
@@ -144,9 +187,8 @@ class _DaySeparator extends StatelessWidget {
     child: Center(
       child: Text(
         label,
-        style: Theme.of(
-          context,
-        ).textTheme.labelSmall?.copyWith(color: ManoColors.faint),
+        style: Theme.of(context).textTheme.labelSmall
+            ?.copyWith(color: ManoColors.faint),
       ),
     ),
   );
@@ -171,9 +213,8 @@ class _Empty extends StatelessWidget {
         Text(
           message,
           textAlign: TextAlign.center,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
+          style: Theme.of(context).textTheme.bodyMedium
+              ?.copyWith(color: ManoColors.muted),
         ),
       ],
     ),

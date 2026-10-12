@@ -49,6 +49,7 @@ export 'src/widgets/mano_outline_button.dart';
 export 'src/widgets/mano_page_indicator.dart';
 export 'src/widgets/mano_person_row.dart';
 export 'src/widgets/mano_press_scale.dart';
+export 'src/widgets/mano_profile_sheet.dart';
 export 'src/widgets/mano_price_tag.dart';
 export 'src/widgets/mano_primary_button.dart';
 export 'src/widgets/mano_profile_header.dart';

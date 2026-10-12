@@ -1,8 +1,10 @@
+import '../shared/party.dart';
+
 final class Conversation {
   const Conversation({
     required this.id,
-    required this.participantName,
-    required this.participantPhotoUrl,
+    required this.participant,
+    required this.participantRole,
     required this.lastMessage,
     required this.lastMessageAt,
     this.isOnline = false,
@@ -11,20 +13,25 @@ final class Conversation {
   });
 
   final String id;
-  final String participantName;
-  final String participantPhotoUrl;
+  final Party participant;
+
+  /// A `ManoRole` value: which side of the marketplace the participant is on.
+  final String participantRole;
   final bool isOnline;
   final bool isVerified;
   final String lastMessage;
   final DateTime lastMessageAt;
   final int unreadCount;
 
+  String get participantName => participant.displayName;
+  String get participantPhotoUrl => participant.photoUrl;
+
   @override
   bool operator ==(Object other) =>
       other is Conversation &&
       other.id == id &&
-      other.participantName == participantName &&
-      other.participantPhotoUrl == participantPhotoUrl &&
+      other.participant == participant &&
+      other.participantRole == participantRole &&
       other.isOnline == isOnline &&
       other.isVerified == isVerified &&
       other.lastMessage == lastMessage &&
@@ -33,9 +40,15 @@ final class Conversation {
 
   @override
   int get hashCode => Object.hash(
-        id, participantName, participantPhotoUrl, isOnline, isVerified,
-        lastMessage, lastMessageAt, unreadCount,
-      );
+    id,
+    participant,
+    participantRole,
+    isOnline,
+    isVerified,
+    lastMessage,
+    lastMessageAt,
+    unreadCount,
+  );
 
   @override
   String toString() => 'Conversation($id, $participantName)';

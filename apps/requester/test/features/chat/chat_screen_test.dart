@@ -79,6 +79,52 @@ void main() {
     );
   });
 
+  testWidgets('tapping the header opens the participant profile', (
+    tester,
+  ) async {
+    await pumpRouterAt(tester, '/inbox/conv-1');
+
+    await tester.tap(find.byType(ManoChatHeader));
+    await tester.pumpAndSettle();
+
+    final sheet = find.byType(ManoProfileSheet);
+    expect(sheet, findsOneWidget);
+    expect(
+      find.descendant(of: sheet, matching: find.text('Ana Gómez')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: sheet, matching: find.text('Profesional')),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.text('Cerrar'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ManoProfileSheet), findsNothing);
+  });
+
+  testWidgets('my last message shows its read receipt', (tester) async {
+    final repo = _FakeChatRepository(
+      history: [
+        Message(
+          id: 'm1',
+          conversationId: 'conv-1',
+          body: 'Hola',
+          sentAt: DateTime(2026, 10, 1, 9),
+          fromMe: true,
+          status: MessageStatus.read,
+        ),
+      ],
+    );
+    await pumpRouterAt(
+      tester,
+      '/inbox/conv-1',
+      overrides: [chatRepositoryProvider.overrideWithValue(repo)],
+    );
+
+    expect(find.byKey(const Key('chat-receipt-read')), findsOneWidget);
+  });
+
   testWidgets('renders the history as bubbles with day separators', (
     tester,
   ) async {

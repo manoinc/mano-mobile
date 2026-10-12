@@ -43,6 +43,87 @@ void main() {
       expect(mine.mine, isTrue);
     });
 
+    testWidgets('consecutive messages within two minutes form one group', (
+      tester,
+    ) async {
+      final t = DateTime(2026, 10, 1, 9);
+      await _pump(
+        tester,
+        ManoChatThread(
+          entries: [
+            _entry('a', 'Uno', t, mine: true),
+            _entry('b', 'Dos', t.add(const Duration(seconds: 30)), mine: true),
+            _entry('c', 'Tres', t.add(const Duration(seconds: 90)), mine: true),
+            _entry(
+              'd',
+              'Cuatro',
+              t.add(const Duration(minutes: 10)),
+              mine: true,
+            ),
+          ],
+          emptyMessage: 'Vacío',
+          onRetry: (_) {},
+        ),
+      );
+
+      ManoChatBubble bubble(String text) => tester.widget<ManoChatBubble>(
+        find.widgetWithText(ManoChatBubble, text),
+      );
+      expect(bubble('Uno').isFirstInGroup, isTrue);
+      expect(bubble('Uno').isLastInGroup, isFalse);
+      expect(bubble('Uno').timeLabel, isNull);
+      expect(bubble('Dos').isFirstInGroup, isFalse);
+      expect(bubble('Tres').isLastInGroup, isTrue);
+      expect(bubble('Tres').timeLabel, isNotNull);
+      expect(bubble('Cuatro').isFirstInGroup, isTrue);
+      expect(bubble('Cuatro').isLastInGroup, isTrue);
+    });
+
+    testWidgets('a change of sender starts a new group', (tester) async {
+      final t = DateTime(2026, 10, 1, 9);
+      await _pump(
+        tester,
+        ManoChatThread(
+          entries: [
+            _entry('a', 'Uno', t, mine: true),
+            _entry('b', 'Dos', t.add(const Duration(seconds: 10))),
+          ],
+          emptyMessage: 'Vacío',
+          onRetry: (_) {},
+        ),
+      );
+
+      final one = tester.widget<ManoChatBubble>(
+        find.widgetWithText(ManoChatBubble, 'Uno'),
+      );
+      expect(one.isLastInGroup, isTrue);
+    });
+
+    testWidgets('my messages carry their receipt, theirs do not', (
+      tester,
+    ) async {
+      final t = DateTime(2026, 10, 1, 9);
+      await _pump(
+        tester,
+        ManoChatThread(
+          entries: [
+            ManoChatEntry(
+              id: 'a',
+              text: 'Uno',
+              sentAt: t,
+              mine: true,
+              receipt: ManoReceipt.read,
+            ),
+            _entry('b', 'Dos', t.add(const Duration(minutes: 5))),
+          ],
+          emptyMessage: 'Vacío',
+          onRetry: (_) {},
+        ),
+      );
+
+      expect(find.byKey(const Key('chat-receipt-read')), findsOneWidget);
+    });
+
     testWidgets('a pending entry reads "Enviando…"', (tester) async {
       await _pump(
         tester,
@@ -131,6 +212,39 @@ void main() {
         ),
       );
       expect(find.byIcon(Icons.verified), findsNothing);
+    });
+
+    testWidgets('tapping the row calls onTap, and it reads as a button', (
+      tester,
+    ) async {
+      var taps = 0;
+      await _pump(
+        tester,
+        ManoChatHeader(
+          name: 'Ana Gómez',
+          photoUrl: null,
+          online: true,
+          verified: false,
+          onTap: () => taps++,
+        ),
+      );
+
+      await tester.tap(find.text('Ana Gómez'));
+      expect(taps, 1);
+      expect(find.bySemanticsLabel('Ver perfil de Ana Gómez'), findsOneWidget);
+    });
+
+    testWidgets('without onTap there is no button semantics', (tester) async {
+      await _pump(
+        tester,
+        const ManoChatHeader(
+          name: 'Ana Gómez',
+          photoUrl: null,
+          online: true,
+          verified: false,
+        ),
+      );
+      expect(find.bySemanticsLabel('Ver perfil de Ana Gómez'), findsNothing);
     });
   });
 }

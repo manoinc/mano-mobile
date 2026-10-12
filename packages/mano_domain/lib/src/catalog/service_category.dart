@@ -6,8 +6,8 @@ final class ServiceCategory {
   });
 
   final String id;
-  final String label;   // display name, e.g. "Limpieza"
-  final String iconKey;  // opaque key an IconData lookup maps, e.g. "cleaning" -- this package cannot reference IconData
+  final String label; // display name, e.g. "Limpieza"
+  final String iconKey; // opaque key an IconData lookup maps, e.g. "cleaning" -- this package cannot reference IconData
 
   @override
   bool operator ==(Object other) =>

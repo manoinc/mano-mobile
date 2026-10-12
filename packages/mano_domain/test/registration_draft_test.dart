@@ -52,10 +52,7 @@ void main() {
     });
 
     test('needs both halves of a name', () {
-      expect(
-        const RegistrationDraft(givenName: 'Ana').isNameComplete,
-        isFalse,
-      );
+      expect(const RegistrationDraft(givenName: 'Ana').isNameComplete, isFalse);
       expect(
         const RegistrationDraft(familyName: 'Rojas').isNameComplete,
         isFalse,
@@ -63,10 +60,7 @@ void main() {
     });
 
     test('greetingName is the trimmed first name, for the step 2 headline', () {
-      expect(
-        const RegistrationDraft(givenName: '  Ana  ').greetingName,
-        'Ana',
-      );
+      expect(const RegistrationDraft(givenName: '  Ana  ').greetingName, 'Ana');
     });
 
     test('greetingName takes only the first word of a compound first name', () {

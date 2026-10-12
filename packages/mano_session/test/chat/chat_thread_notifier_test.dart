@@ -51,12 +51,18 @@ final class _CountingConversations implements ConversationRepository {
   }
 }
 
-Message _message(String id, String body, {bool fromMe = false}) => Message(
+Message _message(
+  String id,
+  String body, {
+  bool fromMe = false,
+  MessageStatus status = MessageStatus.sent,
+}) => Message(
   id: id,
   conversationId: 'c1',
   body: body,
   sentAt: DateTime(2026, 10, 1, 9),
   fromMe: fromMe,
+  status: status,
 );
 
 ProviderContainer _container(
@@ -223,4 +229,71 @@ void main() {
 
     expect(repo.incoming.hasListener, isFalse);
   });
+
+  group('keeps the inbox fresh', () {
+    Future<(ProviderContainer, _CountingConversations)> open(
+      _FakeChatRepository repo,
+    ) async {
+      final conversations = _CountingConversations();
+      final container = _container(repo, conversations: conversations);
+      container.listen(conversationsProvider, (_, _) {});
+      await container.read(conversationsProvider.future);
+      await _load(container);
+      await pumpEventQueue();
+      await container.read(conversationsProvider.future);
+      return (container, conversations);
+    }
+
+    test('an incoming message refetches the conversation list', () async {
+      final repo = _FakeChatRepository();
+      final (container, conversations) = await open(repo);
+      final before = conversations.calls;
+
+      repo.incoming.add(_message('m9', 'Ya llegué'));
+      await pumpEventQueue();
+      await container.read(conversationsProvider.future);
+
+      expect(conversations.calls, before + 1);
+    });
+
+    test('a confirmed send refetches the conversation list', () async {
+      final repo = _FakeChatRepository();
+      final (container, conversations) = await open(repo);
+      final before = conversations.calls;
+
+      final sending = container
+          .read(chatThreadProvider('c1').notifier)
+          .send('Hola');
+      repo.pendingSend!.complete(Ok(_message('m5', 'Hola', fromMe: true)));
+      await sending;
+      await container.read(conversationsProvider.future);
+
+      expect(conversations.calls, before + 1);
+    });
+  });
+
+  test(
+    'a status update replaces the message and never downgrades it',
+    () async {
+      final repo = _FakeChatRepository();
+      final container = _container(repo);
+      await _load(container);
+
+      repo.incoming.add(_message('m1', 'Hola', fromMe: true));
+      repo.incoming.add(
+        _message('m1', 'Hola', fromMe: true, status: MessageStatus.read),
+      );
+      repo.incoming.add(
+        _message('m1', 'Hola', fromMe: true, status: MessageStatus.delivered),
+      );
+      await pumpEventQueue();
+
+      final items = _items(container);
+      expect(items, hasLength(1));
+      expect(
+        (items.single as ConfirmedChatItem).message.status,
+        MessageStatus.read,
+      );
+    },
+  );
 }

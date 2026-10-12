@@ -76,8 +76,17 @@ final class Job {
 
   @override
   int get hashCode => Object.hash(
-    id, offerId, serviceTitle, client, provider, rateType, amountCop, start,
-    end, status, actualHours,
+    id,
+    offerId,
+    serviceTitle,
+    client,
+    provider,
+    rateType,
+    amountCop,
+    start,
+    end,
+    status,
+    actualHours,
   );
 
   @override

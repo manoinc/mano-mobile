@@ -53,8 +53,18 @@ void main() {
 
   group('JobService', () {
     test('identical services are equal', () {
-      const a = JobService(id: 's1', category: 'cleaning', title: 'Aseo', description: 'd');
-      const b = JobService(id: 's1', category: 'cleaning', title: 'Aseo', description: 'd');
+      const a = JobService(
+        id: 's1',
+        category: 'cleaning',
+        title: 'Aseo',
+        description: 'd',
+      );
+      const b = JobService(
+        id: 's1',
+        category: 'cleaning',
+        title: 'Aseo',
+        description: 'd',
+      );
       expect(a, b);
       expect(a.hashCode, b.hashCode);
     });
@@ -63,7 +73,11 @@ void main() {
   group('Job lifecycle', () {
     test('only a scheduled job can start', () {
       expect(_job(JobStatus.scheduled).canStart, isTrue);
-      for (final s in [JobStatus.inProgress, JobStatus.finished, JobStatus.cancelled]) {
+      for (final s in [
+        JobStatus.inProgress,
+        JobStatus.finished,
+        JobStatus.cancelled,
+      ]) {
         expect(_job(s).canStart, isFalse, reason: '$s');
       }
     });
@@ -87,12 +101,19 @@ void main() {
     });
 
     test('hourly jobs need logged hours to finish', () {
-      expect(_job(JobStatus.inProgress, rateType: RateType.hourly).requiresHoursOnFinish, isTrue);
+      expect(
+        _job(
+          JobStatus.inProgress,
+          rateType: RateType.hourly,
+        ).requiresHoursOnFinish,
+        isTrue,
+      );
       expect(_job(JobStatus.inProgress).requiresHoursOnFinish, isFalse);
     });
 
     test('copyWith changes only what it is given', () {
-      final started = _job(JobStatus.scheduled).copyWith(status: JobStatus.inProgress);
+      final started = _job(JobStatus.scheduled)
+          .copyWith(status: JobStatus.inProgress);
       expect(started.status, JobStatus.inProgress);
       expect(started.id, 'j1');
     });
@@ -138,7 +159,10 @@ void main() {
     });
 
     test('a rule cannot run past midnight', () {
-      expect(rule(startMinutes: 22 * 60, durationMinutes: 180).isValid, isFalse);
+      expect(
+        rule(startMinutes: 22 * 60, durationMinutes: 180).isValid,
+        isFalse,
+      );
     });
   });
 

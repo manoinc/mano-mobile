@@ -56,10 +56,7 @@ void main() {
         ).displayName,
         'e@x.test',
       );
-      expect(
-        const AuthenticatedUser(subject: 's', roles: {}).displayName,
-        's',
-      );
+      expect(const AuthenticatedUser(subject: 's', roles: {}).displayName, 's');
     });
   });
 
@@ -89,7 +86,9 @@ void main() {
     });
 
     test('flags a credential worth renewing before the next call', () {
-      final session = sessionExpiringAt(issued.add(const Duration(seconds: 30)));
+      final session = sessionExpiringAt(
+        issued.add(const Duration(seconds: 30)),
+      );
 
       expect(
         session.expiresWithin(const Duration(minutes: 1), now: issued),

@@ -39,10 +39,19 @@ final class ServiceListing {
 
   @override
   int get hashCode => Object.hash(
-        id, title, categoryId, professionalName, professionalPhotoUrl,
-        photoUrl, priceFromCents, currency, rating, reviewCount,
-      );
+    id,
+    title,
+    categoryId,
+    professionalName,
+    professionalPhotoUrl,
+    photoUrl,
+    priceFromCents,
+    currency,
+    rating,
+    reviewCount,
+  );
 
   @override
-  String toString() => 'ServiceListing($id, $title, from $priceFromCents $currency)';
+  String toString() =>
+      'ServiceListing($id, $title, from $priceFromCents $currency)';
 }
