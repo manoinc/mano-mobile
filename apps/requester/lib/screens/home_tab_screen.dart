@@ -11,6 +11,23 @@ void _showStub(BuildContext context) {
       .showSnackBar(const SnackBar(content: Text('Muy pronto')));
 }
 
+/// Height of a carousel card: 16:9 photo, avatar row and a two-line title.
+double _listingCardHeight(BuildContext context, double railWidth) {
+  const viewportFraction = 0.8;
+  final cardWidth = railWidth * viewportFraction - ManoSpacing.sm;
+  final body = Theme.of(context).textTheme.bodyMedium!;
+  final titleLines = MediaQuery.textScalerOf(
+    context,
+  ).scale(body.fontSize! * (body.height ?? 1.5) * 2);
+  final avatarRow = MediaQuery.textScalerOf(context).scale(28);
+  return cardWidth * 9 / 16 +
+      ManoSpacing.sm * 2 +
+      avatarRow +
+      ManoSpacing.xs +
+      titleLines +
+      ManoSpacing.md;
+}
+
 /// The Inicio tab: a greeting, an address and a search pill, a category
 /// rail, and a feed of popular listings.
 ///
@@ -103,10 +120,11 @@ class HomeTabScreen extends ConsumerWidget {
             Text('Populares cerca de ti', style: textTheme.titleMedium),
             const SizedBox(height: ManoSpacing.sm),
             listings.when(
-              data: (items) {
-                return Column(
+              data: (items) => LayoutBuilder(
+                builder: (context, constraints) => ManoListingCarousel(
+                  height: _listingCardHeight(context, constraints.maxWidth),
                   children: [
-                    for (final listing in items) ...[
+                    for (final listing in items)
                       ManoListingCard(
                         title: listing.title,
                         photoUrl: listing.photoUrl,
@@ -117,11 +135,9 @@ class HomeTabScreen extends ConsumerWidget {
                         rating: listing.rating,
                         onTap: () => _showStub(context),
                       ),
-                      const SizedBox(height: ManoSpacing.sm),
-                    ],
                   ],
-                );
-              },
+                ),
+              ),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stackTrace) => const Text('No se pudo cargar.'),
             ),
