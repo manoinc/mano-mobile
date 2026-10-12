@@ -77,6 +77,13 @@ void main() {
     expect(routerPath(c), '/services/availability');
   });
 
+  testWidgets('a new offer is one tap away from the list', (tester) async {
+    final c = await pump(tester, FakeOfferManagement([offer('o1')]));
+    await tester.tap(find.text('Nueva oferta'));
+    await tester.pumpAndSettle();
+    expect(routerPath(c), '/services/new');
+  });
+
   testWidgets('no offers invites publishing the first one', (tester) async {
     final c = await pump(tester, FakeOfferManagement());
     expect(find.text('Publicar mi primer servicio'), findsOneWidget);

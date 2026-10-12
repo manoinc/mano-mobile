@@ -47,8 +47,6 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Solicitudes').last);
-    await tester.pumpAndSettle();
 
     await _tap(tester, _inCard('request-1', 'Aceptar'));
     expect(

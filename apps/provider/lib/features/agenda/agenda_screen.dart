@@ -78,7 +78,7 @@ class _AgendaList extends ConsumerWidget {
         icon: Icons.event_available_outlined,
         message: filter.emptyMessage,
         ctaLabel: 'Ver solicitudes',
-        onCta: () => context.go('/requests'),
+        onCta: () => context.go('/home'),
       ),
       AsyncData(value: final jobs) => ListView(
         padding: const EdgeInsets.only(bottom: ManoSpacing.lg),

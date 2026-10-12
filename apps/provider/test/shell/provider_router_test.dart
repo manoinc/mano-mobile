@@ -5,7 +5,7 @@ import 'package:mano_provider/features/agenda/agenda_screen.dart';
 import 'package:mano_provider/features/availability/availability_screen.dart';
 import 'package:mano_provider/features/chat/chat_screen.dart';
 import 'package:mano_provider/features/chat/provider_inbox_screen.dart';
-import 'package:mano_provider/features/requests/requests_screen.dart';
+import 'package:mano_provider/features/home/provider_home_screen.dart';
 import 'package:mano_provider/features/services/my_services_screen.dart';
 import 'package:mano_provider/features/services/offer_editor_screen.dart';
 import 'package:mano_provider/shell/provider_nav_shell.dart';
@@ -14,23 +14,34 @@ import 'package:mano_ui/mano_ui.dart';
 import '../support/pump_app.dart';
 
 void main() {
-  testWidgets('opens onto incoming requests inside the shell', (tester) async {
-    final c = await pumpRouterAt(tester, '/requests');
-    expect(routerPath(c), '/requests');
+  testWidgets('opens onto Inicio inside the shell', (tester) async {
+    final c = await pumpRouterAt(tester, '/home');
+    expect(routerPath(c), '/home');
     expect(find.byType(ProviderNavShell), findsOneWidget);
-    expect(find.byType(RequestsScreen), findsOneWidget);
+    expect(find.byType(ProviderHomeScreen), findsOneWidget);
+  });
+
+  testWidgets('the old requests link lands on Inicio', (tester) async {
+    final c = await pumpRouterAt(tester, '/requests');
+    expect(routerPath(c), '/home');
+    expect(find.byType(ProviderHomeScreen), findsOneWidget);
   });
 
   testWidgets('each tab shows its module', (tester) async {
-    await pumpRouterAt(tester, '/requests');
+    await pumpRouterAt(tester, '/agenda');
     final tabs = {
-      'Agenda': AgendaScreen,
       'Bandeja': ProviderInboxScreen,
       'Servicios': MyServicesScreen,
-      'Solicitudes': RequestsScreen,
+      'Inicio': ProviderHomeScreen,
+      'Agenda': AgendaScreen,
     };
     for (final MapEntry(key: label, value: type) in tabs.entries) {
-      await tester.tap(find.text(label));
+      await tester.tap(
+        find.descendant(
+          of: find.byType(ManoBottomNavBar),
+          matching: find.text(label),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(find.byType(type), findsOneWidget, reason: label);
     }
@@ -76,10 +87,8 @@ void main() {
     expect(find.byType(ManoBottomNavBar), findsNothing);
   });
 
-  testWidgets('the centre action starts a new offer', (tester) async {
-    final c = await pumpRouterAt(tester, '/requests');
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pumpAndSettle();
-    expect(routerPath(c), '/services/new');
+  testWidgets('the bar has no centre action', (tester) async {
+    await pumpRouterAt(tester, '/home');
+    expect(find.byIcon(Icons.add), findsNothing);
   });
 }

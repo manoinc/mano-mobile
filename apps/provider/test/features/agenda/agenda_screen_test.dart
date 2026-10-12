@@ -86,7 +86,7 @@ void main() {
 
     await tester.tap(find.text('Ver solicitudes'));
     await tester.pumpAndSettle();
-    expect(routerPath(c), '/requests');
+    expect(routerPath(c), '/home');
   });
 
   testWidgets('a load failure shows an error with retry', (tester) async {

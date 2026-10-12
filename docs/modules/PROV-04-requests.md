@@ -9,7 +9,7 @@ lands on the agenda.
 
 | Route | Class | File |
 |---|---|---|
-| `/requests` | `RequestsScreen` | `apps/provider/lib/features/requests/requests_screen.dart` |
+| `/home` | `ProviderHomeScreen` | `apps/provider/lib/features/home/requests_section.dart` |
 
 Supporting files in the same folder:
 
@@ -105,7 +105,7 @@ and has no actions slot.
 |---|---|---|
 | mano_session | `test/requests/request_actions_test.dart` | accept moves to accepted + adds a job; reject stores reason; failed accept leaves jobs alone |
 | mano_ui | `test/widgets/mano_request_card_test.dart` | content, 2-line message, optional chip, actions slot, onTap |
-| provider | `test/features/requests/requests_screen_test.dart` | tabs, accept → Respondidas + "Ver agenda" → `/agenda`, reject with "Sin cupo", detail sheet actions, chat link → `/inbox`, Err SnackBar, empty, error + retry |
+| provider | `test/features/home/requests_section_test.dart` | tabs, accept → Respondidas + "Ver agenda" → `/agenda`, reject with "Sin cupo", detail sheet actions, chat link → `/inbox`, Err SnackBar, empty, error + retry |
 | provider (device) | `integration_test/requests_flow_test.dart` | signed in, default mocks: accept `request-1`, reject `request-2` with "Sin cupo", both under Respondidas |
 
 ## Backend gaps
