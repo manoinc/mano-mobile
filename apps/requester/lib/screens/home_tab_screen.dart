@@ -16,9 +16,8 @@ double _listingCardHeight(BuildContext context, double railWidth) {
   const viewportFraction = 0.8;
   final cardWidth = railWidth * viewportFraction - ManoSpacing.sm;
   final body = Theme.of(context).textTheme.bodyMedium!;
-  final titleLines = MediaQuery.textScalerOf(
-    context,
-  ).scale(body.fontSize! * (body.height ?? 1.5) * 2);
+  final titleLines = MediaQuery.textScalerOf(context)
+      .scale(body.fontSize! * (body.height ?? 1.5) * 2);
   final avatarRow = MediaQuery.textScalerOf(context).scale(28);
   return cardWidth * 9 / 16 +
       ManoSpacing.sm * 2 +
@@ -28,8 +27,8 @@ double _listingCardHeight(BuildContext context, double railWidth) {
       ManoSpacing.md;
 }
 
-/// The Inicio tab: a greeting, an address and a search pill, a category
-/// rail, and a feed of popular listings.
+/// The Inicio tab: a greeting (or a neutral headline for guests), an address
+/// and a search pill, a category rail, and horizontal rails of listings.
 ///
 /// Search, "Ver todo" and the category rail lead into Explore (REQ-01). The
 /// address picker and listing detail don't exist yet, so those taps show a
@@ -42,7 +41,8 @@ class HomeTabScreen extends ConsumerWidget {
     final user = ref.watch(currentUserProvider);
     final signedIn = ref.watch(hasAccountProvider);
     final categories = ref.watch(serviceCategoriesProvider);
-    final listings = ref.watch(popularListingsProvider);
+    final sections = ref.watch(homeSectionsProvider);
+    final name = greetingName(user);
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -66,7 +66,13 @@ class HomeTabScreen extends ConsumerWidget {
                       ref.read(onboardingFlowProvider.notifier).startSignIn(),
                 ),
               ),
-            ManoGreetingHeader(name: user?.displayName ?? 'Solicitante'),
+            if (name != null)
+              ManoGreetingHeader(name: name)
+            else
+              Text(
+                'Encuentra ayuda para tu hogar',
+                style: textTheme.headlineSmall,
+              ),
             const SizedBox(height: ManoSpacing.md),
             // There is no address feature yet, so this is a neutral
             // placeholder label rather than invented data claiming to be the
@@ -117,32 +123,68 @@ class HomeTabScreen extends ConsumerWidget {
               error: (error, stackTrace) => const Text('No se pudo cargar.'),
             ),
             const SizedBox(height: ManoSpacing.lg),
-            Text('Populares cerca de ti', style: textTheme.titleMedium),
-            const SizedBox(height: ManoSpacing.sm),
-            listings.when(
-              data: (items) => LayoutBuilder(
-                builder: (context, constraints) => ManoListingCarousel(
-                  height: _listingCardHeight(context, constraints.maxWidth),
-                  children: [
-                    for (final listing in items)
-                      ManoListingCard(
-                        title: listing.title,
-                        photoUrl: listing.photoUrl,
-                        professionalName: listing.professionalName,
-                        professionalPhotoUrl: listing.professionalPhotoUrl,
-                        priceLabel:
-                            'Desde ${ManoFormat.cop(listing.priceFromCents ~/ 100)} COP',
-                        rating: listing.rating,
-                        onTap: () => _showStub(context),
-                      ),
-                  ],
-                ),
+            sections.when(
+              data: (items) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final section in items) _Rail(section: section),
+                ],
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stackTrace) => const Text('No se pudo cargar.'),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// One titled horizontal rail; its header opens search, filtered when it has a category.
+class _Rail extends StatelessWidget {
+  const _Rail({required this.section});
+
+  final HomeSection section;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: ManoSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ManoSectionHeader(
+            title: section.title,
+            onTap: () => context.push(
+              Uri(
+                path: '/home/search',
+                queryParameters: {
+                  if (section.categoryId != null)
+                    'category': section.categoryId!,
+                },
+              ).toString(),
+            ),
+          ),
+          const SizedBox(height: ManoSpacing.sm),
+          LayoutBuilder(
+            builder: (context, constraints) => ManoListingCarousel(
+              height: _listingCardHeight(context, constraints.maxWidth),
+              children: [
+                for (final listing in section.listings)
+                  ManoListingCard(
+                    title: listing.title,
+                    photoUrl: listing.photoUrl,
+                    professionalName: listing.professionalName,
+                    professionalPhotoUrl: listing.professionalPhotoUrl,
+                    priceLabel:
+                        'Desde ${ManoFormat.cop(listing.priceFromCents ~/ 100)} COP',
+                    rating: listing.rating,
+                    onTap: () => _showStub(context),
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
