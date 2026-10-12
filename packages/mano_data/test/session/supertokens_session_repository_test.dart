@@ -24,14 +24,23 @@ String frontToken({
   ),
 );
 
-Map<String, String> tokenHeaders({String access = 'access-1', String refresh = 'refresh-1'}) => {
+Map<String, String> tokenHeaders({
+  String access = 'access-1',
+  String refresh = 'refresh-1',
+}) => {
   'st-access-token': access,
   'st-refresh-token': refresh,
   'front-token': frontToken(),
 };
 
-http.Response ok(Map<String, Object?> body, {Map<String, String> headers = const {}}) =>
-    http.Response(jsonEncode(body), 200, headers: {'content-type': 'application/json', ...headers});
+http.Response ok(
+  Map<String, Object?> body, {
+  Map<String, String> headers = const {},
+}) => http.Response(
+  jsonEncode(body),
+  200,
+  headers: {'content-type': 'application/json', ...headers},
+);
 
 void main() {
   late List<http.Request> sent;
@@ -57,7 +66,10 @@ void main() {
   group('signIn', () {
     test('posts email-password form fields in header mode', () async {
       final repository = repositoryWith(
-        (_) async => ok({'status': 'OK', 'user': {'id': 'user-1'}}, headers: tokenHeaders()),
+        (_) async => ok({
+          'status': 'OK',
+          'user': {'id': 'user-1'},
+        }, headers: tokenHeaders()),
       );
 
       await repository.signIn(credentials);
@@ -75,21 +87,27 @@ void main() {
       });
     });
 
-    test('builds the session from the token headers and keeps the refresh token', () async {
-      final repository = repositoryWith(
-        (_) async => ok({'status': 'OK', 'user': {'id': 'user-1'}}, headers: tokenHeaders()),
-      );
+    test(
+      'builds the session from the token headers and keeps the refresh token',
+      () async {
+        final repository = repositoryWith(
+          (_) async => ok({
+            'status': 'OK',
+            'user': {'id': 'user-1'},
+          }, headers: tokenHeaders()),
+        );
 
-      final result = await repository.signIn(credentials);
+        final result = await repository.signIn(credentials);
 
-      final session = (result as Ok<Session, AuthFailure>).value;
-      expect(session.accessToken, 'access-1');
-      expect(session.expiresAt, _expiry);
-      expect(session.user.subject, 'user-1');
-      expect(session.user.email, 'ana@mano.co');
-      expect(session.user.roles, {ManoRole.requester});
-      expect(await store.read(), 'refresh-1');
-    });
+        final session = (result as Ok<Session, AuthFailure>).value;
+        expect(session.accessToken, 'access-1');
+        expect(session.expiresAt, _expiry);
+        expect(session.user.subject, 'user-1');
+        expect(session.user.email, 'ana@mano.co');
+        expect(session.user.roles, {ManoRole.requester});
+        expect(await store.read(), 'refresh-1');
+      },
+    );
 
     test('wrong credentials are rejected, not unavailable', () async {
       final repository = repositoryWith(
@@ -103,22 +121,35 @@ void main() {
     });
 
     test('a server error is unavailable', () async {
-      final repository = repositoryWith((_) async => http.Response('boom', 500));
+      final repository = repositoryWith(
+        (_) async => http.Response('boom', 500),
+      );
 
-      expect((await repository.signIn(credentials) as Err).failure, isA<AuthUnavailable>());
+      expect(
+        (await repository.signIn(credentials) as Err).failure,
+        isA<AuthUnavailable>(),
+      );
     });
 
     test('an unreachable server is unavailable', () async {
-      final repository = repositoryWith((_) async => throw http.ClientException('offline'));
+      final repository = repositoryWith(
+        (_) async => throw http.ClientException('offline'),
+      );
 
-      expect((await repository.signIn(credentials) as Err).failure, isA<AuthUnavailable>());
+      expect(
+        (await repository.signIn(credentials) as Err).failure,
+        isA<AuthUnavailable>(),
+      );
     });
   });
 
   group('signUp', () {
     test('posts to the signup route and signs the new account in', () async {
       final repository = repositoryWith(
-        (_) async => ok({'status': 'OK', 'user': {'id': 'user-1'}}, headers: tokenHeaders()),
+        (_) async => ok({
+          'status': 'OK',
+          'user': {'id': 'user-1'},
+        }, headers: tokenHeaders()),
       );
 
       final result = await repository.signUp(credentials);
@@ -127,33 +158,44 @@ void main() {
       expect(result, isA<Ok<Session, AuthFailure>>());
     });
 
-    test('a taken email is rejected with the field error as the reason', () async {
-      final repository = repositoryWith(
-        (_) async => ok({
-          'status': 'FIELD_ERROR',
-          'formFields': [
-            {'id': 'email', 'error': 'This email already exists. Please sign in instead.'},
-          ],
-        }),
-      );
+    test(
+      'a taken email is rejected with the field error as the reason',
+      () async {
+        final repository = repositoryWith(
+          (_) async => ok({
+            'status': 'FIELD_ERROR',
+            'formFields': [
+              {
+                'id': 'email',
+                'error': 'This email already exists. Please sign in instead.',
+              },
+            ],
+          }),
+        );
 
-      final failure = (await repository.signUp(credentials) as Err).failure;
+        final failure = (await repository.signUp(credentials) as Err).failure;
 
-      expect(failure, isA<SignInRejected>());
-      expect((failure as SignInRejected).reason, contains('already exists'));
-    });
+        expect(failure, isA<SignInRejected>());
+        expect((failure as SignInRejected).reason, contains('already exists'));
+      },
+    );
   });
 
   group('refresh and restore', () {
     test('restore with nothing stored is nobody signed in', () async {
-      final repository = repositoryWith((_) async => fail('no request expected'));
+      final repository = repositoryWith(
+        (_) async => fail('no request expected'),
+      );
 
       expect(await repository.restore(), const Ok<Session?, AuthFailure>(null));
     });
 
     test('restore exchanges the stored refresh token and rotates it', () async {
       final repository = repositoryWith(
-        (_) async => ok({}, headers: tokenHeaders(access: 'access-2', refresh: 'refresh-2')),
+        (_) async => ok(
+          {},
+          headers: tokenHeaders(access: 'access-2', refresh: 'refresh-2'),
+        ),
       );
       await store.write('refresh-1');
 
@@ -170,37 +212,53 @@ void main() {
       final repository = repositoryWith((_) async => http.Response('', 401));
       await store.write('refresh-1');
 
-      expect((await repository.refresh() as Err).failure, isA<SessionExpired>());
+      expect(
+        (await repository.refresh() as Err).failure,
+        isA<SessionExpired>(),
+      );
       expect(await store.read(), isNull);
     });
 
     test('an offline refresh keeps the token for later', () async {
-      final repository = repositoryWith((_) async => throw http.ClientException('offline'));
+      final repository = repositoryWith(
+        (_) async => throw http.ClientException('offline'),
+      );
       await store.write('refresh-1');
 
-      expect((await repository.restore() as Err).failure, isA<AuthUnavailable>());
+      expect(
+        (await repository.restore() as Err).failure,
+        isA<AuthUnavailable>(),
+      );
       expect(await store.read(), 'refresh-1');
     });
   });
 
   group('signOut', () {
-    test('revokes with the access token and forgets the refresh token', () async {
-      final repository = repositoryWith(
-        (request) async => request.url.path == '/auth/signin'
-            ? ok({'status': 'OK', 'user': {'id': 'user-1'}}, headers: tokenHeaders())
-            : ok({'status': 'OK'}),
-      );
-      await repository.signIn(credentials);
+    test(
+      'revokes with the access token and forgets the refresh token',
+      () async {
+        final repository = repositoryWith(
+          (request) async => request.url.path == '/auth/signin'
+              ? ok({
+                  'status': 'OK',
+                  'user': {'id': 'user-1'},
+                }, headers: tokenHeaders())
+              : ok({'status': 'OK'}),
+        );
+        await repository.signIn(credentials);
 
-      await repository.signOut();
+        await repository.signOut();
 
-      expect(sent.last.url.path, '/auth/signout');
-      expect(sent.last.headers['authorization'], 'Bearer access-1');
-      expect(await store.read(), isNull);
-    });
+        expect(sent.last.url.path, '/auth/signout');
+        expect(sent.last.headers['authorization'], 'Bearer access-1');
+        expect(await store.read(), isNull);
+      },
+    );
 
     test('still forgets locally when the server cannot be reached', () async {
-      final repository = repositoryWith((_) async => throw http.ClientException('offline'));
+      final repository = repositoryWith(
+        (_) async => throw http.ClientException('offline'),
+      );
       await store.write('refresh-1');
 
       await repository.signOut();
