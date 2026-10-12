@@ -19,8 +19,7 @@ Widget _app({SessionRepository? session}) => ProviderScope(
     manoConfigProvider.overrideWithValue(
       const ManoConfig(gatewayGraphQlUrl: 'http://localhost:8082/graphql'),
     ),
-    if (session != null)
-      sessionRepositoryProvider.overrideWithValue(session),
+    if (session != null) sessionRepositoryProvider.overrideWithValue(session),
   ],
   child: MaterialApp(
     theme: ManoTheme.light(),
@@ -128,6 +127,27 @@ void main() {
       expect(find.text('Tu casa, en buenas manos.'), findsOneWidget);
     });
 
+    testWidgets('slide 1 composes pros with photos and a nearby count', (
+      tester,
+    ) async {
+      await _boot(tester);
+
+      expect(find.byType(ManoAvatar), findsAtLeastNWidgets(3));
+      expect(find.text('+120 profesionales cerca'), findsOneWidget);
+    });
+
+    testWidgets('slide 2 shows a fixed-price quote with the pro photo', (
+      tester,
+    ) async {
+      await _boot(tester);
+      await tester.tap(find.text('Empezar'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Precio fijo'), findsOneWidget);
+      expect(find.text(r'$85.000'), findsOneWidget);
+      expect(find.byType(ManoAvatar), findsAtLeastNWidgets(2));
+    });
+
     testWidgets('the last slide offers all three ways in', (tester) async {
       await _boot(tester);
       await _toLastSlide(tester);
@@ -163,30 +183,37 @@ void main() {
   });
 
   group('signing in', () {
-    testWidgets('a rejected sign-in shows its notice, and dismissing clears it', (
-      tester,
-    ) async {
-      // The doorway watches the session directly, so a failure that leaves
-      // the location unchanged (there is no location here) still re-renders.
-      await _boot(tester, session: _signInRejectedRepository());
-      await _toLastSlide(tester);
+    testWidgets(
+      'a rejected sign-in shows its notice, and dismissing clears it',
+      (tester) async {
+        // The doorway watches the session directly, so a failure that leaves
+        // the location unchanged (there is no location here) still re-renders.
+        await _boot(tester, session: _signInRejectedRepository());
+        await _toLastSlide(tester);
 
-      // First tap leaves the carousel; the second opens the credentials sheet.
-      await tester.tap(find.text('Iniciar sesión'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Iniciar sesión'));
-      await tester.pumpAndSettle();
-      await tester.enterText(find.byKey(const Key('mano-credentials-email')), 'ana@mano.co');
-      await tester.enterText(find.byKey(const Key('mano-credentials-password')), 'nope');
-      await tester.pump();
-      await tester.tap(find.text('Entrar'));
-      await tester.pumpAndSettle();
+        // First tap leaves the carousel; the second opens the credentials sheet.
+        await tester.tap(find.text('Iniciar sesión'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Iniciar sesión'));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const Key('mano-credentials-email')),
+          'ana@mano.co',
+        );
+        await tester.enterText(
+          find.byKey(const Key('mano-credentials-password')),
+          'nope',
+        );
+        await tester.pump();
+        await tester.tap(find.text('Entrar'));
+        await tester.pumpAndSettle();
 
-      // The refusal shows inside the sheet, where the fix is typed.
-      expect(find.text('Correo o contraseña incorrectos.'), findsOneWidget);
-      expect(find.byType(ManoCredentialsSheet), findsOneWidget);
-      expect(find.byType(ManoNotice), findsNothing);
-    });
+        // The refusal shows inside the sheet, where the fix is typed.
+        expect(find.text('Correo o contraseña incorrectos.'), findsOneWidget);
+        expect(find.byType(ManoCredentialsSheet), findsOneWidget);
+        expect(find.byType(ManoNotice), findsNothing);
+      },
+    );
 
     testWidgets('good credentials close the sheet and go home', (tester) async {
       final repository = InMemorySessionRepository(
@@ -199,8 +226,14 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Iniciar sesión'));
       await tester.pumpAndSettle();
-      await tester.enterText(find.byKey(const Key('mano-credentials-email')), ' Ana@Mano.co ');
-      await tester.enterText(find.byKey(const Key('mano-credentials-password')), 'secret');
+      await tester.enterText(
+        find.byKey(const Key('mano-credentials-email')),
+        ' Ana@Mano.co ',
+      );
+      await tester.enterText(
+        find.byKey(const Key('mano-credentials-password')),
+        'secret',
+      );
       await tester.pump();
       await tester.tap(find.text('Entrar'));
       await tester.pumpAndSettle();
