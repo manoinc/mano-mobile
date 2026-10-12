@@ -5,7 +5,10 @@ import 'package:mano_session/mano_session.dart';
 /// Tests the catalog providers with a fake repository and nothing else.
 
 final class _FakeCatalogRepository implements CatalogRepository {
-  _FakeCatalogRepository({this.onCategories, this.onPopularListings});
+  _FakeCatalogRepository({
+    this.onCategories,
+    this.onPopularListings,
+  });
 
   final Future<List<ServiceCategory>> Function()? onCategories;
   final Future<List<ServiceListing>> Function()? onPopularListings;
@@ -45,35 +48,33 @@ ProviderContainer containerWith(CatalogRepository repository) {
 }
 
 void main() {
-  test(
-    'serviceCategoriesProvider resolves to the fake categories list',
-    () async {
-      final container = containerWith(
-        _FakeCatalogRepository(onCategories: () async => const [_category]),
-      );
+  test('serviceCategoriesProvider resolves to the fake categories list', () async {
+    final container = containerWith(
+      _FakeCatalogRepository(
+        onCategories: () async => const [_category],
+      ),
+    );
 
-      final categories = await container.read(serviceCategoriesProvider.future);
+    final categories = await container.read(serviceCategoriesProvider.future);
 
-      expect(categories, [_category]);
-    },
-  );
+    expect(categories, [_category]);
+  });
 
-  test(
-    'serviceCategoriesProvider resolves to empty list when overridden',
-    () async {
-      final container = containerWith(
-        _FakeCatalogRepository(onCategories: () async => []),
-      );
+  test('serviceCategoriesProvider resolves to empty list when overridden', () async {
+    final container = containerWith(
+      _FakeCatalogRepository(onCategories: () async => []),
+    );
 
-      final categories = await container.read(serviceCategoriesProvider.future);
+    final categories = await container.read(serviceCategoriesProvider.future);
 
-      expect(categories, isEmpty);
-    },
-  );
+    expect(categories, isEmpty);
+  });
 
   test('popularListingsProvider resolves to the fake listings list', () async {
     final container = containerWith(
-      _FakeCatalogRepository(onPopularListings: () async => const [_listing]),
+      _FakeCatalogRepository(
+        onPopularListings: () async => const [_listing],
+      ),
     );
 
     final listings = await container.read(popularListingsProvider.future);
@@ -81,16 +82,13 @@ void main() {
     expect(listings, [_listing]);
   });
 
-  test(
-    'popularListingsProvider resolves to empty list when overridden',
-    () async {
-      final container = containerWith(
-        _FakeCatalogRepository(onPopularListings: () async => []),
-      );
+  test('popularListingsProvider resolves to empty list when overridden', () async {
+    final container = containerWith(
+      _FakeCatalogRepository(onPopularListings: () async => []),
+    );
 
-      final listings = await container.read(popularListingsProvider.future);
+    final listings = await container.read(popularListingsProvider.future);
 
-      expect(listings, isEmpty);
-    },
-  );
+    expect(listings, isEmpty);
+  });
 }

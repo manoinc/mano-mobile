@@ -25,9 +25,7 @@ final class _FakeRegistrationRepository implements RegistrationRepository {
 ProviderContainer containerWith([RegistrationRepository? repository]) =>
     ProviderContainer.test(
       overrides: [
-        sessionRepositoryProvider.overrideWithValue(
-          InMemorySessionRepository(),
-        ),
+        sessionRepositoryProvider.overrideWithValue(InMemorySessionRepository()),
         if (repository != null)
           registrationRepositoryProvider.overrideWithValue(repository),
       ],
@@ -313,19 +311,16 @@ void main() {
     expect(container.read(onboardingFlowProvider), isA<OnboardingSignIn>());
   });
 
-  test(
-    'the default binding accepts a draft without sending it anywhere',
-    () async {
-      // Phase 1 keeps a draft on the device. The stub says Ok because that is
-      // the whole of what this phase promises -- unlike the auth stub, which
-      // must not pretend somebody signed in.
-      final container = containerWith();
+  test('the default binding accepts a draft without sending it anywhere', () async {
+    // Phase 1 keeps a draft on the device. The stub says Ok because that is
+    // the whole of what this phase promises -- unlike the auth stub, which
+    // must not pretend somebody signed in.
+    final container = containerWith();
 
-      final result = await container
-          .read(registrationRepositoryProvider)
-          .submit(const RegistrationDraft());
+    final result = await container
+        .read(registrationRepositoryProvider)
+        .submit(const RegistrationDraft());
 
-      expect(result.isOk, isTrue);
-    },
-  );
+    expect(result.isOk, isTrue);
+  });
 }

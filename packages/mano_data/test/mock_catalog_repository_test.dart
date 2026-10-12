@@ -19,37 +19,29 @@ void main() {
       expect(listings, isNotEmpty);
     });
 
-    test('every listing categoryId matches a category id', () async {
-      final categories = await repository.categories();
-      final listings = await repository.popularListings();
+    test(
+      'every listing categoryId matches a category id',
+      () async {
+        final categories = await repository.categories();
+        final listings = await repository.popularListings();
 
-      final categoryIds = {for (final c in categories) c.id};
+        final categoryIds = {for (final c in categories) c.id};
 
-      for (final listing in listings) {
-        expect(
-          categoryIds.contains(listing.categoryId),
-          isTrue,
-          reason:
-              'Listing $listing has unknown categoryId: ${listing.categoryId}',
-        );
-      }
-    });
+        for (final listing in listings) {
+          expect(categoryIds.contains(listing.categoryId), isTrue,
+              reason: 'Listing $listing has unknown categoryId: ${listing.categoryId}');
+        }
+      },
+    );
 
     test('every photoUrl and professionalPhotoUrl starts with https://', () async {
       final listings = await repository.popularListings();
 
       for (final listing in listings) {
-        expect(
-          listing.photoUrl.startsWith('https://'),
-          isTrue,
-          reason: 'Listing $listing has invalid photoUrl: ${listing.photoUrl}',
-        );
-        expect(
-          listing.professionalPhotoUrl.startsWith('https://'),
-          isTrue,
-          reason:
-              'Listing $listing has invalid professionalPhotoUrl: ${listing.professionalPhotoUrl}',
-        );
+        expect(listing.photoUrl.startsWith('https://'), isTrue,
+            reason: 'Listing $listing has invalid photoUrl: ${listing.photoUrl}');
+        expect(listing.professionalPhotoUrl.startsWith('https://'), isTrue,
+            reason: 'Listing $listing has invalid professionalPhotoUrl: ${listing.professionalPhotoUrl}');
       }
     });
   });

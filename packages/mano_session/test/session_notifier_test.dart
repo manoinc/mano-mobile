@@ -1,5 +1,6 @@
 import 'dart:async';
 
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_session/mano_session.dart';
@@ -17,10 +18,7 @@ const _user = AuthenticatedUser(
   roles: {ManoRole.provider},
 );
 
-Session session({
-  String token = 'access-1',
-  Duration lifetime = const Duration(minutes: 5),
-}) => Session(
+Session session({String token = 'access-1', Duration lifetime = const Duration(minutes: 5)}) => Session(
   user: _user,
   accessToken: token,
   expiresAt: DateTime.now().add(lifetime),
@@ -121,10 +119,8 @@ void main() {
 
     container.read(sessionProvider.notifier).acknowledgeFailure();
 
-    expect(
-      (container.read(sessionProvider).value! as SignedOut).lastFailure,
-      isNull,
-    );
+    expect((container.read(sessionProvider).value! as SignedOut).lastFailure,
+        isNull);
   });
 
   test('currentUser is null unless somebody is signed in', () async {
@@ -145,9 +141,7 @@ void main() {
     );
     await container.read(sessionProvider.future);
 
-    final signingIn = container
-        .read(sessionProvider.notifier)
-        .signIn(_credentials);
+    final signingIn = container.read(sessionProvider.notifier).signIn(_credentials);
     expect(container.read(sessionProvider).value, isA<SignedOut>());
 
     gate.complete(Ok(session()));
@@ -192,9 +186,7 @@ void main() {
   });
 
   test('signing in passes the credentials to the repository', () async {
-    final repository = InMemorySessionRepository(
-      onSignIn: () async => Ok(session()),
-    );
+    final repository = InMemorySessionRepository(onSignIn: () async => Ok(session()));
     final container = containerWith(repository);
     await container.read(sessionProvider.future);
 
@@ -205,24 +197,16 @@ void main() {
 
   test('signing in reports the failure, or null on success', () async {
     final refused = containerWith(
-      InMemorySessionRepository(
-        onSignIn: () async => const Err(SignInRejected()),
-      ),
+      InMemorySessionRepository(onSignIn: () async => const Err(SignInRejected())),
     );
     await refused.read(sessionProvider.future);
-    expect(
-      await refused.read(sessionProvider.notifier).signIn(_credentials),
-      isA<SignInRejected>(),
-    );
+    expect(await refused.read(sessionProvider.notifier).signIn(_credentials), isA<SignInRejected>());
 
     final accepted = containerWith(
       InMemorySessionRepository(onSignIn: () async => Ok(session())),
     );
     await accepted.read(sessionProvider.future);
-    expect(
-      await accepted.read(sessionProvider.notifier).signIn(_credentials),
-      isNull,
-    );
+    expect(await accepted.read(sessionProvider.notifier).signIn(_credentials), isNull);
   });
 
   test('signing up lands signed in', () async {
@@ -262,54 +246,43 @@ void main() {
       );
       await container.read(sessionProvider.future);
 
-      expect(
-        await container.read(sessionProvider.notifier).freshAccessToken(),
-        'access-1',
-      );
+      expect(await container.read(sessionProvider.notifier).freshAccessToken(), 'access-1');
       expect(refreshes, 0);
     });
 
-    test(
-      'renews a token about to expire, once for concurrent callers',
-      () async {
-        var refreshes = 0;
-        final container = containerWith(
-          InMemorySessionRepository(
-            onRestore: () async =>
-                Ok(session(lifetime: const Duration(seconds: 30))),
-            onRefresh: () async {
-              refreshes++;
-              return Ok(session(token: 'access-2'));
-            },
-          ),
-        );
-        await container.read(sessionProvider.future);
-        final manager = container.read(sessionProvider.notifier);
+    test('renews a token about to expire, once for concurrent callers', () async {
+      var refreshes = 0;
+      final container = containerWith(
+        InMemorySessionRepository(
+          onRestore: () async => Ok(session(lifetime: const Duration(seconds: 30))),
+          onRefresh: () async {
+            refreshes++;
+            return Ok(session(token: 'access-2'));
+          },
+        ),
+      );
+      await container.read(sessionProvider.future);
+      final manager = container.read(sessionProvider.notifier);
 
-        final tokens = await Future.wait([
-          manager.freshAccessToken(),
-          manager.freshAccessToken(),
-        ]);
+      final tokens = await Future.wait([
+        manager.freshAccessToken(),
+        manager.freshAccessToken(),
+      ]);
 
-        expect(tokens, ['access-2', 'access-2']);
-        expect(refreshes, 1);
-        expect(container.read(accessTokenProvider), 'access-2');
-      },
-    );
+      expect(tokens, ['access-2', 'access-2']);
+      expect(refreshes, 1);
+      expect(container.read(accessTokenProvider), 'access-2');
+    });
 
     test('a refused renewal signs out, saying why', () async {
       final container = containerWith(
         InMemorySessionRepository(
-          onRestore: () async =>
-              Ok(session(lifetime: const Duration(seconds: 30))),
+          onRestore: () async => Ok(session(lifetime: const Duration(seconds: 30))),
         ),
       );
       await container.read(sessionProvider.future);
 
-      expect(
-        await container.read(sessionProvider.notifier).freshAccessToken(),
-        isNull,
-      );
+      expect(await container.read(sessionProvider.notifier).freshAccessToken(), isNull);
 
       final state = container.read(sessionProvider).value;
       expect(state, isA<SignedOut>());
@@ -319,17 +292,13 @@ void main() {
     test('an offline renewal keeps using the still-valid token', () async {
       final container = containerWith(
         InMemorySessionRepository(
-          onRestore: () async =>
-              Ok(session(lifetime: const Duration(seconds: 30))),
+          onRestore: () async => Ok(session(lifetime: const Duration(seconds: 30))),
           onRefresh: () async => const Err(AuthUnavailable()),
         ),
       );
       await container.read(sessionProvider.future);
 
-      expect(
-        await container.read(sessionProvider.notifier).freshAccessToken(),
-        'access-1',
-      );
+      expect(await container.read(sessionProvider.notifier).freshAccessToken(), 'access-1');
       expect(container.read(sessionProvider).value, isA<SignedIn>());
     });
 
@@ -338,10 +307,7 @@ void main() {
       await container.read(sessionProvider.future);
       container.read(sessionProvider.notifier).browseAsGuest();
 
-      expect(
-        await container.read(sessionProvider.notifier).freshAccessToken(),
-        isNull,
-      );
+      expect(await container.read(sessionProvider.notifier).freshAccessToken(), isNull);
     });
   });
 }

@@ -9,10 +9,7 @@ void main() {
     final repository = InMemorySessionRepository();
 
     expect(await repository.restore(), const Ok<Session?, AuthFailure>(null));
-    expect(
-      (await repository.signIn(credentials) as Err).failure,
-      isA<SignInCancelled>(),
-    );
+    expect((await repository.signIn(credentials) as Err).failure, isA<SignInCancelled>());
     expect((await repository.refresh() as Err).failure, isA<SessionExpired>());
   });
 
@@ -37,10 +34,7 @@ void main() {
       onRefresh: () async => Ok(session),
     );
 
-    expect(
-      await repository.signIn(credentials),
-      Ok<Session, AuthFailure>(session),
-    );
+    expect(await repository.signIn(credentials), Ok<Session, AuthFailure>(session));
     expect(await repository.refresh(), Ok<Session, AuthFailure>(session));
   });
 }
