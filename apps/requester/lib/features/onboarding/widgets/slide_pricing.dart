@@ -22,24 +22,16 @@ class SlidePricing extends StatelessWidget {
             style: theme.textTheme.headlineMedium,
           ),
           const SizedBox(height: ManoSpacing.xl),
-          ManoListingCarousel(
-            viewportFraction: 0.94,
-            height:
-                ManoSpacing.md * 3 + MediaQuery.textScalerOf(context).scale(96),
-            children: [
-              for (final booking in mockBookings)
-                ManoBookingCard(
-                  avatar: ManoInitialsAvatar(
-                    initials: booking.initials,
-                    size: 40,
-                  ),
-                  name: booking.name,
-                  task: booking.task,
-                  when: booking.when,
-                  price: booking.price,
-                ),
-            ],
-          ),
+          for (final (index, booking) in mockBookings.indexed) ...[
+            if (index > 0) const SizedBox(height: ManoSpacing.sm),
+            ManoBookingCard(
+              avatar: ManoInitialsAvatar(initials: booking.initials, size: 40),
+              name: booking.name,
+              task: booking.task,
+              when: booking.when,
+              price: booking.price,
+            ),
+          ],
           const SizedBox(height: ManoSpacing.lg),
         ],
       ),

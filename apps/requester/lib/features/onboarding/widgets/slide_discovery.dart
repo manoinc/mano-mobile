@@ -25,24 +25,19 @@ class SlideDiscovery extends StatelessWidget {
             style: theme.textTheme.headlineMedium,
           ),
           const SizedBox(height: ManoSpacing.xl),
-          ManoListingCarousel(
-            viewportFraction: 0.94,
-            height:
-                ManoSpacing.md * 2 + MediaQuery.textScalerOf(context).scale(72),
-            children: [
-              for (final (index, tasker) in mockTaskers.indexed)
-                _Arriving(
-                  progress: ManoMotion.stagger(index, reveal),
-                  child: ManoPersonRow(
-                    avatar: ManoInitialsAvatar(initials: tasker.initials),
-                    name: tasker.name,
-                    detail: tasker.detail,
-                    rating: tasker.rating,
-                    ratingLabel: tasker.ratingLabel,
-                  ),
-                ),
-            ],
-          ),
+          for (final (index, tasker) in mockTaskers.indexed) ...[
+            if (index > 0) const SizedBox(height: ManoSpacing.sm),
+            _Arriving(
+              progress: ManoMotion.stagger(index, reveal),
+              child: ManoPersonRow(
+                avatar: ManoInitialsAvatar(initials: tasker.initials),
+                name: tasker.name,
+                detail: tasker.detail,
+                rating: tasker.rating,
+                ratingLabel: tasker.ratingLabel,
+              ),
+            ),
+          ],
           const SizedBox(height: ManoSpacing.lg),
         ],
       ),
@@ -50,7 +45,7 @@ class SlideDiscovery extends StatelessWidget {
   }
 }
 
-/// Rises and fades a card into place.
+/// Rises and fades a row into place.
 class _Arriving extends StatelessWidget {
   const _Arriving({required this.progress, required this.child});
 
