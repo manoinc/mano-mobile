@@ -47,6 +47,7 @@ export 'src/widgets/mano_initials_avatar.dart';
 export 'src/widgets/mano_integration_row.dart';
 export 'src/widgets/mano_listing_card.dart';
 export 'src/widgets/mano_listing_carousel.dart';
+export 'src/widgets/mano_listing_tile.dart';
 export 'src/widgets/mano_message_composer.dart';
 export 'src/widgets/mano_month_calendar.dart';
 export 'src/widgets/mano_notice.dart';

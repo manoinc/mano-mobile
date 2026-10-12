@@ -99,7 +99,7 @@ void main() {
     await scrollTo(tester, find.text('Mejor calificados'));
     expect(find.text('Mejor calificados'), findsOneWidget);
     await scrollTo(tester, find.byType(ManoSectionHeader).last);
-    expect(find.byType(ManoListingCarousel), findsWidgets);
+    expect(find.byType(ManoListingRail), findsWidgets);
     expect(find.byType(ManoSectionHeader).evaluate().length, greaterThan(2));
   });
 

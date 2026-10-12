@@ -12,20 +12,6 @@ void _showStub(BuildContext context) {
 }
 
 /// Height of a carousel card: 16:9 photo, avatar row and a two-line title.
-double _listingCardHeight(BuildContext context, double railWidth) {
-  const viewportFraction = 0.8;
-  final cardWidth = railWidth * viewportFraction - ManoSpacing.sm;
-  final body = Theme.of(context).textTheme.bodyMedium!;
-  final titleLines = MediaQuery.textScalerOf(context)
-      .scale(body.fontSize! * (body.height ?? 1.5) * 2);
-  final avatarRow = MediaQuery.textScalerOf(context).scale(28);
-  return cardWidth * 9 / 16 +
-      ManoSpacing.sm * 2 +
-      avatarRow +
-      ManoSpacing.xs +
-      titleLines +
-      ManoSpacing.md;
-}
 
 /// The Inicio tab: a greeting (or a neutral headline for guests), an address
 /// and a search pill, a category rail, and horizontal rails of listings.
@@ -161,17 +147,17 @@ class _Rail extends StatelessWidget {
           ),
           const SizedBox(height: ManoSpacing.sm),
           LayoutBuilder(
-            builder: (context, constraints) => ManoListingCarousel(
-              height: _listingCardHeight(context, constraints.maxWidth),
+            // About 2.3 tiles in view, so the next one invites a swipe.
+            builder: (context, constraints) => ManoListingRail(
+              itemWidth: constraints.maxWidth * 0.42,
               children: [
                 for (final listing in section.listings)
-                  ManoListingCard(
+                  ManoListingTile(
                     title: listing.title,
                     photoUrl: listing.photoUrl,
                     professionalName: listing.professionalName,
-                    professionalPhotoUrl: listing.professionalPhotoUrl,
                     priceLabel:
-                        'Desde ${ManoFormat.cop(listing.priceFromCents ~/ 100)} COP',
+                        'Desde ${ManoFormat.cop(listing.priceFromCents ~/ 100)}',
                     rating: listing.rating,
                     onTap: () => _showStub(context),
                   ),

@@ -21,5 +21,39 @@ WidgetbookCategory homeSections() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoListingTile', {
+      'Default': (context) => Center(
+        child: SizedBox(
+          width: 160,
+          child: ManoListingTile(
+            title: 'Limpieza profunda de apartamento',
+            photoUrl: sampleListingPhoto,
+            professionalName: 'Carlos Mendoza',
+            priceLabel: 'Desde \$80.000',
+            rating: 4.8,
+            onTap: noop,
+          ),
+        ),
+      ),
+    }),
+    component('ManoListingRail', {
+      'Free scrolling': (context) => Padding(
+        padding: const EdgeInsets.all(ManoSpacing.md),
+        child: ManoListingRail(
+          itemWidth: 160,
+          children: [
+            for (var i = 0; i < 5; i++)
+              ManoListingTile(
+                title: 'Limpieza profunda de apartamento',
+                photoUrl: sampleListingPhoto,
+                professionalName: 'Carlos Mendoza',
+                priceLabel: 'Desde \$80.000',
+                rating: 4.8,
+                onTap: noop,
+              ),
+          ],
+        ),
+      ),
+    }),
   ],
 );
