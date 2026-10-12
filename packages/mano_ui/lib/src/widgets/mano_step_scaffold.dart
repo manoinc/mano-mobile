@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/mano_motion.dart';
 import '../theme/mano_theme.dart';
 import 'mano_primary_button.dart';
 import 'mano_text_action.dart';
@@ -20,6 +21,7 @@ class ManoStepScaffold extends StatelessWidget {
     this.onTrailing,
     this.subhead,
     this.busy = false,
+    this.progress,
     super.key,
   });
 
@@ -42,6 +44,9 @@ class ManoStepScaffold extends StatelessWidget {
   final VoidCallback? onPrimary;
 
   final bool busy;
+
+  /// A thin bar under the top row, 0 to 1; none when null.
+  final double? progress;
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +83,7 @@ class ManoStepScaffold extends StatelessWidget {
                 ],
               ),
             ),
+            if (progress != null) _ProgressBar(value: progress!),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(
@@ -120,6 +126,33 @@ class ManoStepScaffold extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProgressBar extends StatelessWidget {
+  const _ProgressBar({required this.value});
+
+  final double value;
+
+  @override
+  Widget build(BuildContext context) {
+    final still = MediaQuery.disableAnimationsOf(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: ManoSpacing.lg),
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(end: value),
+        duration: still ? Duration.zero : ManoMotion.normal,
+        curve: ManoMotion.entrance,
+        builder: (context, v, _) => LinearProgressIndicator(
+          value: v,
+          minHeight: 3,
+          borderRadius: BorderRadius.circular(ManoRadius.pill),
+          color: ManoColors.flame,
+          backgroundColor: ManoColors.stone,
         ),
       ),
     );
