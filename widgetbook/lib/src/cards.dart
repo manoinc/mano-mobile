@@ -20,6 +20,25 @@ WidgetbookCategory cards() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoListingCarousel', {
+      'Default': (context) => _padded(
+        ManoListingCarousel(
+          height: 230,
+          children: [
+            for (final title in ['Limpieza profunda', 'Reparación de tuberías', 'Pintura'])
+              ManoListingCard(
+                title: title,
+                photoUrl: sampleListingPhoto,
+                professionalName: 'Carlos Mendoza',
+                professionalPhotoUrl: sampleProPhoto,
+                priceLabel: 'Desde \$80.000 COP',
+                rating: 4.8,
+                onTap: noop,
+              ),
+          ],
+        ),
+      ),
+    }),
     component('ManoOfferCard', {
       'Requester (offers list)': (context) => _padded(
         ManoOfferCard(
