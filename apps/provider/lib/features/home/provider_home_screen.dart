@@ -15,9 +15,10 @@ class ProviderHomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(providerProfileProvider);
-    final name =
-        greetingName(ref.watch(currentUserProvider)) ??
-        greetingFirstName(profile.value);
+    final name = resolveGreetingName(
+      ref.watch(currentUserProvider),
+      profile.value,
+    );
     final next = ref.watch(upcomingJobsProvider).value?.firstOrNull;
 
     return Scaffold(

@@ -20,9 +20,8 @@ class ManoGreetingHeader extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final greeting = Text(
       'Hola, $name',
-      style: Theme.of(
-        context,
-      ).textTheme.headlineSmall?.copyWith(color: scheme.onSurface),
+      style: Theme.of(context).textTheme.headlineSmall
+          ?.copyWith(color: scheme.onSurface),
     );
     final photo = photoUrl;
     if (photo == null) return greeting;

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mano_session/mano_session.dart' show EarningsPeriod;
 
 import '../features/agenda/agenda_job_screen.dart';
 import '../features/agenda/agenda_screen.dart';
@@ -8,6 +9,9 @@ import '../features/availability/availability_screen.dart';
 import '../features/chat/chat_screen.dart';
 import '../features/chat/provider_inbox_screen.dart';
 import '../features/home/provider_home_screen.dart';
+import '../features/profile/earnings_breakdown_screen.dart';
+import '../features/profile/provider_profile_screen.dart';
+import '../features/profile/reviews_section.dart';
 import '../features/services/my_services_screen.dart';
 import '../features/services/offer_editor_screen.dart';
 import 'module_placeholder.dart';
@@ -85,11 +89,21 @@ final providerRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/profile',
-                builder: (context, state) => const ModulePlaceholder(
-                  title: 'Perfil',
-                  detail: 'Ganancias, reseñas y tus servicios.',
-                ),
+                builder: (context, state) => const ProviderProfileScreen(),
                 routes: [
+                  GoRoute(
+                    path: 'earnings',
+                    builder: (context, state) => EarningsBreakdownScreen(
+                      period: EarningsPeriod.values.firstWhere(
+                        (p) => p.name == state.uri.queryParameters['period'],
+                        orElse: () => EarningsPeriod.week,
+                      ),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'reviews',
+                    builder: (context, state) => const ReviewsScreen(),
+                  ),
                   GoRoute(
                     path: 'services',
                     builder: (context, state) => const MyServicesScreen(),

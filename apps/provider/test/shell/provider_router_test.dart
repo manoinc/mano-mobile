@@ -6,6 +6,7 @@ import 'package:mano_provider/features/availability/availability_screen.dart';
 import 'package:mano_provider/features/chat/chat_screen.dart';
 import 'package:mano_provider/features/chat/provider_inbox_screen.dart';
 import 'package:mano_provider/features/home/provider_home_screen.dart';
+import 'package:mano_provider/features/profile/provider_profile_screen.dart';
 import 'package:mano_provider/features/services/offer_editor_screen.dart';
 import 'package:mano_provider/shell/module_placeholder.dart';
 import 'package:mano_provider/shell/provider_nav_shell.dart';
@@ -32,7 +33,7 @@ void main() {
     final tabs = {
       'Bandeja': ProviderInboxScreen,
       'Billetera': ModulePlaceholder,
-      'Perfil': ModulePlaceholder,
+      'Perfil': ProviderProfileScreen,
       'Inicio': ProviderHomeScreen,
       'Agenda': AgendaScreen,
     };

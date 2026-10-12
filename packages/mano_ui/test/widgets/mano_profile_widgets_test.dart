@@ -31,6 +31,17 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('ManoGreetingHeader shows an avatar only with a photo', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_host(const ManoGreetingHeader(name: 'Ana')));
+    expect(find.byType(ManoAvatar), findsNothing);
+    await tester.pumpWidget(
+      _host(const ManoGreetingHeader(name: 'Ana', photoUrl: null)),
+    );
+    expect(find.text('Hola, Ana'), findsOneWidget);
+  });
+
   testWidgets('ManoStatTile shows value and label', (tester) async {
     await tester.pumpWidget(
       _host(const ManoStatTile(value: '4,9', label: 'Calificación')),
