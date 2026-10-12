@@ -176,6 +176,7 @@ void main() {
     expect(find.text('Conectado'), findsOneWidget);
     expect(find.text('Generar enlace'), findsNothing);
 
+    await _scrollTo(tester, find.text('Copiar enlace'));
     await tester.tap(find.text('Copiar enlace'));
     await tester.pump();
     expect(copied, first);
