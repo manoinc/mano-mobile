@@ -24,8 +24,12 @@ final class _FakeConversationRepository implements ConversationRepository {
 final _fakeConversations = [
   Conversation(
     id: 'conv-1',
-    participantName: 'Camila Ríos',
-    participantPhotoUrl: 'https://example.com/camila.jpg',
+    participant: Party(
+      id: 'party-0',
+      displayName: 'Camila Ríos',
+      photoUrl: 'https://example.com/camila.jpg',
+    ),
+    participantRole: ManoRole.provider,
     lastMessage: 'Nos vemos mañana a las 10',
     lastMessageAt: DateTime.now().subtract(const Duration(minutes: 5)),
     isOnline: true,
@@ -34,8 +38,12 @@ final _fakeConversations = [
   ),
   Conversation(
     id: 'conv-2',
-    participantName: 'Juan García',
-    participantPhotoUrl: 'https://example.com/juan.jpg',
+    participant: Party(
+      id: 'party-1',
+      displayName: 'Juan García',
+      photoUrl: 'https://example.com/juan.jpg',
+    ),
+    participantRole: ManoRole.provider,
     lastMessage: 'Listo, quedó todo funcionando',
     lastMessageAt: DateTime.now().subtract(const Duration(hours: 2)),
     isOnline: false,
@@ -93,24 +101,36 @@ void main() {
         conversations: [
           Conversation(
             id: 'boundary-1',
-            participantName: 'Recién',
-            participantPhotoUrl: 'https://example.com/a.jpg',
+            participant: Party(
+              id: 'party-2',
+              displayName: 'Recién',
+              photoUrl: 'https://example.com/a.jpg',
+            ),
+            participantRole: ManoRole.provider,
             lastMessage: 'Hace segundos',
             // Under a minute rounds up to '1m', never '0m'.
             lastMessageAt: now.subtract(const Duration(seconds: 30)),
           ),
           Conversation(
             id: 'boundary-2',
-            participantName: 'Hace una hora',
-            participantPhotoUrl: 'https://example.com/b.jpg',
+            participant: Party(
+              id: 'party-3',
+              displayName: 'Hace una hora',
+              photoUrl: 'https://example.com/b.jpg',
+            ),
+            participantRole: ManoRole.provider,
             lastMessage: 'Justo a la hora',
             // Exactly 60 minutes is no longer "under 1 hour".
             lastMessageAt: now.subtract(const Duration(minutes: 60)),
           ),
           Conversation(
             id: 'boundary-3',
-            participantName: 'Hace un día',
-            participantPhotoUrl: 'https://example.com/c.jpg',
+            participant: Party(
+              id: 'party-4',
+              displayName: 'Hace un día',
+              photoUrl: 'https://example.com/c.jpg',
+            ),
+            participantRole: ManoRole.provider,
             lastMessage: 'Justo el día',
             // Exactly 24 hours is no longer "under 24 hours".
             lastMessageAt: now.subtract(const Duration(hours: 24)),

@@ -21,6 +21,7 @@ class ProviderInboxScreen extends ConsumerWidget {
             children: [
               for (final conversation in value)
                 ManoConversationTile(
+                  key: ValueKey(conversation.id),
                   avatarUrl: conversation.participantPhotoUrl,
                   online: conversation.isOnline,
                   verified: conversation.isVerified,

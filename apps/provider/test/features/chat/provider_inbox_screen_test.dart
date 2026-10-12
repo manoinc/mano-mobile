@@ -26,8 +26,12 @@ final _now = DateTime.now();
 final _conversations = [
   Conversation(
     id: 'conv-1',
-    participantName: 'Camila Ríos',
-    participantPhotoUrl: 'https://example.com/camila.jpg',
+    participant: Party(
+      id: 'party-0',
+      displayName: 'Camila Ríos',
+      photoUrl: 'https://example.com/camila.jpg',
+    ),
+    participantRole: ManoRole.provider,
     lastMessage: '¿A qué hora llegas?',
     lastMessageAt: _now.subtract(const Duration(minutes: 5)),
     isOnline: true,
@@ -36,8 +40,12 @@ final _conversations = [
   ),
   Conversation(
     id: 'conv-2',
-    participantName: 'Juan García',
-    participantPhotoUrl: 'https://example.com/juan.jpg',
+    participant: Party(
+      id: 'party-1',
+      displayName: 'Juan García',
+      photoUrl: 'https://example.com/juan.jpg',
+    ),
+    participantRole: ManoRole.provider,
     lastMessage: 'Gracias, quedó perfecto',
     lastMessageAt: _now.subtract(const Duration(hours: 2)),
   ),
