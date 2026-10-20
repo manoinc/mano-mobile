@@ -21,6 +21,12 @@ Future<void> _tapText(WidgetTester tester, String text) async {
   await tester.pumpAndSettle();
 }
 
+// Pumps so Continuar rebuilds enabled before the next tap.
+Future<void> _type(WidgetTester tester, String label, String text) async {
+  await tester.enterText(_field(label), text);
+  await tester.pump();
+}
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -38,15 +44,15 @@ void main() {
 
     await _tapText(tester, 'Crear cuenta profesional');
 
-    await tester.enterText(_field('Nombre completo'), 'Ana Gómez');
+    await _type(tester, 'Nombre completo', 'Ana Gómez');
     await _tapText(tester, 'Continuar');
-    await tester.enterText(_field('Celular'), '300 123 4567');
+    await _type(tester, 'Celular', '300 123 4567');
     await _tapText(tester, 'Continuar');
-    await tester.enterText(_field('Zona de cobertura'), 'Chapinero');
+    await _type(tester, 'Zona de cobertura', 'Chapinero');
     await _tapText(tester, 'Continuar');
     await _tapText(tester, 'Plomería');
     await _tapText(tester, 'Continuar');
-    await tester.enterText(_field('Años de experiencia'), '5');
+    await _type(tester, 'Años de experiencia', '5');
     await _tapText(tester, 'Continuar');
     await _tapText(tester, 'Omitir');
 
