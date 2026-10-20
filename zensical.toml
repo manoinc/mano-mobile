@@ -37,6 +37,7 @@ nav = [
     "develop/adding-a-screen.md",
     "develop/adding-a-component.md",
     "develop/testing.md",
+    "develop/ios.md",
     "develop/backend-contract.md",
     "develop/documentation.md",
   ] },

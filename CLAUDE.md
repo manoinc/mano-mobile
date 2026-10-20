@@ -40,6 +40,7 @@ cd apps/provider         && flutter test         # 87
 cd widgetbook            && flutter test         # 71 — every use case renders, every widget covered
 tools/docs.sh serve                              # the handbook at localhost:8000
 cd apps/<app> && flutter test integration_test -d RFGL20WAR9E  # on the A36, one at a time
+cd apps/<app> && flutter test integration_test -d "iPhone 17"  # iOS simulator
 dart tools/generate_logo_paths.dart              # after changing tools/brand/*.svg
 cd apps/requester && flutter run -d RFGL20WAR9E  # the A36
 ```
@@ -56,7 +57,7 @@ Modular, loosely coupled components; KISS and YAGNI by default; SOLID reserved f
 Hexagonal architecture. Business logic must not depend on the presentation framework. 
 
 Use TDD to make sure the code works E2E. 
-The code must be structured in such a clean way that it looks the same in all apps and we don't have to duplicate effort across them. Only `android/` exists today; iOS is planned, so keep everything platform-agnostic.
+The code must be structured in such a clean way that it looks the same in all apps and we don't have to duplicate effort across them. Both `android/` and `ios/` exist; keep everything platform-agnostic. iOS setup: `docs/develop/ios.md`.
 
 Avoid extensive verbose comments or documentation inside the code, all comments must be one-liners, concise and easy to understand. Extensive documentation must sit outside the code, in the handbook's markdown files (`docs/`).
 DO NOT coauthor any commits.

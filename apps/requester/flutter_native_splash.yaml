@@ -1,4 +1,4 @@
-# The first frame of the opening animation, drawn by Android rather than by us.
+# The first frame of the opening animation, drawn by the OS rather than by us.
 #
 # It has to match what Flutter paints a moment later -- same mark, same colour,
 # same ground -- or the handover shows as a jump. ManoOpening holds this frame
@@ -11,8 +11,7 @@ flutter_native_splash:
   image_dark: assets/brand/splash.png
 
   android: true
-  # No iOS folder exists yet. When one does, this generates for it unchanged.
-  ios: false
+  ios: true
   web: false
 
   android_12:

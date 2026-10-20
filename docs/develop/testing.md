@@ -9,6 +9,7 @@ We work test-first: write the failing test, watch it fail, make it pass.
 | Catalogue | `cd widgetbook && flutter test` | host: every use case renders, every widget is covered |
 | Apps | `flutter test` in the app | host |
 | Device flows | `cd apps/<app> && flutter test integration_test/<x>_test.dart -d RFGL20WAR9E` | the phone |
+| Device flows, iOS | `cd apps/<app> && flutter test integration_test -d "iPhone 17"` | the simulator; see [iOS](ios.md) |
 
 ## Habits
 
