@@ -32,8 +32,12 @@ final class SessionManager extends AsyncNotifier<SessionState> {
       _authenticate(() => _repository.signIn(credentials));
 
   /// Resolves to the failure, or `null` once the new account is signed in.
-  Future<AuthFailure?> signUp(Credentials credentials) =>
-      _authenticate(() => _repository.signUp(credentials));
+  ///
+  /// The account takes this app's role: Solicitante or Proveedor.
+  Future<AuthFailure?> signUp(Credentials credentials) {
+    final role = ref.read(manoConfigProvider).appRole;
+    return _authenticate(() => _repository.signUp(credentials, role: role));
+  }
 
   /// Lets somebody without an account into the app; never demotes a signed-in user.
   void browseAsGuest() {

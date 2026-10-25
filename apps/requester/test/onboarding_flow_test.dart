@@ -54,7 +54,7 @@ InMemorySessionRepository _signedInRepository() => InMemorySessionRepository(
 
 InMemorySessionRepository _signInRejectedRepository() =>
     InMemorySessionRepository(
-      onSignIn: () async => const Err(SignInRejected(reason: '401')),
+      onSignIn: () async => const Err(WrongCredentials()),
     );
 
 Future<void> _boot(WidgetTester tester, {SessionRepository? session}) async {
@@ -213,7 +213,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // The refusal shows inside the sheet, where the fix is typed.
-        expect(find.text('Correo o contraseña incorrectos.'), findsOneWidget);
+        expect(find.text('Correo o contraseña incorrectos'), findsOneWidget);
         expect(find.byType(ManoCredentialsSheet), findsOneWidget);
         expect(find.byType(ManoNotice), findsNothing);
       },

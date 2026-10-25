@@ -28,6 +28,7 @@ export 'package:mano_domain/mano_domain.dart';
 export 'src/activity/activity_providers.dart';
 export 'src/activity/party_names.dart';
 export 'src/agenda/agenda_providers.dart';
+export 'src/auth_copy.dart';
 export 'src/agenda/hour_log.dart';
 export 'src/availability/availability_providers.dart';
 export 'src/booking/booking_notifier.dart';

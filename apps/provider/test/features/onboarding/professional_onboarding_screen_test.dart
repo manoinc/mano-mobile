@@ -138,7 +138,7 @@ void main() {
 
     expect(find.byType(ManoCredentialsSheet), findsOneWidget);
     expect(
-      find.textContaining('No pudimos conectar con el servicio'),
+      find.text('No pudimos conectarnos. Intenta de nuevo.'),
       findsOneWidget,
     );
   });
