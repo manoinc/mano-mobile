@@ -40,4 +40,9 @@ void main() {
     final now = DateTime(2026, 10, 4, 12);
     expect(ManoFormat.relative(now.add(const Duration(minutes: 5)), now), '1m');
   });
+
+  test('ago says "hace" before the short elapsed label', () {
+    final now = DateTime(2026, 10, 4, 12);
+    expect(ManoFormat.ago(now.subtract(const Duration(hours: 5)), now), 'hace 5h');
+  });
 }

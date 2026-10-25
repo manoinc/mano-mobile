@@ -52,4 +52,7 @@ abstract final class ManoFormat {
     if (elapsed.inHours < 24) return '${elapsed.inHours}h';
     return '${elapsed.inDays}d';
   }
+
+  /// "hace 5h"
+  static String ago(DateTime at, DateTime now) => 'hace ${relative(at, now)}';
 }

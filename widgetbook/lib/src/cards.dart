@@ -129,6 +129,78 @@ WidgetbookCategory cards() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoProjectSummaryCard', {
+      'With quotes': (context) => _padded(
+        ManoProjectSummaryCard(
+          title: 'Pintar apartamento de 70 m²',
+          subtitle: 'Pintura · hace 5h',
+          statusLabel: '3 cotizaciones',
+          statusTone: context.knobs.object.segmented(
+            label: 'Tone',
+            options: ManoStatusTone.values,
+            initialOption: ManoStatusTone.info,
+            labelBuilder: (t) => t.name,
+          ),
+          trailingLabel: 'desde ${ManoFormat.cop(1450000)}',
+          onTap: noop,
+        ),
+      ),
+      'Waiting': (context) => _padded(
+        ManoProjectSummaryCard(
+          title: 'Cambiar tubería del baño',
+          subtitle: 'Plomería · hace 1d',
+          statusLabel: 'Esperando cotizaciones',
+          statusTone: ManoStatusTone.neutral,
+          onTap: noop,
+        ),
+      ),
+    }),
+    component('ManoLeadCard', {
+      'Default': (context) => _padded(
+        ManoLeadCard(
+          title: context.knobs.string(
+            label: 'Title',
+            initialValue: 'Pintar apartamento de 70 m²',
+          ),
+          categoryLabel: 'Pintura',
+          ageLabel: 'hace 5h',
+          budgetLabel: context.knobs.boolean(label: 'Budget', initialValue: true)
+              ? 'Presupuesto ${ManoFormat.cop(1800000)}'
+              : 'Sin presupuesto',
+          costLabel: 'Gratis',
+          onTap: noop,
+        ),
+      ),
+    }),
+    component('ManoQuoteCard', {
+      'Open': (context) => _padded(
+        ManoQuoteCard(
+          avatar: const ManoInitialsAvatar(initials: 'AC', size: 40),
+          name: 'Andrés Castro',
+          amountLabel: ManoFormat.cop(1650000),
+          ageLabel: 'hace 4h',
+          message: context.knobs.string(
+            label: 'Message',
+            initialValue:
+                'Incluye resanar grietas, tratar la humedad y dos manos de pintura.',
+          ),
+          onSelect: noop,
+          onDiscard: noop,
+        ),
+      ),
+      'Selected': (context) => _padded(
+        ManoQuoteCard(
+          avatar: const ManoInitialsAvatar(initials: 'P', size: 40),
+          name: 'Profesional',
+          amountLabel: ManoFormat.cop(580000),
+          ageLabel: 'hace 3d',
+          statusLabel: 'Elegida',
+          statusTone: ManoStatusTone.success,
+          selected: true,
+          onDiscard: noop,
+        ),
+      ),
+    }),
     component('ManoRequestCard', {
       'Pending': (context) => _padded(
         ManoRequestCard(
