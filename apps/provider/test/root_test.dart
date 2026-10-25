@@ -25,21 +25,69 @@ Future<void> _pumpApp(
   await tester.pumpAndSettle();
 }
 
+ProviderContainer _container(WidgetTester tester) =>
+    ProviderScope.containerOf(tester.element(find.byType(ProviderApp)));
+
 void main() {
   testWidgets('signed out lands on professional onboarding', (tester) async {
     await _pumpApp(tester, FakeSessionRepository());
     expect(find.byType(ProfessionalOnboardingScreen), findsOneWidget);
   });
 
-  testWidgets('finishing onboarding enters the shell', (tester) async {
+  testWidgets(
+    'a new account stays in onboarding until finished, then enters the shell',
+    (tester) async {
+      await _pumpApp(
+        tester,
+        FakeSessionRepository(onSignUp: () async => Ok(fakeSession())),
+      );
+      final container = _container(tester);
+      final onboarding = container.read(providerOnboardingProvider.notifier)
+        ..start()
+        ..editEmail('pro@mano.co')
+        ..next()
+        ..editPassword('mano2026');
+      await onboarding.createAccount();
+      await tester.pumpAndSettle();
+
+      expect(container.read(sessionProvider).value, isA<SignedIn>());
+      expect(find.byType(ProfessionalOnboardingScreen), findsOneWidget);
+
+      tester
+          .widget<ProfessionalOnboardingScreen>(
+            find.byType(ProfessionalOnboardingScreen),
+          )
+          .onFinished();
+      await tester.pumpAndSettle();
+      expect(find.byType(ProviderNavShell), findsOneWidget);
+    },
+  );
+
+  testWidgets('"Ahora no" on the account steps enters the shell as a guest', (
+    tester,
+  ) async {
     await _pumpApp(tester, FakeSessionRepository());
-    tester
-        .widget<ProfessionalOnboardingScreen>(
-          find.byType(ProfessionalOnboardingScreen),
-        )
-        .onFinished();
+    final container = _container(tester);
+    container.read(providerOnboardingProvider.notifier)
+      ..start()
+      ..browseAsGuest();
     await tester.pumpAndSettle();
+
+    expect(container.read(sessionProvider).value, isA<Guest>());
     expect(find.byType(ProviderNavShell), findsOneWidget);
+  });
+
+  testWidgets('signing out returns to the welcome', (tester) async {
+    await _pumpApp(
+      tester,
+      FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
+    );
+
+    await _container(tester).read(sessionProvider.notifier).signOut();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ProfessionalOnboardingScreen), findsOneWidget);
+    expect(find.text('Crear cuenta profesional'), findsOneWidget);
   });
 
   testWidgets('signed in goes straight to the shell', (tester) async {

@@ -38,7 +38,8 @@ Future<void> _pump(
         offlineMarketplaceProvider.overrideWithValue(true),
         manoConfigProvider.overrideWithValue(testConfig),
         sessionRepositoryProvider.overrideWithValue(
-          session ?? FakeSessionRepository(),
+          session ??
+              FakeSessionRepository(onSignUp: () async => Ok(fakeSession())),
         ),
         providerOnboardingRepositoryProvider.overrideWithValue(
           onboarding ?? _FakeOnboarding(),
@@ -70,9 +71,18 @@ Future<void> _answer(WidgetTester tester, String label, String value) async {
   await _tapText(tester, 'Continuar');
 }
 
+/// From the welcome through email and password; the account is created.
+Future<void> _createAccount(WidgetTester tester) async {
+  await _tapText(tester, 'Crear cuenta profesional');
+  await _answer(tester, 'Correo', 'pro@mano.co');
+  await tester.enterText(_field('Contraseña'), 'mano2026');
+  await tester.pump();
+  await _tapText(tester, 'Crear cuenta');
+}
+
 /// Answers every question up to the bio, leaving the bio on screen.
 Future<void> _answerUpToBio(WidgetTester tester) async {
-  await _tapText(tester, 'Crear cuenta profesional');
+  await _createAccount(tester);
   await _answer(tester, 'Nombre completo', 'Ana Gómez');
   await _answer(tester, 'Celular', '300 123 4567');
   await _answer(tester, 'Zona de cobertura', 'Chapinero');
@@ -164,11 +174,116 @@ void main() {
     expect(find.byType(ManoCredentialsSheet), findsNothing);
   });
 
+  group('the account steps', () {
+    testWidgets('Crear cuenta profesional asks for the email first', (
+      tester,
+    ) async {
+      await _pump(tester);
+      await _tapText(tester, 'Crear cuenta profesional');
+
+      expect(find.text('¿Cuál es tu correo?'), findsOneWidget);
+      expect(_primaryEnabled(tester), isFalse);
+      await tester.enterText(_field('Correo'), 'pro@');
+      await tester.pump();
+      expect(_primaryEnabled(tester), isFalse);
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+      expect(find.text('Revisa tu correo.'), findsOneWidget);
+    });
+
+    testWidgets('the password creates the account as a provider', (
+      tester,
+    ) async {
+      final session = FakeSessionRepository(
+        onSignUp: () async => Ok(fakeSession()),
+      );
+      await _pump(tester, session: session);
+
+      await _createAccount(tester);
+
+      expect(session.lastCredentials?.email, 'pro@mano.co');
+      expect(session.lastSignUpRole, ManoRole.provider);
+      expect(find.text('¿Cuál es tu nombre?'), findsOneWidget);
+      expect(find.byTooltip('Atrás'), findsNothing);
+    });
+
+    testWidgets('a weak password keeps Crear cuenta shut', (tester) async {
+      await _pump(tester);
+      await _tapText(tester, 'Crear cuenta profesional');
+      await _answer(tester, 'Correo', 'pro@mano.co');
+
+      await tester.enterText(_field('Contraseña'), 'corta');
+      await tester.pump();
+
+      expect(_primaryEnabled(tester), isFalse);
+    });
+
+    testWidgets('a taken email says so and offers to sign in', (tester) async {
+      await _pump(
+        tester,
+        session: FakeSessionRepository(
+          onSignUp: () async => const Err(EmailAlreadyRegistered()),
+        ),
+      );
+
+      await _createAccount(tester);
+
+      expect(find.text('¿Cuál es tu correo?'), findsOneWidget);
+      expect(
+        find.text('Ese correo ya tiene cuenta. Inicia sesión.'),
+        findsOneWidget,
+      );
+      await _tapText(tester, 'Iniciar sesión');
+      expect(find.byType(ManoCredentialsSheet), findsOneWidget);
+    });
+
+    testWidgets('an unreachable service stays on the password', (tester) async {
+      await _pump(
+        tester,
+        session: FakeSessionRepository(
+          onSignUp: () async => const Err(AuthUnavailable()),
+        ),
+      );
+
+      await _createAccount(tester);
+
+      expect(find.text('Crea una contraseña'), findsOneWidget);
+      expect(
+        find.text('No pudimos conectarnos. Intenta de nuevo.'),
+        findsOneWidget,
+      );
+    });
+  });
+
+  testWidgets('Ya tengo cuenta says when the details are wrong', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      session: FakeSessionRepository(
+        onSignIn: () async => const Err(WrongCredentials()),
+      ),
+    );
+    await _tapText(tester, 'Ya tengo cuenta');
+    await tester.enterText(
+      find.byKey(const Key('mano-credentials-email')),
+      'pro@mano.co',
+    );
+    await tester.enterText(
+      find.byKey(const Key('mano-credentials-password')),
+      'nope',
+    );
+    await tester.pump();
+    await _tapText(tester, 'Entrar');
+
+    expect(find.text('Correo o contraseña incorrectos'), findsOneWidget);
+  });
+
   testWidgets('each screen asks one question and Continuar waits for it', (
     tester,
   ) async {
     await _pump(tester);
-    await _tapText(tester, 'Crear cuenta profesional');
+    await _createAccount(tester);
     expect(find.text('¿Cuál es tu nombre?'), findsOneWidget);
     expect(find.byType(TextField), findsOneWidget);
     expect(find.byType(LinearProgressIndicator), findsOneWidget);
@@ -196,7 +311,7 @@ void main() {
     tester,
   ) async {
     await _pump(tester);
-    await _tapText(tester, 'Crear cuenta profesional');
+    await _createAccount(tester);
     await _answer(tester, 'Nombre completo', 'Ana Gómez');
 
     final phone = find.descendant(
@@ -208,7 +323,7 @@ void main() {
 
   testWidgets('services need at least one chip', (tester) async {
     await _pump(tester);
-    await _tapText(tester, 'Crear cuenta profesional');
+    await _createAccount(tester);
     await _answer(tester, 'Nombre completo', 'Ana Gómez');
     await _answer(tester, 'Celular', '3001234567');
     await _answer(tester, 'Zona de cobertura', 'Chapinero');

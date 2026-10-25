@@ -30,7 +30,9 @@ void main() {
         overrides: [
           offlineMarketplaceProvider.overrideWithValue(true),
           manoConfigProvider.overrideWithValue(testConfig),
-          sessionRepositoryProvider.overrideWithValue(FakeSessionRepository()),
+          sessionRepositoryProvider.overrideWithValue(
+            FakeSessionRepository(onSignUp: () async => Ok(fakeSession())),
+          ),
         ],
         child: const ProviderApp(),
       ),
@@ -38,6 +40,11 @@ void main() {
     await tester.pumpAndSettle();
 
     await _tapText(tester, 'Crear cuenta profesional');
+
+    await tester.enterText(_field('Correo'), 'pro@mano.co');
+    await _tapText(tester, 'Continuar');
+    await tester.enterText(_field('Contraseña'), 'mano2026');
+    await _tapText(tester, 'Crear cuenta');
 
     await tester.enterText(_field('Nombre completo'), 'Ana Gómez');
     await _tapText(tester, 'Continuar');

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_data/mano_data.dart';
@@ -21,11 +23,28 @@ final class _RecordingOnboarding implements ProviderOnboardingRepository {
   }
 }
 
+final _session = Session(
+  user: const AuthenticatedUser(subject: 'pro-1', roles: {ManoRole.provider}),
+  accessToken: 'access-1',
+  expiresAt: DateTime.now().add(const Duration(minutes: 5)),
+);
+
 ({ProviderContainer c, ProviderOnboardingNotifier n}) _setUp([
   ProviderOnboardingRepository? repository,
+  InMemorySessionRepository? session,
 ]) {
   final c = ProviderContainer.test(
     overrides: [
+      manoConfigProvider.overrideWithValue(
+        const ManoConfig(
+          gatewayGraphQlUrl: 'http://gw/graphql',
+          appRole: ManoRole.provider,
+        ),
+      ),
+      sessionRepositoryProvider.overrideWithValue(
+        session ??
+            InMemorySessionRepository(onSignUp: () async => Ok(_session)),
+      ),
       providerOnboardingRepositoryProvider.overrideWithValue(
         repository ?? MockProviderOnboardingRepository(),
       ),
@@ -45,9 +64,22 @@ const _toDocuments = [
   ProviderOnboardingStep.documents,
 ];
 
-void _answerAll(ProviderOnboardingNotifier n) {
+/// Email and password typed; the password step is on screen.
+void _toPassword(ProviderOnboardingNotifier n) => n
+  ..start()
+  ..editEmail('pro@mano.co')
+  ..next()
+  ..editPassword('mano2026');
+
+/// The account is created, so the first question is on screen.
+Future<void> _toName(ProviderOnboardingNotifier n) async {
+  _toPassword(n);
+  await n.createAccount();
+}
+
+Future<void> _answerAll(ProviderOnboardingNotifier n) async {
+  await _toName(n);
   n
-    ..start()
     ..editDisplayName('Ana Gómez')
     ..next()
     ..editPhone('300 123 4567')
@@ -118,28 +150,201 @@ void main() {
     expect(s.step, ProviderOnboardingStep.welcome);
     expect(s.status, isA<ProviderOnboardingIdle>());
     expect(s.attached, isEmpty);
+    expect(s.inProgress, isFalse);
   });
 
-  test('start moves to the name question', () {
-    final (:c, :n) = _setUp();
-    n.start();
-    expect(_step(c), ProviderOnboardingStep.name);
+  group('the account steps', () {
+    test('start asks for the email first', () {
+      final (:c, :n) = _setUp();
+      n.start();
+      expect(_step(c), ProviderOnboardingStep.email);
+      expect(c.read(providerOnboardingProvider).inProgress, isTrue);
+    });
+
+    test('a malformed email stays and shows problems', () {
+      final (:c, :n) = _setUp();
+      n
+        ..start()
+        ..editEmail('pro@')
+        ..next();
+      expect(_step(c), ProviderOnboardingStep.email);
+      expect(c.read(providerOnboardingProvider).showProblems, isTrue);
+      expect(c.read(providerOnboardingProvider).stepComplete, isFalse);
+    });
+
+    test('a good email asks for a password', () {
+      final (:c, :n) = _setUp();
+      _toPassword(n);
+      expect(_step(c), ProviderOnboardingStep.password);
+    });
+
+    test('the account steps count towards progress', () {
+      final (:c, :n) = _setUp();
+      n.start();
+      final atEmail = c.read(providerOnboardingProvider).progress;
+      _toPassword(n);
+      expect(atEmail, greaterThan(0));
+      expect(c.read(providerOnboardingProvider).progress, greaterThan(atEmail));
+    });
+
+    test('a weak password creates nothing and says why', () async {
+      final session = InMemorySessionRepository(
+        onSignUp: () async => Ok(_session),
+      );
+      final (:c, :n) = _setUp(null, session);
+      _toPassword(n);
+      n.editPassword('corta');
+
+      await n.createAccount();
+
+      expect(_step(c), ProviderOnboardingStep.password);
+      expect(c.read(providerOnboardingProvider).showProblems, isTrue);
+      expect(session.lastCredentials, isNull);
+    });
+
+    test(
+      'creating the account signs up as a provider, then asks the name',
+      () async {
+        final session = InMemorySessionRepository(
+          onSignUp: () async => Ok(_session),
+        );
+        final (:c, :n) = _setUp(null, session);
+
+        await _toName(n);
+
+        expect(session.lastCredentials?.email, 'pro@mano.co');
+        expect(session.lastSignUpRole, ManoRole.provider);
+        expect(c.read(sessionProvider).value, isA<SignedIn>());
+        expect(_step(c), ProviderOnboardingStep.name);
+        expect(c.read(providerOnboardingProvider).inProgress, isTrue);
+      },
+    );
+
+    test('creating the account is observable while in flight', () async {
+      final gate = Completer<Result<Session, AuthFailure>>();
+      final (:c, :n) = _setUp(
+        null,
+        InMemorySessionRepository(onSignUp: () => gate.future),
+      );
+      _toPassword(n);
+
+      final pending = n.createAccount();
+      expect(
+        c.read(providerOnboardingProvider).status,
+        isA<ProviderOnboardingSubmitting>(),
+      );
+
+      gate.complete(Ok(_session));
+      await pending;
+      expect(
+        c.read(providerOnboardingProvider).status,
+        isA<ProviderOnboardingIdle>(),
+      );
+    });
+
+    test('a taken email goes back to the email step, saying so', () async {
+      final (:c, :n) = _setUp(
+        null,
+        InMemorySessionRepository(
+          onSignUp: () async => const Err(EmailAlreadyRegistered()),
+        ),
+      );
+
+      await _toName(n);
+
+      final s = c.read(providerOnboardingProvider);
+      expect(s.step, ProviderOnboardingStep.email);
+      expect(
+        (s.status as ProviderAccountRejected).failure,
+        isA<EmailAlreadyRegistered>(),
+      );
+      expect(s.email, 'pro@mano.co');
+      expect(
+        (c.read(sessionProvider).value as SignedOut).lastFailure,
+        isNull,
+        reason: 'the step shows it; the welcome must not repeat it',
+      );
+    });
+
+    test('an unreachable service stays on the password step', () async {
+      final (:c, :n) = _setUp(
+        null,
+        InMemorySessionRepository(
+          onSignUp: () async => const Err(AuthUnavailable()),
+        ),
+      );
+
+      await _toName(n);
+
+      final s = c.read(providerOnboardingProvider);
+      expect(s.step, ProviderOnboardingStep.password);
+      expect(
+        (s.status as ProviderAccountRejected).failure,
+        isA<AuthUnavailable>(),
+      );
+    });
+
+    test('typing again clears the refusal', () async {
+      final (:c, :n) = _setUp(
+        null,
+        InMemorySessionRepository(
+          onSignUp: () async => const Err(AuthUnavailable()),
+        ),
+      );
+      await _toName(n);
+
+      n.editPassword('mano2027');
+
+      expect(
+        c.read(providerOnboardingProvider).status,
+        isA<ProviderOnboardingIdle>(),
+      );
+    });
+
+    test('"Ahora no" browses as a guest and leaves the onboarding', () async {
+      final (:c, :n) = _setUp();
+      await c.read(sessionProvider.future);
+      n.start();
+
+      n.browseAsGuest();
+
+      expect(c.read(sessionProvider).value, isA<Guest>());
+      expect(_step(c), ProviderOnboardingStep.welcome);
+      expect(c.read(providerOnboardingProvider).inProgress, isFalse);
+    });
+
+    test('once the account exists, the name step does not go back', () async {
+      final (:c, :n) = _setUp();
+      await _toName(n);
+
+      n.back();
+
+      expect(_step(c), ProviderOnboardingStep.name);
+    });
+
+    test('back from the password step returns to the email', () {
+      final (:c, :n) = _setUp();
+      _toPassword(n);
+
+      n.back();
+
+      expect(_step(c), ProviderOnboardingStep.email);
+    });
   });
 
-  test('next on an unanswered question stays and shows problems', () {
+  test('next on an unanswered question stays and shows problems', () async {
     final (:c, :n) = _setUp();
-    n
-      ..start()
-      ..next();
+    await _toName(n);
+    n.next();
     final s = c.read(providerOnboardingProvider);
     expect(s.step, ProviderOnboardingStep.name);
     expect(s.showProblems, isTrue);
   });
 
-  test('each answer moves one question forward and hides problems', () {
+  test('each answer moves one question forward and hides problems', () async {
     final (:c, :n) = _setUp();
+    await _toName(n);
     n
-      ..start()
       ..next()
       ..editDisplayName('Ana Gómez')
       ..next();
@@ -152,10 +357,10 @@ void main() {
     expect(_step(c), ProviderOnboardingStep.phone);
   });
 
-  test('the questions run in order up to documents', () {
+  test('the questions run in order up to documents', () async {
     final (:c, :n) = _setUp();
     final seen = <ProviderOnboardingStep>[];
-    n.start();
+    await _toName(n);
     seen.add(_step(c));
     n
       ..editDisplayName('Ana')
@@ -190,10 +395,10 @@ void main() {
     expect(c.read(providerOnboardingProvider).categories, isEmpty);
   });
 
-  test('the bio can be skipped, clearing nothing it did not have', () {
+  test('the bio can be skipped, clearing nothing it did not have', () async {
     final (:c, :n) = _setUp();
+    await _toName(n);
     n
-      ..start()
       ..editDisplayName('Ana')
       ..next()
       ..editPhone('3001234567')
@@ -209,11 +414,10 @@ void main() {
     expect(c.read(providerOnboardingProvider).bio, isEmpty);
   });
 
-  test('skip is ignored on required questions', () {
+  test('skip is ignored on required questions', () async {
     final (:c, :n) = _setUp();
-    n
-      ..start()
-      ..skip();
+    await _toName(n);
+    n.skip();
     expect(_step(c), ProviderOnboardingStep.name);
   });
 
@@ -224,9 +428,9 @@ void main() {
     expect(c.read(providerFirstNameProvider), 'Ana');
   });
 
-  test('progress grows with each question', () {
+  test('progress grows with each question', () async {
     final (:c, :n) = _setUp();
-    n.start();
+    await _toName(n);
     final first = c.read(providerOnboardingProvider).progress;
     n
       ..editDisplayName('Ana')
@@ -235,9 +439,9 @@ void main() {
     expect(first, greaterThan(0));
   });
 
-  test('documents need both ID sides before moving on', () {
+  test('documents need both ID sides before moving on', () async {
     final (:c, :n) = _setUp();
-    _answerAll(n);
+    await _answerAll(n);
     n
       ..attach(ProviderDocument.idFront)
       ..next();
@@ -258,9 +462,9 @@ void main() {
     });
   });
 
-  test('back walks every question and keeps the answers', () {
+  test('back walks every question and keeps the answers', () async {
     final (:c, :n) = _setUp();
-    _answerAll(n);
+    await _answerAll(n);
     _attachIds(n);
     n
       ..next()
@@ -275,13 +479,18 @@ void main() {
     expect(s.categories, hasLength(2));
     expect(s.attached, hasLength(2));
     n.back();
-    expect(_step(c), ProviderOnboardingStep.welcome);
+    expect(
+      _step(c),
+      ProviderOnboardingStep.name,
+      reason:
+          'the account exists; the first question is as far back as it goes',
+    );
   });
 
   test('submit sends the draft and lands on pending', () async {
     final repo = _RecordingOnboarding(const Ok(VerificationStatus.pending));
     final (:c, :n) = _setUp(repo);
-    _answerAll(n);
+    await _answerAll(n);
     _attachIds(n);
     n.next();
 
@@ -302,10 +511,25 @@ void main() {
     expect(_step(c), ProviderOnboardingStep.pending);
   });
 
+  test('finishing leaves the onboarding but keeps the name to greet', () async {
+    final (:c, :n) = _setUp(
+      _RecordingOnboarding(const Ok(VerificationStatus.pending)),
+    );
+    await _answerAll(n);
+    _attachIds(n);
+    n.next();
+    await n.submit();
+
+    n.finish();
+
+    expect(c.read(providerOnboardingProvider).inProgress, isFalse);
+    expect(c.read(providerFirstNameProvider), 'Ana');
+  });
+
   test('a failed submit keeps the data and reports the failure', () async {
     final repo = _RecordingOnboarding(const Err(DataUnavailable()));
     final (:c, :n) = _setUp(repo);
-    _answerAll(n);
+    await _answerAll(n);
     _attachIds(n);
     n.next();
 
