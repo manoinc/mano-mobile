@@ -16,7 +16,7 @@ All steps live inside `apps/requester/lib/features/booking/`; no extra routes.
 | `booking_screen.dart` | Loads the offer (loading / missing / error states) and switches between the steps with `ManoStepTransition`. System back on the proposal step returns to the pick step. |
 | `booking_pick_step.dart` | Summary (service title, `ManoPriceTag`, hourly note), `ManoDateStrip` over 14 days (days without a bookable slot are disabled), `ManoSlotGrid` for the chosen day (taken slots disabled), a failure `ManoNotice`, the primary **Continuar** and the quiet **Proponer otro horario**. |
 | `booking_propose_step.dart` | Multiline `ManoTextField` message, `ManoDateStrip` (all 14 days), hour chips 7 a. m.–6 p. m. (past hours disabled), primary **Enviar solicitud**. |
-| `booking_sheets.dart` | `showConfirmBookingSheet` (`ManoPromptSheet` summarising service, `ManoFormat.dateTime` and price), `showAccountNeededSheet` (guests → **Iniciar sesión** → `onboardingFlowProvider.notifier.startSignIn()`), `priceLabels`, `isSignedIn`. |
+| `booking_sheets.dart` | `showConfirmBookingSheet` (`ManoPromptSheet` summarising service, `ManoFormat.dateTime` and price), `showAccountNeededSheet` (`ManoAccountNeededSheet`, shared with the provider app; guests → **Iniciar sesión** → `onboardingFlowProvider.notifier.startSignIn()`), `priceLabels`, `isSignedIn`. |
 | `booking_done_view.dart` | Success: "¡Listo! Tu cita quedó agendada" or "Solicitud enviada", with **Ver en Actividad** (`/projects`) and **Volver al inicio** (`/home`). |
 
 Price copy: fixed → `$120.000 precio fijo`; hourly → `$45.000 /hora` plus
