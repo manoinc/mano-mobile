@@ -26,6 +26,7 @@ void main() {
     );
     final container = ProviderContainer(
       overrides: [
+        offlineMarketplaceProvider.overrideWithValue(true),
         manoConfigProvider.overrideWithValue(testConfig),
         sessionRepositoryProvider.overrideWithValue(
           FakeSessionRepository(onRestore: () async => Ok(fakeSession())),

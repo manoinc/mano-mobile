@@ -16,8 +16,12 @@ import 'package:mano_ui/mano_ui.dart';
 /// the suite order-dependent.
 Widget _app({SessionRepository? session}) => ProviderScope(
   overrides: [
+    offlineMarketplaceProvider.overrideWithValue(true),
     manoConfigProvider.overrideWithValue(
-      const ManoConfig(gatewayGraphQlUrl: 'http://localhost:8082/graphql'),
+      const ManoConfig(
+        gatewayGraphQlUrl: 'http://localhost:8082/graphql',
+        appRole: ManoRole.requester,
+      ),
     ),
     if (session != null) sessionRepositoryProvider.overrideWithValue(session),
   ],
@@ -393,9 +397,11 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            offlineMarketplaceProvider.overrideWithValue(true),
             manoConfigProvider.overrideWithValue(
               const ManoConfig(
                 gatewayGraphQlUrl: 'http://localhost:8082/graphql',
+                appRole: ManoRole.requester,
               ),
             ),
           ],

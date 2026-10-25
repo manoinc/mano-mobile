@@ -9,7 +9,10 @@ void main() {
     container = ProviderContainer.test(
       overrides: [
         manoConfigProvider.overrideWithValue(
-          const ManoConfig(gatewayGraphQlUrl: 'http://localhost/graphql'),
+          const ManoConfig(
+            gatewayGraphQlUrl: 'http://localhost/graphql',
+            appRole: ManoRole.requester,
+          ),
         ),
       ],
     );

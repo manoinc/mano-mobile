@@ -35,7 +35,10 @@ final class _Catalog implements ServiceCatalog {
 ProviderContainer _container() => ProviderContainer.test(
   overrides: [
     manoConfigProvider.overrideWithValue(
-      const ManoConfig(gatewayGraphQlUrl: 'http://gw/graphql'),
+      const ManoConfig(
+        gatewayGraphQlUrl: 'http://gw/graphql',
+        appRole: ManoRole.requester,
+      ),
     ),
   ],
 );
@@ -65,6 +68,27 @@ void main() {
       c.read(providerOnboardingRepositoryProvider),
       isA<MockProviderOnboardingRepository>(),
     );
+  });
+
+  test('offline mode runs every marketplace port on mocks', () {
+    final c = ProviderContainer.test(
+      overrides: [offlineMarketplaceProvider.overrideWithValue(true)],
+    );
+    expect(c.read(offerManagementProvider), isA<MockOfferManagement>());
+    expect(
+      c.read(serviceRequestRepositoryProvider),
+      isA<MockServiceRequestRepository>(),
+    );
+    expect(c.read(jobRepositoryProvider), isA<MockJobRepository>());
+    expect(
+      c.read(availabilityRepositoryProvider),
+      isA<MockAvailabilityRepository>(),
+    );
+    expect(
+      c.read(conversationRepositoryProvider),
+      isA<MockConversationRepository>(),
+    );
+    expect(c.read(chatRepositoryProvider), isA<MockChatRepository>());
   });
 
   test('a mock keeps its state for the life of the container', () {

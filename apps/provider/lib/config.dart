@@ -19,6 +19,7 @@ const ManoConfig providerConfig = ManoConfig(
     'MANO_GATEWAY',
     defaultValue: 'http://localhost:8082/graphql',
   ),
+  appRole: ManoRole.provider,
   authApiDomain: bool.hasEnvironment('SUPERTOKENS_API_DOMAIN')
       ? String.fromEnvironment('SUPERTOKENS_API_DOMAIN')
       : null,

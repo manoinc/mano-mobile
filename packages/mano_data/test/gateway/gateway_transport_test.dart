@@ -3,9 +3,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:mano_data/mano_data.dart';
+import 'package:mano_domain/mano_domain.dart';
 import 'package:test/test.dart';
 
-const _config = ManoConfig(gatewayGraphQlUrl: 'http://gw/graphql');
+const _config = ManoConfig(
+  gatewayGraphQlUrl: 'http://gw/graphql',
+  appRole: ManoRole.requester,
+);
 
 GatewayTransport _transport(MockClientHandler handler) =>
     GatewayTransport(_config, httpClient: MockClient(handler));

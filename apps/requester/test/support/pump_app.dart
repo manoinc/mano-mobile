@@ -8,7 +8,10 @@ import 'package:mano_ui/mano_ui.dart';
 
 import 'fake_session_repository.dart';
 
-const testConfig = ManoConfig(gatewayGraphQlUrl: 'http://localhost:8082/graphql');
+const testConfig = ManoConfig(
+  gatewayGraphQlUrl: 'http://localhost:8082/graphql',
+  appRole: ManoRole.requester,
+);
 
 /// Pumps the real router at [location]; [session] defaults to signed out.
 Future<ProviderContainer> pumpRouterAt(
@@ -19,6 +22,7 @@ Future<ProviderContainer> pumpRouterAt(
 }) async {
   final container = ProviderContainer.test(
     overrides: [
+      offlineMarketplaceProvider.overrideWithValue(true),
       manoConfigProvider.overrideWithValue(testConfig),
       sessionRepositoryProvider.overrideWithValue(
         session ?? FakeSessionRepository(),

@@ -12,6 +12,7 @@ library;
 export 'src/config/mano_config.dart';
 export 'src/catalog/gateway_service_catalog.dart';
 export 'src/gateway/gateway_client.dart';
+export 'src/gateway/gateway_failure.dart';
 export 'src/gateway/gateway_transport.dart';
 export 'src/session/in_memory_session_repository.dart';
 export 'src/session/supertokens_session_repository.dart';

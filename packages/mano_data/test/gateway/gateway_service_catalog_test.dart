@@ -6,7 +6,10 @@ import 'package:mano_data/mano_data.dart';
 import 'package:mano_domain/mano_domain.dart';
 import 'package:test/test.dart';
 
-const _config = ManoConfig(gatewayGraphQlUrl: 'http://gw/graphql');
+const _config = ManoConfig(
+  gatewayGraphQlUrl: 'http://gw/graphql',
+  appRole: ManoRole.requester,
+);
 
 const _serviceJson = {
   'id': 's1',

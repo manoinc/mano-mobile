@@ -38,6 +38,7 @@ export 'src/explore/service_search.dart';
 export 'src/home/greeting_name.dart';
 export 'src/home/home_sections.dart';
 export 'src/marketplace_providers.dart';
+export 'src/offline_marketplace_provider.dart';
 export 'src/offers/offer_pricing_filter.dart';
 export 'src/onboarding/onboarding_flow.dart';
 export 'src/onboarding/onboarding_notifier.dart';

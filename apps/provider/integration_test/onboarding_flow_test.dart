@@ -28,6 +28,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          offlineMarketplaceProvider.overrideWithValue(true),
           manoConfigProvider.overrideWithValue(testConfig),
           sessionRepositoryProvider.overrideWithValue(FakeSessionRepository()),
         ],

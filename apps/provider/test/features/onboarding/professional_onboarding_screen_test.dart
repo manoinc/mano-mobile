@@ -35,6 +35,7 @@ Future<void> _pump(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
+        offlineMarketplaceProvider.overrideWithValue(true),
         manoConfigProvider.overrideWithValue(testConfig),
         sessionRepositoryProvider.overrideWithValue(
           session ?? FakeSessionRepository(),

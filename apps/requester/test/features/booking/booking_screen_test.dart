@@ -15,6 +15,7 @@ List<Override> _overrides({
   ServiceCatalog? catalog,
   JobRepository? jobs,
 }) => [
+  offlineMarketplaceProvider.overrideWithValue(true),
   manoConfigProvider.overrideWithValue(testConfig),
   serviceCatalogProvider.overrideWithValue(catalog ?? FakeServiceCatalog()),
   availabilityRepositoryProvider.overrideWithValue(FakeAvailability()),
