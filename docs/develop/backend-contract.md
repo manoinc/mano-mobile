@@ -20,6 +20,8 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 | `JobRepository` | `myJobs`, `job`, `bookSlot`, `startJob`, `finishJob(actualHours)`, `cancelJob`, `rebook` | **live** (D5; `bookSlot` also needs D4) | `MockJobRepository` |
 | `AvailabilityRepository` | `workerAvailability`, `myAvailabilityRules`, `upsertAvailabilityRule`, `removeAvailabilityRule`, `myCalendarBlocks`, `blockCalendar`, `unblockCalendar`, `myCalendarFeed`, `regenerateCalendarFeed`, `revokeCalendarFeed` + `.ics` route | **live** (D4 scheduler over gRPC) | `GatewayAvailabilityRepository` |
 | `ConversationRepository`, `ChatRepository` | `myConversations`, `conversation`, `sendMessage`, `markConversationRead`, `messageAdded` | **live** (D7 chat over gRPC) | `MockConversationRepository`, `MockChatRepository` |
+| `ProjectRepository` (requester) | `myProjects` with `quotes(page)`, `publishProject`, `cancelProject`, `selectQuote`, `discardQuote` | **live** (D9 mano-projects over gRPC); client role | `GatewayProjectRepository` |
+| `LeadRepository` (provider) | `openProjects(category)`, `submitQuote`, `myQuotes` | **live** (D9); worker role. `purchaseProjectLead` is a D6 stub, so quotes are free | `GatewayLeadRepository` |
 | `ProviderOnboardingRepository` | `updateWorkerProfile`, `submitVerificationRequest` | stub (D2, D10 `not implemented`) | `MockProviderOnboardingRepository` |
 | `SessionRepository` | SuperTokens FDI: `/auth/signin`, `/auth/signup`, `/auth/session/refresh`, `/auth/signout` | gateway only *verifies* tokens; **no FDI auth server yet** | `SuperTokensSessionRepository` when configured |
 
@@ -55,6 +57,35 @@ waits on the SuperTokens auth server below.
 - There is no list-categories query. `category` is an exact-match free-text
   filter, so the app keeps a static category list (see **Categories**).
 
+## Projects and quotes
+
+- Roles are enforced by the projects service, not the app. Refusals arrive as
+  `PermissionDenied: …`, `NotFound: …` (also a stranger probing a project) or
+  `FailedPrecondition: …` (state machine). `guardGateway` maps them to
+  `DataRejected` / `DataNotFound`.
+- `Project.quotes` is non-null **only for the owning client**; a worker's
+  `openProjects` never carries quotes. The app's `Project.quotes` is null the
+  same way.
+- `Project.client` is hidden from workers until a lead is purchased, and
+  `Quote.clientContact` is non-null only for the selected worker with a
+  purchased lead. Neither is mapped yet.
+- One quote per worker per project: a second `submitQuote` answers
+  `AlreadyExists: …`, which surfaces as `DataRejected`; `failure.isAlreadyQuoted`
+  (`mano_domain`) tells it apart so the screen can say "Ya cotizaste este
+  proyecto".
+- Rules mirrored on the entities: only `OPEN` takes quotes; select, discard and
+  cancel work while `OPEN` or `AWARDED`. Selecting swaps out (discards) the
+  earlier pick; discarding the selected quote reopens the project.
+- Money is whole pesos: `Money.amount` is rounded to `int`, and budgets and
+  amounts are sent as numbers. `photos` is always sent as `[]`: there is no
+  upload yet.
+- Pages ask for `first: 50`, with no cursor paging yet; `myProjects` asks
+  `quotes(page: {first: 50})` per project.
+- Nested quotes take their project id and title from the parent;
+  `myQuotes`/`submitQuote`/`selectQuote` select `project { id title }`.
+- `WorkerProfile` is a placeholder (empty `displayName`, null `photoUrl`), so a
+  quote shows no provider name yet.
+
 ## Statuses
 
 | Domain | Gateway |
@@ -62,6 +93,8 @@ waits on the SuperTokens auth server below.
 | `ServiceRequestStatus` pending / accepted / rejected / cancelled | `PENDING` / `ACCEPTED` / `REJECTED` / `CANCELLED` |
 | `JobStatus` scheduled / inProgress / finished / cancelled | `SCHEDULED` / `IN_PROGRESS` / `FINISHED` / `CANCELLED` |
 | `OfferStatus` active / paused / deleted | `ACTIVE` / `PAUSED` / `DELETED` |
+| `ProjectStatus` open / awarded / closed / cancelled | `OPEN` / `AWARDED` / `CLOSED` / `CANCELLED` |
+| `QuoteStatus` submitted / selected / discarded | `SUBMITTED` / `SELECTED` / `DISCARDED` |
 | `RateType` fixed / hourly | `FIXED` / `HOURLY` |
 | `VerificationStatus` | `PENDING`, `UNDER_REVIEW`, `APPROVED`, `REJECTED`, `INFORMATION_REQUIRED` (+ `notSubmitted` locally) |
 
@@ -155,3 +188,7 @@ idempotent: it truncates the catalog first.
   `GatewayAvailabilityRepository.myFeed` reads `myCalendarFeed` until the
   gateway offers a non-rotating read (for example: metadata only, URL shown on
   issue).
+- Projects: the service's `CloseProject` and `MarkLeadPurchased` have no
+  GraphQL field, so a requester cannot close a project and a lead can never be
+  purchased (`purchaseProjectLead` is a D6 stub). Contact reveal is stitched
+  with an empty phone.
