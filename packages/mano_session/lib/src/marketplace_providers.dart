@@ -3,6 +3,7 @@ import 'package:mano_data/mano_data.dart';
 import 'package:mano_domain/mano_domain.dart';
 
 import 'conversation_providers.dart';
+import 'offline_marketplace_provider.dart';
 import 'session_providers.dart';
 
 // One provider per marketplace port. The catalog is live on the gateway; the
@@ -13,7 +14,9 @@ final serviceCatalogProvider = Provider<ServiceCatalog>(
 );
 
 final offerManagementProvider = Provider<OfferManagement>(
-  (ref) => MockOfferManagement(),
+  (ref) => ref.watch(offlineMarketplaceProvider)
+      ? MockOfferManagement()
+      : GatewayOfferManagement(ref.watch(gatewayTransportProvider)),
 );
 
 // Built together so accepting a request schedules a job and rebooking files a request.
@@ -35,7 +38,9 @@ final jobRepositoryProvider = Provider<JobRepository>(
 );
 
 final availabilityRepositoryProvider = Provider<AvailabilityRepository>(
-  (ref) => MockAvailabilityRepository(),
+  (ref) => ref.watch(offlineMarketplaceProvider)
+      ? MockAvailabilityRepository()
+      : GatewayAvailabilityRepository(ref.watch(gatewayTransportProvider)),
 );
 
 final chatRepositoryProvider = Provider<ChatRepository>((ref) {

@@ -51,18 +51,22 @@ void main() {
     );
   });
 
+  test('offers and availability default to the gateway', () {
+    final c = _container();
+    expect(c.read(offerManagementProvider), isA<GatewayOfferManagement>());
+    expect(
+      c.read(availabilityRepositoryProvider),
+      isA<GatewayAvailabilityRepository>(),
+    );
+  });
+
   test('stubbed backend ports default to mock adapters', () {
     final c = _container();
-    expect(c.read(offerManagementProvider), isA<MockOfferManagement>());
     expect(
       c.read(serviceRequestRepositoryProvider),
       isA<MockServiceRequestRepository>(),
     );
     expect(c.read(jobRepositoryProvider), isA<MockJobRepository>());
-    expect(
-      c.read(availabilityRepositoryProvider),
-      isA<MockAvailabilityRepository>(),
-    );
     expect(c.read(chatRepositoryProvider), isA<MockChatRepository>());
     expect(
       c.read(providerOnboardingRepositoryProvider),
