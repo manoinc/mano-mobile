@@ -60,6 +60,19 @@ void main() {
     );
   });
 
+  test('chat reads from the live gateway', () {
+    final c = _container();
+    expect(
+      c.read(conversationRepositoryProvider),
+      isA<GatewayConversationRepository>(),
+    );
+    expect(c.read(chatRepositoryProvider), isA<GatewayChatRepository>());
+    expect(
+      c.read(gatewaySubscriptionClientProvider),
+      isA<SubscriptionClient>(),
+    );
+  });
+
   test('stubbed backend ports default to mock adapters', () {
     final c = _container();
     expect(
@@ -67,7 +80,6 @@ void main() {
       isA<MockServiceRequestRepository>(),
     );
     expect(c.read(jobRepositoryProvider), isA<MockJobRepository>());
-    expect(c.read(chatRepositoryProvider), isA<MockChatRepository>());
     expect(
       c.read(providerOnboardingRepositoryProvider),
       isA<MockProviderOnboardingRepository>(),
@@ -147,8 +159,13 @@ void main() {
     final requests = await c.read(serviceRequestRepositoryProvider).mine();
     expect(requests.map((r) => r.id), contains(rebooked.id));
 
-    await c.read(chatRepositoryProvider).markRead('conv-2');
-    final convs = await c.read(conversationRepositoryProvider).conversations();
+    final offline = ProviderContainer.test(
+      overrides: [offlineMarketplaceProvider.overrideWithValue(true)],
+    );
+    await offline.read(chatRepositoryProvider).markRead('conv-2');
+    final convs = await offline
+        .read(conversationRepositoryProvider)
+        .conversations();
     expect(convs.firstWhere((x) => x.id == 'conv-2').unreadCount, 0);
   });
 
