@@ -30,6 +30,9 @@ nav = [
     "product/provider.md",
     "product/lifecycle.md",
   ] },
+  { "Design" = [
+    "design/projects-and-quotes.md",
+  ] },
   { "Develop" = [
     "develop/index.md",
     "develop/architecture.md",
