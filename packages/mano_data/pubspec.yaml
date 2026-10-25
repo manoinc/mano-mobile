@@ -30,6 +30,10 @@ dependencies:
   # would be a guess. Revisit when the schema lands.
   http: ^1.2.0
 
+  # graphql-transport-ws subscriptions (chat's messageAdded).
+  stream_channel: ^2.1.0
+  web_socket_channel: ^3.0.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
