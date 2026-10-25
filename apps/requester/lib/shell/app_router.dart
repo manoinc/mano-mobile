@@ -8,6 +8,9 @@ import '../features/chat/chat_screen.dart';
 import '../features/explore/search_screen.dart';
 import '../features/explore/service_detail_screen.dart';
 import '../features/offers/offers_screen.dart';
+import '../features/projects/project_detail_screen.dart';
+import '../features/projects/publish/publish_project_screen.dart';
+import '../features/projects/start_publishing.dart';
 import '../screens/home_tab_screen.dart';
 import '../screens/inbox_tab_screen.dart';
 import '../screens/profile_tab_screen.dart';
@@ -25,8 +28,13 @@ final requesterRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: '/home',
     routes: [
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) =>
-            NavShell(navigationShell: navigationShell),
+        builder: (context, state, navigationShell) => Consumer(
+          builder: (context, ref, _) => NavShell(
+            navigationShell: navigationShell,
+            onPublish: (category) =>
+                startPublishing(context, ref, category: category),
+          ),
+        ),
         branches: [
           StatefulShellBranch(
             routes: [
@@ -69,8 +77,17 @@ final requesterRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/projects',
-                builder: (context, state) => const ProjectsTabScreen(),
+                builder: (context, state) => ProjectsTabScreen(
+                  showProjects:
+                      state.uri.queryParameters['segment'] == 'proyectos',
+                ),
                 routes: [
+                  GoRoute(
+                    path: 'project/:id',
+                    builder: (context, state) => ProjectDetailScreen(
+                      projectId: state.pathParameters['id']!,
+                    ),
+                  ),
                   GoRoute(
                     path: 'job/:id',
                     builder: (context, state) =>
@@ -106,6 +123,13 @@ final requesterRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: '/publish',
+        parentNavigatorKey: rootKey,
+        builder: (context, state) => PublishProjectScreen(
+          initialCategory: state.uri.queryParameters['category'],
+        ),
       ),
     ],
   );

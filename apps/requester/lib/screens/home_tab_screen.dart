@@ -5,6 +5,8 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../features/explore/category_icons.dart';
+import '../features/projects/publish_project_row.dart';
+import '../features/projects/start_publishing.dart';
 
 void _showStub(BuildContext context) {
   ScaffoldMessenger.of(context)
@@ -77,7 +79,8 @@ class HomeTabScreen extends ConsumerWidget {
             ),
             const SizedBox(height: ManoSpacing.md),
             ManoSearchPill(onTap: () => context.push('/home/search')),
-            const SizedBox(height: ManoSpacing.lg),
+            PublishProjectRow(onTap: () => startPublishing(context, ref)),
+            const SizedBox(height: ManoSpacing.md),
             Row(
               children: [
                 Expanded(
