@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../account/account_gate.dart';
+
 class ChatScreen extends ConsumerWidget {
   const ChatScreen({required this.conversationId, super.key});
 
@@ -29,7 +31,12 @@ class ChatScreen extends ConsumerWidget {
               ),
               ManoMessageComposer(
                 hintText: 'Escribe un mensaje',
-                onSend: ref.read(provider.notifier).send,
+                onSend: (body) => requireAccount(
+                  context,
+                  ref,
+                  reason: AccountReason.chat,
+                  action: () => ref.read(provider.notifier).send(body),
+                ),
               ),
             ],
           ),

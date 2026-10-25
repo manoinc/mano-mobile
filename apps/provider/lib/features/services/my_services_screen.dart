@@ -5,6 +5,7 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import 'offer_labels.dart';
+import '../account/account_gate.dart';
 
 /// PROV-02: the provider's own offers, plus the way into availability.
 class MyServicesScreen extends ConsumerWidget {
@@ -42,7 +43,7 @@ class MyServicesScreen extends ConsumerWidget {
                 Icons.chevron_right,
                 color: ManoColors.faint,
               ),
-              onTap: () => context.push('/profile/services/new'),
+              onTap: () => _open(context, ref, '/profile/services/new'),
             ),
             const Divider(color: ManoColors.stone, height: 1),
             const SizedBox(height: ManoSpacing.md),
@@ -52,7 +53,7 @@ class MyServicesScreen extends ConsumerWidget {
                   icon: Icons.handyman_outlined,
                   message: 'Aún no ofreces ningún servicio',
                   ctaLabel: 'Publicar mi primer servicio',
-                  onCta: () => context.push('/profile/services/new'),
+                  onCta: () => _open(context, ref, '/profile/services/new'),
                 ),
                 AsyncData(:final value) => ListView.separated(
                   padding: const EdgeInsets.fromLTRB(
@@ -99,7 +100,16 @@ class _OfferTile extends ConsumerWidget {
       rateLabel: rateLabel(offer.rateType),
       zone: offer.hasZone ? 'Zona: ${offer.zone}' : 'Sin zona definida',
       status: ManoStatusChip(label: label, tone: tone),
-      onTap: () => context.push('/profile/services/offer/${offer.id}'),
+      onTap: () => _open(context, ref, '/profile/services/offer/${offer.id}'),
     );
   }
 }
+
+// Offers are created and edited only with an account.
+Future<void> _open(BuildContext context, WidgetRef ref, String location) =>
+    requireAccount(
+      context,
+      ref,
+      reason: AccountReason.offers,
+      action: () => context.push(location),
+    );

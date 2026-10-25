@@ -8,6 +8,7 @@ import '../availability/availability_labels.dart';
 import '../availability/availability_view.dart';
 import 'agenda_labels.dart';
 import 'agenda_load_error.dart';
+import '../account/account_gate.dart';
 
 enum AgendaTab {
   calendar('Calendario', ''),
@@ -105,7 +106,21 @@ class _CalendarViewState extends ConsumerState<_CalendarView> {
     };
   }
 
-  Future<void> _block() => _report(
+  Future<void> _block() => requireAccount(
+    context,
+    ref,
+    reason: AccountReason.availability,
+    action: _blockNow,
+  );
+
+  Future<void> _unblock(CalendarBlock block) => requireAccount(
+    context,
+    ref,
+    reason: AccountReason.availability,
+    action: () => _unblockNow(block),
+  );
+
+  Future<void> _blockNow() => _report(
     ref
         .read(availabilityActionsProvider.notifier)
         .block(
@@ -114,7 +129,7 @@ class _CalendarViewState extends ConsumerState<_CalendarView> {
         ),
   );
 
-  Future<void> _unblock(CalendarBlock block) =>
+  Future<void> _unblockNow(CalendarBlock block) =>
       _report(ref.read(availabilityActionsProvider.notifier).unblock(block.id));
 
   Future<void> _report(Future<Result<Object?, DataFailure>> pending) async {
