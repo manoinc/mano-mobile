@@ -18,11 +18,10 @@ typedef SocketConnector = StreamChannel<dynamic> Function(Uri url);
 final class SubscriptionClient {
   SubscriptionClient(
     String url, {
-    required Future<String?> Function() accessToken,
+    required this._accessToken,
     SocketConnector? connect,
     Future<void> Function(Duration)? wait,
   }) : _url = Uri.parse(url),
-       _accessToken = accessToken,
        _connect = connect ?? _webSocket,
        _wait = wait ?? Future<void>.delayed;
 
