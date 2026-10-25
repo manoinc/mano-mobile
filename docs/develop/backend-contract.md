@@ -23,10 +23,10 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 | `ProjectRepository` (requester) | `myProjects` with `quotes(page)`, `publishProject`, `cancelProject`, `selectQuote`, `discardQuote` | **live** (D9 mano-projects over gRPC); client role | `GatewayProjectRepository` |
 | `LeadRepository` (provider) | `openProjects(category)`, `submitQuote`, `myQuotes` | **live** (D9); worker role. `purchaseProjectLead` is a D6 stub, so quotes are free | `GatewayLeadRepository` |
 | `ProviderOnboardingRepository` | `updateWorkerProfile`, `submitVerificationRequest` | stub (D2, D10 `not implemented`) | `MockProviderOnboardingRepository` |
-| `SessionRepository` | SuperTokens FDI: `/auth/signin`, `/auth/signup`, `/auth/session/refresh`, `/auth/signout` | gateway only *verifies* tokens; **no FDI auth server yet** | `SuperTokensSessionRepository` when configured |
+| `SessionRepository` | SuperTokens FDI: `/auth/signin`, `/auth/signup` (with `role`), `/auth/session/refresh`, `/auth/signout` | **live** in `mano-auth` (`:3001`); the gateway *verifies* tokens | `SuperTokensSessionRepository` when configured |
 
-Every live D4/D5/D7 operation needs a signed-in caller, so wiring those ports
-waits on the SuperTokens auth server below.
+Every live D4/D5/D7 operation needs a signed-in caller; both apps now create
+real accounts through `mano-auth` (see **Auth**).
 
 ## Mapping notes
 
@@ -196,10 +196,34 @@ native screens.
 - Session states are `SignedOut` (at the door), `Guest` (browsing without an
   account) and `SignedIn`. `hasAccountProvider` gates account-only actions.
 
-**Gap:** nothing serves the FDI routes yet. The gateway only verifies tokens.
-Someone has to stand up the SuperTokens backend SDK (or hand-build the four
-routes) beside the core before sign-in works end to end. The adapter is
-covered by tests against a fake HTTP client.
+**Served by `mano-auth`** (TypeScript, SuperTokens backend SDK, `:3001`).
+The old gap — nothing serving the FDI routes — is closed. Every call sends
+`rid: emailpassword` and `st-auth-mode: header`.
+
+- **Sign-up sends the role.** `SessionRepository.signUp(credentials, role:)`
+  posts `formFields` `[email, password, {id: role, value: requester|provider}]`.
+  `SessionManager.signUp` takes the role from `ManoConfig.appRole`, so the
+  requester app makes Solicitantes and the provider app Proveedores.
+- **Sign-in takes no role.** The role comes back in the token's `st-role`
+  claim. A requester account may sign in to the provider app; nothing blocks
+  it yet.
+- **Failure mapping** (`SuperTokensSessionRepository`):
+
+| mano-auth answer | `AuthFailure` | Copy (`authFailureCopy`, `mano_session`) |
+|---|---|---|
+| 200 `WRONG_CREDENTIALS_ERROR` (sign-in) | `WrongCredentials` | Correo o contraseña incorrectos |
+| 200 `FIELD_ERROR` on `email` (sign-up: "already exists") | `EmailAlreadyRegistered` | Ese correo ya tiene cuenta. Inicia sesión. |
+| 200 `FIELD_ERROR` on any other field (`password`, `role`) | `SignInRejected(reason)` | No pudimos aceptar esos datos. Revísalos. |
+| any non-200, or the server unreachable | `AuthUnavailable` | No pudimos conectarnos. Intenta de nuevo. |
+
+- The apps check the email shape and the password (8+ characters, a letter
+  and a number, SuperTokens' default rules) before sending, so a password
+  `FIELD_ERROR` should be rare.
+- **Where accounts are made.** Requester: name → email → password (signs up)
+  → address → notifications, ending signed in. Provider: welcome → email →
+  password (signs up) → the profile questions → pending. "Ahora no" on either
+  flow still browses as a guest; guests are asked to sign in at account-only
+  actions (`ManoAccountNeededSheet`).
 
 ## Running the gateway locally
 
