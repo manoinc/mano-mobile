@@ -78,6 +78,38 @@ Future<void> _fillName(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+/// Sign-up answers with [outcome], or a fresh signed-in session.
+InMemorySessionRepository _signUpRepository([AuthFailure? outcome]) =>
+    InMemorySessionRepository(
+      onSignUp: () async =>
+          outcome == null ? Ok(_signedInSession) : Err(outcome),
+    );
+
+/// Email, then password, then "Crear cuenta".
+Future<void> _fillAccount(WidgetTester tester) async {
+  await tester.enterText(find.byType(TextField).first, 'ana@mano.co');
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Siguiente'));
+  await tester.pumpAndSettle();
+  await tester.enterText(find.byType(TextField).first, 'mano2026');
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Crear cuenta'));
+  await tester.pumpAndSettle();
+}
+
+/// From a cold start to the address step, account created.
+Future<void> _registerToAddress(
+  WidgetTester tester, {
+  InMemorySessionRepository? session,
+}) async {
+  await _boot(tester, session: session ?? _signUpRepository());
+  await _toLastSlide(tester);
+  await tester.tap(find.text('Registrarse'));
+  await tester.pumpAndSettle();
+  await _fillName(tester);
+  await _fillAccount(tester);
+}
+
 void main() {
   group('the doorway', () {
     testWidgets('a cold start with nobody signed in opens the carousel', (
@@ -274,9 +306,7 @@ void main() {
       expect(find.text('¿Cómo te llamas?'), findsOneWidget);
     });
 
-    testWidgets('a good name advances and the next step greets by it', (
-      tester,
-    ) async {
+    testWidgets('a good name asks for the email', (tester) async {
       await _boot(tester);
       await _toLastSlide(tester);
       await tester.tap(find.text('Registrarse'));
@@ -284,8 +314,92 @@ void main() {
 
       await _fillName(tester);
 
+      expect(find.text('¿Cuál es tu correo?'), findsOneWidget);
+    });
+
+    testWidgets('a malformed email is refused, in Spanish', (tester) async {
+      await _boot(tester);
+      await _toLastSlide(tester);
+      await tester.tap(find.text('Registrarse'));
+      await tester.pumpAndSettle();
+      await _fillName(tester);
+
+      await tester.enterText(find.byType(TextField).first, 'ana@');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Siguiente'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Revisa tu correo.'), findsOneWidget);
+      expect(find.text('¿Cuál es tu correo?'), findsOneWidget);
+    });
+
+    testWidgets('a weak password is refused before anything is sent', (
+      tester,
+    ) async {
+      final session = _signUpRepository();
+      await _boot(tester, session: session);
+      await _toLastSlide(tester);
+      await tester.tap(find.text('Registrarse'));
+      await tester.pumpAndSettle();
+      await _fillName(tester);
+      await tester.enterText(find.byType(TextField).first, 'ana@mano.co');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Siguiente'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField).first, 'corta');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Crear cuenta'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Usa al menos 8 caracteres.'), findsOneWidget);
+      expect(session.lastCredentials, isNull);
+    });
+
+    testWidgets('creating the account signs up as a requester', (tester) async {
+      final session = _signUpRepository();
+
+      await _registerToAddress(tester, session: session);
+
+      expect(session.lastCredentials?.email, 'ana@mano.co');
+      expect(session.lastSignUpRole, ManoRole.requester);
       expect(
         find.text('¡Un gusto conocerte, Ana! ¿Dónde vives?'),
+        findsOneWidget,
+        reason: 'signed in, but registration is not over',
+      );
+      expect(find.byType(RequesterShell), findsNothing);
+    });
+
+    testWidgets('a taken email says so and offers to sign in', (tester) async {
+      await _registerToAddress(
+        tester,
+        session: _signUpRepository(const EmailAlreadyRegistered()),
+      );
+
+      expect(find.text('¿Cuál es tu correo?'), findsOneWidget);
+      expect(
+        find.text('Ese correo ya tiene cuenta. Inicia sesión.'),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Iniciar sesión'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SignInScreen), findsOneWidget);
+    });
+
+    testWidgets('an unreachable service stays on the password step', (
+      tester,
+    ) async {
+      await _registerToAddress(
+        tester,
+        session: _signUpRepository(const AuthUnavailable()),
+      );
+
+      expect(find.text('Crea una contraseña'), findsOneWidget);
+      expect(
+        find.text('No pudimos conectarnos. Intenta de nuevo.'),
         findsOneWidget,
       );
     });
@@ -321,11 +435,7 @@ void main() {
     });
 
     testWidgets('finishing raises the notifications sheet', (tester) async {
-      await _boot(tester);
-      await _toLastSlide(tester);
-      await tester.tap(find.text('Registrarse'));
-      await tester.pumpAndSettle();
-      await _fillName(tester);
+      await _registerToAddress(tester);
 
       await tester.enterText(find.byType(TextField).first, 'Calle 12 #3-45');
       await tester.pumpAndSettle();
@@ -336,14 +446,10 @@ void main() {
       expect(find.byType(ManoToggleRow), findsOneWidget);
     });
 
-    testWidgets('accepting lands on the guest home and says thank you', (
+    testWidgets('accepting lands home signed in and says thank you', (
       tester,
     ) async {
-      await _boot(tester);
-      await _toLastSlide(tester);
-      await tester.tap(find.text('Registrarse'));
-      await tester.pumpAndSettle();
-      await _fillName(tester);
+      await _registerToAddress(tester);
       await tester.enterText(find.byType(TextField).first, 'Calle 12 #3-45');
       await tester.pumpAndSettle();
       await tester.tap(find.text('Siguiente'));
@@ -354,6 +460,10 @@ void main() {
 
       expect(find.byType(RequesterShell), findsOneWidget);
       expect(find.text('¡Gracias por unirte a Mano!'), findsOneWidget);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(RequesterShell)),
+      );
+      expect(container.read(sessionProvider).value, isA<SignedIn>());
 
       await tester.tap(find.text('¡Empecemos!'));
       await tester.pumpAndSettle();
@@ -365,11 +475,7 @@ void main() {
     testWidgets('dismissing the sheet returns to the address step', (
       tester,
     ) async {
-      await _boot(tester);
-      await _toLastSlide(tester);
-      await tester.tap(find.text('Registrarse'));
-      await tester.pumpAndSettle();
-      await _fillName(tester);
+      await _registerToAddress(tester);
       await tester.enterText(find.byType(TextField).first, 'Calle 12 #3-45');
       await tester.pumpAndSettle();
       await tester.tap(find.text('Siguiente'));
@@ -404,6 +510,7 @@ void main() {
                 appRole: ManoRole.requester,
               ),
             ),
+            sessionRepositoryProvider.overrideWithValue(_signUpRepository()),
           ],
           child: MaterialApp(
             theme: ManoTheme.light(),
@@ -434,7 +541,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('both form steps fit or scroll', (tester) async {
+    testWidgets('every form step fits or scrolls', (tester) async {
       await boot(tester);
       await _toLastSlide(tester);
       await tester.tap(find.text('Registrarse'));
@@ -442,6 +549,18 @@ void main() {
       expect(tester.takeException(), isNull);
 
       await _fillName(tester);
+      expect(tester.takeException(), isNull);
+
+      await tester.enterText(find.byType(TextField).first, 'ana@mano.co');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Siguiente'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+
+      await tester.enterText(find.byType(TextField).first, 'mano2026');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Crear cuenta'));
+      await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     });
 
@@ -451,6 +570,7 @@ void main() {
       await tester.tap(find.text('Registrarse'));
       await tester.pumpAndSettle();
       await _fillName(tester);
+      await _fillAccount(tester);
       await tester.enterText(find.byType(TextField).first, 'Calle 12 #3-45');
       await tester.pumpAndSettle();
       await tester.tap(find.text('Siguiente'));

@@ -22,22 +22,67 @@ final class _FakeRegistrationRepository implements RegistrationRepository {
   }
 }
 
-ProviderContainer containerWith([RegistrationRepository? repository]) =>
-    ProviderContainer.test(
-      overrides: [
-        sessionRepositoryProvider.overrideWithValue(
-          InMemorySessionRepository(),
-        ),
-        if (repository != null)
-          registrationRepositoryProvider.overrideWithValue(repository),
-      ],
-    );
+final _session = Session(
+  user: const AuthenticatedUser(subject: 'u-1', roles: {ManoRole.requester}),
+  accessToken: 'access-1',
+  expiresAt: DateTime.now().add(const Duration(minutes: 5)),
+);
+
+/// Sign-up succeeds unless a [session] repository says otherwise.
+ProviderContainer containerWith([
+  RegistrationRepository? repository,
+  InMemorySessionRepository? session,
+]) => ProviderContainer.test(
+  overrides: [
+    manoConfigProvider.overrideWithValue(
+      const ManoConfig(
+        gatewayGraphQlUrl: 'http://gw/graphql',
+        appRole: ManoRole.requester,
+      ),
+    ),
+    sessionRepositoryProvider.overrideWithValue(
+      session ?? InMemorySessionRepository(onSignUp: () async => Ok(_session)),
+    ),
+    if (repository != null)
+      registrationRepositoryProvider.overrideWithValue(repository),
+  ],
+);
 
 OnboardingFlowNotifier flowOf(ProviderContainer c) =>
     c.read(onboardingFlowProvider.notifier);
 
 OnboardingRegistration registrationOf(ProviderContainer c) =>
     c.read(onboardingFlowProvider) as OnboardingRegistration;
+
+/// Name, email and password typed; the password step is on screen.
+Future<void> toPassword(ProviderContainer c) async {
+  await c.read(sessionProvider.future);
+  flowOf(c)
+    ..startRegistration()
+    ..editName(givenName: 'Ana', familyName: 'Rojas')
+    ..next()
+    ..editEmail('ana@mano.co')
+    ..next()
+    ..editPassword('mano2026');
+}
+
+/// Account created, so the address is next.
+Future<void> toAddress(ProviderContainer c, {String givenName = 'Ana'}) async {
+  await toPassword(c);
+  flowOf(c).editName(givenName: givenName);
+  await flowOf(c).createAccount();
+}
+
+/// Up to the notifications question, account created.
+Future<void> toNotifications(
+  ProviderContainer c, {
+  String givenName = 'Ana',
+}) async {
+  await toAddress(c, givenName: givenName);
+  flowOf(c)
+    ..editAddress('Calle 12 #3-45')
+    ..next();
+}
 
 void main() {
   test('a cold start opens on the first slide of the tour', () {
@@ -94,19 +139,15 @@ void main() {
     expect(container.read(onboardingFlowProvider), isA<OnboardingSignIn>());
   });
 
-  test('a finished registration browses as a guest, with a welcome', () async {
+  test('a finished registration is signed in, with a welcome', () async {
     final container = containerWith();
-    await container.read(sessionProvider.future);
-    flowOf(container).startRegistration();
+    await toNotifications(container);
 
-    flowOf(container)
-      ..editName(givenName: 'Ana', familyName: 'Ruiz')
-      ..next()
-      ..editAddress('Cra 7 # 45-10')
-      ..next();
     await flowOf(container).submit();
 
-    expect(container.read(sessionProvider).value, isA<Guest>());
+    expect(container.read(sessionProvider).value, isA<SignedIn>());
+    final flow = container.read(onboardingFlowProvider) as OnboardingBrowsing;
+    expect(flow.showWelcome, isTrue);
   });
 
   test('registration opens on the name step with an empty draft', () {
@@ -117,6 +158,8 @@ void main() {
     final flow = registrationOf(container);
     expect(flow.step, RegistrationStep.name);
     expect(flow.draft, const RegistrationDraft());
+    expect(flow.email, '');
+    expect(flow.password, '');
     expect(flow.status, isA<RegistrationIdle>());
     expect(flow.showProblems, isFalse, reason: 'nothing has been refused yet');
   });
@@ -132,14 +175,170 @@ void main() {
     expect(flow.showProblems, isTrue);
   });
 
-  test('a good name advances', () {
-    final container = containerWith();
-    flowOf(container)
-      ..startRegistration()
-      ..editName(givenName: 'Ana', familyName: 'Rojas')
-      ..next();
+  group('the account steps', () {
+    test('a good name asks for the email next', () {
+      final container = containerWith();
+      flowOf(container)
+        ..startRegistration()
+        ..editName(givenName: 'Ana', familyName: 'Rojas')
+        ..next();
 
-    expect(registrationOf(container).step, RegistrationStep.address);
+      expect(registrationOf(container).step, RegistrationStep.email);
+    });
+
+    test('a malformed email does not advance, and says why', () {
+      final container = containerWith();
+      flowOf(container)
+        ..startRegistration()
+        ..editName(givenName: 'Ana', familyName: 'Rojas')
+        ..next()
+        ..editEmail('ana@')
+        ..next();
+
+      final flow = registrationOf(container);
+      expect(flow.step, RegistrationStep.email);
+      expect(flow.showProblems, isTrue);
+    });
+
+    test('a good email asks for a password', () {
+      final container = containerWith();
+      flowOf(container)
+        ..startRegistration()
+        ..editName(givenName: 'Ana', familyName: 'Rojas')
+        ..next()
+        ..editEmail('ana@mano.co')
+        ..next();
+
+      expect(registrationOf(container).step, RegistrationStep.password);
+    });
+
+    test('a weak password creates nothing and says why', () async {
+      final session = InMemorySessionRepository(
+        onSignUp: () async => Ok(_session),
+      );
+      final container = containerWith(null, session);
+      await toPassword(container);
+      flowOf(container).editPassword('short');
+
+      await flowOf(container).createAccount();
+
+      expect(registrationOf(container).step, RegistrationStep.password);
+      expect(registrationOf(container).showProblems, isTrue);
+      expect(session.lastCredentials, isNull);
+    });
+
+    test('creating the account signs up and moves on to the address', () async {
+      final session = InMemorySessionRepository(
+        onSignUp: () async => Ok(_session),
+      );
+      final container = containerWith(null, session);
+
+      await toAddress(container);
+
+      expect(session.lastCredentials?.email, 'ana@mano.co');
+      expect(session.lastCredentials?.password, 'mano2026');
+      expect(session.lastSignUpRole, ManoRole.requester);
+      expect(container.read(sessionProvider).value, isA<SignedIn>());
+      expect(registrationOf(container).step, RegistrationStep.address);
+    });
+
+    test('creating the account is observable while in flight', () async {
+      final gate = Completer<Result<Session, AuthFailure>>();
+      final container = containerWith(
+        null,
+        InMemorySessionRepository(onSignUp: () => gate.future),
+      );
+      await toPassword(container);
+
+      final pending = flowOf(container).createAccount();
+      expect(registrationOf(container).status, isA<RegistrationSubmitting>());
+
+      gate.complete(Ok(_session));
+      await pending;
+      expect(registrationOf(container).status, isA<RegistrationIdle>());
+    });
+
+    test('a taken email goes back to the email step, saying so', () async {
+      final container = containerWith(
+        null,
+        InMemorySessionRepository(
+          onSignUp: () async => const Err(EmailAlreadyRegistered()),
+        ),
+      );
+
+      await toAddress(container);
+
+      final flow = registrationOf(container);
+      expect(flow.step, RegistrationStep.email);
+      expect(
+        (flow.status as RegistrationAccountRejected).failure,
+        isA<EmailAlreadyRegistered>(),
+      );
+      expect(flow.email, 'ana@mano.co', reason: 'nothing was lost');
+      expect(
+        (container.read(sessionProvider).value as SignedOut).lastFailure,
+        isNull,
+        reason: 'the step shows it; the door must not show it again',
+      );
+    });
+
+    test('an unreachable auth service stays on the password step', () async {
+      final container = containerWith(
+        null,
+        InMemorySessionRepository(
+          onSignUp: () async => const Err(AuthUnavailable()),
+        ),
+      );
+
+      await toAddress(container);
+
+      final flow = registrationOf(container);
+      expect(flow.step, RegistrationStep.password);
+      expect(
+        (flow.status as RegistrationAccountRejected).failure,
+        isA<AuthUnavailable>(),
+      );
+    });
+
+    test('typing again clears the refusal', () async {
+      final container = containerWith(
+        null,
+        InMemorySessionRepository(
+          onSignUp: () async => const Err(EmailAlreadyRegistered()),
+        ),
+      );
+      await toAddress(container);
+
+      flowOf(container).editEmail('otra@mano.co');
+
+      expect(registrationOf(container).status, isA<RegistrationIdle>());
+    });
+
+    test(
+      'once the account exists, the address step does not go back',
+      () async {
+        final container = containerWith();
+        await toAddress(container);
+
+        flowOf(container).back();
+
+        expect(registrationOf(container).step, RegistrationStep.address);
+      },
+    );
+
+    test('back from the password step returns to the email step', () {
+      final container = containerWith();
+      flowOf(container)
+        ..startRegistration()
+        ..editName(givenName: 'Ana', familyName: 'Rojas')
+        ..next()
+        ..editEmail('ana@mano.co')
+        ..next()
+        ..back();
+
+      expect(registrationOf(container).step, RegistrationStep.email);
+      expect(registrationOf(container).email, 'ana@mano.co');
+    });
   });
 
   test('going back keeps what was typed', () {
@@ -150,14 +349,14 @@ void main() {
       ..startRegistration()
       ..editName(givenName: 'Ana', familyName: 'Rojas')
       ..next()
-      ..editAddress('Calle 12 #3-45')
+      ..editEmail('ana@mano.co')
       ..back();
 
     final flow = registrationOf(container);
     expect(flow.step, RegistrationStep.name);
     expect(flow.draft.givenName, 'Ana');
     expect(flow.draft.familyName, 'Rojas');
-    expect(flow.draft.address, 'Calle 12 #3-45');
+    expect(flow.email, 'ana@mano.co');
   });
 
   test('going back out of the first step returns to the last slide', () {
@@ -181,12 +380,10 @@ void main() {
     expect(flow.showWelcome, isFalse);
   });
 
-  test('the address step will not advance on a scrap of an address', () {
+  test('the address step will not advance on a scrap of an address', () async {
     final container = containerWith();
+    await toAddress(container);
     flowOf(container)
-      ..startRegistration()
-      ..editName(givenName: 'Ana', familyName: 'Rojas')
-      ..next()
       ..editAddress('C 1')
       ..next();
 
@@ -194,14 +391,9 @@ void main() {
     expect(registrationOf(container).showProblems, isTrue);
   });
 
-  test('a good address reaches the notifications question', () {
+  test('a good address reaches the notifications question', () async {
     final container = containerWith();
-    flowOf(container)
-      ..startRegistration()
-      ..editName(givenName: 'Ana', familyName: 'Rojas')
-      ..next()
-      ..editAddress('Calle 12 #3-45')
-      ..next();
+    await toNotifications(container);
 
     expect(registrationOf(container).step, RegistrationStep.notifications);
   });
@@ -211,12 +403,7 @@ void main() {
     final container = containerWith(
       _FakeRegistrationRepository(onSubmit: () => gate.future),
     );
-    flowOf(container)
-      ..startRegistration()
-      ..editName(givenName: 'Ana', familyName: 'Rojas')
-      ..next()
-      ..editAddress('Calle 12 #3-45')
-      ..next();
+    await toNotifications(container);
 
     final pending = flowOf(container).submit();
     expect(registrationOf(container).status, isA<RegistrationSubmitting>());
@@ -230,12 +417,7 @@ void main() {
 
   test('browsing after registering keeps the first name to greet', () async {
     final container = containerWith();
-    flowOf(container)
-      ..startRegistration()
-      ..editName(givenName: 'Ana María', familyName: 'Rojas')
-      ..next()
-      ..editAddress('Calle 12 #3-45')
-      ..next();
+    await toNotifications(container, givenName: 'Ana María');
     await flowOf(container).submit();
     flowOf(container).acknowledgeWelcome();
 
@@ -246,13 +428,8 @@ void main() {
   test('the finished draft is what gets submitted', () async {
     final fake = _FakeRegistrationRepository();
     final container = containerWith(fake);
-    flowOf(container)
-      ..startRegistration()
-      ..editName(givenName: 'Ana', familyName: 'Rojas')
-      ..next()
-      ..editAddress('Calle 12 #3-45')
-      ..next()
-      ..setWantsPromotions(value: false);
+    await toNotifications(container);
+    flowOf(container).setWantsPromotions(value: false);
 
     await flowOf(container).submit();
 
@@ -268,12 +445,7 @@ void main() {
         onSubmit: () async => const Err(RegistrationUnavailable()),
       ),
     );
-    flowOf(container)
-      ..startRegistration()
-      ..editName(givenName: 'Ana', familyName: 'Rojas')
-      ..next()
-      ..editAddress('Calle 12 #3-45')
-      ..next();
+    await toNotifications(container);
 
     await flowOf(container).submit();
 
@@ -295,12 +467,7 @@ void main() {
             : const Ok<void, RegistrationFailure>(null),
       ),
     );
-    flowOf(container)
-      ..startRegistration()
-      ..editName(givenName: 'Ana', familyName: 'Rojas')
-      ..next()
-      ..editAddress('Calle 12 #3-45')
-      ..next();
+    await toNotifications(container);
 
     await flowOf(container).submit();
     flowOf(container).acknowledgeFailure();

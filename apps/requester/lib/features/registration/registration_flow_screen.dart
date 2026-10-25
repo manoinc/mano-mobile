@@ -6,8 +6,10 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import 'address_step_screen.dart';
+import 'email_step_screen.dart';
 import 'name_step_screen.dart';
 import 'notifications_sheet.dart';
+import 'password_step_screen.dart';
 
 /// The registration form, one step at a time.
 ///
@@ -54,9 +56,11 @@ class _RegistrationFlowScreenState
   @override
   Widget build(BuildContext context) {
     ref.listen(onboardingFlowProvider, (before, after) {
-      final wasAsking = before is OnboardingRegistration &&
+      final wasAsking =
+          before is OnboardingRegistration &&
           before.step == RegistrationStep.notifications;
-      final isAsking = after is OnboardingRegistration &&
+      final isAsking =
+          after is OnboardingRegistration &&
           after.step == RegistrationStep.notifications;
       if (!wasAsking && isAsking) unawaited(_askAboutNotifications());
     });
@@ -78,12 +82,22 @@ class _RegistrationFlowScreenState
         ManoStepTransition(
           index: switch (flow.step) {
             RegistrationStep.name => 0,
-            // The sheet sits over step 2; the page beneath does not change.
-            RegistrationStep.address || RegistrationStep.notifications => 1,
+            RegistrationStep.email => 1,
+            RegistrationStep.password => 2,
+            // The sheet sits over the address; the page beneath does not change.
+            RegistrationStep.address || RegistrationStep.notifications => 3,
           },
           child: switch (flow.step) {
             RegistrationStep.name => NameStepScreen(
               key: const ValueKey('name'),
+              flow: flow,
+            ),
+            RegistrationStep.email => EmailStepScreen(
+              key: const ValueKey('email'),
+              flow: flow,
+            ),
+            RegistrationStep.password => PasswordStepScreen(
+              key: const ValueKey('password'),
               flow: flow,
             ),
             RegistrationStep.address || RegistrationStep.notifications =>

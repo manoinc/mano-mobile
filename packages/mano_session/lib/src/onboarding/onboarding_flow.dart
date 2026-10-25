@@ -1,7 +1,9 @@
 import 'package:mano_domain/mano_domain.dart';
 
 /// Which question of the registration form is on screen.
-enum RegistrationStep { name, address, notifications }
+///
+/// The account is created on leaving [password], so [address] onward is signed in.
+enum RegistrationStep { name, email, password, address, notifications }
 
 /// How a submit is going.
 ///
@@ -23,6 +25,13 @@ final class RegistrationFailed extends RegistrationStatus {
   const RegistrationFailed(this.failure);
 
   final RegistrationFailure failure;
+}
+
+/// Creating the account was refused; the step shows why, inline.
+final class RegistrationAccountRejected extends RegistrationStatus {
+  const RegistrationAccountRejected(this.failure);
+
+  final AuthFailure failure;
 }
 
 /// What somebody who is not signed in is currently doing.
@@ -50,12 +59,18 @@ final class OnboardingRegistration extends OnboardingFlow {
   const OnboardingRegistration({
     required this.draft,
     this.step = RegistrationStep.name,
+    this.email = '',
+    this.password = '',
     this.showProblems = false,
     this.status = const RegistrationIdle(),
   });
 
   final RegistrationDraft draft;
   final RegistrationStep step;
+
+  /// The new account's credentials, kept out of the draft that gets submitted.
+  final String email;
+  final String password;
 
   /// Errors appear on the first refused Siguiente, not on the first keystroke.
   final bool showProblems;
@@ -65,11 +80,15 @@ final class OnboardingRegistration extends OnboardingFlow {
   OnboardingRegistration copyWith({
     RegistrationDraft? draft,
     RegistrationStep? step,
+    String? email,
+    String? password,
     bool? showProblems,
     RegistrationStatus? status,
   }) => OnboardingRegistration(
     draft: draft ?? this.draft,
     step: step ?? this.step,
+    email: email ?? this.email,
+    password: password ?? this.password,
     showProblems: showProblems ?? this.showProblems,
     status: status ?? this.status,
   );
