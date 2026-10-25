@@ -3,7 +3,9 @@ import 'package:mano_data/mano_data.dart';
 import 'package:mano_domain/mano_domain.dart';
 
 import 'conversation_providers.dart';
+import 'gateway_subscription_provider.dart';
 import 'offline_marketplace_provider.dart';
+import 'session_notifier.dart';
 import 'session_providers.dart';
 
 // One provider per marketplace port. The catalog is live on the gateway; the
@@ -44,6 +46,13 @@ final availabilityRepositoryProvider = Provider<AvailabilityRepository>(
 );
 
 final chatRepositoryProvider = Provider<ChatRepository>((ref) {
+  if (!ref.watch(offlineMarketplaceProvider)) {
+    return GatewayChatRepository(
+      ref.watch(gatewayTransportProvider),
+      subscribe: ref.watch(gatewaySubscriptionClientProvider).subscribe,
+      viewerId: () => ref.read(currentUserProvider)?.subject,
+    );
+  }
   // Shares the mock inbox so reads and sends show up in the conversation list.
   final inbox = ref.watch(conversationRepositoryProvider);
   return MockChatRepository(

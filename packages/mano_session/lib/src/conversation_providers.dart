@@ -2,9 +2,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_data/mano_data.dart';
 import 'package:mano_domain/mano_domain.dart';
 
+import 'offline_marketplace_provider.dart';
+import 'session_notifier.dart';
+import 'session_providers.dart';
+
 /// The composition step that matters: an adapter bound to the domain's port.
 final conversationRepositoryProvider = Provider<ConversationRepository>(
-  (ref) => MockConversationRepository(),
+  (ref) => ref.watch(offlineMarketplaceProvider)
+      ? MockConversationRepository()
+      : GatewayConversationRepository(
+          ref.watch(gatewayTransportProvider),
+          // The gateway's profileId is the session subject.
+          viewerId: () => ref.read(currentUserProvider)?.subject,
+        ),
 );
 
 /// Newest activity first, whatever order the adapter returns.

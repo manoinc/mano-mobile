@@ -19,7 +19,7 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 | `ServiceRequestRepository` | `myServiceRequests`, `requestService`, `acceptServiceRequest`, `rejectServiceRequest` | **live** (D5 taskmanager over gRPC); **no `cancelServiceRequest`** | `MockServiceRequestRepository` |
 | `JobRepository` | `myJobs`, `job`, `bookSlot`, `startJob`, `finishJob(actualHours)`, `cancelJob`, `rebook` | **live** (D5; `bookSlot` also needs D4) | `MockJobRepository` |
 | `AvailabilityRepository` | `workerAvailability`, `myAvailabilityRules`, `upsertAvailabilityRule`, `removeAvailabilityRule`, `myCalendarBlocks`, `blockCalendar`, `unblockCalendar`, `myCalendarFeed`, `regenerateCalendarFeed`, `revokeCalendarFeed` + `.ics` route | **live** (D4 scheduler over gRPC) | `GatewayAvailabilityRepository` |
-| `ConversationRepository`, `ChatRepository` | `myConversations`, `conversation`, `sendMessage`, `markConversationRead`, `messageAdded` | **live** (D7 chat over gRPC) | `MockConversationRepository`, `MockChatRepository` |
+| `ConversationRepository`, `ChatRepository` | `myConversations`, `conversation`, `sendMessage`, `markConversationRead`, `messageAdded` | **live** (D7 chat over gRPC) | `GatewayConversationRepository`, `GatewayChatRepository` |
 | `ProjectRepository` (requester) | `myProjects` with `quotes(page)`, `publishProject`, `cancelProject`, `selectQuote`, `discardQuote` | **live** (D9 mano-projects over gRPC); client role | `GatewayProjectRepository` |
 | `LeadRepository` (provider) | `openProjects(category)`, `submitQuote`, `myQuotes` | **live** (D9); worker role. `purchaseProjectLead` is a D6 stub, so quotes are free | `GatewayLeadRepository` |
 | `ProviderOnboardingRepository` | `updateWorkerProfile`, `submitVerificationRequest` | stub (D2, D10 `not implemented`) | `MockProviderOnboardingRepository` |
@@ -50,6 +50,17 @@ waits on the SuperTokens auth server below.
   `myOffers` excludes `DELETED` offers.
 - `Message.fromMe` is derived by the adapter, by comparing the sender with the
   viewer.
+- Chat: `Conversation.type` is really **`kind`** (`DIRECT` / `SUPPORT`).
+  `Conversation.participant` is the participant whose `profileId` is not the
+  viewer's (the session subject); `WORKER` maps to `ManoRole.provider`, `CLIENT`
+  and `STAFF` to `ManoRole.requester`. `lastMessage` is `lastMessage.content` or
+  `''`, `lastMessageAt` its `sentAt` or `DateTime(0)`.
+- `Message.fromMe` is `sender.profileId == viewer`. `status` is `read` once
+  `readAt` is set, otherwise `delivered` (the gateway has no "sent" state).
+- Messages come newest first (`messages(page: {first: 50})`; the
+  `conversation(messagePage:)` argument is ignored); the adapter reverses them.
+  A sent message also arrives on `messageAdded`; `ChatThreadNotifier` upserts
+  by id, so it shows once.
 - `ServiceRequest.serviceTitle` and `Job.serviceTitle` are resolved by the
   adapter from the offer's `jobServiceId`.
 - The catalog returns only `offerantId` for an offer, with no provider name,
@@ -85,6 +96,27 @@ waits on the SuperTokens auth server below.
   `myQuotes`/`submitQuote`/`selectQuote` select `project { id title }`.
 - `WorkerProfile` is a placeholder (empty `displayName`, null `photoUrl`), so a
   quote shows no provider name yet.
+
+## Subscriptions (WebSocket)
+
+`messageAdded(conversationId)` runs over `ws://host:8082/subscription`
+(`ManoConfig.gatewaySubscriptionUrl`), through `SubscriptionClient`
+(`mano_data`).
+
+- Protocol is always **`graphql-transport-ws`**: `connection_init` /
+  `connection_ack` / `subscribe` / `next` / `error` / `complete` / `ping` /
+  `pong`.
+- **Auth is in the `connection_init` payload**, `{"authorization": "Bearer
+  <token>"}`; the gateway ignores headers on the upgrade. An invalid token is
+  refused during init; with none, init succeeds and resolvers answer
+  "authentication required".
+- One socket shared by every subscription, opened on the first and closed after
+  the last. A dropped socket reconnects with capped backoff (0.5 s doubling to
+  30 s), a fresh token from `freshAccessToken()` and every live subscription
+  re-sent.
+- `messageAdded` sends only new messages, never read receipts, so my messages
+  stay `delivered` until the thread reloads. A non-participant gets one error,
+  then the stream completes.
 
 ## Statuses
 
@@ -192,3 +224,6 @@ idempotent: it truncates the catalog first.
   GraphQL field, so a requester cannot close a project and a lead can never be
   purchased (`purchaseProjectLead` is a D6 stub). Contact reveal is stitched
   with an empty phone.
+- Chat participants carry `displayName: ""` and no photo, so the inbox and
+  thread header have no name to show until profiles land. No subscription
+  pushes read receipts or the inbox (`unreadCount`, `lastMessage`).

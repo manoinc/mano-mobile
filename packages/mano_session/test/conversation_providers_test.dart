@@ -106,7 +106,9 @@ void main() {
   });
 
   test('sending in an older thread moves it to the top of the inbox', () async {
-    final container = ProviderContainer.test();
+    final container = ProviderContainer.test(
+      overrides: [offlineMarketplaceProvider.overrideWithValue(true)],
+    );
     container.listen(conversationsProvider, (_, _) {});
     final before = await container.read(conversationsProvider.future);
     final oldest = before.last.id;
