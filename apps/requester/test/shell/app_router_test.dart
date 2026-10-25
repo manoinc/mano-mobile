@@ -24,6 +24,7 @@ Future<ProviderContainer> _pump(WidgetTester tester) async {
   final container = ProviderContainer.test(
     overrides: [
       sessionRepositoryProvider.overrideWithValue(FakeSessionRepository()),
+      offlineMarketplaceProvider.overrideWithValue(true),
     ],
   );
   await tester.pumpWidget(

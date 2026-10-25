@@ -10,11 +10,7 @@ import 'gateway_transport.dart';
 /// Opens the socket; tests hand back an in-memory channel.
 typedef SocketConnector = StreamChannel<dynamic> Function(Uri url);
 
-/// GraphQL subscriptions over one shared `graphql-transport-ws` socket.
-///
-/// Connects on the first subscription and closes after the last. A dropped
-/// socket reconnects with capped backoff, a fresh token and every live
-/// subscription re-sent.
+/// GraphQL subscriptions over one shared, self-reconnecting `graphql-transport-ws` socket.
 final class SubscriptionClient {
   SubscriptionClient(
     String url, {
