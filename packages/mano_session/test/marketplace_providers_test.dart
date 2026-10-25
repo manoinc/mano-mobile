@@ -43,6 +43,10 @@ ProviderContainer _container() => ProviderContainer.test(
   ],
 );
 
+ProviderContainer _offline() => ProviderContainer.test(
+  overrides: [offlineMarketplaceProvider.overrideWithValue(true)],
+);
+
 void main() {
   test('the catalog reads from the live gateway', () {
     expect(
@@ -73,13 +77,17 @@ void main() {
     );
   });
 
-  test('stubbed backend ports default to mock adapters', () {
+  test('requests and jobs read from the live gateway', () {
     final c = _container();
     expect(
       c.read(serviceRequestRepositoryProvider),
-      isA<MockServiceRequestRepository>(),
+      isA<GatewayServiceRequestRepository>(),
     );
-    expect(c.read(jobRepositoryProvider), isA<MockJobRepository>());
+    expect(c.read(jobRepositoryProvider), isA<GatewayJobRepository>());
+  });
+
+  test('stubbed backend ports default to mock adapters', () {
+    final c = _container();
     expect(
       c.read(providerOnboardingRepositoryProvider),
       isA<MockProviderOnboardingRepository>(),
@@ -142,15 +150,15 @@ void main() {
     test(
       'myJobsProvider and myServiceRequestsProvider list everything',
       () async {
-        final c = ProviderContainer.test();
+        final c = _offline();
         expect(await c.read(myJobsProvider.future), isNotEmpty);
         expect(await c.read(myServiceRequestsProvider.future), isNotEmpty);
       },
     );
   });
 
-  test('the default mocks share state across ports', () async {
-    final c = _container();
+  test('the offline mocks share state across ports', () async {
+    final c = _offline();
     final finished =
         (await c.read(jobRepositoryProvider).mine(status: JobStatus.finished))
             .first;
@@ -169,8 +177,8 @@ void main() {
     expect(convs.firstWhere((x) => x.id == 'conv-2').unreadCount, 0);
   });
 
-  test('accepting a request puts a job on the agenda', () async {
-    final c = _container();
+  test('offline, accepting a request puts a job on the agenda', () async {
+    final c = _offline();
     final requests = c.read(serviceRequestRepositoryProvider);
     final pending = (await requests.mine(status: ServiceRequestStatus.pending))
         .first;

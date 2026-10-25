@@ -238,7 +238,7 @@ class _JobCard extends StatelessWidget {
       child: ManoProjectCard(
         key: Key('agenda-job-${job.id}'),
         title: job.serviceTitle,
-        professionalName: job.client.displayName,
+        professionalName: job.clientName,
         professionalPhotoUrl: job.client.photoUrl,
         statusLabel: label,
         statusTone: tone,

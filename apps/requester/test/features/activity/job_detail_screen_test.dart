@@ -31,6 +31,32 @@ void main() {
     expect(find.widgetWithText(ManoStatusChip, 'Programado'), findsOneWidget);
   });
 
+  testWidgets('a provider without a name yet is shown as Profesional', (
+    tester,
+  ) async {
+    await pumpRouterAt(
+      tester,
+      '/projects/job/job-9',
+      overrides: [
+        jobProvider.overrideWith(
+          (ref, id) async => Job(
+            id: id,
+            offerId: 'o1',
+            serviceTitle: 'Reparación de fugas',
+            client: const Party(id: 'c1', displayName: '', photoUrl: ''),
+            provider: const Party(id: 'p1', displayName: '', photoUrl: ''),
+            rateType: RateType.fixed,
+            amountCop: 120000,
+            start: mockJobStart(2, 9),
+            status: JobStatus.scheduled,
+          ),
+        ),
+      ],
+    );
+
+    expect(find.text('Profesional'), findsOneWidget);
+  });
+
   testWidgets('an unknown id shows a not-found state', (tester) async {
     final c = await pumpRouterAt(tester, '/projects/job/nope');
 

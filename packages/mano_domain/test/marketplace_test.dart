@@ -39,6 +39,24 @@ ServiceRequest _request(ServiceRequestStatus status) => ServiceRequest(
 );
 
 void main() {
+  group('Party', () {
+    test('nameOr gives the name, or the fallback when it is blank', () {
+      expect(_client.nameOr('Cliente'), 'Laura');
+      expect(
+        const Party(id: 'c2', displayName: '', photoUrl: '').nameOr('Cliente'),
+        'Cliente',
+      );
+      expect(
+        const Party(
+          id: 'c3',
+          displayName: '  ',
+          photoUrl: '',
+        ).nameOr('Cliente'),
+        'Cliente',
+      );
+    });
+  });
+
   group('ServiceOffer', () {
     test('identical offers are equal and share a hashCode', () {
       expect(_offer(), _offer());

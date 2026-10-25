@@ -6,7 +6,7 @@ import 'package:mano_ui/mano_ui.dart';
 Future<bool?> showRequestSheet(BuildContext context, ServiceRequest request) {
   final when = request.proposedStart;
   final lines = [
-    '${request.provider.displayName}'
+    '${request.providerName}'
         '${when == null ? '' : ' · ${ManoFormat.dateTime(when)}'}',
     request.message,
     ?request.rejectionReason,

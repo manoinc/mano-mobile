@@ -37,6 +37,9 @@ ProviderContainer _container({
     serviceRequestRepositoryProvider.overrideWithValue(
       requests ?? MockServiceRequestRepository(),
     ),
+    availabilityRepositoryProvider.overrideWithValue(
+      MockAvailabilityRepository(),
+    ),
   ],
 );
 
@@ -89,6 +92,26 @@ void main() {
     expect((status as BookingBooked).job.start, slot);
     final after = await c.read(myJobsProvider.future);
     expect(after.length, before.length + 1);
+  });
+
+  test('a booked slot refetches the slots so it disappears', () async {
+    final (:c, :n) = setUp0();
+    final range = (
+      workerId: 'provider-1',
+      from: DateTime(2030, 1, 7),
+      to: DateTime(2030, 1, 8),
+    );
+    var slotBuilds = 0;
+    c.listen(availableSlotsProvider(range), (_, _) => slotBuilds++);
+    await c.read(availableSlotsProvider(range).future);
+    final before = slotBuilds;
+    n.selectDay(DateTime(2030, 1, 7));
+    n.selectSlot(slot);
+
+    await n.confirm();
+    await c.read(availableSlotsProvider(range).future);
+
+    expect(slotBuilds, greaterThan(before));
   });
 
   test(

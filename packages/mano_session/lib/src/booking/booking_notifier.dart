@@ -118,7 +118,12 @@ class BookingNotifier extends Notifier<BookingState> {
         Err(:final failure) => BookingFailed(failure),
       },
     );
-    if (result.isOk) ref.invalidate(myJobsProvider);
+    // The booked slot is gone, so every slot read refetches.
+    if (result.isOk) {
+      ref
+        ..invalidate(myJobsProvider)
+        ..invalidate(availableSlotsProvider);
+    }
   }
 
   Future<void> propose({

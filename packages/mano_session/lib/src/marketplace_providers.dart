@@ -8,8 +8,7 @@ import 'offline_marketplace_provider.dart';
 import 'session_notifier.dart';
 import 'session_providers.dart';
 
-// One provider per marketplace port. The catalog is live on the gateway; the
-// rest are stubs there, so they default to in-memory mocks (docs/develop/backend-contract.md).
+// One provider per marketplace port: the gateway adapter, or its mock when offline (docs/develop/backend-contract.md).
 
 final serviceCatalogProvider = Provider<ServiceCatalog>(
   (ref) => GatewayServiceCatalog(ref.watch(gatewayTransportProvider)),
@@ -21,7 +20,7 @@ final offerManagementProvider = Provider<OfferManagement>(
       : GatewayOfferManagement(ref.watch(gatewayTransportProvider)),
 );
 
-// Built together so accepting a request schedules a job and rebooking files a request.
+// Offline mocks built together so accepting a request schedules a job and rebooking files a request.
 final _mockWorkStoresProvider = Provider((ref) {
   late final MockJobRepository jobs;
   final requests = MockServiceRequestRepository(
@@ -32,11 +31,21 @@ final _mockWorkStoresProvider = Provider((ref) {
 });
 
 final serviceRequestRepositoryProvider = Provider<ServiceRequestRepository>(
-  (ref) => ref.watch(_mockWorkStoresProvider).requests,
+  (ref) => ref.watch(offlineMarketplaceProvider)
+      ? ref.watch(_mockWorkStoresProvider).requests
+      : GatewayServiceRequestRepository(
+          ref.watch(gatewayTransportProvider),
+          ref.watch(serviceCatalogProvider),
+        ),
 );
 
 final jobRepositoryProvider = Provider<JobRepository>(
-  (ref) => ref.watch(_mockWorkStoresProvider).jobs,
+  (ref) => ref.watch(offlineMarketplaceProvider)
+      ? ref.watch(_mockWorkStoresProvider).jobs
+      : GatewayJobRepository(
+          ref.watch(gatewayTransportProvider),
+          ref.watch(serviceCatalogProvider),
+        ),
 );
 
 final availabilityRepositoryProvider = Provider<AvailabilityRepository>(

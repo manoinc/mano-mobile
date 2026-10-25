@@ -16,8 +16,8 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 |---|---|---|---|
 | `ServiceCatalog` | `jobServices(category, searchText, page)`, `jobService(id)`, `jobServiceOffer(id)`, `offersByJobService(jobServiceId)` | **live, public** | `GatewayServiceCatalog` |
 | `OfferManagement` | `myJobServiceOffers(includeDeleted: false)`, `createJobServiceOffer`, `updateJobServiceOffer`, `pauseJobServiceOffer`, `resumeJobServiceOffer`, `deleteJobServiceOffer` (soft) | live, auth required | `GatewayOfferManagement` |
-| `ServiceRequestRepository` | `myServiceRequests`, `requestService`, `acceptServiceRequest`, `rejectServiceRequest` | **live** (D5 taskmanager over gRPC); **no `cancelServiceRequest`** | `MockServiceRequestRepository` |
-| `JobRepository` | `myJobs`, `job`, `bookSlot`, `startJob`, `finishJob(actualHours)`, `cancelJob`, `rebook` | **live** (D5; `bookSlot` also needs D4) | `MockJobRepository` |
+| `ServiceRequestRepository` | `myServiceRequests`, `requestService`, `acceptServiceRequest`, `rejectServiceRequest`, `cancelServiceRequest` | **live** (D5 taskmanager over gRPC) | `GatewayServiceRequestRepository` (offline: `MockServiceRequestRepository`) |
+| `JobRepository` | `myJobs`, `job`, `bookSlot`, `startJob`, `finishJob(actualHours)`, `cancelJob`, `rebook` | **live** (D5; `bookSlot` also needs D4) | `GatewayJobRepository` (offline: `MockJobRepository`) |
 | `AvailabilityRepository` | `workerAvailability`, `myAvailabilityRules`, `upsertAvailabilityRule`, `removeAvailabilityRule`, `myCalendarBlocks`, `blockCalendar`, `unblockCalendar`, `myCalendarFeed`, `regenerateCalendarFeed`, `revokeCalendarFeed` + `.ics` route | **live** (D4 scheduler over gRPC) | `GatewayAvailabilityRepository` |
 | `ConversationRepository`, `ChatRepository` | `myConversations`, `conversation`, `sendMessage`, `markConversationRead`, `messageAdded` | **live** (D7 chat over gRPC) | `GatewayConversationRepository`, `GatewayChatRepository` |
 | `ProjectRepository` (requester) | `myProjects` with `quotes(page)`, `publishProject`, `cancelProject`, `selectQuote`, `discardQuote` | **live** (D9 mano-projects over gRPC); client role | `GatewayProjectRepository` |
@@ -61,8 +61,27 @@ waits on the SuperTokens auth server below.
   `conversation(messagePage:)` argument is ignored); the adapter reverses them.
   A sent message also arrives on `messageAdded`; `ChatThreadNotifier` upserts
   by id, so it shows once.
-- `ServiceRequest.serviceTitle` and `Job.serviceTitle` are resolved by the
-  adapter from the offer's `jobServiceId`.
+- `ServiceRequest.serviceTitle`, `ServiceRequest.category` (and so its lead
+  cost) and `Job.serviceTitle` are resolved by the adapter through the injected
+  `ServiceCatalog`, from the offer's `jobServiceId`, once per service per
+  adapter instance (`ServiceLookup`). A service the catalog doesn't know gives
+  an empty title and category.
+- Requests and jobs carry placeholder profiles: only `client { id }` and
+  `worker { id }` are real, so every `Party` has an empty name and photo. A
+  request's provider is the offer's `offerantId`. Screens read
+  `clientName` / `providerName` (`mano_session`), which say "Cliente" or
+  "Profesional" until the profile domain (D2) lands.
+- `Job.start` / `end` come from `appointment`; without one, `start` is
+  `createdAt` and `end` is null. `rateType` and `amountCop` come from
+  `pricing`. `actualHours` is always null: the gateway doesn't return it.
+- Requests have no neighborhood or photos on the gateway: `neighborhood` is
+  `''` and `photoUrls` is empty.
+- Times are sent as UTC RFC 3339 and read back in local time. `bookSlot`'s
+  `slotStart` must be exactly a published slot's start.
+- Offline (`offlineMarketplaceProvider`), the two mocks stay coupled: accepting
+  a request schedules a job and rebooking files a request. Live, the backend
+  does that, so accepting refetches `myJobsProvider` and booking refetches
+  `availableSlotsProvider`.
 - The catalog returns only `offerantId` for an offer, with no provider name,
   photo or rating, so offer cards cannot show who the provider is yet.
 - There is no list-categories query. `category` is an exact-match free-text
@@ -211,8 +230,8 @@ idempotent: it truncates the catalog first.
 - GraphiQL/Playground point at `/subscriptions`; the route is `/subscription`.
 - SuperTokens tokens carry no username or email, so `me { username email }` is
   `null` until the auth server adds them to the access-token payload.
-- Missing operations: `cancelServiceRequest`, list categories. (List my
-  offers, resume an offer and list my calendar blocks are now served.)
+- Missing operations: list categories. (List my offers, resume an offer,
+  list my calendar blocks and `cancelServiceRequest` are now served.)
 - **Open: `myCalendarFeed` rotates the link.** On master it calls the
   scheduler's `IssueCalendarFeed`, which revokes the live token and issues a
   new one, because tokens are stored hashed and cannot be handed back. Every
@@ -227,3 +246,6 @@ idempotent: it truncates the catalog first.
 - Chat participants carry `displayName: ""` and no photo, so the inbox and
   thread header have no name to show until profiles land. No subscription
   pushes read receipts or the inbox (`unreadCount`, `lastMessage`).
+- `workerAvailability` doesn't subtract slots other clients already booked, so
+  a client may be offered a taken slot; `bookSlot` then fails and the booking
+  screen shows the failure.
