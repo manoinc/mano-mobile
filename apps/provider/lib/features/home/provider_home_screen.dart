@@ -65,7 +65,7 @@ class _NextJobCard extends StatelessWidget {
     return ManoProjectCard(
       key: const Key('home-next-job'),
       title: job.serviceTitle,
-      professionalName: job.client.displayName,
+      professionalName: job.clientName,
       professionalPhotoUrl: job.client.photoUrl,
       statusLabel: label,
       statusTone: tone,

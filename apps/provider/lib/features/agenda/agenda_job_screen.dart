@@ -98,7 +98,7 @@ class _AgendaJobScreenState extends ConsumerState<AgendaJobScreen> {
         (sheetContext) => ManoPromptSheet(
           title: '¿Finalizar este trabajo?',
           message:
-              'Le avisaremos a ${job.client.displayName} que terminaste el servicio.',
+              'Le avisaremos a ${job.clientName} que terminaste el servicio.',
           primaryLabel: 'Sí, finalizar',
           onPrimary: () => Navigator.of(sheetContext).pop(true),
           onClose: () => Navigator.of(sheetContext).pop(),
@@ -115,7 +115,7 @@ class _AgendaJobScreenState extends ConsumerState<AgendaJobScreen> {
 
   Future<void> _cancel(Job job) async {
     final reason = await _sheet<String>(
-      (_) => _CancelJobSheet(clientName: job.client.displayName),
+      (_) => _CancelJobSheet(clientName: job.clientName),
     );
     if (reason == null || !mounted) return;
     await _run(
@@ -188,7 +188,7 @@ class _JobBody extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(job.client.displayName, style: textTheme.titleSmall),
+                  Text(job.clientName, style: textTheme.titleSmall),
                   Text(
                     'Cliente',
                     style: textTheme.bodySmall?.copyWith(

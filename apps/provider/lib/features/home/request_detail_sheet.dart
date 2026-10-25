@@ -51,10 +51,7 @@ class _RequestDetail extends StatelessWidget {
                 ManoAvatar(photoUrl: request.client.photoUrl, size: 48),
                 const SizedBox(width: ManoSpacing.sm),
                 Expanded(
-                  child: Text(
-                    request.client.displayName,
-                    style: textTheme.titleMedium,
-                  ),
+                  child: Text(request.clientName, style: textTheme.titleMedium),
                 ),
                 if (!request.canRespond)
                   ManoStatusChip(label: status, tone: tone),
@@ -102,7 +99,7 @@ class _RequestDetail extends StatelessWidget {
               ),
               Center(
                 child: ManoTextAction(
-                  label: 'Escribir a ${request.client.displayName}',
+                  label: 'Escribir a ${request.clientName}',
                   onPressed: () => onDecision(RequestDecision.chat),
                 ),
               ),

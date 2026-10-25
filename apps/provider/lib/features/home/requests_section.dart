@@ -90,7 +90,7 @@ class _RequestsSectionState extends ConsumerState<RequestsSection> {
       padding: const EdgeInsets.only(bottom: ManoSpacing.sm),
       child: ManoRequestCard(
         key: Key('request-card-${request.id}'),
-        clientName: request.client.displayName,
+        clientName: request.clientName,
         clientPhotoUrl: request.client.photoUrl,
         title: request.serviceTitle,
         message: request.message,

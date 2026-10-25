@@ -153,7 +153,7 @@ class _ActivityList extends ConsumerWidget {
       child: ManoProjectCard(
         key: Key('activity-job-${job.id}'),
         title: job.serviceTitle,
-        professionalName: job.provider.displayName,
+        professionalName: job.providerName,
         professionalPhotoUrl: job.provider.photoUrl,
         statusLabel: label,
         statusTone: tone,
@@ -175,7 +175,7 @@ class _ActivityList extends ConsumerWidget {
       child: ManoProjectCard(
         key: Key('activity-request-${request.id}'),
         title: request.serviceTitle,
-        professionalName: request.provider.displayName,
+        professionalName: request.providerName,
         professionalPhotoUrl: request.provider.photoUrl,
         statusLabel: label,
         statusTone: tone,

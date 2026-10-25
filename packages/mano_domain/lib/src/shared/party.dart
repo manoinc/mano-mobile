@@ -10,6 +10,10 @@ final class Party {
   final String displayName;
   final String photoUrl;
 
+  /// The name to show; [fallback] while the profile has none yet.
+  String nameOr(String fallback) =>
+      displayName.trim().isEmpty ? fallback : displayName;
+
   @override
   bool operator ==(Object other) =>
       other is Party &&

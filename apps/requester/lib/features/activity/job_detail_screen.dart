@@ -67,14 +67,14 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
   Future<void> _cancel(Job job) async {
     final reason = await showManoSheet<String>(
       context: context,
-      builder: (_) => _CancelJobSheet(providerName: job.provider.displayName),
+      builder: (_) => _CancelJobSheet(providerName: job.providerName),
     );
     if (reason == null || !mounted) return;
     await _run(
       () => _actions.cancelJob(job.id, reason: reason.isEmpty ? null : reason),
       title: 'Trabajo cancelado',
       message:
-          'Le avisamos a ${job.provider.displayName} que ya no necesitas el servicio.',
+          'Le avisamos a ${job.providerName} que ya no necesitas el servicio.',
     );
   }
 
@@ -82,7 +82,7 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
     () => _actions.rebook(job.id),
     title: 'Solicitud enviada',
     message:
-        'Le pedimos a ${job.provider.displayName} que vuelva a trabajar contigo. '
+        'Le pedimos a ${job.providerName} que vuelva a trabajar contigo. '
         'Te avisaremos cuando responda.',
   );
 
@@ -151,7 +151,7 @@ class _JobBody extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(job.provider.displayName, style: textTheme.titleSmall),
+                  Text(job.providerName, style: textTheme.titleSmall),
                   Text(
                     'Tu profesional',
                     style: textTheme.bodySmall?.copyWith(

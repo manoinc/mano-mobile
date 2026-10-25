@@ -7,7 +7,11 @@ import 'package:mano_ui/mano_ui.dart';
 import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
 
-final _pending = ServiceRequest(
+final _pending = _requestFrom(
+  const Party(id: 'client-1', displayName: 'Laura Pérez', photoUrl: ''),
+);
+
+ServiceRequest _requestFrom(Party client) => ServiceRequest(
   id: 'request-1',
   offer: const ServiceOffer(
     id: 'offer-1',
@@ -19,7 +23,7 @@ final _pending = ServiceRequest(
     status: OfferStatus.active,
   ),
   serviceTitle: 'Limpieza profunda',
-  client: const Party(id: 'client-1', displayName: 'Laura Pérez', photoUrl: ''),
+  client: client,
   provider: const Party(id: 'provider-1', displayName: 'Andrés', photoUrl: ''),
   message: 'Hola',
   status: ServiceRequestStatus.pending,
@@ -28,9 +32,13 @@ final _pending = ServiceRequest(
 
 // Fails every answer, to prove the screen surfaces a port's Err.
 final class _RefusingRequests implements ServiceRequestRepository {
+  _RefusingRequests({ServiceRequest? shown}) : _shown = shown ?? _pending;
+
+  final ServiceRequest _shown;
+
   @override
   Future<List<ServiceRequest>> mine({ServiceRequestStatus? status}) async => [
-    _pending,
+    _shown,
   ];
 
   @override
@@ -259,6 +267,27 @@ void main() {
 
     expect(find.text(const DataUnavailable().message), findsOneWidget);
     expect(_card('request-1'), findsOneWidget);
+  });
+
+  testWidgets('a client without a name yet is shown as Cliente', (
+    tester,
+  ) async {
+    final anonymous = _requestFrom(
+      const Party(id: 'client-9', displayName: '', photoUrl: ''),
+    );
+    await _pump(
+      tester,
+      overrides: [
+        serviceRequestRepositoryProvider.overrideWithValue(
+          _RefusingRequests(shown: anonymous),
+        ),
+      ],
+    );
+
+    expect(_inCard('request-1', 'Cliente'), findsOneWidget);
+    await tester.tap(_card('request-1'));
+    await tester.pumpAndSettle();
+    expect(find.text('Escribir a Cliente'), findsOneWidget);
   });
 
   testWidgets('shows the empty state when nothing is pending', (tester) async {
