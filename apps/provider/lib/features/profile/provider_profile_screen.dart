@@ -46,9 +46,27 @@ class ProviderProfileScreen extends ConsumerWidget {
                 onTap: () => showReferralSheet(context, referral),
               ),
             const SizedBox(height: ManoSpacing.lg),
+            const _SessionRow(),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Cerrar sesión when signed in; a guest gets Iniciar sesión, as in the requester app.
+class _SessionRow extends ConsumerWidget {
+  const _SessionRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final signedIn = ref.watch(hasAccountProvider);
+    final session = ref.read(sessionProvider.notifier);
+    return ManoOptionRow(
+      icon: signedIn ? Icons.logout : Icons.login,
+      label: signedIn ? 'Cerrar sesión' : 'Iniciar sesión',
+      destructive: signedIn,
+      onPressed: signedIn ? session.signOut : session.leaveGuest,
     );
   }
 }

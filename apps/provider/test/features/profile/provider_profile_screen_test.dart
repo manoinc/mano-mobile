@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
 import '../services/services_fakes.dart';
 
@@ -15,15 +16,66 @@ final _overrides = [
 Future<ProviderContainer> _pump(
   WidgetTester tester, {
   String path = '/profile',
+  SessionRepository? session,
 }) async {
   tester.view.physicalSize = const Size(800, 3200);
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
-  final container = await pumpRouterAt(tester, path, overrides: _overrides);
+  final container = await pumpRouterAt(
+    tester,
+    path,
+    overrides: _overrides,
+    session: session,
+  );
   return container;
 }
 
+Future<void> _scrollTo(WidgetTester tester, String text) =>
+    tester.scrollUntilVisible(
+      find.text(text),
+      400,
+      scrollable: find
+          .descendant(
+            of: find.byType(ListView).first,
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+
 void main() {
+  group('the session row', () {
+    testWidgets('signed in, Cerrar sesión signs out', (tester) async {
+      final session = FakeSessionRepository(
+        onRestore: () async => Ok(fakeSession()),
+      );
+      final container = await _pump(tester, session: session);
+      await container.read(sessionProvider.future);
+      await tester.pumpAndSettle();
+
+      await _scrollTo(tester, 'Cerrar sesión');
+      await tester.tap(find.text('Cerrar sesión'));
+      await tester.pumpAndSettle();
+
+      expect(session.signOutCalls, 1);
+      expect(container.read(sessionProvider).value, isA<SignedOut>());
+    });
+
+    testWidgets('a guest gets Iniciar sesión, back to the door', (
+      tester,
+    ) async {
+      final container = await _pump(tester);
+      container.read(sessionProvider.notifier).browseAsGuest();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Cerrar sesión'), findsNothing);
+      await _scrollTo(tester, 'Iniciar sesión');
+      await tester.tap(find.text('Iniciar sesión'));
+      await tester.pumpAndSettle();
+
+      expect(container.read(sessionProvider).value, isA<SignedOut>());
+    });
+  });
+
   testWidgets('shows the tasker, the week total and the chart', (tester) async {
     await _pump(tester);
     expect(find.text('Andrés Castro'), findsOneWidget);
