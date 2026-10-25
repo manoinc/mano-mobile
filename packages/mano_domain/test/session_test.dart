@@ -115,6 +115,8 @@ void main() {
         SignInCancelled(),
         SessionExpired(),
         AuthUnavailable(),
+        WrongCredentials(),
+        EmailAlreadyRegistered(),
       ];
 
       for (final failure in failures) {
@@ -135,7 +137,11 @@ void main() {
 
       final isCancellation = switch (failure) {
         SignInCancelled() => true,
-        SignInRejected() || SessionExpired() || AuthUnavailable() => false,
+        SignInRejected() ||
+        SessionExpired() ||
+        AuthUnavailable() ||
+        WrongCredentials() ||
+        EmailAlreadyRegistered() => false,
       };
 
       expect(isCancellation, isTrue);

@@ -31,8 +31,10 @@ final class SuperTokensSessionRepository implements SessionRepository {
       _emailPassword('signin', credentials);
 
   @override
-  Future<Result<Session, AuthFailure>> signUp(Credentials credentials) =>
-      _emailPassword('signup', credentials);
+  Future<Result<Session, AuthFailure>> signUp(
+    Credentials credentials, {
+    required String role,
+  }) => _emailPassword('signup', credentials, role: role);
 
   @override
   Future<Result<Session?, AuthFailure>> restore() async {
@@ -89,8 +91,9 @@ final class SuperTokensSessionRepository implements SessionRepository {
 
   Future<Result<Session, AuthFailure>> _emailPassword(
     String route,
-    Credentials credentials,
-  ) async {
+    Credentials credentials, {
+    String? role,
+  }) async {
     final http.Response response;
     try {
       response = await _http.post(
@@ -104,6 +107,7 @@ final class SuperTokensSessionRepository implements SessionRepository {
           'formFields': [
             {'id': 'email', 'value': credentials.email},
             {'id': 'password', 'value': credentials.password},
+            if (role != null) {'id': 'role', 'value': role},
           ],
         }),
       );
@@ -119,6 +123,9 @@ final class SuperTokensSessionRepository implements SessionRepository {
     final body = jsonDecode(response.body) as Map<String, dynamic>;
     return switch (body['status']) {
       'OK' => Ok(await _adopt(response, email: credentials.email)),
+      'WRONG_CREDENTIALS_ERROR' => const Err(WrongCredentials()),
+      'FIELD_ERROR' when route == 'signup' && _failsOn(body, 'email') =>
+        const Err(EmailAlreadyRegistered()),
       'FIELD_ERROR' => Err(SignInRejected(reason: _fieldErrors(body))),
       final status => Err(SignInRejected(reason: '$status')),
     };
@@ -156,6 +163,12 @@ final class SuperTokensSessionRepository implements SessionRepository {
   }
 
   Uri _route(String path) => _base.replace(path: '${_base.path}/$path');
+
+  // Whether the field errors name [id]; mano-auth only flags email when it is taken.
+  static bool _failsOn(Map<String, dynamic> body, String id) =>
+      ((body['formFields'] as List?) ?? const []).any(
+        (field) => field['id'] == id,
+      );
 
   static String _fieldErrors(Map<String, dynamic> body) =>
       ((body['formFields'] as List?) ?? const [])

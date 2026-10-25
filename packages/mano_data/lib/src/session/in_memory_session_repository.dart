@@ -17,6 +17,7 @@ final class InMemorySessionRepository implements SessionRepository {
   final SessionOutcome<Session>? onRefresh;
 
   Credentials? lastCredentials;
+  String? lastSignUpRole;
   int signOutCalls = 0;
 
   @override
@@ -30,8 +31,12 @@ final class InMemorySessionRepository implements SessionRepository {
   }
 
   @override
-  Future<Result<Session, AuthFailure>> signUp(Credentials credentials) async {
+  Future<Result<Session, AuthFailure>> signUp(
+    Credentials credentials, {
+    required String role,
+  }) async {
     lastCredentials = credentials;
+    lastSignUpRole = role;
     return onSignUp?.call() ?? const Err(SignInCancelled());
   }
 
