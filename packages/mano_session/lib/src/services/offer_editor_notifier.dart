@@ -170,7 +170,8 @@ class OfferEditorNotifier extends AsyncNotifier<OfferEditorState> {
     if (result case Ok(:final value)) {
       ref
         ..invalidate(myOffersProvider)
-        ..invalidate(offersForServiceProvider(value.jobServiceId));
+        ..invalidate(offersForServiceProvider(value.jobServiceId))
+        ..invalidate(serviceOfferProvider(value.id));
     }
   }
 }

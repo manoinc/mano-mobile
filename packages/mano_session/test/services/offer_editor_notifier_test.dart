@@ -16,6 +16,13 @@ const _existing = ServiceOffer(
 
 final class _CountingCatalog implements ServiceCatalog {
   final offersForCalls = <String>[];
+  final offerCalls = <String>[];
+
+  @override
+  Future<ServiceOffer?> offer(String id) async {
+    offerCalls.add(id);
+    return null;
+  }
 
   @override
   Future<List<ServiceOffer>> offersFor(String jobServiceId) async {
@@ -209,6 +216,32 @@ void main() {
       OfferStatus.paused,
     );
   });
+
+  for (final (name, id, action)
+      in <(String, String, Future<void> Function(OfferEditorNotifier))>[
+        ('pause', 'offer-1', (n) => n.pause()),
+        ('resume', 'offer-3', (n) => n.resume()),
+        ('delete', 'offer-2', (n) => n.delete()),
+      ]) {
+    test('$name refreshes the service offers and the offer itself', () async {
+      final (:c, :catalog) = _setUp();
+      final serviceId = (await c.read(offerManagementProvider).myOffers())
+          .firstWhere((o) => o.id == id)
+          .jobServiceId;
+      c
+        ..listen(offersForServiceProvider(serviceId), (_, _) {})
+        ..listen(serviceOfferProvider(id), (_, _) {});
+      await c.read(offersForServiceProvider(serviceId).future);
+      await c.read(serviceOfferProvider(id).future);
+
+      await action(await _editor(c, id));
+      await c.read(offersForServiceProvider(serviceId).future);
+      await c.read(serviceOfferProvider(id).future);
+
+      expect(catalog.offersForCalls, [serviceId, serviceId]);
+      expect(catalog.offerCalls, [id, id]);
+    });
+  }
 
   test('a rejected mutation fails and keeps the draft', () async {
     final (:c, catalog: _) = _setUp(offers: _RejectingOffers());
