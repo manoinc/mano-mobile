@@ -15,10 +15,10 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 | Port | Gateway operations | Gateway status (master) | Mobile adapter |
 |---|---|---|---|
 | `ServiceCatalog` | `jobServices(category, searchText, page)`, `jobService(id)`, `jobServiceOffer(id)`, `offersByJobService(jobServiceId)` | **live, public** | `GatewayServiceCatalog` |
-| `OfferManagement` | `createJobServiceOffer`, `updateJobServiceOffer`, `pauseJobServiceOffer`, `deleteJobServiceOffer` | live, auth required; **no list-mine, no resume** | `MockOfferManagement` |
+| `OfferManagement` | `myJobServiceOffers(includeDeleted: false)`, `createJobServiceOffer`, `updateJobServiceOffer`, `pauseJobServiceOffer`, `resumeJobServiceOffer`, `deleteJobServiceOffer` (soft) | live, auth required | `GatewayOfferManagement` |
 | `ServiceRequestRepository` | `myServiceRequests`, `requestService`, `acceptServiceRequest`, `rejectServiceRequest` | **live** (D5 taskmanager over gRPC); **no `cancelServiceRequest`** | `MockServiceRequestRepository` |
 | `JobRepository` | `myJobs`, `job`, `bookSlot`, `startJob`, `finishJob(actualHours)`, `cancelJob`, `rebook` | **live** (D5; `bookSlot` also needs D4) | `MockJobRepository` |
-| `AvailabilityRepository` | `workerAvailability`, `myAvailabilityRules`, `upsertAvailabilityRule`, `removeAvailabilityRule`, `blockCalendar`, `unblockCalendar`, calendar feed + `.ics` route | **live** (D4 scheduler over gRPC) | `MockAvailabilityRepository` |
+| `AvailabilityRepository` | `workerAvailability`, `myAvailabilityRules`, `upsertAvailabilityRule`, `removeAvailabilityRule`, `myCalendarBlocks`, `blockCalendar`, `unblockCalendar`, `myCalendarFeed`, `regenerateCalendarFeed`, `revokeCalendarFeed` + `.ics` route | **live** (D4 scheduler over gRPC) | `GatewayAvailabilityRepository` |
 | `ConversationRepository`, `ChatRepository` | `myConversations`, `conversation`, `sendMessage`, `markConversationRead`, `messageAdded` | **live** (D7 chat over gRPC) | `MockConversationRepository`, `MockChatRepository` |
 | `ProviderOnboardingRepository` | `updateWorkerProfile`, `submitVerificationRequest` | stub (D2, D10 `not implemented`) | `MockProviderOnboardingRepository` |
 | `SessionRepository` | SuperTokens FDI: `/auth/signin`, `/auth/signup`, `/auth/session/refresh`, `/auth/signout` | gateway only *verifies* tokens; **no FDI auth server yet** | `SuperTokensSessionRepository` when configured |
@@ -28,9 +28,24 @@ waits on the SuperTokens auth server below.
 
 ## Mapping notes
 
-- `AvailabilityRule` is weekdays + start minute + duration. The future gateway
-  adapter translates it to and from the RFC 5545 `rrule` (durations are
-  multiples of 30).
+- `AvailabilityRule` is weekdays + start minute + duration; `rrule_codec.dart`
+  translates it to and from the RFC 5545 `rrule`:
+  `{1,3}, 8:00, 240 min` ⇄ `FREQ=WEEKLY;BYDAY=MO,WE;BYHOUR=8;BYMINUTE=0` with
+  `durationMinutes: 240` (the length of each occurrence, a multiple of 30).
+  Only `FREQ`, `BYDAY` (plain day codes), one `BYHOUR` and one `BYMINUTE` are
+  read; a missing `BYHOUR`/`BYMINUTE` means midnight. Any other rule (daily,
+  `INTERVAL`, several hours, ordinal days…) is skipped by `myRules`.
+- `upsertAvailabilityRule` is sent with `validFrom` = today (local date),
+  `timezone: America/Bogota`, and `id` when replacing a stored rule.
+- `workerAvailability` takes whole dates, `to` exclusive. The adapter asks for
+  every day the caller's range touches and drops slots starting outside it.
+  Instants (`DateTime`) go out as UTC ISO 8601 and come back as local time.
+- A `false` from `removeAvailabilityRule`, `unblockCalendar` or
+  `revokeCalendarFeed` is `DataNotFound`.
+- Offer JSON (`offerFields`, `offerFromJson`, `rateTypeToJson`) lives once in
+  `mano_data/lib/src/gateway/offer_json.dart`; `amount` is sent as a number of
+  whole pesos. `updateJobServiceOffer` gets only the fields that changed.
+  `myOffers` excludes `DELETED` offers.
 - `Message.fromMe` is derived by the adapter, by comparing the sender with the
   viewer.
 - `ServiceRequest.serviceTitle` and `Job.serviceTitle` are resolved by the
@@ -131,5 +146,12 @@ idempotent: it truncates the catalog first.
 - GraphiQL/Playground point at `/subscriptions`; the route is `/subscription`.
 - SuperTokens tokens carry no username or email, so `me { username email }` is
   `null` until the auth server adds them to the access-token payload.
-- Missing operations: list my offers, resume an offer, `cancelServiceRequest`,
-  list categories.
+- Missing operations: `cancelServiceRequest`, list categories. (List my
+  offers, resume an offer and list my calendar blocks are now served.)
+- **Open: `myCalendarFeed` rotates the link.** On master it calls the
+  scheduler's `IssueCalendarFeed`, which revokes the live token and issues a
+  new one, because tokens are stored hashed and cannot be handed back. Every
+  read of the feed therefore kills the URL a calendar app is subscribed to.
+  `GatewayAvailabilityRepository.myFeed` reads `myCalendarFeed` until the
+  gateway offers a non-rotating read (for example: metadata only, URL shown on
+  issue).

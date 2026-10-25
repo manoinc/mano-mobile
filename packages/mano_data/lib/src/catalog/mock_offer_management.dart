@@ -2,7 +2,7 @@ import 'package:mano_domain/mano_domain.dart';
 
 import '../mock/mock_fixtures.dart';
 
-/// In-memory [OfferManagement]; the gateway has no "list my offers" yet.
+/// In-memory [OfferManagement] for offline runs and tests.
 final class MockOfferManagement implements OfferManagement {
   MockOfferManagement() : _offers = [...mockOffers];
 
