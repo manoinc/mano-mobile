@@ -18,7 +18,9 @@
   - Empty: "Escribe el primer mensaje", with the composer still shown.
   - Error: `ManoEmptyState` "No se pudo cargar la conversación." with "Reintentar", which invalidates the thread.
 
-Bandeja is built on `ManoRefreshList` with `ManoFormat.relative` timestamps; its load error offers "Reintentar".
+Bandeja is built on `ManoRefreshList` with `ManoFormat.relative` timestamps; its load error offers "Reintentar". A conversation without messages has no time label and reads "Sin mensajes aún" (`preview`); a participant without a name reads "Profesional" or "Cliente" by role (`participantLabel`), in Bandeja and in the chat header.
+
+Chats start from a job: "Escribir" in the job detail calls `conversationActionsProvider.open(jobId:)`, which finds or creates the conversation, invalidates `conversationsProvider` and returns the id to push.
 
 ## State flow
 
@@ -93,6 +95,7 @@ PROV-06 extracted `ManoChatThread`, `ManoChatHeader`, `ManoRefreshList` and `Man
 
 ## Backend gaps blocking go-live
 
-- The gateway has no conversations or messaging API (see `docs/develop/backend-contract.md`). Both ports are mock only, and a `GatewayChatRepository` needs a real-time transport, for example a GraphQL subscription or WebSocket for `watch`.
+- Both ports have gateway adapters (D7, see `docs/develop/backend-contract.md`); `watch` rides the `messageAdded` subscription.
+- Offline, `MockConversationRepository.open` doesn't know the job's other side, so a job chat's participant is a blank professional.
 - The mocks share state in memory only (`MockChatRepository` updates `MockConversationRepository` on read and on each message), so nothing survives a restart until real adapters back both ports.
 - `Message` has no client-generated id or delivery status. Dedupe relies on the server returning the same id on `send` and on `watch`. An idempotency key on `send` would make retries safe against duplicate delivery.

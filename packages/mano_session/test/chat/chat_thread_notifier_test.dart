@@ -49,6 +49,12 @@ final class _CountingConversations implements ConversationRepository {
     calls++;
     return const [];
   }
+
+  @override
+  Future<Result<Conversation, DataFailure>> open({
+    String? withWorkerId,
+    String? jobId,
+  }) => throw UnimplementedError();
 }
 
 Message _message(

@@ -64,7 +64,7 @@ void main() {
         ),
         participantRole: ManoRole.provider,
         lastMessage: 'Hola',
-        lastMessageAt: DateTime.utc(2026, 10, 25, 14, 30),
+        lastMessageAt: DateTime.utc(2026, 10, 25, 14, 30).toLocal(),
         unreadCount: 3,
       ),
     ]);
@@ -98,9 +98,70 @@ void main() {
       );
       expect(conversation.participantRole, ManoRole.requester);
       expect(conversation.lastMessage, '');
-      expect(conversation.lastMessageAt, DateTime(0));
+      expect(conversation.lastMessageAt, isNull);
     },
   );
+
+  test('open posts openConversation with a job reference', () async {
+    final repo = _repo((r) async {
+      final body = jsonDecode(r.body) as Map<String, dynamic>;
+      expect(body['query'], contains('openConversation'));
+      expect(body['variables'], {
+        'reference': {'jobId': 'j1'},
+      });
+      return _data({
+        'openConversation': {
+          'id': 'c7',
+          'unreadCount': 0,
+          'participants': [
+            _participant('me', 'CLIENT'),
+            _participant('w1', 'WORKER'),
+          ],
+          'lastMessage': null,
+        },
+      });
+    });
+
+    final opened = (await repo.open(jobId: 'j1')).valueOrNull!;
+
+    expect(opened.id, 'c7');
+    expect(opened.participant.id, 'w1');
+    expect(opened.participantRole, ManoRole.provider);
+    expect(opened.lastMessageAt, isNull);
+  });
+
+  test('open with a worker sends withWorkerId', () async {
+    final repo = _repo((r) async {
+      expect((jsonDecode(r.body) as Map)['variables'], {
+        'reference': {'withWorkerId': 'w1'},
+      });
+      return _data({
+        'openConversation': {
+          'id': 'c8',
+          'unreadCount': 0,
+          'participants': [_participant('w1', 'WORKER')],
+          'lastMessage': null,
+        },
+      });
+    });
+
+    expect((await repo.open(withWorkerId: 'w1')).valueOrNull?.id, 'c8');
+  });
+
+  test('a refused open is a DataFailure', () async {
+    final repo = _repo(
+      (_) async => http.Response(
+        jsonEncode({
+          'errors': [
+            {'message': 'PermissionDenied: not your job'},
+          ],
+        }),
+        200,
+      ),
+    );
+
+    expect(await repo.open(jobId: 'j1'), isA<Err<Conversation, DataFailure>>());
+  });
 
   test('a gateway error surfaces as GatewayRejected', () async {
     final repo = _repo(

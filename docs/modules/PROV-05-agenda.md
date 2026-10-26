@@ -212,5 +212,9 @@ shared copy would have to move into `mano_session` or `mano_ui`.
 - The mock drops `cancel(reason:)`.
 - Who may start, finish or cancel isn't enforced (any signed-in role can). The
   backend should check that the caller is the job's provider.
-- There's no live refresh. A cancellation by the client shows up only after this
-  app invalidates its job reads.
+- There's no live push. Every Agenda tab refetches on pull-to-refresh (jobs and
+  blocks; rules and the calendar feed on Disponibilidad) and when the app comes
+  back into view (`refreshOnResumeProvider`); Inicio and Mis servicios pull too.
+- The job screen's app bar has "Escribir" (`JobChatButton`): it opens the job's
+  conversation by `jobId` and pushes `/inbox/<id>`; a guest gets the account
+  sheet.

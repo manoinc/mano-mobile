@@ -115,9 +115,9 @@ and has no actions slot.
   (docs/develop/backend-contract.md).
 - Accepting must create the job server-side; the mock fakes it with
   `onAccepted`.
-- "Chat before deciding" can only open the inbox: neither `ServiceRequest`
-  nor `ConversationRepository` links a request to a conversation. A
-  `conversationId` on the request (or a lookup by client) would let the
-  detail sheet open `/inbox/:conversationId` directly.
+- "Chat before deciding" can only open the inbox: `ConversationRepository.open`
+  takes a worker or a job, and a pending request has neither a job nor (for the
+  provider) a worker to write to. A `jobId`-free reference to the request's
+  client would let the detail sheet open `/inbox/:conversationId` directly.
 - `mine()` doesn't distinguish requests sent from requests received; the
   backend must scope it by the session's role.

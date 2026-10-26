@@ -23,17 +23,29 @@ enum AgendaTab {
 }
 
 /// The provider's jobs and availability: a calendar of what's coming and what's blocked, plus what's over.
-class AgendaScreen extends StatefulWidget {
+class AgendaScreen extends ConsumerStatefulWidget {
   const AgendaScreen({this.initialTab = AgendaTab.calendar, super.key});
 
   final AgendaTab initialTab;
 
   @override
-  State<AgendaScreen> createState() => _AgendaScreenState();
+  ConsumerState<AgendaScreen> createState() => _AgendaScreenState();
 }
 
-class _AgendaScreenState extends State<AgendaScreen> {
+class _AgendaScreenState extends ConsumerState<AgendaScreen> {
   late AgendaTab _tab = widget.initialTab;
+
+  // Jobs and availability together: the calendar shows both.
+  Future<void> _refresh() async {
+    await Future.wait([
+      ref.refresh(myJobsProvider.future),
+      ref.refresh(myCalendarBlocksProvider.future),
+      if (_tab == AgendaTab.availability) ...[
+        ref.refresh(myAvailabilityRulesProvider.future),
+        ref.refresh(myCalendarFeedProvider.future),
+      ],
+    ]);
+  }
 
   @override
   void didUpdateWidget(AgendaScreen old) {
@@ -64,11 +76,14 @@ class _AgendaScreenState extends State<AgendaScreen> {
               ),
               const SizedBox(height: ManoSpacing.md),
               Expanded(
-                child: switch (_tab) {
-                  AgendaTab.calendar => const _CalendarView(),
-                  AgendaTab.availability => const AvailabilityView(),
-                  _ => _StatusList(tab: _tab),
-                },
+                child: ManoPullToRefresh(
+                  onRefresh: _refresh,
+                  child: switch (_tab) {
+                    AgendaTab.calendar => const _CalendarView(),
+                    AgendaTab.availability => const AvailabilityView(),
+                    _ => _StatusList(tab: _tab),
+                  },
+                ),
               ),
             ],
           ),

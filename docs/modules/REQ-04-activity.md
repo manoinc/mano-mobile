@@ -155,5 +155,10 @@ them, so these are deleted along with their tests:
   request doesn't show under Solicitudes. It will once one backend owns both,
   or once the mocks share a store.
 - `cancel(reason:)` is accepted but the mock drops the reason.
-- There's no live refresh. Lists update only when this app invalidates them, not
-  when the provider acts.
+- There's no live push. Both segments refetch on pull-to-refresh
+  (`ManoPullToRefresh`: requests and jobs, or projects) and whenever the app
+  comes back into view (`refreshOnResumeProvider`); otherwise a provider's
+  action shows only after this app invalidates its reads.
+- The job detail's app bar has "Escribir" (`JobChatButton`, chat icon): it opens
+  the job's conversation (`conversationActionsProvider.open(jobId:)`) and pushes
+  `/inbox/<id>`; a guest gets the account sheet.

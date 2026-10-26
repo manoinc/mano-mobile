@@ -19,6 +19,12 @@ final class _FakeConversationRepository implements ConversationRepository {
     calls++;
     return _conversations;
   }
+
+  @override
+  Future<Result<Conversation, DataFailure>> open({
+    String? withWorkerId,
+    String? jobId,
+  }) => throw UnimplementedError();
 }
 
 final _fakeConversations = [
@@ -80,6 +86,25 @@ void main() {
     expect(find.text('Nos vemos mañana a las 10'), findsOneWidget);
     expect(find.text('Juan García'), findsOneWidget);
     expect(find.text('Listo, quedó todo funcionando'), findsOneWidget);
+  });
+
+  testWidgets('an unnamed professional with no messages yet reads by role', (
+    tester,
+  ) async {
+    await _host(
+      tester,
+      conversations: [
+        const Conversation(
+          id: 'conv-9',
+          participant: Party(id: 'w9', displayName: '', photoUrl: ''),
+          participantRole: ManoRole.provider,
+        ),
+      ],
+    );
+
+    expect(find.text('Profesional'), findsOneWidget);
+    expect(find.text('Sin mensajes aún'), findsOneWidget);
+    expect(find.textContaining(RegExp(r'^\d+[mhd]$')), findsNothing);
   });
 
   testWidgets('renders the relative timestamp label for each conversation', (

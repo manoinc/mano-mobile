@@ -62,6 +62,7 @@ class _RootState extends ConsumerState<_Root> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(refreshOnResumeProvider);
     final state = ref.watch(sessionProvider);
     final onboarding = ref.watch(
       providerOnboardingProvider.select((s) => s.inProgress),

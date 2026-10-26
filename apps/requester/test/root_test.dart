@@ -47,6 +47,17 @@ void main() {
     expect(tester.widget<ManoOpening>(find.byType(ManoOpening)).ready, isTrue);
   });
 
+  testWidgets('the root refreshes the marketplace when the app comes back', (
+    tester,
+  ) async {
+    await _pump(tester, FakeSessionRepository());
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(ManoRoot)),
+    );
+    expect(container.exists(refreshOnResumeProvider), isTrue);
+  });
+
   testWidgets('a session that throws is reported as a crash', (tester) async {
     await _pump(
       tester,

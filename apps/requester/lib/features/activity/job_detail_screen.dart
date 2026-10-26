@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../chat/job_chat_button.dart';
 import 'activity_labels.dart';
 import 'load_error.dart';
 
@@ -27,7 +28,10 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
     final job = ref.watch(jobProvider(widget.jobId));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Trabajo')),
+      appBar: AppBar(
+        title: const Text('Trabajo'),
+        actions: [if (job.value != null) JobChatButton(jobId: widget.jobId)],
+      ),
       body: switch (job) {
         AsyncData(value: final job?) => _JobBody(job: job),
         AsyncData() => ManoEmptyState(

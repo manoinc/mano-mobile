@@ -19,6 +19,12 @@ final class _FakeConversationRepository implements ConversationRepository {
     if (failing) throw Exception('offline');
     return _conversations;
   }
+
+  @override
+  Future<Result<Conversation, DataFailure>> open({
+    String? withWorkerId,
+    String? jobId,
+  }) => throw UnimplementedError();
 }
 
 final _now = DateTime.now();
@@ -79,6 +85,25 @@ void main() {
     expect(find.text('¿A qué hora llegas?'), findsOneWidget);
     expect(find.text('5m'), findsOneWidget);
     expect(find.text('2h'), findsOneWidget);
+  });
+
+  testWidgets('an unnamed client with no messages yet reads by role', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      conversations: [
+        const Conversation(
+          id: 'conv-9',
+          participant: Party(id: 'c9', displayName: '', photoUrl: ''),
+          participantRole: ManoRole.requester,
+        ),
+      ],
+    );
+
+    expect(find.text('Cliente'), findsOneWidget);
+    expect(find.text('Sin mensajes aún'), findsOneWidget);
+    expect(find.textContaining(RegExp(r'^\d+[mhd]$')), findsNothing);
   });
 
   testWidgets('shows an unread badge only where there are unread messages', (

@@ -41,12 +41,12 @@ class InboxTabScreen extends ConsumerWidget {
                         avatarUrl: conversation.participantPhotoUrl,
                         online: conversation.isOnline,
                         verified: conversation.isVerified,
-                        name: conversation.participantName,
-                        snippet: conversation.lastMessage,
-                        timestampLabel: ManoFormat.relative(
-                          conversation.lastMessageAt,
-                          DateTime.now(),
-                        ),
+                        name: conversation.participantLabel,
+                        snippet: conversation.preview,
+                        timestampLabel: switch (conversation.lastMessageAt) {
+                          final at? => ManoFormat.relative(at, DateTime.now()),
+                          null => '',
+                        },
                         unreadCount: conversation.unreadCount,
                         onTap: () => context.push('/inbox/${conversation.id}'),
                       ),

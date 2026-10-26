@@ -9,6 +9,12 @@ extension JobPartyNames on Job {
   String get providerName => provider.nameOr(_provider);
 }
 
+extension ConversationPartyNames on Conversation {
+  String get participantLabel => participant.nameOr(
+    participantRole == ManoRole.provider ? _provider : _client,
+  );
+}
+
 extension RequestPartyNames on ServiceRequest {
   String get clientName => client.nameOr(_client);
   String get providerName => provider.nameOr(_provider);

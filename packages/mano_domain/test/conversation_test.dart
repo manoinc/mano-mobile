@@ -106,5 +106,34 @@ void main() {
       expect(conv.participant.id, 'p1');
       expect(conv.participantRole, ManoRole.provider);
     });
+    test(
+      'a conversation without messages has no time and an empty preview',
+      () {
+        const conv = Conversation(
+          id: 'c',
+          participant: Party(id: 'p', displayName: '', photoUrl: ''),
+          participantRole: ManoRole.requester,
+        );
+
+        expect(conv.lastMessageAt, isNull);
+        expect(conv.lastMessage, '');
+      },
+    );
+
+    test('newestFirst sorts by last message, empty conversations last', () {
+      Conversation at(String id, DateTime? when) => Conversation(
+        id: id,
+        participant: const Party(id: 'p', displayName: '', photoUrl: ''),
+        participantRole: ManoRole.provider,
+        lastMessageAt: when,
+      );
+      final list = [
+        at('empty', null),
+        at('old', DateTime(2026, 1, 1)),
+        at('new', DateTime(2026, 1, 2)),
+      ]..sort(Conversation.newestFirst);
+
+      expect(list.map((c) => c.id), ['new', 'old', 'empty']);
+    });
   });
 }

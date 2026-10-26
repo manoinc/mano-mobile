@@ -14,6 +14,8 @@ The provider's Bandeja and chat behave exactly like the requester's ([REQ-05](RE
 - Loading: a spinner.
 - Empty: "Aún no tienes conversaciones con clientes" (still pullable).
 - Error: `ManoEmptyState` "No se pudo cargar tu bandeja." with "Reintentar", which invalidates `conversationsProvider`.
+- A conversation without messages has no time label and reads "Sin mensajes aún"; an unnamed client reads "Cliente" (`participantLabel`), here and in the chat header.
+- Chats start from the agenda job's "Escribir" (`conversationActionsProvider.open(jobId:)`), see [PROV-05](PROV-05-agenda.md).
 
 **Chat**
 - App bar: `ManoChatHeader` (avatar with the online dot, name, verified badge), read from `conversationsProvider`.
@@ -70,4 +72,4 @@ Extracted from the requester so neither app duplicates them. Both apps use them 
 
 ## Backend gaps blocking go-live
 
-Same as REQ-05: the gateway has no conversations or messaging API, so both ports are mock only, and a real `ChatRepository` needs a real-time transport for `watch`. The conversation list is not role-aware either: a provider sees the same mock conversations as a requester until the backend scopes conversations to the signed-in user.
+Same as REQ-05. Offline, the conversation list is not role-aware either: a provider sees the same mock conversations as a requester until the backend scopes conversations to the signed-in user.

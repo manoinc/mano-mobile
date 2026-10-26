@@ -34,6 +34,14 @@ void main() {
     expect(find.byType(ProfessionalOnboardingScreen), findsOneWidget);
   });
 
+  testWidgets('the root refreshes the marketplace when the app comes back', (
+    tester,
+  ) async {
+    await _pumpApp(tester, FakeSessionRepository());
+
+    expect(_container(tester).exists(refreshOnResumeProvider), isTrue);
+  });
+
   testWidgets(
     'a new account stays in onboarding until finished, then enters the shell',
     (tester) async {

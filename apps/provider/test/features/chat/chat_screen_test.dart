@@ -43,6 +43,21 @@ final class _FakeChatRepository implements ChatRepository {
       const Ok(null);
 }
 
+final class _OneConversation implements ConversationRepository {
+  _OneConversation(this.conversation);
+
+  final Conversation conversation;
+
+  @override
+  Future<List<Conversation>> conversations() async => [conversation];
+
+  @override
+  Future<Result<Conversation, DataFailure>> open({
+    String? withWorkerId,
+    String? jobId,
+  }) => throw UnimplementedError();
+}
+
 Message _message(String id, String body, DateTime at, {bool fromMe = false}) =>
     Message(
       id: id,
@@ -81,6 +96,35 @@ void main() {
     );
     expect(
       find.descendant(of: header, matching: find.byIcon(Icons.verified)),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('an unnamed client is called Cliente in the header', (
+    tester,
+  ) async {
+    await pumpRouterAt(
+      tester,
+      '/inbox/conv-9',
+      session: FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
+      overrides: [
+        conversationRepositoryProvider.overrideWithValue(
+          _OneConversation(
+            const Conversation(
+              id: 'conv-9',
+              participant: Party(id: 'c9', displayName: '', photoUrl: ''),
+              participantRole: ManoRole.requester,
+            ),
+          ),
+        ),
+      ],
+    );
+
+    expect(
+      find.descendant(
+        of: find.byType(ManoChatHeader),
+        matching: find.text('Cliente'),
+      ),
       findsOneWidget,
     );
   });

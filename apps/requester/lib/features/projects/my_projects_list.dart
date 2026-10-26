@@ -18,34 +18,37 @@ class MyProjectsList extends ConsumerWidget {
     final now = DateTime.now();
     final pill = _PublishPill(onTap: () => startPublishing(context, ref));
 
-    return switch (projects) {
-      AsyncData(value: final items) when items.isEmpty => _withPill(
-        pill,
-        const ManoEmptyState(
-          icon: Icons.assignment_outlined,
-          message: 'Aún no has publicado proyectos.',
+    return ManoPullToRefresh(
+      onRefresh: () => ref.refresh(myProjectsProvider.future),
+      child: switch (projects) {
+        AsyncData(value: final items) when items.isEmpty => _withPill(
+          pill,
+          const ManoEmptyState(
+            icon: Icons.assignment_outlined,
+            message: 'Aún no has publicado proyectos.',
+          ),
         ),
-      ),
-      AsyncData(value: final items) => _withPill(
-        pill,
-        ListView(
-          // Room for the pill floating over the end of the list.
-          padding: const EdgeInsets.only(bottom: ManoSpacing.xl * 3),
-          children: [
-            for (final project in items)
-              Padding(
-                padding: const EdgeInsets.only(bottom: ManoSpacing.sm),
-                child: _card(context, project, now),
-              ),
-          ],
+        AsyncData(value: final items) => _withPill(
+          pill,
+          ListView(
+            // Room for the pill floating over the end of the list.
+            padding: const EdgeInsets.only(bottom: ManoSpacing.xl * 3),
+            children: [
+              for (final project in items)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: ManoSpacing.sm),
+                  child: _card(context, project, now),
+                ),
+            ],
+          ),
         ),
-      ),
-      AsyncError() => ActivityLoadError(
-        message: 'No pudimos cargar tus proyectos.',
-        onRetry: () => ref.invalidate(myProjectsProvider),
-      ),
-      _ => const Center(child: CircularProgressIndicator()),
-    };
+        AsyncError() => ActivityLoadError(
+          message: 'No pudimos cargar tus proyectos.',
+          onRetry: () => ref.invalidate(myProjectsProvider),
+        ),
+        _ => const Center(child: CircularProgressIndicator()),
+      },
+    );
   }
 
   Widget _withPill(Widget pill, Widget content) => Stack(

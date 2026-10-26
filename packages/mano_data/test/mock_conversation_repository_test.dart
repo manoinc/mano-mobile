@@ -1,4 +1,5 @@
 import 'package:mano_data/src/messaging/mock_conversation_repository.dart';
+import 'package:mano_domain/mano_domain.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -47,7 +48,7 @@ void main() {
     test('conversations come newest first', () async {
       final conversations = await repository.conversations();
       final times = conversations.map((c) => c.lastMessageAt).toList();
-      expect(times, [...times]..sort((a, b) => b.compareTo(a)));
+      expect(times, [...times]..sort((a, b) => b!.compareTo(a!)));
     });
 
     test('recording a message moves that thread to the front', () async {
@@ -58,6 +59,34 @@ void main() {
       final conversations = await repository.conversations();
       expect(conversations.first.id, oldest.id);
       expect(conversations.first.lastMessage, 'Hola');
+    });
+
+    test(
+      'opening a job chat finds or creates one empty conversation',
+      () async {
+        final first = (await repository.open(jobId: 'job-1')).valueOrNull!;
+        final again = (await repository.open(jobId: 'job-1')).valueOrNull!;
+
+        expect(again.id, first.id);
+        expect(first.lastMessageAt, isNull);
+        final listed = await repository.conversations();
+        expect(listed.where((c) => c.id == first.id), hasLength(1));
+      },
+    );
+
+    test('opening a direct chat is with that professional', () async {
+      final opened = (await repository.open(withWorkerId: 'w1')).valueOrNull!;
+
+      expect(opened.participant.id, 'w1');
+      expect(opened.participantRole, ManoRole.provider);
+    });
+
+    test('opening needs exactly one reference', () async {
+      expect(await repository.open(), isA<Err<Conversation, DataFailure>>());
+      expect(
+        await repository.open(withWorkerId: 'w1', jobId: 'job-1'),
+        isA<Err<Conversation, DataFailure>>(),
+      );
     });
 
     test('every participant carries an id and a role', () async {

@@ -44,10 +44,13 @@ void main() {
     await tester.scrollUntilVisible(
       find.byKey(const Key('project-card-project-4')),
       200,
-      scrollable: find.descendant(
-        of: find.byType(MyProjectsList),
-        matching: find.byType(Scrollable),
-      ),
+      // The list itself, inside the pull-to-refresh wrapper's scrollable.
+      scrollable: find
+          .descendant(
+            of: find.byType(MyProjectsList),
+            matching: find.byType(Scrollable),
+          )
+          .last,
     );
     expect(_card(tester, 'project-3').statusLabel, 'Elegiste a Andrés Castro');
     expect(_card(tester, 'project-3').trailingLabel, r'$580.000');

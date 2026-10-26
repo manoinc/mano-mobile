@@ -98,7 +98,7 @@ void main() {
         id: 'm1',
         conversationId: 'c1',
         body: 'Buenas',
-        sentAt: DateTime.utc(2026, 10, 25, 14, 30),
+        sentAt: DateTime.utc(2026, 10, 25, 14, 30).toLocal(),
         fromMe: true,
         status: MessageStatus.read,
       ),
@@ -106,12 +106,32 @@ void main() {
         id: 'm2',
         conversationId: 'c1',
         body: 'Hola',
-        sentAt: DateTime.utc(2026, 10, 25, 15),
+        sentAt: DateTime.utc(2026, 10, 25, 15).toLocal(),
         fromMe: false,
         status: MessageStatus.delivered,
       ),
     ]);
   });
+
+  test(
+    'a sentAt with an offset arrives as the same instant in local time',
+    () async {
+      final repo = _repo(
+        (_) async => _data({
+          'conversation': {
+            'messages': {
+              'items': [_message('m1', sentAt: '2026-10-25T20:31:00-05:00')],
+            },
+          },
+        }),
+      );
+
+      final sentAt = (await repo.messages('c1')).single.sentAt;
+
+      expect(sentAt.isUtc, isFalse);
+      expect(sentAt, DateTime.utc(2026, 10, 26, 1, 31).toLocal());
+    },
+  );
 
   test('a conversation without messages is an empty thread', () async {
     final repo = _repo(

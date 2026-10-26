@@ -23,34 +23,50 @@ class ProviderHomeScreen extends ConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(ManoSpacing.md),
-          children: [
-            if (name != null)
-              ManoGreetingHeader(
-                name: name,
-                photoUrl: greetingPhoto(profile.value, name: name),
-              )
-            else if (profile.isLoading)
-              const SizedBox(height: ManoSpacing.xl)
-            else
-              Text('Inicio', style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: ManoSpacing.lg),
-            if (next != null) ...[
-              Text(
-                'Próximo trabajo',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: ManoSpacing.md),
-              _NextJobCard(job: next),
+        child: ManoPullToRefresh(
+          onRefresh: () => _refresh(ref),
+          child: ListView(
+            padding: const EdgeInsets.all(ManoSpacing.md),
+            children: [
+              if (name != null)
+                ManoGreetingHeader(
+                  name: name,
+                  photoUrl: greetingPhoto(profile.value, name: name),
+                )
+              else if (profile.isLoading)
+                const SizedBox(height: ManoSpacing.xl)
+              else
+                Text(
+                  'Inicio',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+              const SizedBox(height: ManoSpacing.lg),
+              if (next != null) ...[
+                Text(
+                  'Próximo trabajo',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: ManoSpacing.md),
+                _NextJobCard(job: next),
+                const SizedBox(height: ManoSpacing.lg),
+              ],
+              const HomeSegments(),
               const SizedBox(height: ManoSpacing.lg),
             ],
-            const HomeSegments(),
-            const SizedBox(height: ManoSpacing.lg),
-          ],
+          ),
         ),
       ),
     );
+  }
+
+  // Every segment's read, so whichever is showing comes back fresh.
+  Future<void> _refresh(WidgetRef ref) async {
+    ref.invalidate(openProjectsProvider);
+    await Future.wait([
+      ref.refresh(myServiceRequestsProvider.future),
+      ref.refresh(myJobsProvider.future),
+      ref.refresh(myQuotesProvider.future),
+    ]);
   }
 }
 
