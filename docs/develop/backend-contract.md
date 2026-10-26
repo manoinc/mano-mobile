@@ -70,7 +70,9 @@ real accounts through `mano-auth` (see **Auth**).
   `worker { id }` are real, so every `Party` has an empty name and photo. A
   request's provider is the offer's `offerantId`. Screens read
   `clientName` / `providerName` (`mano_session`), which say "Cliente" or
-  "Profesional" until the profile domain (D2) lands.
+  "Profesional" until the profile domain (D2) lands. Job details use
+  `partyLine`: name over role, or the role alone ("Cliente", "Tu profesional")
+  so a nameless party is not labelled twice.
 - `Job.start` / `end` come from `appointment`; without one, `start` is
   `createdAt` and `end` is null. `rateType` and `amountCop` come from
   `pricing`. `actualHours` is always null: the gateway doesn't return it.

@@ -50,4 +50,22 @@ void main() {
     expect(_request(_blank, _blank).clientName, 'Cliente');
     expect(_request(_blank, _blank).providerName, 'Profesional');
   });
+
+  test('a named party reads name over role; a nameless one, the role once', () {
+    expect(partyLine(_named, role: 'Cliente'), (
+      title: 'Laura',
+      role: 'Cliente',
+    ));
+    expect(partyLine(_blank, role: 'Tu profesional'), (
+      title: 'Tu profesional',
+      role: null,
+    ));
+    expect(
+      partyLine(
+        const Party(id: 'x', displayName: '  ', photoUrl: ''),
+        role: 'Cliente',
+      ),
+      (title: 'Cliente', role: null),
+    );
+  });
 }

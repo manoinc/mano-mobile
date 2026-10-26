@@ -36,6 +36,32 @@ void main() {
     expect(find.text('Finalizar trabajo'), findsNothing);
   });
 
+  testWidgets('a client without a name yet reads Cliente, once', (
+    tester,
+  ) async {
+    await pumpRouterAt(
+      tester,
+      '/agenda/job/job-9',
+      overrides: [
+        jobProvider.overrideWith(
+          (ref, id) async => Job(
+            id: id,
+            offerId: 'o1',
+            serviceTitle: 'Reparación de fugas',
+            client: const Party(id: 'c1', displayName: '', photoUrl: ''),
+            provider: const Party(id: 'p1', displayName: '', photoUrl: ''),
+            rateType: RateType.fixed,
+            amountCop: 120000,
+            start: mockJobStart(2, 9),
+            status: JobStatus.scheduled,
+          ),
+        ),
+      ],
+    );
+
+    expect(find.text('Cliente'), findsOneWidget);
+  });
+
   testWidgets('starting a job moves it in progress', (tester) async {
     final c = await pumpRouterAt(tester, '/agenda/job/job-1');
 

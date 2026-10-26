@@ -44,7 +44,7 @@ The screen shows:
 - the status chip
 - the service title
 - `ManoPriceTag`, with "por hora" or "precio fijo"
-- the client (`ManoAvatar`, name, and "Cliente")
+- the client (`ManoAvatar`, name, and "Cliente"; just "Cliente" while nameless)
 - the weekday and date, then the start time
 
 `ManoPersonRow` wasn't used because it requires a rating, and clients don't
