@@ -48,33 +48,36 @@ class MyServicesScreen extends ConsumerWidget {
             const Divider(color: ManoColors.stone, height: 1),
             const SizedBox(height: ManoSpacing.md),
             Expanded(
-              child: switch (offers) {
-                AsyncData(:final value) when value.isEmpty => ManoEmptyState(
-                  icon: Icons.handyman_outlined,
-                  message: 'Aún no ofreces ningún servicio',
-                  ctaLabel: 'Publicar mi primer servicio',
-                  onCta: () => _open(context, ref, '/profile/services/new'),
-                ),
-                AsyncData(:final value) => ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(
-                    ManoSpacing.md,
-                    0,
-                    ManoSpacing.md,
-                    ManoSpacing.lg,
+              child: ManoPullToRefresh(
+                onRefresh: () => ref.refresh(myOffersProvider.future),
+                child: switch (offers) {
+                  AsyncData(:final value) when value.isEmpty => ManoEmptyState(
+                    icon: Icons.handyman_outlined,
+                    message: 'Aún no ofreces ningún servicio',
+                    ctaLabel: 'Publicar mi primer servicio',
+                    onCta: () => _open(context, ref, '/profile/services/new'),
                   ),
-                  itemCount: value.length,
-                  separatorBuilder: (_, _) =>
-                      const SizedBox(height: ManoSpacing.sm),
-                  itemBuilder: (context, i) => _OfferTile(offer: value[i]),
-                ),
-                AsyncError() => ManoEmptyState(
-                  icon: Icons.cloud_off_outlined,
-                  message: 'No pudimos cargar tus servicios',
-                  ctaLabel: 'Reintentar',
-                  onCta: () => ref.invalidate(myOffersProvider),
-                ),
-                _ => const Center(child: CircularProgressIndicator()),
-              },
+                  AsyncData(:final value) => ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(
+                      ManoSpacing.md,
+                      0,
+                      ManoSpacing.md,
+                      ManoSpacing.lg,
+                    ),
+                    itemCount: value.length,
+                    separatorBuilder: (_, _) =>
+                        const SizedBox(height: ManoSpacing.sm),
+                    itemBuilder: (context, i) => _OfferTile(offer: value[i]),
+                  ),
+                  AsyncError() => ManoEmptyState(
+                    icon: Icons.cloud_off_outlined,
+                    message: 'No pudimos cargar tus servicios',
+                    ctaLabel: 'Reintentar',
+                    onCta: () => ref.invalidate(myOffersProvider),
+                  ),
+                  _ => const Center(child: CircularProgressIndicator()),
+                },
+              ),
             ),
           ],
         ),
