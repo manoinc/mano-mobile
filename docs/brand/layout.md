@@ -32,5 +32,5 @@ new work.
 - **Gutters.** 16 on the sides; 24 between sections.
 - **Primary action at the bottom.** A screen's flame button sits at the bottom,
   within thumb reach, full width.
-- **Platforms.** Only Android ships today, but iOS is planned. Avoid
+- **Platforms.** Android and iOS run the same screens. Avoid
   platform-specific UI.
