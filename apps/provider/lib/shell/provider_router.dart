@@ -8,6 +8,7 @@ import '../features/agenda/agenda_screen.dart';
 import '../features/chat/chat_screen.dart';
 import '../features/chat/provider_inbox_screen.dart';
 import '../features/home/provider_home_screen.dart';
+import '../features/projects/lead_detail_screen.dart';
 import '../features/profile/earnings_breakdown_screen.dart';
 import '../features/profile/provider_profile_screen.dart';
 import '../features/profile/reviews_section.dart';
@@ -34,6 +35,14 @@ final providerRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/home',
                 builder: (context, state) => const ProviderHomeScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'project/:id',
+                    builder: (context, state) => LeadDetailScreen(
+                      projectId: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

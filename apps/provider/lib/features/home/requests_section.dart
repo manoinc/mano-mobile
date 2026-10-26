@@ -46,8 +46,6 @@ class _RequestsSectionState extends ConsumerState<RequestsSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Solicitudes', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: ManoSpacing.md),
         ManoProjectFilterTabs(
           labels: [for (final f in _Filter.values) f.label],
           selectedIndex: _filter.index,
