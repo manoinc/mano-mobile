@@ -8,6 +8,14 @@ AuthenticatedUser _user({String? username, String? email}) => AuthenticatedUser(
   roles: const {},
 );
 
+const _andres = ProviderProfile(
+  party: Party(id: 'p1', displayName: 'Andrés Castro', photoUrl: 'a.jpg'),
+  bio: '',
+  zones: [],
+  yearsExperience: 0,
+  verified: true,
+);
+
 void main() {
   group('greetingName', () {
     test('uses a real name', () {
@@ -21,44 +29,66 @@ void main() {
       expect(greetingName(_user(username: 'Profesional')), isNull);
       expect(greetingName(_user(username: 'solicitante')), isNull);
     });
+
+    test('never greets with an email address', () {
+      expect(greetingName(_user(email: 'e2e-pro-1956@mano.test')), isNull);
+      expect(
+        greetingName(
+          _user(username: 'e2e-pro-1956@mano.test', email: 'x@mano.test'),
+        ),
+        isNull,
+      );
+    });
   });
 
-  test('the onboarding name outranks the profile, not the account', () {
-    expect(resolveGreetingName(null, null, onboardingName: 'Lucía'), 'Lucía');
-    expect(
-      resolveGreetingName(
-        _user(username: 'Andrés'),
-        null,
-        onboardingName: 'Lucía',
-      ),
-      'Andrés',
-    );
-    expect(resolveGreetingName(null, null, onboardingName: ' '), isNull);
+  group('resolveGreetingName', () {
+    test('the onboarding name outranks the profile and the account', () {
+      expect(
+        resolveGreetingName(
+          _user(username: 'Andrés'),
+          _andres,
+          onboardingName: 'Lucía',
+        ),
+        'Lucía',
+      );
+      expect(resolveGreetingName(null, null, onboardingName: 'Lucía'), 'Lucía');
+    });
+
+    test('then the profile, then the account', () {
+      expect(resolveGreetingName(_user(username: 'Laura'), _andres), 'Andrés');
+      expect(resolveGreetingName(_user(username: 'Laura'), null), 'Laura');
+    });
+
+    test('an email account with nothing else is plain Hola', () {
+      expect(
+        resolveGreetingName(_user(username: 'e2e-pro@mano.test'), null),
+        isNull,
+      );
+      expect(resolveGreetingName(null, null, onboardingName: ' '), isNull);
+    });
   });
 
   test('the profile photo only shows beside the profile name', () {
-    const andres = ProviderProfile(
-      party: Party(id: 'p1', displayName: 'Andrés Castro', photoUrl: 'a.jpg'),
-      bio: '',
-      zones: [],
-      yearsExperience: 0,
-      verified: true,
-    );
-    expect(greetingPhoto(andres, name: 'Andrés'), 'a.jpg');
-    expect(greetingPhoto(andres, name: 'Lucía'), isNull);
+    expect(greetingPhoto(_andres, name: 'Andrés'), 'a.jpg');
+    expect(greetingPhoto(_andres, name: 'Lucía'), isNull);
   });
 
-  test(
-    'a requester is greeted by account, else by the name they registered',
-    () {
+  group('requesterGreetingName', () {
+    test('the registered name outranks the account', () {
       const browsing = OnboardingBrowsing(name: 'Ana');
-      expect(
-        requesterGreetingName(_user(username: 'Laura'), browsing),
-        'Laura',
-      );
+      expect(requesterGreetingName(_user(username: 'Laura'), browsing), 'Ana');
       expect(requesterGreetingName(null, browsing), 'Ana');
-      expect(requesterGreetingName(null, const OnboardingBrowsing()), isNull);
+    });
+
+    test('falls back to a non-email account name, else Hola', () {
+      const blank = OnboardingBrowsing();
+      expect(requesterGreetingName(_user(username: 'Laura'), blank), 'Laura');
+      expect(
+        requesterGreetingName(_user(email: 'ana@mano.test'), blank),
+        isNull,
+      );
+      expect(requesterGreetingName(null, blank), isNull);
       expect(requesterGreetingName(null, const OnboardingTour()), isNull);
-    },
-  );
+    });
+  });
 }

@@ -224,6 +224,11 @@ The old gap — nothing serving the FDI routes — is closed. Every call sends
   password (signs up) → the profile questions → pending. "Ahora no" on either
   flow still browses as a guest; guests are asked to sign in at account-only
   actions (`ManoAccountNeededSheet`).
+- **Greetings** ("Hola, Ana") use the first name typed while signing up: the
+  requester's given name, the provider's display name (first word), then the
+  provider profile's first name. The account's name is used only when it is
+  not an email address, which today it always is; otherwise the header says
+  plain "Hola" (`mano_session/lib/src/home/greeting_name.dart`).
 
 ## Running the gateway locally
 

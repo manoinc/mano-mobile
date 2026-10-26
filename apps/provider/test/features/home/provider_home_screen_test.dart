@@ -53,6 +53,20 @@ void main() {
     );
   });
 
+  testWidgets('never greets with the account email', (tester) async {
+    await _pump(
+      tester,
+      session: _sessionFor(email: 'e2e-pro-1956@mano.test'),
+      overrides: [
+        providerProfileRepositoryProvider.overrideWithValue(
+          _NamelessProfiles(),
+        ),
+      ],
+    );
+    expect(find.textContaining('@'), findsNothing);
+    expect(find.byType(ManoGreetingHeader), findsNothing);
+  });
+
   testWidgets('shows a plain title when no name is available at all', (
     tester,
   ) async {
