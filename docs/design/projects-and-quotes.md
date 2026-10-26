@@ -1,6 +1,7 @@
-# Projects and quotes (proposal)
+# Projects and quotes
 
-**Status: proposal, awaiting approval. No screens are built yet.**
+**Status: approved and built.** See [REQ-06](../modules/REQ-06-projects.md) and
+[PROV-07](../modules/PROV-07-projects.md).
 
 A *project* is a job a Solicitante posts so several Proveedores can quote on it.
 It sits beside the existing direct-booking flow: you either pick an offer and
@@ -284,13 +285,16 @@ and gets a Widgetbook use case.
 - **Motion:** step changes use `ManoMotion.entrance` via `ManoStepTransition`.
 - **Copy:** Spanish, *tú*, short.
 
-## Open questions for approval
+## Decisions
 
-1. On the requester side, a segment inside the Projects tab, or a separate
-   "Proyectos" list reached from Home?
-2. On the provider side, should "Mis cotizaciones" be a segment on Inicio or a
-   row in Perfil?
-3. Should "Gratis" be shown explicitly, or should the cost line be omitted
-   until coins apply?
-4. Should we keep `ManoProjectCard` for booked jobs and add
-   `ManoProjectSummaryCard`, or generalise the existing card?
+The open questions were answered on approval:
+
+1. **Requester:** projects are a segment in the Actividad tab, "Servicios ·
+   Proyectos" (`ManoProjectFilterTabs`), with a flame "+ Publicar proyecto"
+   pill. The create sheet's CTA is "Publicar proyecto" (a category tap
+   preselects it), and Home has a quiet clay row.
+2. **Provider:** "Mis cotizaciones" is a third segment on Inicio: Solicitudes ·
+   Proyectos · Mis cotizaciones.
+3. **"Gratis"** shows explicitly in the cost slot of open-project cards.
+4. **A new `ManoProjectSummaryCard`**; `ManoProjectCard` and its tests stay
+   untouched.

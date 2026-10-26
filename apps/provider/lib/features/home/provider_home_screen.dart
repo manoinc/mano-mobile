@@ -5,9 +5,9 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../agenda/agenda_labels.dart';
-import 'requests_section.dart';
+import 'home_segments.dart';
 
-/// Inicio: who's next, then what needs an answer.
+/// Inicio: who's next, then requests, open projects and the quotes sent.
 class ProviderHomeScreen extends ConsumerWidget {
   const ProviderHomeScreen({super.key});
 
@@ -45,7 +45,7 @@ class ProviderHomeScreen extends ConsumerWidget {
               _NextJobCard(job: next),
               const SizedBox(height: ManoSpacing.lg),
             ],
-            const RequestsSection(),
+            const HomeSegments(),
             const SizedBox(height: ManoSpacing.lg),
           ],
         ),

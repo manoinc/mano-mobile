@@ -12,6 +12,7 @@ routes are already registered, so a module never edits the router.
 | REQ-03 | Booking Flow | `booking/` | `/home/book/:offerId` (full screen) | `ServiceCatalog`, `AvailabilityRepository`, `JobRepository`, `ServiceRequestRepository` | [REQ-03](REQ-03-booking.md) |
 | REQ-04 | Activity | `activity/` + `screens/projects_tab_screen.dart` | `/projects`, `/projects/job/:id` | `ServiceRequestRepository`, `JobRepository` | [REQ-04](REQ-04-activity.md) |
 | REQ-05 | Inbox & Chat | `chat/` + `screens/inbox_tab_screen.dart` | `/inbox`, `/inbox/:conversationId` (full screen) | `ConversationRepository`, `ChatRepository` | [REQ-05](REQ-05-chat.md) |
+| REQ-06 | Projects & Quotes | `projects/` | `/publish?category=` (full screen), `/projects?segment=proyectos`, `/projects/project/:id` | `ProjectRepository` (live) | [REQ-06](REQ-06-projects.md) |
 
 ## Provider (`apps/provider`)
 
@@ -23,6 +24,7 @@ routes are already registered, so a module never edits the router.
 | PROV-04 | Incoming Requests | `requests/` | `/requests` | `ServiceRequestRepository` | [PROV-04](PROV-04-requests.md) |
 | PROV-05 | Jobs Agenda | `agenda/` | `/agenda`, `/agenda/job/:id` | `JobRepository` | [PROV-05](PROV-05-agenda.md) |
 | PROV-06 | Inbox & Chat | `chat/` | `/inbox`, `/inbox/:conversationId` | `ConversationRepository`, `ChatRepository` | [PROV-06](PROV-06-chat.md) |
+| PROV-07 | Open Projects & Quotes | `projects/` + `home/home_segments.dart` | `/home` (Proyectos, Mis cotizaciones), `/home/project/:id` | `LeadRepository` (live) | [PROV-07](PROV-07-projects.md) |
 
 Shared state goes in `mano_session/lib/src/<module>/`:
 

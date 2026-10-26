@@ -52,7 +52,7 @@ enum _Filter {
   final List<ServiceRequestStatus> requestStatuses;
 }
 
-/// The requester's requests and jobs, one status filter at a time.
+/// The requester's requests and jobs, one status filter at a time; Actividad's Servicios segment.
 class ActivityTab extends StatefulWidget {
   const ActivityTab({super.key});
 
@@ -65,34 +65,17 @@ class _ActivityTabState extends State<ActivityTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            ManoSpacing.md,
-            ManoSpacing.md,
-            ManoSpacing.md,
-            0,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Tu actividad',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: ManoSpacing.md),
-              ManoProjectFilterTabs(
-                labels: [for (final f in _Filter.values) f.label],
-                selectedIndex: _filter.index,
-                onSelected: (i) => setState(() => _filter = _Filter.values[i]),
-              ),
-              const SizedBox(height: ManoSpacing.md),
-              Expanded(child: _ActivityList(filter: _filter)),
-            ],
-          ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ManoProjectFilterTabs(
+          labels: [for (final f in _Filter.values) f.label],
+          selectedIndex: _filter.index,
+          onSelected: (i) => setState(() => _filter = _Filter.values[i]),
         ),
-      ),
+        const SizedBox(height: ManoSpacing.md),
+        Expanded(child: _ActivityList(filter: _filter)),
+      ],
     );
   }
 }

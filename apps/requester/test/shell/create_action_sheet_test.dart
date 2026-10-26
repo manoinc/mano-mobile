@@ -6,7 +6,10 @@ import 'package:mano_ui/mano_ui.dart';
 /// Raises the sheet the same way [NavShell] does -- through [showManoSheet],
 /// not by pumping the sheet's content directly -- so `Navigator.pop()` in its
 /// close button has a route to pop.
-Future<void> _open(WidgetTester tester) async {
+Future<void> _open(
+  WidgetTester tester, {
+  ValueChanged<String?>? onPublish,
+}) async {
   await tester.pumpWidget(
     MaterialApp(
       theme: ManoTheme.light(),
@@ -17,7 +20,8 @@ Future<void> _open(WidgetTester tester) async {
               label: 'open',
               onPressed: () => showManoSheet<void>(
                 context: context,
-                builder: (_) => const CreateActionSheet(),
+                builder: (_) =>
+                    CreateActionSheet(onPublish: onPublish ?? (_) {}),
               ),
             ),
           ),
@@ -35,13 +39,11 @@ void main() {
       await _open(tester);
 
       expect(find.text('¿Qué necesitas hacer?'), findsOneWidget);
-      expect(find.text('Publicar un trabajo'), findsOneWidget);
-      // A live primary button, not a disabled row -- it reads as "not built
-      // yet", not "not built". Disambiguated from the host's own trigger
-      // button, which is also a `FilledButton`.
+      expect(find.text('Publicar proyecto'), findsOneWidget);
+      // Disambiguated from the host's own trigger, also a `FilledButton`.
       final postButton = tester.widget<FilledButton>(
         find.ancestor(
-          of: find.text('Publicar un trabajo'),
+          of: find.text('Publicar proyecto'),
           matching: find.byType(FilledButton),
         ),
       );
@@ -64,24 +66,28 @@ void main() {
       }
     });
 
-    testWidgets('tapping a category shows the stub notice', (tester) async {
-      await _open(tester);
+    testWidgets('tapping a category publishes with it preselected', (
+      tester,
+    ) async {
+      final picked = <String?>[];
+      await _open(tester, onPublish: picked.add);
 
       await tester.tap(find.text('Plomería'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Muy pronto'), findsOneWidget);
+      expect(picked, ['plumbing']);
     });
 
-    testWidgets('tapping "Publicar un trabajo" shows the stub notice', (
+    testWidgets('"Publicar proyecto" publishes with no category', (
       tester,
     ) async {
-      await _open(tester);
+      final picked = <String?>[];
+      await _open(tester, onPublish: picked.add);
 
-      await tester.tap(find.text('Publicar un trabajo'));
+      await tester.tap(find.text('Publicar proyecto'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Muy pronto'), findsOneWidget);
+      expect(picked, [null]);
     });
   });
 }

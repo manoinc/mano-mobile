@@ -79,7 +79,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(CreateActionSheet), findsOneWidget);
-    expect(find.text('Publicar un trabajo'), findsOneWidget);
+    expect(find.text('Publicar proyecto'), findsOneWidget);
     expect(_currentIndex(tester), 1);
   });
 

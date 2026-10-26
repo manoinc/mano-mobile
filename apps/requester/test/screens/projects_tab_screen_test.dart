@@ -8,12 +8,12 @@ import '../support/pump_app.dart';
 
 Future<void> _openFilter(WidgetTester tester, String label) async {
   final tab = find.descendant(
-    of: find.byType(ManoProjectFilterTabs),
+    of: find.byType(ManoProjectFilterTabs).last,
     matching: find.text(label),
   );
   await tester.dragUntilVisible(
     tab,
-    find.byType(ManoProjectFilterTabs),
+    find.byType(ManoProjectFilterTabs).last,
     const Offset(-120, 0),
   );
   await tester.pumpAndSettle();

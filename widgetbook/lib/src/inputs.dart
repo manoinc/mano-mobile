@@ -150,8 +150,32 @@ WidgetbookCategory inputs() => WidgetbookCategory(
         child: ManoMessageComposer(hintText: 'Escribe un mensaje', onSend: (_) {}),
       ),
     }),
+    component('ManoAmountPad', {
+      'Default': (context) => _padded(
+        SizedBox(width: 360, child: _AmountPadDemo()),
+      ),
+    }),
   ],
 );
+
+class _AmountPadDemo extends StatefulWidget {
+  @override
+  State<_AmountPadDemo> createState() => _AmountPadDemoState();
+}
+
+class _AmountPadDemoState extends State<_AmountPadDemo> {
+  String _digits = '1800000';
+
+  @override
+  Widget build(BuildContext context) => ManoAmountPad(
+    amountLabel: ManoFormat.cop(int.tryParse(_digits) ?? 0),
+    helperText: 'Opcional. Los profesionales cotizan igual.',
+    onDigit: (d) => setState(() => _digits = '$_digits$d'),
+    onBackspace: () => setState(
+      () => _digits = _digits.isEmpty ? '' : _digits.substring(0, _digits.length - 1),
+    ),
+  );
+}
 
 class _MonthCalendarDemo extends StatefulWidget {
   const _MonthCalendarDemo({required this.withMarks});

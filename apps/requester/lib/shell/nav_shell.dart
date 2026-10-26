@@ -9,9 +9,12 @@ import 'create_action_sheet.dart';
 /// CREATE raises a sheet rather than switching branch, so it never touches
 /// [StatefulNavigationShell.currentIndex].
 class NavShell extends StatelessWidget {
-  const NavShell({required this.navigationShell, super.key});
+  const NavShell({required this.navigationShell, this.onPublish, super.key});
 
   final StatefulNavigationShell navigationShell;
+
+  /// Publishing a project, with the category tapped in the sheet, if any.
+  final ValueChanged<String?>? onPublish;
 
   static const _items = [
     ManoNavItem(icon: Icons.home_outlined, label: 'Inicio'),
@@ -30,7 +33,12 @@ class NavShell extends StatelessWidget {
         onTap: navigationShell.goBranch,
         onActionTap: () => showManoSheet<void>(
           context: context,
-          builder: (_) => const CreateActionSheet(),
+          builder: (sheet) => CreateActionSheet(
+            onPublish: (category) {
+              Navigator.pop(sheet);
+              onPublish?.call(category);
+            },
+          ),
         ),
       ),
     );
