@@ -17,42 +17,45 @@ class MyProjectsList extends ConsumerWidget {
     final projects = ref.watch(myProjectsProvider);
     final now = DateTime.now();
 
-    return switch (projects) {
-      AsyncData(value: final items) when items.isEmpty => ManoEmptyState(
-        icon: Icons.assignment_outlined,
-        message: 'Aún no has publicado proyectos.',
-        ctaLabel: 'Publicar proyecto',
-        onCta: () => startPublishing(context, ref),
-      ),
-      AsyncData(value: final items) => Stack(
-        children: [
-          ListView(
-            // Room for the pill floating over the end of the list.
-            padding: const EdgeInsets.only(bottom: ManoSpacing.xl * 3),
-            children: [
-              for (final project in items)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: ManoSpacing.sm),
-                  child: _card(context, project, now),
-                ),
-            ],
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: ManoSpacing.md,
-            child: Center(
-              child: _PublishPill(onTap: () => startPublishing(context, ref)),
+    return ManoPullToRefresh(
+      onRefresh: () => ref.refresh(myProjectsProvider.future),
+      child: switch (projects) {
+        AsyncData(value: final items) when items.isEmpty => ManoEmptyState(
+          icon: Icons.assignment_outlined,
+          message: 'Aún no has publicado proyectos.',
+          ctaLabel: 'Publicar proyecto',
+          onCta: () => startPublishing(context, ref),
+        ),
+        AsyncData(value: final items) => Stack(
+          children: [
+            ListView(
+              // Room for the pill floating over the end of the list.
+              padding: const EdgeInsets.only(bottom: ManoSpacing.xl * 3),
+              children: [
+                for (final project in items)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: ManoSpacing.sm),
+                    child: _card(context, project, now),
+                  ),
+              ],
             ),
-          ),
-        ],
-      ),
-      AsyncError() => ActivityLoadError(
-        message: 'No pudimos cargar tus proyectos.',
-        onRetry: () => ref.invalidate(myProjectsProvider),
-      ),
-      _ => const Center(child: CircularProgressIndicator()),
-    };
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: ManoSpacing.md,
+              child: Center(
+                child: _PublishPill(onTap: () => startPublishing(context, ref)),
+              ),
+            ),
+          ],
+        ),
+        AsyncError() => ActivityLoadError(
+          message: 'No pudimos cargar tus proyectos.',
+          onRetry: () => ref.invalidate(myProjectsProvider),
+        ),
+        _ => const Center(child: CircularProgressIndicator()),
+      },
+    );
   }
 
   Widget _card(BuildContext context, Project project, DateTime now) {

@@ -53,14 +53,14 @@ enum _Filter {
 }
 
 /// The requester's requests and jobs, one status filter at a time; Actividad's Servicios segment.
-class ActivityTab extends StatefulWidget {
+class ActivityTab extends ConsumerStatefulWidget {
   const ActivityTab({super.key});
 
   @override
-  State<ActivityTab> createState() => _ActivityTabState();
+  ConsumerState<ActivityTab> createState() => _ActivityTabState();
 }
 
-class _ActivityTabState extends State<ActivityTab> {
+class _ActivityTabState extends ConsumerState<ActivityTab> {
   _Filter _filter = _Filter.requests;
 
   @override
@@ -74,7 +74,15 @@ class _ActivityTabState extends State<ActivityTab> {
           onSelected: (i) => setState(() => _filter = _Filter.values[i]),
         ),
         const SizedBox(height: ManoSpacing.md),
-        Expanded(child: _ActivityList(filter: _filter)),
+        Expanded(
+          child: ManoPullToRefresh(
+            onRefresh: () => Future.wait([
+              ref.refresh(myServiceRequestsProvider.future),
+              ref.refresh(myJobsProvider.future),
+            ]),
+            child: _ActivityList(filter: _filter),
+          ),
+        ),
       ],
     );
   }
