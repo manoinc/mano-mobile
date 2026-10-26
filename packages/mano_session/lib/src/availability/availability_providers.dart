@@ -12,9 +12,25 @@ final myCalendarBlocksProvider = FutureProvider<List<CalendarBlock>>(
   (ref) => ref.watch(availabilityRepositoryProvider).myBlocks(),
 );
 
-final myCalendarFeedProvider = FutureProvider<CalendarFeed?>(
+/// Whether a feed link is live; a read-only status that never rotates the link.
+final myCalendarFeedProvider = FutureProvider<CalendarFeedStatus?>(
   (ref) => ref.watch(availabilityRepositoryProvider).myFeed(),
 );
+
+/// The link just issued, URL included; gone once nobody shows it, as the server never repeats it.
+final class IssuedCalendarFeed extends Notifier<CalendarFeed?> {
+  @override
+  CalendarFeed? build() => null;
+
+  void remember(CalendarFeed feed) => state = feed;
+
+  void forget() => state = null;
+}
+
+final issuedCalendarFeedProvider =
+    NotifierProvider.autoDispose<IssuedCalendarFeed, CalendarFeed?>(
+      IssuedCalendarFeed.new,
+    );
 
 /// Availability mutations; each success invalidates the reads it changed.
 final class AvailabilityActions extends Notifier<void> {
@@ -55,13 +71,19 @@ final class AvailabilityActions extends Notifier<void> {
 
   Future<Result<CalendarFeed, DataFailure>> issueFeed() async {
     final result = await _repo.issueFeed();
-    if (result.isOk) ref.invalidate(myCalendarFeedProvider);
+    if (result case Ok(value: final feed)) {
+      ref.read(issuedCalendarFeedProvider.notifier).remember(feed);
+      ref.invalidate(myCalendarFeedProvider);
+    }
     return result;
   }
 
   Future<Result<void, DataFailure>> revokeFeed() async {
     final result = await _repo.revokeFeed();
-    if (result.isOk) ref.invalidate(myCalendarFeedProvider);
+    if (result.isOk) {
+      ref.read(issuedCalendarFeedProvider.notifier).forget();
+      ref.invalidate(myCalendarFeedProvider);
+    }
     return result;
   }
 

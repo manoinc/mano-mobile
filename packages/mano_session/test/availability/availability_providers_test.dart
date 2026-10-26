@@ -119,15 +119,41 @@ void main() {
   });
 
   group('feed', () {
-    test('issueFeed then revokeFeed', () async {
-      final c = _container();
-      await c.read(myCalendarFeedProvider.future);
+    test(
+      'issueFeed keeps the URL in memory and refreshes the status',
+      () async {
+        final c = _container();
+        final sub = c.listen(issuedCalendarFeedProvider, (_, _) {});
+        expect(await c.read(myCalendarFeedProvider.future), isNull);
+        expect(c.read(issuedCalendarFeedProvider), isNull);
 
-      final issued = await _actions(c).issueFeed();
-      expect(await c.read(myCalendarFeedProvider.future), issued.valueOrNull);
+        final issued = (await _actions(c).issueFeed()).valueOrNull!;
+
+        expect(c.read(issuedCalendarFeedProvider), issued);
+        expect(await c.read(myCalendarFeedProvider.future), issued.status);
+        sub.close();
+      },
+    );
+
+    test('revokeFeed forgets the URL and clears the status', () async {
+      final c = _container();
+      final sub = c.listen(issuedCalendarFeedProvider, (_, _) {});
+      await _actions(c).issueFeed();
 
       await _actions(c).revokeFeed();
+
+      expect(c.read(issuedCalendarFeedProvider), isNull);
       expect(await c.read(myCalendarFeedProvider.future), isNull);
+      sub.close();
+    });
+
+    test('reading the status never rotates the link', () async {
+      final c = _container();
+      final issued = (await _actions(c).issueFeed()).valueOrNull!;
+      c.invalidate(myCalendarFeedProvider);
+      await c.read(myCalendarFeedProvider.future);
+      c.invalidate(myCalendarFeedProvider);
+      expect(await c.read(myCalendarFeedProvider.future), issued.status);
     });
   });
 }
