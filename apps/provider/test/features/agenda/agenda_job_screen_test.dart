@@ -4,6 +4,7 @@ import 'package:mano_provider/features/agenda/agenda_job_screen.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
 import 'agenda_fakes.dart';
 
@@ -149,5 +150,28 @@ void main() {
 
     expect(find.text('No pudimos cargar este trabajo.'), findsOneWidget);
     expect(find.text('Reintentar'), findsOneWidget);
+  });
+
+  testWidgets("Escribir opens the job's chat", (tester) async {
+    final c = await pumpRouterAt(
+      tester,
+      '/agenda/job/job-1',
+      session: FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
+    );
+
+    await tester.tap(find.byTooltip('Escribir'));
+    await tester.pumpAndSettle();
+
+    expect(routerPath(c), '/inbox/conv-job-job-1');
+    expect(find.byType(ManoMessageComposer), findsOneWidget);
+  });
+
+  testWidgets('a guest is asked to sign in before writing', (tester) async {
+    await pumpRouterAt(tester, '/agenda/job/job-1');
+
+    await tester.tap(find.byTooltip('Escribir'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Necesitas una cuenta'), findsOneWidget);
   });
 }
