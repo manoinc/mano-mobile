@@ -45,7 +45,9 @@ dart tools/generate_logo_paths.dart              # after changing tools/brand/*.
 cd apps/requester && flutter run -d RFGL20WAR9E  # the A36
 ```
 
-Docs: the Mano Handbook (`docs/`, Zensical through Docker via `tools/docs.sh`) and the
+## Docs
+
+The Mano Handbook (`docs/`, Zensical through Docker via `tools/docs.sh`) and the
 Widgetbook catalogue (`widgetbook/`). A new `mano_ui` widget needs a Widgetbook use case,
 and the catalogue test fails without one. Recipes: `docs/develop/adding-a-screen.md`,
 `docs/develop/adding-a-component.md`. The open polish backlog is in `POLISH.md`.
@@ -53,8 +55,8 @@ What the gateway really serves versus what is mocked: `docs/develop/backend-cont
 
 ## Coding style 
 
-Modular, loosely coupled components; KISS and YAGNI by default; SOLID reserved for complex business logic, favouring single responsibility and injected dependencies.
-Hexagonal architecture. Business logic must not depend on the presentation framework. 
+The shared rules (TDD, KISS/YAGNI, hexagonal, modular, config files, one-line
+comments, no co-authoring) live in `../CLAUDE.md`. Specific to this repo:
 
 Use TDD to make sure the code works E2E. 
 The code must be structured in such a clean way that it looks the same in all apps and we don't have to duplicate effort across them. Both `android/` and `ios/` exist; keep everything platform-agnostic. iOS setup: `docs/develop/ios.md`.
@@ -64,7 +66,8 @@ DO NOT coauthor any commits.
 
 ## Skills 
 
-Make use of the Context7 CLI (use ctx7) and the Dart and Flutter plugin installed @dart-flutter. 
+Use the Dart and Flutter plugin (@dart-flutter).
+Before building any UI, make sure to use Mobbin MCP for looking up inspiration and see how others have done it (including competitors). Our UI/UX references are: Nubank, Wise, Cashapp, Airbnb. Our proxies (apps in similar markets) are: Taskrabbit, Thumbtack, Angi, Urban Company & GetNinjas (Brazil). 
 
 ## Testing 
 
@@ -77,14 +80,6 @@ survive unplugging or an adb restart:
 ```bash
 adb reverse tcp:8082 tcp:8082   # mano-gateway
 ```
-
-Auth: Keycloak was dropped, because it needs an in-app browser tab, which breaks
-the native feel. SuperTokens (email + password, native sheet) is wired as
-`SuperTokensSessionRepository`, on only with
-`--dart-define=SUPERTOKENS_API_DOMAIN=…`; no FDI auth server exists yet, so by
-default sign-in reports "not configured", the gateway is anonymous, and every
-port except the catalog runs on in-memory mocks. Read the gateway at `origin/master`. Local
-gateway setup and the catalog seed are in `docs/develop/backend-contract.md`.
 
 ## Design
 
