@@ -118,7 +118,7 @@ The tab already holds jobs and requests (`ActivityTab`). Add a top segment with
  │ Cambiar toda la iluminación a LED   │
  │ ✓ Elegiste a Andrés C. · $580.000   │
  └─────────────────────────────────────┘
-          ( + Publicar proyecto )   flame pill, Angi-style
+          ( + Publicar proyecto )   outlined pill, Angi-style
 ```
 
 The status line maps `ProjectStatus` and the quotes as follows:
@@ -275,9 +275,10 @@ and gets a Widgetbook use case.
 
 ## Brand checks
 
-- **One flame per screen:** Continuar, Publicar proyecto, the "+ Publicar
-  proyecto" pill, Cotizar gratis, Enviar cotización, and the confirm "Elegir
-  cotización". Elegir and Descartar on cards are text actions.
+- **One flame per screen:** Continuar, Publicar proyecto, Cotizar gratis,
+  Enviar cotización, and the confirm "Elegir cotización". Elegir and
+  Descartar on cards are text actions. On Actividad › Proyectos the shell's
+  centre "+" is the flame, so the "+ Publicar proyecto" pill is outlined.
 - **Corners:** `ManoRadius.card` on cards and boxes, `ManoRadius.pill` on chips,
   segments and the floating pill. Nothing else.
 - **Type and colour:** Poppins through the text theme. Clay for links, sand for
@@ -290,9 +291,15 @@ and gets a Widgetbook use case.
 The open questions were answered on approval:
 
 1. **Requester:** projects are a segment in the Actividad tab, "Servicios ·
-   Proyectos" (`ManoProjectFilterTabs`), with a flame "+ Publicar proyecto"
-   pill. The create sheet's CTA is "Publicar proyecto" (a category tap
-   preselects it), and Home has a quiet clay row.
+   Proyectos" (`ManoProjectFilterTabs`), with a compact "+ Publicar
+   proyecto" pill floating over the list. The create sheet's CTA is
+   "Publicar proyecto" (a category tap preselects it), and Home has a quiet
+   clay row.
+5. **The Proyectos pill is outlined, not flame** (decided after the first
+   device run, Oct 2026). The shell's centre "+" is already the flame on every
+   tab, and a flame pill (or the empty state's full-width button) made two.
+   The pill is ink-outlined on the surface, compact, and the same with or
+   without projects; the empty state shows no button of its own.
 2. **Provider:** "Mis cotizaciones" is a third segment on Inicio: Solicitudes ·
    Proyectos · Mis cotizaciones.
 3. **"Gratis"** shows explicitly in the cost slot of open-project cards.

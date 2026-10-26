@@ -18,7 +18,8 @@ All three go through `startPublishing`, which asks a guest to sign in first
 
 - the create sheet (`shell/create_action_sheet.dart`): "Publicar proyecto", or a
   category, which skips step 1;
-- the Proyectos segment's flame pill "+ Publicar proyecto";
+- the Proyectos segment's outlined pill "+ Publicar proyecto" (the shell's
+  centre "+" is the flame);
 - a quiet clay row on Home (`PublishProjectRow`).
 
 ### Publish flow

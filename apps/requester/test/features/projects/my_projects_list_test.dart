@@ -103,6 +103,48 @@ void main() {
 
     expect(find.byType(ManoEmptyState), findsOneWidget);
     expect(find.text('Aún no has publicado proyectos.'), findsOneWidget);
+    expect(find.byKey(const Key('publish-project-pill')), findsOneWidget);
+  });
+
+  group('one flame per screen: the shell owns it', () {
+    Future<void> expectQuietPill(WidgetTester tester) async {
+      expect(
+        find.descendant(
+          of: find.byType(MyProjectsList),
+          matching: find.byType(ManoPrimaryButton),
+        ),
+        findsNothing,
+      );
+      final pill = find.byKey(const Key('publish-project-pill'));
+      expect(pill, findsOneWidget);
+      expect(
+        find.descendant(of: pill, matching: find.byType(FilledButton)),
+        findsNothing,
+      );
+      // Compact, not full width.
+      final list = tester.getSize(find.byType(MyProjectsList));
+      expect(tester.getSize(pill).width, lessThan(list.width * 0.75));
+    }
+
+    testWidgets('with projects, Publicar proyecto is a quiet pill', (
+      tester,
+    ) async {
+      await pumpRouterAt(tester, '/projects?segment=proyectos');
+      await expectQuietPill(tester);
+    });
+
+    testWidgets('with none, the empty state uses the same quiet pill', (
+      tester,
+    ) async {
+      await pumpRouterAt(
+        tester,
+        '/projects?segment=proyectos',
+        overrides: [
+          projectRepositoryProvider.overrideWithValue(FakeProjects()),
+        ],
+      );
+      await expectQuietPill(tester);
+    });
   });
 
   testWidgets('a failed load offers a retry', (tester) async {

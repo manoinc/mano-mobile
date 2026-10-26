@@ -61,7 +61,7 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | `ManoStatusChip` | A status pill in one of four tones. |
 | `ManoPriceTag` | Amount plus rate ("$45.000 /hora"). |
 | `ManoNotice` | An inline message (info, warning, error). |
-| `ManoEmptyState` | Nothing to show yet, with one call to action. |
+| `ManoEmptyState` | Nothing to show yet, with one call to action, or none when the screen already has it. |
 | `ManoAvatar`, `ManoInitialsAvatar` | A photo (optional online dot) or initials. |
 | `ManoPageIndicator` | Carousel dots. |
 
