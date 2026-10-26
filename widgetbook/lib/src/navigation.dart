@@ -72,6 +72,26 @@ WidgetbookCategory navigation() => WidgetbookCategory(
         );
       },
     }),
+    component('ManoPullToRefresh', {
+      'List': (context) => ManoPullToRefresh(
+        onRefresh: () async {},
+        child: ListView(
+          children: [
+            for (final name in ['Ana Gómez', 'Luis Martínez', 'María Rodríguez'])
+              ListTile(title: Text(name)),
+          ],
+        ),
+      ),
+      'Empty state': (context) => ManoPullToRefresh(
+        onRefresh: () async {},
+        child: ManoEmptyState(
+          icon: Icons.event_available_outlined,
+          message: 'Ningún trabajo está en curso.',
+          ctaLabel: 'Ver solicitudes',
+          onCta: () {},
+        ),
+      ),
+    }),
     component('ManoRefreshList', {
       'Default': (context) => ManoRefreshList(
         emptyMessage: 'Aún no tienes conversaciones.',
