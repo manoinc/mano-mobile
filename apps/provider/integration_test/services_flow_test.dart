@@ -41,7 +41,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Mis servicios'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.tap(find.text('Nueva oferta'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Reparación de fugas'));
     await tester.pumpAndSettle();

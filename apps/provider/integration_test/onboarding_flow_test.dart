@@ -21,6 +21,12 @@ Future<void> _tapText(WidgetTester tester, String text) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> _answer(WidgetTester tester, String label, String value) async {
+  await tester.enterText(_field(label), value);
+  await tester.pump();
+  await _tapText(tester, 'Continuar');
+}
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -41,21 +47,17 @@ void main() {
 
     await _tapText(tester, 'Crear cuenta profesional');
 
-    await tester.enterText(_field('Correo'), 'pro@mano.co');
-    await _tapText(tester, 'Continuar');
+    await _answer(tester, 'Correo', 'pro@mano.co');
     await tester.enterText(_field('Contraseña'), 'mano2026');
+    await tester.pump();
     await _tapText(tester, 'Crear cuenta');
 
-    await tester.enterText(_field('Nombre completo'), 'Ana Gómez');
-    await _tapText(tester, 'Continuar');
-    await tester.enterText(_field('Celular'), '300 123 4567');
-    await _tapText(tester, 'Continuar');
-    await tester.enterText(_field('Zona de cobertura'), 'Chapinero');
-    await _tapText(tester, 'Continuar');
+    await _answer(tester, 'Nombre completo', 'Ana Gómez');
+    await _answer(tester, 'Celular', '300 123 4567');
+    await _answer(tester, 'Zona de cobertura', 'Chapinero');
     await _tapText(tester, 'Plomería');
     await _tapText(tester, 'Continuar');
-    await tester.enterText(_field('Años de experiencia'), '5');
-    await _tapText(tester, 'Continuar');
+    await _answer(tester, 'Años de experiencia', '5');
     await _tapText(tester, 'Omitir');
 
     await _tapText(tester, 'Adjuntar');
