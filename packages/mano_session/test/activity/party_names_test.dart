@@ -50,4 +50,19 @@ void main() {
     expect(_request(_blank, _blank).clientName, 'Cliente');
     expect(_request(_blank, _blank).providerName, 'Profesional');
   });
+
+  test('a conversation names the other side, or says it by role', () {
+    expect(_conversation(_named, ManoRole.provider).participantLabel, 'Laura');
+    expect(
+      _conversation(_blank, ManoRole.provider).participantLabel,
+      'Profesional',
+    );
+    expect(
+      _conversation(_blank, ManoRole.requester).participantLabel,
+      'Cliente',
+    );
+  });
 }
+
+Conversation _conversation(Party participant, String role) =>
+    Conversation(id: 'c1', participant: participant, participantRole: role);

@@ -92,6 +92,25 @@ void main() {
     },
   );
 
+  test('conversations without messages come after the rest', () async {
+    final container = containerWith(
+      _FakeConversationRepository(
+        onConversations: () async => [
+          Conversation(
+            id: 'empty',
+            participant: const Party(id: 'p', displayName: '', photoUrl: ''),
+            participantRole: ManoRole.provider,
+          ),
+          at('old', DateTime(2026, 1, 1)),
+        ],
+      ),
+    );
+
+    final conversations = await container.read(conversationsProvider.future);
+
+    expect(conversations.map((c) => c.id), ['old', 'empty']);
+  });
+
   test('conversationProvider finds one conversation by id', () async {
     final container = containerWith(
       _FakeConversationRepository(onConversations: () async => [_conversation]),

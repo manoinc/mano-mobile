@@ -85,14 +85,14 @@ class _Header extends ConsumerWidget {
     if (conversation == null) return const SizedBox.shrink();
 
     return ManoChatHeader(
-      name: conversation.participantName,
+      name: conversation.participantLabel,
       photoUrl: conversation.participantPhotoUrl,
       online: conversation.isOnline,
       verified: conversation.isVerified,
       onTap: () => showManoSheet<void>(
         context: context,
         builder: (sheet) => ManoProfileSheet(
-          name: conversation.participantName,
+          name: conversation.participantLabel,
           photoUrl: conversation.participantPhotoUrl,
           verified: conversation.isVerified,
           facts: [

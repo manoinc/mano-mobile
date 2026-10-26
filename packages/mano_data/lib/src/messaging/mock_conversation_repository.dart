@@ -106,8 +106,7 @@ final class MockConversationRepository implements ConversationRepository {
     _sort();
   }
 
-  void _sort() =>
-      _conversations.sort((a, b) => b.lastMessageAt.compareTo(a.lastMessageAt));
+  void _sort() => _conversations.sort(Conversation.newestFirst);
 
   void _update(String id, Conversation Function(Conversation) change) {
     final index = _conversations.indexWhere((c) => c.id == id);

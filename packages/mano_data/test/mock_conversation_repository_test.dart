@@ -47,7 +47,7 @@ void main() {
     test('conversations come newest first', () async {
       final conversations = await repository.conversations();
       final times = conversations.map((c) => c.lastMessageAt).toList();
-      expect(times, [...times]..sort((a, b) => b.compareTo(a)));
+      expect(times, [...times]..sort((a, b) => b!.compareTo(a!)));
     });
 
     test('recording a message moves that thread to the front', () async {

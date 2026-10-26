@@ -81,6 +81,25 @@ void main() {
     expect(find.text('2h'), findsOneWidget);
   });
 
+  testWidgets('an unnamed client with no messages yet reads by role', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      conversations: [
+        const Conversation(
+          id: 'conv-9',
+          participant: Party(id: 'c9', displayName: '', photoUrl: ''),
+          participantRole: ManoRole.requester,
+        ),
+      ],
+    );
+
+    expect(find.text('Cliente'), findsOneWidget);
+    expect(find.text('Sin mensajes aún'), findsOneWidget);
+    expect(find.textContaining(RegExp(r'^\d+[mhd]$')), findsNothing);
+  });
+
   testWidgets('shows an unread badge only where there are unread messages', (
     tester,
   ) async {

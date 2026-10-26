@@ -98,7 +98,7 @@ void main() {
       );
       expect(conversation.participantRole, ManoRole.requester);
       expect(conversation.lastMessage, '');
-      expect(conversation.lastMessageAt, DateTime(0));
+      expect(conversation.lastMessageAt, isNull);
     },
   );
 

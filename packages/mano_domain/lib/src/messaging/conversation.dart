@@ -5,8 +5,8 @@ final class Conversation {
     required this.id,
     required this.participant,
     required this.participantRole,
-    required this.lastMessage,
-    required this.lastMessageAt,
+    this.lastMessage = '',
+    this.lastMessageAt,
     this.isOnline = false,
     this.isVerified = false,
     this.unreadCount = 0,
@@ -19,9 +19,20 @@ final class Conversation {
   final String participantRole;
   final bool isOnline;
   final bool isVerified;
+
+  /// Empty, with [lastMessageAt] null, until the first message.
   final String lastMessage;
-  final DateTime lastMessageAt;
+  final DateTime? lastMessageAt;
   final int unreadCount;
+
+  /// Newest activity first; conversations without messages go last.
+  static int newestFirst(Conversation a, Conversation b) =>
+      switch ((a.lastMessageAt, b.lastMessageAt)) {
+        (final x?, final y?) => y.compareTo(x),
+        (null, null) => 0,
+        (null, _) => 1,
+        (_, null) => -1,
+      };
 
   String get participantName => participant.displayName;
   String get participantPhotoUrl => participant.photoUrl;
