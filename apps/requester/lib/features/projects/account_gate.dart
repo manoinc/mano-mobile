@@ -8,12 +8,10 @@ bool requireAccount(BuildContext context, WidgetRef ref, String message) {
   if (ref.read(hasAccountProvider)) return true;
   showManoSheet<void>(
     context: context,
-    builder: (sheet) => ManoPromptSheet(
-      title: 'Necesitas una cuenta',
+    builder: (sheet) => ManoAccountNeededSheet(
       message: message,
-      primaryLabel: 'Iniciar sesión',
       onClose: () => Navigator.pop(sheet),
-      onPrimary: () {
+      onSignIn: () {
         Navigator.pop(sheet);
         ref.read(onboardingFlowProvider.notifier).startSignIn();
       },

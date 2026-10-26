@@ -11,6 +11,7 @@ abstract final class AccountReason {
   static const offers = 'Inicia sesión para publicar y editar tus servicios.';
   static const availability = 'Inicia sesión para manejar tu disponibilidad.';
   static const chat = 'Inicia sesión para escribirle a tus clientes.';
+  static const projects = 'Inicia sesión para cotizar este proyecto.';
 }
 
 /// Runs [action] for an account; a guest gets the account-needed sheet instead.

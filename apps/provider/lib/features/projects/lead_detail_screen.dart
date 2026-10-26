@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-import 'account_gate.dart';
+import '../account/account_gate.dart';
 import 'lead_labels.dart';
 import 'load_error.dart';
 import 'quote_sheet.dart';
@@ -69,14 +69,14 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     );
   }
 
-  Future<void> _quote(Project project) async {
-    if (!requireAccount(
-      context,
-      ref,
-      'Inicia sesión para cotizar este proyecto. Solo toma un momento.',
-    )) {
-      return;
-    }
+  Future<void> _quote(Project project) => requireAccount(
+    context,
+    ref,
+    reason: AccountReason.projects,
+    action: () => _submitQuote(project),
+  );
+
+  Future<void> _submitQuote(Project project) async {
     final quote = await showQuoteSheet(context);
     if (quote == null || !mounted) return;
     setState(() => _busy = true);
