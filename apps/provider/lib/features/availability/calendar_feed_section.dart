@@ -7,9 +7,7 @@ import 'package:mano_ui/mano_ui.dart';
 import 'availability_parts.dart';
 import '../account/account_gate.dart';
 
-/// The private .ics link that puts Mano jobs in Google or Apple Calendar.
-///
-/// The server shows the URL once, when issued; afterwards only that a link is live.
+/// The private .ics link for Google or Apple Calendar; its URL shows once, when issued.
 class CalendarFeedSection extends ConsumerStatefulWidget {
   const CalendarFeedSection({super.key});
 
