@@ -87,16 +87,19 @@ class _OfferEditorScreenState extends ConsumerState<OfferEditorScreen> {
       appBar: AppBar(
         title: Text(widget.offerId == null ? 'Nueva oferta' : 'Editar oferta'),
       ),
-      body: switch (editor) {
-        AsyncData(:final value) => _form(value),
-        AsyncError() => ManoEmptyState(
-          icon: Icons.cloud_off_outlined,
-          message: 'No pudimos cargar esta oferta',
-          ctaLabel: 'Reintentar',
-          onCta: () => ref.invalidate(provider),
-        ),
-        _ => const Center(child: CircularProgressIndicator()),
-      },
+      // Keeps Publicar above the system navigation bar.
+      body: SafeArea(
+        child: switch (editor) {
+          AsyncData(:final value) => _form(value),
+          AsyncError() => ManoEmptyState(
+            icon: Icons.cloud_off_outlined,
+            message: 'No pudimos cargar esta oferta',
+            ctaLabel: 'Reintentar',
+            onCta: () => ref.invalidate(provider),
+          ),
+          _ => const Center(child: CircularProgressIndicator()),
+        },
+      ),
     );
   }
 

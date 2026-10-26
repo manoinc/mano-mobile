@@ -151,4 +151,24 @@ void main() {
 
     expect(find.text('No pudimos cargar este proyecto.'), findsOneWidget);
   });
+
+  testWidgets('the last quote clears the system navigation bar', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(360, 640)
+      ..devicePixelRatio = 1
+      ..padding = const FakeViewPadding(bottom: 48)
+      ..viewPadding = const FakeViewPadding(bottom: 48);
+    addTearDown(tester.view.reset);
+    await pumpRouterAt(tester, '/projects/project/project-1');
+
+    await tester.drag(find.byType(ListView).first, const Offset(0, -5000));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getRect(find.byType(ManoQuoteCard).last).bottom,
+      lessThanOrEqualTo(640 - 48),
+    );
+  });
 }

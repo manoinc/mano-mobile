@@ -162,6 +162,32 @@ void main() {
     );
   });
 
+  testWidgets('Publicar clears the system navigation bar', (tester) async {
+    // A 360 dp phone with a 48 dp gesture/3-button bar underneath.
+    tester.view
+      ..physicalSize = const Size(360, 640)
+      ..devicePixelRatio = 1
+      ..padding = const FakeViewPadding(bottom: 48)
+      ..viewPadding = const FakeViewPadding(bottom: 48);
+    addTearDown(tester.view.reset);
+    await pumpRouterAt(
+      tester,
+      '/profile/services/new',
+      overrides: [
+        offerManagementProvider.overrideWithValue(FakeOfferManagement()),
+        serviceCatalogProvider.overrideWithValue(FakeServiceCatalog()),
+      ],
+    );
+
+    await tester.drag(find.byType(ListView).first, const Offset(0, -3000));
+    await tester.pumpAndSettle();
+
+    final button = tester.getRect(
+      find.widgetWithText(FilledButton, 'Publicar'),
+    );
+    expect(button.bottom, lessThanOrEqualTo(640 - 48));
+  });
+
   testWidgets('an unknown offer shows an error with retry', (tester) async {
     await pump(tester, '/profile/services/offer/nope', FakeOfferManagement());
     expect(find.text('No pudimos cargar esta oferta'), findsOneWidget);
