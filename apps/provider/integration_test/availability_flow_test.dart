@@ -65,11 +65,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('dom · 10:00 a. m. – 12:00 p. m.'), findsOneWidget);
 
-    await _scrollTo(tester, find.text('Conectar'));
-    await tester.tap(find.text('Conectar'));
+    await _scrollTo(tester, find.text('Generar enlace'));
+    await tester.tap(find.text('Generar enlace'));
     await tester.pumpAndSettle();
-    expect(find.text('Conectado'), findsOneWidget);
+    await _scrollTo(tester, find.text('Copiar enlace'));
+    expect(find.textContaining('no lo volveremos a mostrar'), findsOneWidget);
 
+    await _scrollTo(tester, find.byTooltip('Más opciones'));
     await tester.tap(find.byTooltip('Más opciones'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Desactivar enlace'));

@@ -59,7 +59,7 @@ void main() {
     expect(find.text('sáb · 9:00 a. m. – 1:00 p. m.'), findsOneWidget);
     expect(find.text('No tienes fechas bloqueadas.'), findsOneWidget);
     await _scrollTo(tester, find.text('Google Calendar'));
-    expect(find.text('Conectar'), findsOneWidget);
+    expect(find.text('Generar enlace'), findsOneWidget);
   });
 
   testWidgets('a failed read shows an error with retry', (tester) async {
@@ -150,9 +150,7 @@ void main() {
     expect(await c.read(availabilityRepositoryProvider).myBlocks(), isEmpty);
   });
 
-  testWidgets('connects, copies, reissues and revokes the calendar link', (
-    tester,
-  ) async {
+  testWidgets('generates a link, shows it once and copies it', (tester) async {
     String? copied;
     tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
       SystemChannels.platform,
@@ -164,38 +162,66 @@ void main() {
       },
     );
     final c = await _open(tester);
-    String? url() => c.read(myCalendarFeedProvider).value?.url;
 
     await _scrollTo(tester, find.text('Google Calendar'));
     expect(find.text('No conectado'), findsOneWidget);
+    expect(find.textContaining('enlace privado'), findsOneWidget);
     expect(find.byTooltip('Más opciones'), findsNothing);
-    await tester.tap(find.text('Conectar'));
+    await tester.tap(find.text('Generar enlace'));
     await tester.pumpAndSettle();
-    final first = url();
-    expect(first, startsWith('https://'));
-    expect(find.text('Conectado'), findsOneWidget);
-    expect(find.text('Generar enlace'), findsNothing);
 
-    await _scrollTo(tester, find.text('Copiar enlace'));
+    final url = c.read(issuedCalendarFeedProvider)!.url;
+    expect(url, startsWith('https://'));
+    await _scrollTo(tester, find.text(url));
+    expect(
+      find.text('Guárdalo ahora: por seguridad no lo volveremos a mostrar.'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Enlace activo desde'), findsOneWidget);
+
     await tester.tap(find.text('Copiar enlace'));
     await tester.pump();
-    expect(copied, first);
+    expect(copied, url);
     expect(find.text('Enlace copiado'), findsOneWidget);
+  });
 
-    await tester.tap(find.byTooltip('Más opciones'));
+  testWidgets('a live link hides its URL, reissues on confirm and revokes', (
+    tester,
+  ) async {
+    final c = await _open(tester);
+    // Issued on an earlier visit: the status is live, the URL is not in memory.
+    final old =
+        (await c.read(availabilityRepositoryProvider).issueFeed()).valueOrNull!;
+    c.invalidate(myCalendarFeedProvider);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Generar nuevo enlace'));
+
+    await _scrollTo(tester, find.text('Google Calendar'));
+    expect(find.textContaining('Enlace activo desde'), findsOneWidget);
+    expect(find.text(old.url), findsNothing);
+    expect(find.text('Copiar enlace'), findsNothing);
+
+    await tester.tap(find.text('Nuevo enlace'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('dejará de funcionar'), findsOneWidget);
+    expect(
+      find.text(
+        'El enlace anterior dejará de funcionar en los calendarios donde '
+        'lo agregaste.',
+      ),
+      findsOneWidget,
+    );
     await tester.tap(find.widgetWithText(ManoPrimaryButton, 'Generar'));
     await tester.pumpAndSettle();
-    expect(url(), isNot(first));
+    final fresh = c.read(issuedCalendarFeedProvider)!.url;
+    expect(fresh, isNot(old.url));
+    expect(find.text(fresh), findsOneWidget);
 
+    await _scrollTo(tester, find.byTooltip('Más opciones'));
     await tester.tap(find.byTooltip('Más opciones'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Desactivar enlace'));
     await tester.pumpAndSettle();
-    expect(url(), isNull);
+    expect(c.read(issuedCalendarFeedProvider), isNull);
+    expect(await c.read(myCalendarFeedProvider.future), isNull);
     expect(find.text('No conectado'), findsOneWidget);
   });
 }
