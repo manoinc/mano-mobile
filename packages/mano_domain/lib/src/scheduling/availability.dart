@@ -112,12 +112,14 @@ final class CalendarBlock {
   String toString() => 'CalendarBlock($id, $start–$end)';
 }
 
-/// A private subscription link to the provider's agenda (.ics).
+/// A private subscription link to the provider's agenda (.ics), known only when issued.
 final class CalendarFeed {
   const CalendarFeed({required this.url, required this.issuedAt});
 
   final String url;
   final DateTime issuedAt;
+
+  CalendarFeedStatus get status => CalendarFeedStatus(issuedAt: issuedAt);
 
   @override
   bool operator ==(Object other) =>
@@ -128,4 +130,21 @@ final class CalendarFeed {
 
   @override
   String toString() => 'CalendarFeed($url)';
+}
+
+/// That a feed link is live, without its URL: reading it never rotates the link.
+final class CalendarFeedStatus {
+  const CalendarFeedStatus({required this.issuedAt});
+
+  final DateTime issuedAt;
+
+  @override
+  bool operator ==(Object other) =>
+      other is CalendarFeedStatus && other.issuedAt == issuedAt;
+
+  @override
+  int get hashCode => issuedAt.hashCode;
+
+  @override
+  String toString() => 'CalendarFeedStatus($issuedAt)';
 }
