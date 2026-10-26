@@ -45,6 +45,10 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | `ManoOfferCard` | An offer: price, pricing model, zone; optional status and trailing action. |
 | `ManoProjectCard` | A job in a list: person, title, date, price, status. |
 | `ManoRequestCard` | An incoming request with message and an `actions` slot. |
+| `ManoProjectSummaryCard` | A posted project: title, subtitle, status chip, optional trailing label. |
+| `ManoLeadCard` | An open project to quote on: title, category and age, budget, cost ("Gratis"). |
+| `ManoQuoteCard` | A quote: avatar slot, name, price, message box, status, Elegir and Descartar. |
+| `ManoAmountPad` | A big centred amount over a numeric keypad with a "000" key. |
 | `ManoBookingCard` | A booking summary. |
 | `ManoConversationTile` | An inbox row with unread badge. |
 | `ManoPersonRow`, `ManoDetailRow`, `ManoTagList` | People with rating, label/value rows, tag chips. |
