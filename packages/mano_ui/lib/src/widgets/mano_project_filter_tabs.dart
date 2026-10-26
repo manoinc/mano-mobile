@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/mano_motion.dart';
 import '../theme/mano_theme.dart';
 
 /// A horizontally-scrollable row of pill toggles, one per status filter.
@@ -22,19 +23,22 @@ class ManoProjectFilterTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 40,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: labels.length,
-        separatorBuilder: (context, index) =>
-            const SizedBox(width: ManoSpacing.sm),
-        itemBuilder: (context, index) => _FilterPill(
-          badgeKey: Key('mano-project-filter-tab-$index'),
-          label: labels[index],
-          selected: index == selectedIndex,
-          onTap: () => onSelected(index),
-        ),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      // Pills run on to the screen edge, so a cut-off one reads as "scroll".
+      clipBehavior: Clip.none,
+      child: Row(
+        children: [
+          for (final (index, label) in labels.indexed) ...[
+            if (index > 0) const SizedBox(width: ManoSpacing.sm),
+            _FilterPill(
+              badgeKey: Key('mano-project-filter-tab-$index'),
+              label: label,
+              selected: index == selectedIndex,
+              onTap: () => onSelected(index),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -63,7 +67,16 @@ class _FilterPill extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(ManoRadius.pill),
-        onTap: onTap,
+        onTap: () {
+          onTap();
+          // A pill half off screen slides fully into view once chosen.
+          Scrollable.ensureVisible(
+            context,
+            duration: ManoMotion.normal,
+            curve: ManoMotion.entrance,
+            alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+          );
+        },
         child: Container(
           key: badgeKey,
           padding: const EdgeInsets.symmetric(
@@ -77,9 +90,8 @@ class _FilterPill extends StatelessWidget {
           alignment: Alignment.center,
           child: Text(
             label,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: selected ? Colors.white : scheme.onSurface,
-            ),
+            style: Theme.of(context).textTheme.labelLarge
+                ?.copyWith(color: selected ? Colors.white : scheme.onSurface),
           ),
         ),
       ),

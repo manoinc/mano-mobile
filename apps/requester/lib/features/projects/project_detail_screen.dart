@@ -162,7 +162,12 @@ class _Body extends StatelessWidget {
               style: textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
             ),
             const SizedBox(width: ManoSpacing.sm),
-            Text(budgetLabel(project.budgetCop), style: textTheme.titleMedium),
+            Flexible(
+              child: Text(
+                budgetLabel(project.budgetCop),
+                style: textTheme.titleMedium,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: ManoSpacing.sm),

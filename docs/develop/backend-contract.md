@@ -70,7 +70,9 @@ real accounts through `mano-auth` (see **Auth**).
   `worker { id }` are real, so every `Party` has an empty name and photo. A
   request's provider is the offer's `offerantId`. Screens read
   `clientName` / `providerName` (`mano_session`), which say "Cliente" or
-  "Profesional" until the profile domain (D2) lands.
+  "Profesional" until the profile domain (D2) lands. Job details use
+  `partyLine`: name over role, or the role alone ("Cliente", "Tu profesional")
+  so a nameless party is not labelled twice.
 - `Job.start` / `end` come from `appointment`; without one, `start` is
   `createdAt` and `end` is null. `rateType` and `amountCop` come from
   `pricing`. `actualHours` is always null: the gateway doesn't return it.
@@ -224,6 +226,11 @@ The old gap — nothing serving the FDI routes — is closed. Every call sends
   password (signs up) → the profile questions → pending. "Ahora no" on either
   flow still browses as a guest; guests are asked to sign in at account-only
   actions (`ManoAccountNeededSheet`).
+- **Greetings** ("Hola, Ana") use the first name typed while signing up: the
+  requester's given name, the provider's display name (first word), then the
+  provider profile's first name. The account's name is used only when it is
+  not an email address, which today it always is; otherwise the header says
+  plain "Hola" (`mano_session/lib/src/home/greeting_name.dart`).
 
 ## Running the gateway locally
 

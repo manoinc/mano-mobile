@@ -31,7 +31,7 @@ void main() {
     expect(find.widgetWithText(ManoStatusChip, 'Programado'), findsOneWidget);
   });
 
-  testWidgets('a provider without a name yet is shown as Profesional', (
+  testWidgets('a provider without a name yet reads Tu profesional, once', (
     tester,
   ) async {
     await pumpRouterAt(
@@ -54,7 +54,8 @@ void main() {
       ],
     );
 
-    expect(find.text('Profesional'), findsOneWidget);
+    expect(find.text('Tu profesional'), findsOneWidget);
+    expect(find.text('Profesional'), findsNothing);
   });
 
   testWidgets('an unknown id shows a not-found state', (tester) async {

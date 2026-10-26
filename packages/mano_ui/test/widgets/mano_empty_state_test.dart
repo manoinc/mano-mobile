@@ -33,6 +33,20 @@ void main() {
       expect(find.byIcon(Icons.work_outline), findsOneWidget);
     });
 
+    testWidgets('without a CTA, shows no button', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          const ManoEmptyState(
+            icon: Icons.work_outline,
+            message: 'Aún no tienes proyectos',
+          ),
+        ),
+      );
+
+      expect(find.text('Aún no tienes proyectos'), findsOneWidget);
+      expect(find.byType(ManoPrimaryButton), findsNothing);
+    });
+
     testWidgets('fires onCta once when the CTA is tapped', (tester) async {
       var taps = 0;
       await tester.pumpWidget(
@@ -69,7 +83,8 @@ void main() {
         final message = tester.widget<Text>(
           find.text('Aún no tienes proyectos'),
         );
-        final darkOnSurfaceVariant = ManoTheme.dark().colorScheme.onSurfaceVariant;
+        final darkOnSurfaceVariant =
+            ManoTheme.dark().colorScheme.onSurfaceVariant;
 
         expect(message.style?.color, isNot(ManoColors.muted));
         expect(message.style?.color, darkOnSurfaceVariant);

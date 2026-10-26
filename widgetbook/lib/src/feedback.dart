@@ -54,6 +54,10 @@ WidgetbookCategory feedback() => WidgetbookCategory(
         ctaLabel: 'Ver mis servicios',
         onCta: noop,
       ),
+      'Sin acción': (context) => const ManoEmptyState(
+        icon: Icons.assignment_outlined,
+        message: 'Aún no has publicado proyectos.',
+      ),
     }),
     component('ManoPageIndicator', {
       'Default': (context) => Center(

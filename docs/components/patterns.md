@@ -36,7 +36,9 @@ Never leave a blank screen, and never show sample data as if it were real.
 ## Lists and filters
 
 - Filters are `ManoProjectFilterTabs` above the list. The first tab is the most
-  common view.
+  common view. When the pills outrun a narrow phone (360 dp, larger text) the
+  row scrolls: pills run on to the screen edge so a cut-off one reads as
+  "more", pills grow with the text, and a tapped pill slides fully into view.
 - Group by day with small headers ("Hoy", "Mañana", "jue 8 oct") when time matters.
 - A tap on a card opens its detail; actions on the card are for the one or two
   things people do most (Aceptar / Rechazar).

@@ -53,6 +53,50 @@ void main() {
     );
   });
 
+  testWidgets('never greets with the account email', (tester) async {
+    await _pump(
+      tester,
+      session: _sessionFor(email: 'e2e-pro-1956@mano.test'),
+      overrides: [
+        providerProfileRepositoryProvider.overrideWithValue(
+          _NamelessProfiles(),
+        ),
+      ],
+    );
+    expect(find.textContaining('@'), findsNothing);
+    expect(find.byType(ManoGreetingHeader), findsNothing);
+  });
+
+  testWidgets('every segment is reachable at 360 dp with 1.3x text', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(360, 780)
+      ..devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(tester);
+
+    final segments = find.byType(ManoProjectFilterTabs).first;
+    final quotes = find.descendant(
+      of: segments,
+      matching: find.byKey(const Key('mano-project-filter-tab-2')),
+    );
+    await tester.drag(segments, const Offset(-1000, 0));
+    await tester.pumpAndSettle();
+    await tester.tap(quotes);
+    await tester.pumpAndSettle();
+
+    final rect = tester.getRect(quotes);
+    expect(rect.left, greaterThanOrEqualTo(0));
+    expect(rect.right, lessThanOrEqualTo(360));
+    expect(
+      (tester.widget<Container>(quotes).decoration! as BoxDecoration).color,
+      ManoColors.flame,
+    );
+  });
+
   testWidgets('shows a plain title when no name is available at all', (
     tester,
   ) async {

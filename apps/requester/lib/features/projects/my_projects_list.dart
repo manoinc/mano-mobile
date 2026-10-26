@@ -16,36 +16,29 @@ class MyProjectsList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final projects = ref.watch(myProjectsProvider);
     final now = DateTime.now();
+    final pill = _PublishPill(onTap: () => startPublishing(context, ref));
 
     return switch (projects) {
-      AsyncData(value: final items) when items.isEmpty => ManoEmptyState(
-        icon: Icons.assignment_outlined,
-        message: 'Aún no has publicado proyectos.',
-        ctaLabel: 'Publicar proyecto',
-        onCta: () => startPublishing(context, ref),
+      AsyncData(value: final items) when items.isEmpty => _withPill(
+        pill,
+        const ManoEmptyState(
+          icon: Icons.assignment_outlined,
+          message: 'Aún no has publicado proyectos.',
+        ),
       ),
-      AsyncData(value: final items) => Stack(
-        children: [
-          ListView(
-            // Room for the pill floating over the end of the list.
-            padding: const EdgeInsets.only(bottom: ManoSpacing.xl * 3),
-            children: [
-              for (final project in items)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: ManoSpacing.sm),
-                  child: _card(context, project, now),
-                ),
-            ],
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: ManoSpacing.md,
-            child: Center(
-              child: _PublishPill(onTap: () => startPublishing(context, ref)),
-            ),
-          ),
-        ],
+      AsyncData(value: final items) => _withPill(
+        pill,
+        ListView(
+          // Room for the pill floating over the end of the list.
+          padding: const EdgeInsets.only(bottom: ManoSpacing.xl * 3),
+          children: [
+            for (final project in items)
+              Padding(
+                padding: const EdgeInsets.only(bottom: ManoSpacing.sm),
+                child: _card(context, project, now),
+              ),
+          ],
+        ),
       ),
       AsyncError() => ActivityLoadError(
         message: 'No pudimos cargar tus proyectos.',
@@ -54,6 +47,18 @@ class MyProjectsList extends ConsumerWidget {
       _ => const Center(child: CircularProgressIndicator()),
     };
   }
+
+  Widget _withPill(Widget pill, Widget content) => Stack(
+    children: [
+      Positioned.fill(child: content),
+      Positioned(
+        left: 0,
+        right: 0,
+        bottom: ManoSpacing.md,
+        child: Center(child: pill),
+      ),
+    ],
+  );
 
   Widget _card(BuildContext context, Project project, DateTime now) {
     final line = projectStatusLine(project);
@@ -69,7 +74,7 @@ class MyProjectsList extends ConsumerWidget {
   }
 }
 
-/// The floating flame pill, Angi-style; the segment's one primary action.
+/// The floating Angi-style pill, outlined: the shell's centre "+" is the flame.
 class _PublishPill extends StatelessWidget {
   const _PublishPill({required this.onTap});
 
@@ -77,19 +82,23 @@ class _PublishPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FilledButton.icon(
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return OutlinedButton.icon(
+      key: const Key('publish-project-pill'),
       onPressed: onTap,
       icon: const Icon(Icons.add),
       label: const Text('Publicar proyecto'),
-      style: FilledButton.styleFrom(
-        backgroundColor: ManoColors.flame,
-        foregroundColor: Colors.white,
+      style: OutlinedButton.styleFrom(
+        backgroundColor: scheme.surface,
+        foregroundColor: scheme.onSurface,
+        side: BorderSide(color: scheme.onSurface, width: 1.5),
         shape: const StadiumBorder(),
         padding: const EdgeInsets.symmetric(
           horizontal: ManoSpacing.lg,
           vertical: ManoSpacing.md,
         ),
-        textStyle: Theme.of(context).textTheme.labelLarge,
+        textStyle: theme.textTheme.labelLarge,
       ),
     );
   }

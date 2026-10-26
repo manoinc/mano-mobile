@@ -5,22 +5,24 @@ import 'mano_primary_button.dart';
 
 /// A centered "nothing here yet" placeholder with one way forward.
 ///
-/// Takes an icon, a message and a CTA -- no knowledge of *why* the list is
+/// Takes an icon, a message and an optional CTA -- no knowledge of *why* the list is
 /// empty (no projects yet, a filter matched nothing, a search came back
 /// blank). The screen decides the wording; this widget only lays it out.
 class ManoEmptyState extends StatelessWidget {
   const ManoEmptyState({
     required this.icon,
     required this.message,
-    required this.ctaLabel,
-    required this.onCta,
+    this.ctaLabel,
+    this.onCta,
     super.key,
   });
 
   final IconData icon;
   final String message;
-  final String ctaLabel;
-  final VoidCallback onCta;
+
+  /// Both null when the screen already shows the way forward elsewhere.
+  final String? ctaLabel;
+  final VoidCallback? onCta;
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +41,10 @@ class ManoEmptyState extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: ManoSpacing.lg),
-            ManoPrimaryButton(label: ctaLabel, onPressed: onCta),
+            if (ctaLabel case final label?) ...[
+              const SizedBox(height: ManoSpacing.lg),
+              ManoPrimaryButton(label: label, onPressed: onCta),
+            ],
           ],
         ),
       ),

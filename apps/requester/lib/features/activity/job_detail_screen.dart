@@ -122,6 +122,7 @@ class _JobBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final line = partyLine(job.provider, role: 'Tu profesional');
     final (statusLabel, tone) = jobBadge(job.status);
 
     return ListView(
@@ -151,13 +152,14 @@ class _JobBody extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(job.providerName, style: textTheme.titleSmall),
-                  Text(
-                    'Tu profesional',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: ManoColors.faint,
+                  Text(line.title, style: textTheme.titleSmall),
+                  if (line.role case final role?)
+                    Text(
+                      role,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: ManoColors.faint,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),

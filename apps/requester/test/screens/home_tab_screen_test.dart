@@ -138,9 +138,7 @@ void main() {
     expect(_query(container), isEmpty);
   });
 
-  testWidgets('a nameless guest still gets a greeting', (
-    tester,
-  ) async {
+  testWidgets('a nameless guest still gets a greeting', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -154,6 +152,41 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    expect(find.text('Hola'), findsOneWidget);
+  });
+
+  testWidgets('an email-only account is greeted with plain Hola', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          catalogRepositoryProvider.overrideWithValue(_FakeCatalogRepository()),
+          sessionRepositoryProvider.overrideWithValue(
+            FakeSessionRepository(
+              onRestore: () async => Ok(
+                Session(
+                  user: const AuthenticatedUser(
+                    subject: 'user-1',
+                    email: 'e2e-req@mano.test',
+                    roles: {ManoRole.requester},
+                  ),
+                  accessToken: 'access-1',
+                  expiresAt: DateTime.now().add(const Duration(minutes: 5)),
+                ),
+              ),
+            ),
+          ),
+        ],
+        child: MaterialApp(
+          theme: ManoTheme.light(),
+          home: const HomeTabScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('@'), findsNothing);
     expect(find.text('Hola'), findsOneWidget);
   });
 

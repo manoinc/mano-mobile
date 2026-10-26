@@ -13,6 +13,76 @@ Widget _darkHost(Widget child) => MaterialApp(
 );
 
 void main() {
+  group('at 360 dp with 1.3x text', () {
+    const segments = ['Solicitudes', 'Proyectos', 'Mis cotizaciones'];
+
+    Future<void> pumpNarrow(WidgetTester tester, ValueChanged<int> onTap) {
+      tester.view
+        ..physicalSize = const Size(360, 640)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      return tester.pumpWidget(
+        MaterialApp(
+          theme: ManoTheme.light(),
+          home: MediaQuery(
+            data: const MediaQueryData(
+              size: Size(360, 640),
+              textScaler: TextScaler.linear(1.3),
+            ),
+            child: Scaffold(
+              body: Padding(
+                padding: const EdgeInsets.all(ManoSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ManoProjectFilterTabs(
+                      labels: segments,
+                      selectedIndex: 0,
+                      onSelected: onTap,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    testWidgets('pills grow with the text instead of clipping it', (
+      tester,
+    ) async {
+      await pumpNarrow(tester, (_) {});
+
+      final pill = tester.getSize(
+        find.byKey(const Key('mano-project-filter-tab-0')),
+      );
+      final label = tester.getSize(find.text('Solicitudes'));
+      expect(
+        pill.height,
+        greaterThanOrEqualTo(label.height + 2 * ManoSpacing.sm),
+      );
+    });
+
+    testWidgets('a cut-off pill scrolls fully into view when tapped', (
+      tester,
+    ) async {
+      final taps = <int>[];
+      await pumpNarrow(tester, taps.add);
+
+      final second = find.byKey(const Key('mano-project-filter-tab-1'));
+      expect(tester.getRect(second).right, greaterThan(360));
+
+      await tester.tapAt(tester.getRect(second).topLeft + const Offset(8, 8));
+      await tester.pumpAndSettle();
+
+      expect(taps, [1]);
+      final rect = tester.getRect(second);
+      expect(rect.left, greaterThanOrEqualTo(0));
+      expect(rect.right, lessThanOrEqualTo(360));
+    });
+  });
+
   group('the project filter tabs', () {
     const labels = ['All', 'Scheduled', 'In Progress', 'Completed', 'Canceled'];
 

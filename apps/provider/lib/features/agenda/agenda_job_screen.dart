@@ -158,6 +158,7 @@ class _JobBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final line = partyLine(job.client, role: 'Cliente');
     final (statusLabel, tone) = jobBadge(job.status);
     final hours = job.actualHours;
 
@@ -188,13 +189,14 @@ class _JobBody extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(job.clientName, style: textTheme.titleSmall),
-                  Text(
-                    'Cliente',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: ManoColors.faint,
+                  Text(line.title, style: textTheme.titleSmall),
+                  if (line.role case final role?)
+                    Text(
+                      role,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: ManoColors.faint,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
