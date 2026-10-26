@@ -26,6 +26,7 @@ class ManoRoot extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(refreshOnResumeProvider);
     final state = ref.watch(sessionProvider);
     final flow = ref.watch(onboardingFlowProvider);
 
