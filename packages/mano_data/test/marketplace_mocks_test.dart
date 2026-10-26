@@ -294,11 +294,18 @@ void main() {
         final first = (await availability.issueFeed()).valueOrNull!;
         final second = (await availability.issueFeed()).valueOrNull!;
         expect(second.url, isNot(first.url));
-        expect(await availability.myFeed(), second);
+        expect(await availability.myFeed(), second.status);
         await availability.revokeFeed();
         expect(await availability.myFeed(), isNull);
       },
     );
+
+    test('reading the feed never rotates it', () async {
+      final issued = (await availability.issueFeed()).valueOrNull!;
+      await availability.myFeed();
+      await availability.myFeed();
+      expect(await availability.myFeed(), issued.status);
+    });
   });
 
   group('MockChatRepository', () {

@@ -28,10 +28,10 @@ abstract interface class AvailabilityRepository {
 
   Future<Result<void, DataFailure>> unblock(String id);
 
-  /// Null when no link has been issued.
-  Future<CalendarFeed?> myFeed();
+  /// Null when no link is live. Never rotates the link, and never reveals its URL.
+  Future<CalendarFeedStatus?> myFeed();
 
-  /// Issues a new link, invalidating any previous one.
+  /// Issues a new link, invalidating any previous one; the only place a URL exists.
   Future<Result<CalendarFeed, DataFailure>> issueFeed();
 
   Future<Result<void, DataFailure>> revokeFeed();

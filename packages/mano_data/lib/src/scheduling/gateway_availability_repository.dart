@@ -128,18 +128,15 @@ mutation Block(\$input: CalendarBlockInput!) {
   Future<Result<void, DataFailure>> unblock(String id) =>
       _flag('unblockCalendar', id);
 
-  // Open question: does myCalendarFeed rotate the link? See docs/develop/backend-contract.md.
+  // A read-only status; the URL only comes back from regenerateCalendarFeed.
   @override
-  Future<CalendarFeed?> myFeed() async {
-    try {
-      final data = await _transport.run(
-        'query { myCalendarFeed { $_feedFields } }',
-      );
-      return _toFeed(data['myCalendarFeed'] as Map<String, dynamic>);
-    } on GatewayRejected catch (e) {
-      if (e.message.startsWith('NotFound')) return null;
-      rethrow;
-    }
+  Future<CalendarFeedStatus?> myFeed() async {
+    final data = await _transport.run(
+      'query { myCalendarFeed { active createdAt } }',
+    );
+    final json = data['myCalendarFeed'] as Map<String, dynamic>;
+    if (json['active'] != true) return null;
+    return CalendarFeedStatus(issuedAt: _instant(json['createdAt']));
   }
 
   @override
