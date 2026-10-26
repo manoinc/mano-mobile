@@ -130,8 +130,9 @@ final class MockAvailabilityRepository implements AvailabilityRepository {
     return _blocks.length < before ? const Ok(null) : const Err(DataNotFound());
   }
 
+  // Keeps the URL like the server does, but a read only reveals the status.
   @override
-  Future<CalendarFeed?> myFeed() async => _feed;
+  Future<CalendarFeedStatus?> myFeed() async => _feed?.status;
 
   @override
   Future<Result<CalendarFeed, DataFailure>> issueFeed() async {

@@ -348,16 +348,46 @@ void main() {
       issuedAt: DateTime.utc(2026, 10, 25, 15).toLocal(),
     );
 
-    test('myFeed reads myCalendarFeed', () async {
+    test('myFeed reads the status of the live link', () async {
       final repo = _repo((r) async {
         expect(_query(r), contains('myCalendarFeed'));
-        return _data({'myCalendarFeed': feedJson});
+        expect(_query(r), contains('active'));
+        return _data({
+          'myCalendarFeed': {
+            'active': true,
+            'createdAt': '2026-10-25T15:00:00Z',
+          },
+        });
       });
-      expect(await repo.myFeed(), feed);
+      expect(await repo.myFeed(), feed.status);
     });
 
-    test('myFeed is null when the gateway has none', () async {
-      final repo = _repo((_) async => _error('NotFound: no feed'));
+    test('myFeed never asks for the URL nor regenerates the link', () async {
+      final queries = <String>[];
+      final repo = _repo((r) async {
+        queries.add(_query(r));
+        return _data({
+          'myCalendarFeed': {
+            'active': true,
+            'createdAt': '2026-10-25T15:00:00Z',
+          },
+        });
+      });
+      await repo.myFeed();
+      await repo.myFeed();
+      expect(queries, hasLength(2));
+      for (final q in queries) {
+        expect(q, isNot(contains('regenerateCalendarFeed')));
+        expect(q, isNot(contains('url')));
+      }
+    });
+
+    test('myFeed is null when no link is active', () async {
+      final repo = _repo(
+        (_) async => _data({
+          'myCalendarFeed': {'active': false, 'createdAt': null},
+        }),
+      );
       expect(await repo.myFeed(), isNull);
     });
 
