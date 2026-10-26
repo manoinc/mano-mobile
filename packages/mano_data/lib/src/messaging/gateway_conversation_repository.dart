@@ -1,5 +1,6 @@
 import 'package:mano_domain/mano_domain.dart';
 
+import '../gateway/gateway_json.dart';
 import '../gateway/gateway_transport.dart';
 import 'gateway_chat_json.dart';
 
@@ -47,7 +48,7 @@ query MyConversations {
       lastMessage: last?['content'] as String? ?? '',
       lastMessageAt: last == null
           ? DateTime(0)
-          : DateTime.parse(last['sentAt'] as String),
+          : dateTimeFromJson(last['sentAt']),
       unreadCount: json['unreadCount'] as int? ?? 0,
     );
   }

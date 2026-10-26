@@ -64,7 +64,7 @@ void main() {
         ),
         participantRole: ManoRole.provider,
         lastMessage: 'Hola',
-        lastMessageAt: DateTime.utc(2026, 10, 25, 14, 30),
+        lastMessageAt: DateTime.utc(2026, 10, 25, 14, 30).toLocal(),
         unreadCount: 3,
       ),
     ]);

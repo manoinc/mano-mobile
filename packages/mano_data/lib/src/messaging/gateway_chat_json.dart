@@ -1,5 +1,7 @@
 import 'package:mano_domain/mano_domain.dart';
 
+import '../gateway/gateway_json.dart';
+
 // The gateway's chat wire format, shared by the conversation and chat adapters.
 
 const participantFields = 'role profileId displayName photoUrl';
@@ -12,7 +14,7 @@ Message toMessage(Map<String, dynamic> json, String? viewerId) => Message(
   id: json['id'] as String,
   conversationId: json['conversationId'] as String,
   body: json['content'] as String,
-  sentAt: DateTime.parse(json['sentAt'] as String),
+  sentAt: dateTimeFromJson(json['sentAt']),
   fromMe: (json['sender'] as Map<String, dynamic>)['profileId'] == viewerId,
   status: json['readAt'] == null ? MessageStatus.delivered : MessageStatus.read,
 );
