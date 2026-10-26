@@ -12,6 +12,12 @@ final class _FakeConversationRepository implements ConversationRepository {
   @override
   Future<List<Conversation>> conversations() async =>
       onConversations?.call() ?? const [];
+
+  @override
+  Future<Result<Conversation, DataFailure>> open({
+    String? withWorkerId,
+    String? jobId,
+  }) => throw UnimplementedError();
 }
 
 final _conversation = Conversation(

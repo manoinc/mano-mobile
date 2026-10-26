@@ -19,6 +19,12 @@ final class _FakeConversationRepository implements ConversationRepository {
     if (failing) throw Exception('offline');
     return _conversations;
   }
+
+  @override
+  Future<Result<Conversation, DataFailure>> open({
+    String? withWorkerId,
+    String? jobId,
+  }) => throw UnimplementedError();
 }
 
 final _now = DateTime.now();

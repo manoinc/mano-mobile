@@ -49,6 +49,12 @@ final class _OneConversation implements ConversationRepository {
 
   @override
   Future<List<Conversation>> conversations() async => [conversation];
+
+  @override
+  Future<Result<Conversation, DataFailure>> open({
+    String? withWorkerId,
+    String? jobId,
+  }) => throw UnimplementedError();
 }
 
 Message _message(String id, String body, DateTime at, {bool fromMe = false}) =>

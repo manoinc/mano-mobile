@@ -1,5 +1,6 @@
 import 'package:mano_domain/mano_domain.dart';
 
+import '../gateway/gateway_failure.dart';
 import '../gateway/gateway_transport.dart';
 import 'gateway_chat_json.dart';
 
@@ -21,6 +22,12 @@ query MyConversations {
   myConversations { $conversationFields }
 }''';
 
+  static const _open =
+      '''
+mutation Open(\$reference: ConversationRefInput!) {
+  openConversation(reference: \$reference) { $conversationFields }
+}''';
+
   @override
   Future<List<Conversation>> conversations() async {
     final data = await _transport.run(_query);
@@ -30,4 +37,21 @@ query MyConversations {
         toConversation(json as Map<String, dynamic>, viewer),
     ];
   }
+
+  @override
+  Future<Result<Conversation, DataFailure>> open({
+    String? withWorkerId,
+    String? jobId,
+  }) => guardGateway(() async {
+    final data = await _transport.run(
+      _open,
+      variables: {
+        'reference': {'withWorkerId': ?withWorkerId, 'jobId': ?jobId},
+      },
+    );
+    return toConversation(
+      data['openConversation'] as Map<String, dynamic>,
+      _viewerId(),
+    );
+  });
 }

@@ -97,6 +97,28 @@ final class MockConversationRepository implements ConversationRepository {
   @override
   Future<List<Conversation>> conversations() async => List.of(_conversations);
 
+  /// Offline the job's other side is unknown, so a job chat's participant is a blank professional.
+  @override
+  Future<Result<Conversation, DataFailure>> open({
+    String? withWorkerId,
+    String? jobId,
+  }) async {
+    if ((withWorkerId == null) == (jobId == null)) {
+      return const Err(DataRejected(reason: 'give a worker or a job'));
+    }
+    final id = jobId != null ? 'conv-job-$jobId' : 'conv-with-$withWorkerId';
+    final existing = _conversations.where((c) => c.id == id).firstOrNull;
+    if (existing != null) return Ok(existing);
+    final opened = Conversation(
+      id: id,
+      participant: Party(id: withWorkerId ?? '', displayName: '', photoUrl: ''),
+      participantRole: ManoRole.provider,
+    );
+    _conversations.add(opened);
+    _sort();
+    return Ok(opened);
+  }
+
   /// Called by [MockChatRepository] when a thread is opened.
   void markRead(String id) => _update(id, (c) => _copy(c, unreadCount: 0));
 

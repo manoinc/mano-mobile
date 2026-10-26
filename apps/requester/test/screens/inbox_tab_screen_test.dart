@@ -19,6 +19,12 @@ final class _FakeConversationRepository implements ConversationRepository {
     calls++;
     return _conversations;
   }
+
+  @override
+  Future<Result<Conversation, DataFailure>> open({
+    String? withWorkerId,
+    String? jobId,
+  }) => throw UnimplementedError();
 }
 
 final _fakeConversations = [
