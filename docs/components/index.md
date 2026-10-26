@@ -81,6 +81,7 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | `ManoHeroScaffold` | Full-bleed brand screens with up to two actions. |
 | `ManoStepScaffold` + `ManoStepTransition` | Multi-step forms that slide between steps. |
 | `ManoRefreshList` | A pull-to-refresh list with dividers and an empty message. |
+| `ManoPullToRefresh` | Makes any screen body pullable: a list inside it, or a still empty state. |
 
 ### Chat
 

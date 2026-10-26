@@ -19,7 +19,7 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 | `ServiceRequestRepository` | `myServiceRequests`, `requestService`, `acceptServiceRequest`, `rejectServiceRequest`, `cancelServiceRequest` | **live** (D5 taskmanager over gRPC) | `GatewayServiceRequestRepository` (offline: `MockServiceRequestRepository`) |
 | `JobRepository` | `myJobs`, `job`, `bookSlot`, `startJob`, `finishJob(actualHours)`, `cancelJob`, `rebook` | **live** (D5; `bookSlot` also needs D4) | `GatewayJobRepository` (offline: `MockJobRepository`) |
 | `AvailabilityRepository` | `workerAvailability`, `myAvailabilityRules`, `upsertAvailabilityRule`, `removeAvailabilityRule`, `myCalendarBlocks`, `blockCalendar`, `unblockCalendar`, `myCalendarFeed`, `regenerateCalendarFeed`, `revokeCalendarFeed` + `.ics` route | **live** (D4 scheduler over gRPC) | `GatewayAvailabilityRepository` |
-| `ConversationRepository`, `ChatRepository` | `myConversations`, `conversation`, `sendMessage`, `markConversationRead`, `messageAdded` | **live** (D7 chat over gRPC) | `GatewayConversationRepository`, `GatewayChatRepository` |
+| `ConversationRepository`, `ChatRepository` | `myConversations`, `openConversation(reference: {withWorkerId \| jobId})`, `conversation`, `sendMessage`, `markConversationRead`, `messageAdded` | **live** (D7 chat over gRPC) | `GatewayConversationRepository`, `GatewayChatRepository` |
 | `ProjectRepository` (requester) | `myProjects` with `quotes(page)`, `publishProject`, `cancelProject`, `selectQuote`, `discardQuote` | **live** (D9 mano-projects over gRPC); client role | `GatewayProjectRepository` |
 | `LeadRepository` (provider) | `openProjects(category)`, `submitQuote`, `myQuotes` | **live** (D9); worker role. `purchaseProjectLead` is a D6 stub, so quotes are free | `GatewayLeadRepository` |
 | `ProviderOnboardingRepository` | `updateWorkerProfile`, `submitVerificationRequest` | stub (D2, D10 `not implemented`) | `MockProviderOnboardingRepository` |
@@ -54,7 +54,16 @@ real accounts through `mano-auth` (see **Auth**).
   `Conversation.participant` is the participant whose `profileId` is not the
   viewer's (the session subject); `WORKER` maps to `ManoRole.provider`, `CLIENT`
   and `STAFF` to `ManoRole.requester`. `lastMessage` is `lastMessage.content` or
-  `''`, `lastMessageAt` its `sentAt` or `DateTime(0)`.
+  `''`, `lastMessageAt` its `sentAt` in local time, or null with no messages
+  (Bandeja then shows no time and "Sin mensajes aún", and sorts it last).
+  Participant names are placeholders too, so rows and the chat header use
+  `participantLabel` ("Cliente" / "Profesional" by role).
+- `openConversation` is find-or-create; the app sends exactly one of
+  `withWorkerId` or `jobId` and maps the result with the same
+  `toConversation` as `myConversations` (`gateway_chat_json.dart`). "Escribir"
+  on a job opens it by `jobId`. A pending request has no job, so the provider's
+  request sheet still only goes to `/inbox`.
+- Message `sentAt` is read in local time, like every other instant.
 - `Message.fromMe` is `sender.profileId == viewer`. `status` is `read` once
   `readAt` is set, otherwise `delivered` (the gateway has no "sent" state).
 - Messages come newest first (`messages(page: {first: 50})`; the
@@ -82,6 +91,9 @@ real accounts through `mano-auth` (see **Auth**).
   a request schedules a job and rebooking files a request. Live, the backend
   does that, so accepting refetches `myJobsProvider` and booking refetches
   `availableSlotsProvider`.
+- Nothing is pushed for requests, jobs or projects, so the reads refetch on
+  pull-to-refresh and when the app comes back into view
+  (`refreshOnResumeProvider`, which invalidates `marketplaceReads`).
 - The catalog returns only `offerantId` for an offer, with no provider name,
   photo or rating, so offer cards cannot show who the provider is yet.
 - There is no list-categories query. `category` is an exact-match free-text
