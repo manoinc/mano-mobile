@@ -58,14 +58,19 @@ The entry link on the Servicios tab ("Disponibilidad y calendario") is PROV-02's
 
 ### Sincroniza tu agenda
 
-- With no feed, it shows the screen's only flame: "Generar enlace" (`issueFeed`).
-- With a feed, it shows:
-  - the URL, truncated to one line;
-  - "Copiar enlace" (outline): `Clipboard.setData` plus the snackbar
-    "Enlace copiado";
-  - "Generar nuevo enlace" (quiet): a confirm sheet warns that the previous
-    link stops working, then `issueFeed`;
-  - "Desactivar enlace" (quiet): `revokeFeed`.
+Reading the feed returns only whether a link is live and since when; the URL
+exists only in the answer to `issueFeed`, so the screen shows it once.
+
+- No link: a line on what the link does, then "Generar enlace" (`issueFeed`).
+- Just generated (`issuedCalendarFeedProvider` holds the URL): "Enlace activo
+  desde {fecha}", the URL, "Copiar enlace" (`Clipboard.setData` plus the
+  snackbar "Enlace copiado") and the note "Guárdalo ahora: por seguridad no lo
+  volveremos a mostrar." The overflow offers "Generar nuevo enlace" and
+  "Desactivar enlace".
+- Live link, URL not in memory: "Enlace activo desde {fecha}" and "Nuevo
+  enlace"; the overflow offers "Desactivar enlace" (`revokeFeed`).
+- Reissuing first asks in a `ManoDialogCard`: "El enlace anterior dejará de
+  funcionar en los calendarios donde lo agregaste."
 
 Every section has loading, empty and error ("No pudimos cargar …" +
 "Reintentar") states. A failed mutation shows `failure.message` in a snackbar
@@ -79,7 +84,8 @@ or, in the rule sheet, inline.
 |---|---|---|
 | `myAvailabilityRulesProvider` | `FutureProvider<List<AvailabilityRule>>` | `myRules()` |
 | `myCalendarBlocksProvider` | `FutureProvider<List<CalendarBlock>>` | `myBlocks()` |
-| `myCalendarFeedProvider` | `FutureProvider<CalendarFeed?>` | `myFeed()` |
+| `myCalendarFeedProvider` | `FutureProvider<CalendarFeedStatus?>` | `myFeed()`, never rotates |
+| `issuedCalendarFeedProvider` | `NotifierProvider.autoDispose<IssuedCalendarFeed, CalendarFeed?>` | set by `issueFeed()`, cleared by `revokeFeed()` |
 | `availabilityActionsProvider` | `NotifierProvider<AvailabilityActions, void>` | mutations |
 
 `AvailabilityActions` returns the port's `Result`. On success it invalidates:

@@ -256,13 +256,12 @@ idempotent: it truncates the catalog first.
   `null` until the auth server adds them to the access-token payload.
 - Missing operations: list categories. (List my offers, resume an offer,
   list my calendar blocks and `cancelServiceRequest` are now served.)
-- **Open: `myCalendarFeed` rotates the link.** On master it calls the
-  scheduler's `IssueCalendarFeed`, which revokes the live token and issues a
-  new one, because tokens are stored hashed and cannot be handed back. Every
-  read of the feed therefore kills the URL a calendar app is subscribed to.
-  `GatewayAvailabilityRepository.myFeed` reads `myCalendarFeed` until the
-  gateway offers a non-rotating read (for example: metadata only, URL shown on
-  issue).
+- Calendar feed: `myCalendarFeed` is a read-only
+  `CalendarFeedStatus { active createdAt }` and never rotates the link
+  (`active: false` maps to `null`). Tokens are stored hashed, so the URL exists
+  only in `regenerateCalendarFeed { url createdAt }`, which rotates the link.
+  The app keeps that URL in memory (`issuedCalendarFeedProvider`) to show and
+  copy it once.
 - Projects: the service's `CloseProject` and `MarkLeadPurchased` have no
   GraphQL field, so a requester cannot close a project and a lead can never be
   purchased (`purchaseProjectLead` is a D6 stub). Contact reveal is stitched
