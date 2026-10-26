@@ -61,6 +61,58 @@ final class OnboardingFlowNotifier extends Notifier<OnboardingFlow> {
   void editAddress(String address) =>
       _edit((draft) => draft.copyWith(address: address));
 
+  void editEmail(String email) => _editAccount(email: email);
+
+  void editPassword(String password) => _editAccount(password: password);
+
+  /// Signs the new account up from the password step; on success the address is next.
+  Future<void> createAccount() async {
+    if (state case final OnboardingRegistration flow
+        when flow.step == RegistrationStep.password) {
+      if (flow.status is RegistrationSubmitting) return;
+      if (validatePassword(flow.password) != null) {
+        state = flow.copyWith(showProblems: true);
+        return;
+      }
+      state = flow.copyWith(status: const RegistrationSubmitting());
+
+      final failure = await _session.signUp(
+        Credentials(email: flow.email, password: flow.password),
+      );
+
+      if (state case final OnboardingRegistration current) {
+        if (failure == null) {
+          state = current.copyWith(
+            step: RegistrationStep.address,
+            showProblems: false,
+            status: const RegistrationIdle(),
+          );
+          return;
+        }
+        // Shown on the step itself; the door must not repeat it.
+        _session.acknowledgeFailure();
+        state = current.copyWith(
+          step: failure is EmailAlreadyRegistered
+              ? RegistrationStep.email
+              : RegistrationStep.password,
+          status: RegistrationAccountRejected(failure),
+        );
+      }
+    }
+  }
+
+  void _editAccount({String? email, String? password}) {
+    if (state case final OnboardingRegistration flow) {
+      state = flow.copyWith(
+        email: email,
+        password: password,
+        status: flow.status is RegistrationAccountRejected
+            ? const RegistrationIdle()
+            : null,
+      );
+    }
+  }
+
   void setWantsNotifications({required bool value}) =>
       _edit((draft) => draft.copyWith(wantsNotifications: value));
 
@@ -82,10 +134,10 @@ final class OnboardingFlowNotifier extends Notifier<OnboardingFlow> {
     if (state case final OnboardingRegistration flow) {
       state = switch (flow.step) {
         RegistrationStep.name => const OnboardingTour(index: lastSlide),
-        RegistrationStep.address => flow.copyWith(
-          step: RegistrationStep.name,
-          showProblems: false,
-        ),
+        RegistrationStep.email => _stepBack(flow, RegistrationStep.name),
+        RegistrationStep.password => _stepBack(flow, RegistrationStep.email),
+        // The account already exists; there is no going back to create it.
+        RegistrationStep.address => flow,
         RegistrationStep.notifications => flow.copyWith(
           step: RegistrationStep.address,
           showProblems: false,
@@ -135,14 +187,27 @@ final class OnboardingFlowNotifier extends Notifier<OnboardingFlow> {
         RegistrationStep.name =>
           validateGivenName(flow.draft.givenName) == null &&
                   validateFamilyName(flow.draft.familyName) == null
-              ? RegistrationStep.address
+              ? RegistrationStep.email
               : null,
+        RegistrationStep.email =>
+          validateEmail(flow.email) == null ? RegistrationStep.password : null,
+        // The password step leaves through createAccount, not here.
+        RegistrationStep.password => null,
         RegistrationStep.address =>
           validateAddress(flow.draft.address) == null
               ? RegistrationStep.notifications
               : null,
         RegistrationStep.notifications => null,
       };
+
+  static OnboardingRegistration _stepBack(
+    OnboardingRegistration flow,
+    RegistrationStep to,
+  ) => flow.copyWith(
+    step: to,
+    showProblems: false,
+    status: const RegistrationIdle(),
+  );
 }
 
 final onboardingFlowProvider =

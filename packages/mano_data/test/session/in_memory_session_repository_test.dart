@@ -19,10 +19,11 @@ void main() {
   test('records what it was asked to do', () async {
     final repository = InMemorySessionRepository();
 
-    await repository.signUp(credentials);
+    await repository.signUp(credentials, role: ManoRole.provider);
     await repository.signOut();
 
     expect(repository.lastCredentials, credentials);
+    expect(repository.lastSignUpRole, ManoRole.provider);
     expect(repository.signOutCalls, 1);
   });
 

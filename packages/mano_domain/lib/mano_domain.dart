@@ -51,6 +51,7 @@ export 'src/scheduling/availability_repository.dart';
 export 'src/session/auth_failure.dart';
 export 'src/session/authenticated_user.dart';
 export 'src/session/credentials.dart';
+export 'src/session/credentials_validation.dart';
 export 'src/session/session.dart';
 export 'src/session/session_repository.dart';
 export 'src/shared/data_failure.dart';

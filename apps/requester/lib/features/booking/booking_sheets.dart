@@ -17,14 +17,12 @@ bool isSignedIn(WidgetRef ref) => ref.read(hasAccountProvider);
 Future<void> showAccountNeededSheet(BuildContext context, WidgetRef ref) =>
     showManoSheet<void>(
       context: context,
-      builder: (sheet) => ManoPromptSheet(
-        title: 'Necesitas una cuenta',
+      builder: (sheet) => ManoAccountNeededSheet(
         message:
             'Inicia sesión para agendar con este profesional. '
             'Solo toma un momento.',
-        primaryLabel: 'Iniciar sesión',
         onClose: () => Navigator.pop(sheet),
-        onPrimary: () {
+        onSignIn: () {
           Navigator.pop(sheet);
           ref.read(onboardingFlowProvider.notifier).startSignIn();
         },

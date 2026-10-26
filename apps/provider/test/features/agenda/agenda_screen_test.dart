@@ -6,6 +6,7 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../../support/agenda_calendar.dart';
+import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
 import 'agenda_fakes.dart';
 
@@ -146,7 +147,12 @@ void main() {
     tester,
   ) async {
     useTallPhone(tester);
-    final c = await pumpRouterAt(tester, '/agenda');
+    final c = await pumpRouterAt(
+      tester,
+      '/agenda',
+      // Blocking a day needs an account.
+      session: FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
+    );
     Set<DateTime> blocked() => tester
         .widget<ManoMonthCalendar>(find.byType(ManoMonthCalendar))
         .blockedDays;

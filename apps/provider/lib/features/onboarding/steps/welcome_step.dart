@@ -4,6 +4,7 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../onboarding_copy.dart';
+import '../sign_in_sheet.dart';
 
 /// The front door: create a professional account or sign in to one.
 class WelcomeStep extends ConsumerStatefulWidget {
@@ -14,37 +15,6 @@ class WelcomeStep extends ConsumerStatefulWidget {
 }
 
 class _WelcomeStepState extends ConsumerState<WelcomeStep> {
-  void _openSignIn() {
-    showManoSheet<void>(
-      context: context,
-      builder: (sheet) => ManoCredentialsSheet(
-        title: 'Inicia sesión',
-        message: 'Con el correo de tu cuenta profesional.',
-        submitLabel: 'Entrar',
-        onSubmit: (email, password) => _signIn(sheet, email, password),
-      ),
-    );
-  }
-
-  // Resolves to the copy to show inside the sheet, or closes it on success.
-  Future<String?> _signIn(
-    BuildContext sheet,
-    String email,
-    String password,
-  ) async {
-    // Captured first: a successful sign-in replaces this screen, and its ref with it.
-    final session = ref.read(sessionProvider.notifier);
-    final failure = await session.signIn(
-      Credentials(email: email, password: password),
-    );
-    if (failure != null) {
-      session.acknowledgeFailure();
-      return authFailureCopy(failure);
-    }
-    if (sheet.mounted) Navigator.of(sheet).pop();
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     final failure = switch (ref.watch(sessionProvider).value) {
@@ -57,7 +27,7 @@ class _WelcomeStepState extends ConsumerState<WelcomeStep> {
       primaryLabel: 'Crear cuenta profesional',
       onPrimary: ref.read(providerOnboardingProvider.notifier).start,
       secondaryLabel: 'Ya tengo cuenta',
-      onSecondary: _openSignIn,
+      onSecondary: () => showSignInSheet(context, ref),
       footnote:
           'Con Mano Profesionales recibes solicitudes de hogares en tu zona. '
           'Verificamos tu identidad antes de que publiques servicios.',

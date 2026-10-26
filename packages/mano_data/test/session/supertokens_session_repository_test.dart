@@ -109,14 +109,14 @@ void main() {
       },
     );
 
-    test('wrong credentials are rejected, not unavailable', () async {
+    test('wrong credentials are WrongCredentials, not unavailable', () async {
       final repository = repositoryWith(
         (_) async => ok({'status': 'WRONG_CREDENTIALS_ERROR'}),
       );
 
       final result = await repository.signIn(credentials);
 
-      expect((result as Err).failure, isA<SignInRejected>());
+      expect((result as Err).failure, isA<WrongCredentials>());
       expect(await store.read(), isNull);
     });
 
@@ -152,14 +152,82 @@ void main() {
         }, headers: tokenHeaders()),
       );
 
-      final result = await repository.signUp(credentials);
+      final result = await repository.signUp(
+        credentials,
+        role: ManoRole.requester,
+      );
 
       expect(sent.single.url.path, '/auth/signup');
       expect(result, isA<Ok<Session, AuthFailure>>());
     });
 
+    test('sends the role as a form field beside email and password', () async {
+      final repository = repositoryWith(
+        (_) async => ok({
+          'status': 'OK',
+          'user': {'id': 'user-1'},
+        }, headers: tokenHeaders()),
+      );
+
+      await repository.signUp(credentials, role: ManoRole.provider);
+
+      final request = sent.single;
+      expect(request.headers['rid'], 'emailpassword');
+      expect(request.headers['st-auth-mode'], 'header');
+      expect(jsonDecode(request.body), {
+        'formFields': [
+          {'id': 'email', 'value': 'ana@mano.co'},
+          {'id': 'password', 'value': 'secret'},
+          {'id': 'role', 'value': 'provider'},
+        ],
+      });
+    });
+
+    test('another field error stays rejected, with the reason', () async {
+      final repository = repositoryWith(
+        (_) async => ok({
+          'status': 'FIELD_ERROR',
+          'formFields': [
+            {'id': 'password', 'error': 'Password must contain a number'},
+          ],
+        }),
+      );
+
+      final failure =
+          (await repository.signUp(credentials, role: ManoRole.provider)
+                  as Err)
+              .failure;
+
+      expect(failure, isA<SignInRejected>());
+      expect((failure as SignInRejected).reason, contains('password'));
+    });
+
+    test('a server error during sign-up is unavailable', () async {
+      final repository = repositoryWith(
+        (_) async => http.Response('boom', 502),
+      );
+
+      expect(
+        (await repository.signUp(credentials, role: ManoRole.provider) as Err)
+            .failure,
+        isA<AuthUnavailable>(),
+      );
+    });
+
+    test('an unreachable server during sign-up is unavailable', () async {
+      final repository = repositoryWith(
+        (_) async => throw http.ClientException('offline'),
+      );
+
+      expect(
+        (await repository.signUp(credentials, role: ManoRole.provider) as Err)
+            .failure,
+        isA<AuthUnavailable>(),
+      );
+    });
+
     test(
-      'a taken email is rejected with the field error as the reason',
+      'a taken email is EmailAlreadyRegistered',
       () async {
         final repository = repositoryWith(
           (_) async => ok({
@@ -173,10 +241,12 @@ void main() {
           }),
         );
 
-        final failure = (await repository.signUp(credentials) as Err).failure;
+        final failure =
+            (await repository.signUp(credentials, role: ManoRole.requester)
+                    as Err)
+                .failure;
 
-        expect(failure, isA<SignInRejected>());
-        expect((failure as SignInRejected).reason, contains('already exists'));
+        expect(failure, isA<EmailAlreadyRegistered>());
       },
     );
   });

@@ -4,6 +4,7 @@ import 'package:mano_provider/features/services/my_services_screen.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
 import 'services_fakes.dart';
 
@@ -14,6 +15,8 @@ void main() {
   ) => pumpRouterAt(
     tester,
     '/profile/services',
+    // Offers are created and edited only with an account.
+    session: FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
     overrides: [
       offerManagementProvider.overrideWithValue(offers),
       serviceCatalogProvider.overrideWithValue(FakeServiceCatalog()),

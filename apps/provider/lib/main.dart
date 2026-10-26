@@ -63,6 +63,16 @@ class _RootState extends ConsumerState<_Root> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(sessionProvider);
+    final onboarding = ref.watch(
+      providerOnboardingProvider.select((s) => s.inProgress),
+    );
+
+    // Signing out starts the onboarding over, at the welcome.
+    ref.listen(sessionProvider, (before, after) {
+      if (before?.value is SignedIn && after.value is SignedOut) {
+        ref.invalidate(providerOnboardingProvider);
+      }
+    });
 
     return ManoOpening(
       animate: !_opened,
@@ -72,21 +82,24 @@ class _RootState extends ConsumerState<_Root> {
         FlutterNativeSplash.remove();
         _opened = true;
       },
-      child: _screen(state),
+      child: _screen(state, onboarding: onboarding),
     );
   }
 
-  Widget _screen(AsyncValue<SessionState> state) {
+  Widget _screen(AsyncValue<SessionState> state, {required bool onboarding}) {
     // Expected failures arrive as values, so an error here is a bug.
     if (state case AsyncError(:final error)) {
       return _Crashed(error: error);
     }
 
+    final onboardingScreen = ProfessionalOnboardingScreen(
+      onFinished: ref.read(providerOnboardingProvider.notifier).finish,
+    );
     return switch (state.value) {
+      // Sign-up happens on the second step; the questions after it still belong here.
+      SignedIn() when onboarding => onboardingScreen,
       SignedIn() || Guest() => const ProviderShell(),
-      SignedOut() => ProfessionalOnboardingScreen(
-        onFinished: () => ref.read(sessionProvider.notifier).browseAsGuest(),
-      ),
+      SignedOut() => onboardingScreen,
       null => const SizedBox.shrink(),
     };
   }

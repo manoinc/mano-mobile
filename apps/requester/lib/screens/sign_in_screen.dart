@@ -60,24 +60,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     );
   }
 
-  /// What to say, in the voice the rest of the flow uses.
-  ///
-  /// `AuthFailure.message` exists and is in English, deliberately: it
-  /// describes the failure for whoever is reading a log or a test, and
-  /// `mano_domain` holds no user-facing copy and no locale. Spanish belongs
-  /// here, next to the tone -- tuteo, short sentences, say what happened and
-  /// what to do, never apologise.
-  ///
-  /// Exhaustive over the sealed class, so a fifth failure will not reach a
-  /// user in English: it will fail to compile.
-  String _messageFor(AuthFailure failure) => switch (failure) {
-    SignInCancelled() => 'Cancelaste el inicio de sesión.',
-    SessionExpired() => 'Tu sesión venció. Vuelve a iniciar sesión.',
-    AuthUnavailable() =>
-      'No pudimos conectar con el servicio de inicio de sesión. '
-          'Vuelve a intentarlo en un momento.',
-    SignInRejected() => 'Correo o contraseña incorrectos.',
-  };
+  /// What to say; the Spanish lives once, in `authFailureCopy`, for both apps.
+  String _messageFor(AuthFailure failure) => authFailureCopy(failure);
 
   /// The domain says what went wrong; the screen decides how loudly to say
   /// it. Backing out is not an error, and must not be dressed as one.
@@ -85,6 +69,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     SignInCancelled() => ManoNoticeTone.info,
     SessionExpired() => ManoNoticeTone.warning,
     AuthUnavailable() => ManoNoticeTone.warning,
-    SignInRejected() => ManoNoticeTone.error,
+    SignInRejected() ||
+    WrongCredentials() ||
+    EmailAlreadyRegistered() => ManoNoticeTone.error,
   };
 }

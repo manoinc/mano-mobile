@@ -8,6 +8,7 @@ import 'availability_parts.dart';
 import 'block_dates.dart';
 import 'calendar_feed_section.dart';
 import 'rule_editor_sheet.dart';
+import '../account/account_gate.dart';
 
 /// Weekly hours, blocked dates and the calendar link; lives in the Agenda tab.
 class AvailabilityView extends StatelessWidget {
@@ -39,7 +40,7 @@ class _RulesSection extends ConsumerWidget {
       title: 'Horario semanal',
       detail: 'Los clientes solo pueden reservarte en estos horarios.',
       actionLabel: 'Agregar horario',
-      onAction: () => _edit(context, null),
+      onAction: () => _edit(context, ref, null),
       child: switch (rules) {
         AsyncData(value: final rules) when rules.isEmpty =>
           const AvailabilityQuiet(
@@ -52,7 +53,7 @@ class _RulesSection extends ConsumerWidget {
                 key: Key('rule-${rule.id}'),
                 icon: Icons.schedule,
                 label: ruleLabel(rule),
-                onPressed: () => _edit(context, rule),
+                onPressed: () => _edit(context, ref, rule),
               ),
           ],
         ),
@@ -65,11 +66,19 @@ class _RulesSection extends ConsumerWidget {
     );
   }
 
-  void _edit(BuildContext context, AvailabilityRule? rule) =>
-      showManoSheet<void>(
-        context: context,
-        builder: (_) => RuleEditorSheet(rule: rule),
-      );
+  Future<void> _edit(
+    BuildContext context,
+    WidgetRef ref,
+    AvailabilityRule? rule,
+  ) => requireAccount(
+    context,
+    ref,
+    reason: AccountReason.availability,
+    action: () => showManoSheet<void>(
+      context: context,
+      builder: (_) => RuleEditorSheet(rule: rule),
+    ),
+  );
 }
 
 class _BlocksSection extends ConsumerWidget {
@@ -83,7 +92,12 @@ class _BlocksSection extends ConsumerWidget {
       title: 'Fechas bloqueadas',
       detail: 'Días en los que no recibirás reservas.',
       actionLabel: 'Bloquear fechas',
-      onAction: () => blockDates(context, ref),
+      onAction: () => requireAccount(
+        context,
+        ref,
+        reason: AccountReason.availability,
+        action: () => blockDates(context, ref),
+      ),
       child: switch (blocks) {
         AsyncData(value: final blocks) when blocks.isEmpty =>
           const AvailabilityQuiet('No tienes fechas bloqueadas.'),
@@ -93,7 +107,12 @@ class _BlocksSection extends ConsumerWidget {
               _BlockRow(
                 key: Key('block-${block.id}'),
                 label: blockLabel(block),
-                onRemove: () => _unblock(context, ref, block),
+                onRemove: () => requireAccount(
+                  context,
+                  ref,
+                  reason: AccountReason.availability,
+                  action: () => _unblock(context, ref, block),
+                ),
               ),
           ],
         ),

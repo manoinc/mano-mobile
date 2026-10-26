@@ -5,6 +5,7 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import 'availability_parts.dart';
+import '../account/account_gate.dart';
 
 /// The private .ics link that puts Mano jobs in Google or Apple Calendar.
 class CalendarFeedSection extends ConsumerStatefulWidget {
@@ -35,7 +36,14 @@ class _CalendarFeedSectionState extends ConsumerState<CalendarFeedSection> {
         ),
         AsyncData() => _row(
           connected: false,
-          action: _busy ? null : () => _run(_actions.issueFeed),
+          action: _busy
+              ? null
+              : () => requireAccount(
+                  context,
+                  ref,
+                  reason: AccountReason.availability,
+                  action: () => _run(_actions.issueFeed),
+                ),
         ),
         AsyncError() => AvailabilityLoadError(
           message: 'No pudimos cargar tu enlace.',

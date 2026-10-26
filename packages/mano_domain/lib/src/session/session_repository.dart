@@ -15,11 +15,15 @@ import 'session.dart';
 /// implementation may still throw an [Error] when *it* is broken — a malformed
 /// response, a violated invariant — and that must not be caught here.
 abstract interface class SessionRepository {
-  /// Signs an existing account in; wrong details are [SignInRejected].
+  /// Signs an existing account in; wrong details are [WrongCredentials].
   Future<Result<Session, AuthFailure>> signIn(Credentials credentials);
 
-  /// Creates an account and signs it in; a taken email is [SignInRejected].
-  Future<Result<Session, AuthFailure>> signUp(Credentials credentials);
+  /// Creates an account with [role] (a `ManoRole`) and signs it in; a taken
+  /// email is [EmailAlreadyRegistered].
+  Future<Result<Session, AuthFailure>> signUp(
+    Credentials credentials, {
+    required String role,
+  });
 
   /// Restores a session persisted from a previous run, if there is one.
   ///

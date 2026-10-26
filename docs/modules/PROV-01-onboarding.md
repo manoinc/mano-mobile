@@ -7,14 +7,18 @@ sits pending verification (flow T-1 in `flujos_usuario_mano.pdf`).
 ## Screens and routes
 
 No route. `lib/main.dart`'s root shows `ProfessionalOnboardingScreen(onFinished:)`
-when signed out; `onFinished` enters the shell locally because there is no auth
-backend yet.
+when signed out, and keeps showing it after sign-up while
+`ProviderOnboardingState.inProgress` (the questions come after the account is
+created). `onFinished` is `notifier.finish()`, which hands over to the shell.
+Signing out resets the onboarding to the welcome.
 
 All files live in `apps/provider/lib/features/onboarding/`.
 
 | File | What it draws |
 |---|---|
 | `professional_onboarding_screen.dart` | Switches between the steps with `ManoStepTransition` (keyed by step). A `PopScope` sends system back to `notifier.back()` on every step except the welcome. |
+| `steps/account_step.dart` | The email, then the password, one per screen (`ManoQuestionStep`). **Crear cuenta** on the password calls `createAccount()` → `SessionManager.signUp` with the app's role (`provider`). Failures show inline under the field; a taken email also offers **Iniciar sesión** (the sign-in sheet). **Ahora no** browses as a guest. |
+| `sign_in_sheet.dart` | `showSignInSheet`: the **Ya tengo cuenta** `ManoCredentialsSheet`, failures shown in it with `authFailureCopy`. |
 | `steps/welcome_step.dart` | `ManoHeroScaffold`: headline, footnote explaining Mano Profesionales, primary **Crear cuenta profesional** (`start()`), secondary **Ya tengo cuenta** (`sessionProvider.notifier.signIn()`). A `SignedOut.lastFailure` is shown as a `ManoNotice` and dismissed with `acknowledgeFailure()`. While the sign-in call runs, a local `_busy` flag makes the buttons spin. |
 | `steps/profile_step.dart` | `ManoStepScaffold`: **Nombre para mostrar**, **Celular** (phone keyboard), **Zona de cobertura** (helper "Por ejemplo, Chapinero."). Errors appear inline after the first refused **Continuar**, then update as you type. |
 | `steps/documents_step.dart` | Rows "Documento de identidad (frente)" and "(reverso)" (required), and "Certificados o soportes (opcional)". Each row has **Adjuntar**, which flips to "Adjuntado". **Continuar** stays disabled until both ID sides are attached. |
@@ -36,7 +40,8 @@ All of it is in `packages/mano_session/lib/src/provider_onboarding/`.
   - `normalizePhone(String) → String?`: returns the 10 digits.
 - `provider_onboarding_notifier.dart`:
   - `providerOnboardingProvider`: `NotifierProvider<ProviderOnboardingNotifier, ProviderOnboardingState>`. Not auto-dispose, so the draft survives the root rebuilding on a failed sign-in.
-  - `ProviderOnboardingStep { welcome, profile, documents, review, pending }`.
+  - `ProviderOnboardingStep { welcome, email, password, name, phone, zone, services, experience, bio, documents, review, pending }`. The account exists from `name` on, so `back()` stops there.
+  - `ProviderAccountRejected(AuthFailure)` joins the status cases; `createAccount()`, `browseAsGuest()` and `finish()` are the account-side methods.
   - `ProviderDocument { idFront, idBack, certificates }`, each with `slug` and `required`.
   - `ProviderOnboardingStatus` (sealed): `Idle`, `Submitting`, `Failed(DataFailure)`.
   - `ProviderOnboardingState`:
@@ -99,7 +104,8 @@ document row and summary row are private to the feature.
 
 - **No file or image picker.** **Adjuntar** records `placeholder://id-front`, `placeholder://id-back` and `placeholder://certificates`. Going live needs a picker plugin (camera and gallery for ID photos, files for certificates), permissions on Android and later iOS, and real local paths in `WorkerProfileDraft.documentPaths`. Certificates are one row with one placeholder; multiple certificates would need a list.
 - **No photo.** T-1 lists a profile photo; the domain draft has no field for it.
-- **No registration backend.** "Crear cuenta profesional" creates nothing: there is no auth provider, so email, phone or Google sign-up (T-1 step 1) is not possible. **Ya tengo cuenta** always reports `AuthUnavailable`.
+- **Email and password only.** "Crear cuenta profesional" creates a real `provider` account through `mano-auth` (build with `SUPERTOKENS_API_DOMAIN`; without it sign-up reports `AuthUnavailable` and **Ahora no** still lets you in as a guest). Phone or Google sign-up (T-1 step 1) is not built.
+- **Role mismatch is not blocked.** A requester account can sign in through **Ya tengo cuenta**; its `st-role` claim is not checked yet.
 - **The verification port is mocked.** No gateway operation exists for a worker profile, document upload or `VerificationStatus`. Document upload would also need storage, such as pre-signed URLs.
 - **The pending state does not persist.** After a cold start the professional is signed out and sees the welcome again. Once auth exists, the root should read `ProviderOnboardingRepository.status()` and gate publishing services and receiving requests on `approved`. Today the shell does not enforce that restriction.
 - **Validation could move to the domain.** `validateDisplayName`, `validatePhone`, `validateWorkZone` and `normalizePhone` are pure functions in `mano_session` because this module could not edit `mano_domain`. They belong on or beside `WorkerProfileDraft`, like `registration_validation.dart`.

@@ -68,7 +68,8 @@ class _QuestionStepState extends ConsumerState<QuestionStep> {
       progress: s.progress,
       primaryLabel: 'Continuar',
       onPrimary: s.stepComplete ? _next : null,
-      onBack: _notifier.back,
+      // The account exists by the name step, so the way back starts after it.
+      onBack: s.step == ProviderOnboardingStep.name ? null : _notifier.back,
       onSkip: s.step == ProviderOnboardingStep.bio ? _notifier.skip : null,
       child: switch (s.step) {
         ProviderOnboardingStep.name => ManoTextField(

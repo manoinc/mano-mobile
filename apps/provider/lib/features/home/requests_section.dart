@@ -11,6 +11,7 @@ import 'reject_sheet.dart';
 import 'request_actions_row.dart';
 import 'request_detail_sheet.dart';
 import 'request_labels.dart';
+import '../account/account_gate.dart';
 
 enum _Filter {
   pending('Pendientes', 'No tienes solicitudes pendientes', [
@@ -133,7 +134,21 @@ class _RequestsSectionState extends ConsumerState<RequestsSection> {
     }
   }
 
-  Future<void> _accept(ServiceRequest request) async {
+  Future<void> _accept(ServiceRequest request) => requireAccount(
+    context,
+    ref,
+    reason: AccountReason.requests,
+    action: () => _acceptNow(request),
+  );
+
+  Future<void> _reject(ServiceRequest request) => requireAccount(
+    context,
+    ref,
+    reason: AccountReason.requests,
+    action: () => _rejectNow(request),
+  );
+
+  Future<void> _acceptNow(ServiceRequest request) async {
     setState(() => _busyId = request.id);
     final result = await ref
         .read(requestActionsProvider.notifier)
@@ -155,7 +170,7 @@ class _RequestsSectionState extends ConsumerState<RequestsSection> {
     );
   }
 
-  Future<void> _reject(ServiceRequest request) async {
+  Future<void> _rejectNow(ServiceRequest request) async {
     final reason = await showRejectSheet(context);
     if (reason == null || !mounted) return;
     await _answer(

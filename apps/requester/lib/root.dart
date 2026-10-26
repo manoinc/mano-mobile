@@ -62,9 +62,17 @@ class ManoRoot extends ConsumerWidget {
     }
 
     return switch (state.value) {
+      // Registration signs up midway; its last steps still belong to the doorway.
+      SignedIn() when flow is OnboardingRegistration => _doorway(
+        ref,
+        flow,
+        null,
+      ),
       // Signed in outright skips the doorway; the shell is the destination
       // either way, per [OnboardingBrowsing] below.
-      SignedIn() => const RequesterShell(),
+      SignedIn() => RequesterShell(
+        showWelcome: flow is OnboardingBrowsing && flow.showWelcome,
+      ),
       Guest() => RequesterShell(
         key: const ValueKey('guest'),
         showWelcome: flow is OnboardingBrowsing && flow.showWelcome,

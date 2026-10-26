@@ -209,15 +209,61 @@ void main() {
     expect(await accepted.read(sessionProvider.notifier).signIn(_credentials), isNull);
   });
 
-  test('signing up lands signed in', () async {
-    final container = containerWith(
-      InMemorySessionRepository(onSignUp: () async => Ok(session())),
+  group('signing up', () {
+    ProviderContainer signUpContainer(
+      InMemorySessionRepository repository, {
+      String role = ManoRole.provider,
+    }) => ProviderContainer.test(
+      overrides: [
+        sessionRepositoryProvider.overrideWithValue(repository),
+        manoConfigProvider.overrideWithValue(
+          ManoConfig(gatewayGraphQlUrl: 'http://gw/graphql', appRole: role),
+        ),
+      ],
     );
-    await container.read(sessionProvider.future);
 
-    await container.read(sessionProvider.notifier).signUp(_credentials);
+    test('lands signed in', () async {
+      final container = signUpContainer(
+        InMemorySessionRepository(onSignUp: () async => Ok(session())),
+      );
+      await container.read(sessionProvider.future);
 
-    expect(container.read(sessionProvider).value, isA<SignedIn>());
+      final failure = await container
+          .read(sessionProvider.notifier)
+          .signUp(_credentials);
+
+      expect(failure, isNull);
+      expect(container.read(sessionProvider).value, isA<SignedIn>());
+    });
+
+    test('asks for the role this app is configured with', () async {
+      final repository = InMemorySessionRepository(
+        onSignUp: () async => Ok(session()),
+      );
+      final container = signUpContainer(repository, role: ManoRole.requester);
+      await container.read(sessionProvider.future);
+
+      await container.read(sessionProvider.notifier).signUp(_credentials);
+
+      expect(repository.lastSignUpRole, ManoRole.requester);
+      expect(repository.lastCredentials, _credentials);
+    });
+
+    test('a taken email comes back as the failure, signed out', () async {
+      final container = signUpContainer(
+        InMemorySessionRepository(
+          onSignUp: () async => const Err(EmailAlreadyRegistered()),
+        ),
+      );
+      await container.read(sessionProvider.future);
+
+      final failure = await container
+          .read(sessionProvider.notifier)
+          .signUp(_credentials);
+
+      expect(failure, isA<EmailAlreadyRegistered>());
+      expect(container.read(sessionProvider).value, isA<SignedOut>());
+    });
   });
 
   test('the access token follows the session', () async {

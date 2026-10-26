@@ -17,7 +17,7 @@ sealed class AuthFailure {
   String get message;
 }
 
-/// The credentials were rejected, or the user abandoned the sign-in.
+/// The provider refused the attempt for a reason not modelled elsewhere.
 final class SignInRejected extends AuthFailure {
   const SignInRejected({this.reason});
 
@@ -29,6 +29,28 @@ final class SignInRejected extends AuthFailure {
 
   @override
   String toString() => 'SignInRejected(reason: $reason)';
+}
+
+/// Sign-in found no account with that email and password.
+final class WrongCredentials extends AuthFailure {
+  const WrongCredentials();
+
+  @override
+  String get message => 'That email and password do not match an account.';
+
+  @override
+  String toString() => 'WrongCredentials()';
+}
+
+/// Sign-up was refused because an account already uses that email.
+final class EmailAlreadyRegistered extends AuthFailure {
+  const EmailAlreadyRegistered();
+
+  @override
+  String get message => 'An account already uses that email. Sign in instead.';
+
+  @override
+  String toString() => 'EmailAlreadyRegistered()';
 }
 
 /// The user closed the sign-in screen without finishing.

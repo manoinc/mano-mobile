@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import 'steps/account_step.dart';
 import 'steps/documents_step.dart';
 import 'steps/pending_step.dart';
 import 'steps/question_step.dart';
@@ -13,7 +14,7 @@ import 'steps/welcome_step.dart';
 class ProfessionalOnboardingScreen extends ConsumerWidget {
   const ProfessionalOnboardingScreen({required this.onFinished, super.key});
 
-  /// Enters the shell; local only until a real auth backend exists.
+  /// Enters the shell once the pending step is left.
   final VoidCallback onFinished;
 
   @override
@@ -32,6 +33,8 @@ class ProfessionalOnboardingScreen extends ConsumerWidget {
           ProviderOnboardingStep.welcome => const WelcomeStep(
             key: ValueKey('welcome'),
           ),
+          ProviderOnboardingStep.email || ProviderOnboardingStep.password =>
+            AccountStep(key: ValueKey(step), state: state),
           ProviderOnboardingStep.name ||
           ProviderOnboardingStep.phone ||
           ProviderOnboardingStep.zone ||

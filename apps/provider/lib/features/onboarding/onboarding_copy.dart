@@ -26,18 +26,11 @@ String documentLabel(ProviderDocument document) => switch (document) {
   ProviderDocument.certificates => 'Certificados o soportes (opcional)',
 };
 
-// Same copy and tones as the requester's sign-in, so both apps speak alike.
-String authFailureCopy(AuthFailure failure) => switch (failure) {
-  SignInCancelled() => 'Cancelaste el inicio de sesión.',
-  SessionExpired() => 'Tu sesión venció. Vuelve a iniciar sesión.',
-  AuthUnavailable() =>
-    'No pudimos conectar con el servicio de inicio de sesión. '
-        'Vuelve a intentarlo en un momento.',
-  SignInRejected() => 'Correo o contraseña incorrectos.',
-};
-
+// The copy is shared through mano_session; the tone is this app's choice.
 ManoNoticeTone authFailureTone(AuthFailure failure) => switch (failure) {
   SignInCancelled() => ManoNoticeTone.info,
   SessionExpired() || AuthUnavailable() => ManoNoticeTone.warning,
-  SignInRejected() => ManoNoticeTone.error,
+  SignInRejected() ||
+  WrongCredentials() ||
+  EmailAlreadyRegistered() => ManoNoticeTone.error,
 };

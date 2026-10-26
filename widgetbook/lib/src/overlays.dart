@@ -21,6 +21,13 @@ WidgetbookCategory overlays() => WidgetbookCategory(
         open: (c) => showManoSheet<void>(context: c, builder: (_) => const _Prompt()),
       ),
     }),
+    component('ManoAccountNeededSheet', {
+      'Inline': (context) => const Align(alignment: Alignment.bottomCenter, child: _AccountNeeded()),
+      'Open with showManoSheet': (context) => _Launcher(
+        label: 'Aceptar solicitud',
+        open: (c) => showManoSheet<void>(context: c, builder: (_) => const _AccountNeeded()),
+      ),
+    }),
     component('ManoCredentialsSheet', {
       'Inline': (context) => const Align(alignment: Alignment.bottomCenter, child: _Credentials()),
       'Open with showManoSheet': (context) => _Launcher(
@@ -77,6 +84,17 @@ class _Prompt extends StatelessWidget {
   );
 }
 
+class _AccountNeeded extends StatelessWidget {
+  const _AccountNeeded();
+
+  @override
+  Widget build(BuildContext context) => const ManoAccountNeededSheet(
+    message: 'Inicia sesión para aceptar solicitudes.',
+    onSignIn: noop,
+    onClose: noop,
+  );
+}
+
 class _Credentials extends StatelessWidget {
   const _Credentials();
 
@@ -85,7 +103,7 @@ class _Credentials extends StatelessWidget {
     title: 'Inicia sesión',
     message: 'Con el correo de tu cuenta Mano.',
     submitLabel: 'Entrar',
-    onSubmit: (_, _) async => 'Correo o contraseña incorrectos.',
+    onSubmit: (_, _) async => 'Correo o contraseña incorrectos',
   );
 }
 

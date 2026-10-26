@@ -78,8 +78,10 @@ final class _NoAuthProviderChosen implements SessionRepository {
       const Err(_notWired);
 
   @override
-  Future<Result<Session, AuthFailure>> signUp(Credentials credentials) async =>
-      const Err(_notWired);
+  Future<Result<Session, AuthFailure>> signUp(
+    Credentials credentials, {
+    required String role,
+  }) async => const Err(_notWired);
 
   @override
   Future<Result<Session, AuthFailure>> refresh() async =>

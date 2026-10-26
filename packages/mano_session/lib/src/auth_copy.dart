@@ -1,0 +1,22 @@
+import 'package:mano_domain/mano_domain.dart';
+
+/// What a person reads for each [AuthFailure]: one wording for both apps.
+///
+/// `AuthFailure.message` stays English for logs; the Spanish lives here,
+/// exhaustive, so a new failure fails to compile instead of reaching a user.
+String authFailureCopy(AuthFailure failure) => switch (failure) {
+  WrongCredentials() => 'Correo o contraseña incorrectos',
+  EmailAlreadyRegistered() => 'Ese correo ya tiene cuenta. Inicia sesión.',
+  AuthUnavailable() => 'No pudimos conectarnos. Intenta de nuevo.',
+  SignInCancelled() => 'Cancelaste el inicio de sesión.',
+  SessionExpired() => 'Tu sesión venció. Vuelve a iniciar sesión.',
+  SignInRejected() => 'No pudimos aceptar esos datos. Revísalos.',
+};
+
+/// The inline error under an email or password field.
+String credentialProblemCopy(CredentialProblem problem) => switch (problem) {
+  CredentialProblem.empty => 'Completa este campo.',
+  CredentialProblem.malformedEmail => 'Revisa tu correo.',
+  CredentialProblem.tooShort => 'Usa al menos 8 caracteres.',
+  CredentialProblem.needsLetterAndNumber => 'Usa letras y números.',
+};

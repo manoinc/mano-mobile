@@ -2,10 +2,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_domain/mano_domain.dart';
 
 import '../marketplace_providers.dart';
+import '../session_notifier.dart';
 import 'provider_profile_validation.dart';
 
+/// The account is created on leaving [password], so [name] onward is signed in.
 enum ProviderOnboardingStep {
   welcome,
+  email,
+  password,
   name,
   phone,
   zone,
@@ -46,7 +50,16 @@ final class ProviderOnboardingFailed extends ProviderOnboardingStatus {
   final DataFailure failure;
 }
 
+/// Creating the account was refused; the step shows why, inline.
+final class ProviderAccountRejected extends ProviderOnboardingStatus {
+  const ProviderAccountRejected(this.failure);
+
+  final AuthFailure failure;
+}
+
 const _questions = [
+  ProviderOnboardingStep.email,
+  ProviderOnboardingStep.password,
   ProviderOnboardingStep.name,
   ProviderOnboardingStep.phone,
   ProviderOnboardingStep.zone,
@@ -59,6 +72,9 @@ const _questions = [
 final class ProviderOnboardingState {
   const ProviderOnboardingState({
     this.step = ProviderOnboardingStep.welcome,
+    this.email = '',
+    this.password = '',
+    this.finished = false,
     this.displayName = '',
     this.phone = '',
     this.workZone = '',
@@ -71,6 +87,14 @@ final class ProviderOnboardingState {
   });
 
   final ProviderOnboardingStep step;
+
+  /// The new account's credentials, kept out of the profile draft.
+  final String email;
+  final String password;
+
+  /// Set once the pending step is left for the app.
+  final bool finished;
+
   final String displayName;
   final String phone;
   final String workZone;
@@ -95,8 +119,13 @@ final class ProviderOnboardingState {
     return space < 0 ? trimmed : trimmed.substring(0, space);
   }
 
+  /// Whether the onboarding still owns the screen, signed in or not.
+  bool get inProgress => step != ProviderOnboardingStep.welcome && !finished;
+
   /// Whether the current question can be answered as it stands.
   bool get stepComplete => switch (step) {
+    ProviderOnboardingStep.email => validateEmail(email) == null,
+    ProviderOnboardingStep.password => validatePassword(password) == null,
     ProviderOnboardingStep.name => validateDisplayName(displayName) == null,
     ProviderOnboardingStep.phone => validatePhone(phone) == null,
     ProviderOnboardingStep.zone => validateWorkZone(workZone) == null,
@@ -129,6 +158,9 @@ final class ProviderOnboardingState {
 
   ProviderOnboardingState copyWith({
     ProviderOnboardingStep? step,
+    String? email,
+    String? password,
+    bool? finished,
     String? displayName,
     String? phone,
     String? workZone,
@@ -140,6 +172,9 @@ final class ProviderOnboardingState {
     ProviderOnboardingStatus? status,
   }) => ProviderOnboardingState(
     step: step ?? this.step,
+    email: email ?? this.email,
+    password: password ?? this.password,
+    finished: finished ?? this.finished,
     displayName: displayName ?? this.displayName,
     phone: phone ?? this.phone,
     workZone: workZone ?? this.workZone,
@@ -165,7 +200,59 @@ final class ProviderOnboardingNotifier
   @override
   ProviderOnboardingState build() => const ProviderOnboardingState();
 
-  void start() => _goTo(ProviderOnboardingStep.name);
+  void start() => _goTo(ProviderOnboardingStep.email);
+
+  void editEmail(String value) => _editAccount(email: value);
+
+  void editPassword(String value) => _editAccount(password: value);
+
+  /// Signs the new account up from the password step; on success the questions begin.
+  Future<void> createAccount() async {
+    if (state.step != ProviderOnboardingStep.password ||
+        state.status is ProviderOnboardingSubmitting) {
+      return;
+    }
+    if (!state.stepComplete) {
+      state = state.copyWith(showProblems: true);
+      return;
+    }
+    state = state.copyWith(status: const ProviderOnboardingSubmitting());
+    final session = ref.read(sessionProvider.notifier);
+    final failure = await session.signUp(
+      Credentials(email: state.email, password: state.password),
+    );
+    if (!ref.mounted) return;
+    if (failure == null) {
+      _goTo(ProviderOnboardingStep.name);
+      return;
+    }
+    // Shown on the step itself; the welcome must not repeat it.
+    session.acknowledgeFailure();
+    state = state.copyWith(
+      step: failure is EmailAlreadyRegistered
+          ? ProviderOnboardingStep.email
+          : ProviderOnboardingStep.password,
+      status: ProviderAccountRejected(failure),
+    );
+  }
+
+  /// "Ahora no": into the app without an account.
+  void browseAsGuest() {
+    ref.read(sessionProvider.notifier).browseAsGuest();
+    state = const ProviderOnboardingState();
+  }
+
+  /// Leaves the pending step for the app, keeping the answers for greetings.
+  void finish() => state = state.copyWith(finished: true);
+
+  void _editAccount({String? email, String? password}) =>
+      state = state.copyWith(
+        email: email,
+        password: password,
+        status: state.status is ProviderAccountRejected
+            ? const ProviderOnboardingIdle()
+            : null,
+      );
 
   void editDisplayName(String value) =>
       state = state.copyWith(displayName: value);
@@ -192,6 +279,8 @@ final class ProviderOnboardingNotifier
 
   /// Advances if the current question is answered; otherwise shows why not.
   void next() {
+    // The password step leaves through createAccount.
+    if (state.step == ProviderOnboardingStep.password) return;
     if (!state.stepComplete) {
       state = state.copyWith(showProblems: true);
       return;
@@ -208,6 +297,8 @@ final class ProviderOnboardingNotifier
   }
 
   void back() {
+    // The account already exists; there is no going back to create it.
+    if (state.step == ProviderOnboardingStep.name) return;
     final i = _flow.indexOf(state.step);
     if (i > 0 && state.step != ProviderOnboardingStep.pending) {
       _goTo(_flow[i - 1]);
