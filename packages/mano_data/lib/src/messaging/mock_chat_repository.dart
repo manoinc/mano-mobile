@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:mano_domain/mano_domain.dart';
 
+import '../media/mock_media_library.dart';
+
 import 'mock_conversation_repository.dart';
 
 /// In-memory [ChatRepository]; the other side optionally replies after [replyDelay].
@@ -10,7 +12,9 @@ final class MockChatRepository implements ChatRepository {
     DateTime Function()? now,
     this.replyDelay,
     this._conversations,
-  }) : _now = now ?? DateTime.now {
+    MockMediaLibrary? media,
+  }) : _now = now ?? DateTime.now,
+       _media = media ?? MockMediaLibrary() {
     final t = _now();
     _threads['conv-1'] = [
       _msg(
@@ -51,6 +55,7 @@ final class MockChatRepository implements ChatRepository {
   final Duration? replyDelay;
   final MockConversationRepository? _conversations;
   final DateTime Function() _now;
+  final MockMediaLibrary _media;
   final Map<String, List<Message>> _threads = {};
   final Map<String, StreamController<Message>> _streams = {};
   int _nextId = 100;
@@ -60,12 +65,14 @@ final class MockChatRepository implements ChatRepository {
     String body,
     DateTime at, {
     required bool fromMe,
+    List<MediaAttachment> media = const [],
   }) => Message(
     id: 'msg-${_nextId++}',
     conversationId: conversationId,
     body: body,
     sentAt: at,
     fromMe: fromMe,
+    media: media,
   );
 
   StreamController<Message> _stream(String id) =>
@@ -109,12 +116,24 @@ final class MockChatRepository implements ChatRepository {
   @override
   Future<Result<Message, DataFailure>> send(
     String conversationId,
-    String body,
-  ) async {
+    String body, {
+    List<String> mediaIds = const [],
+  }) async {
+    final media = [for (final id in mediaIds) _media[id]];
+    if (media.contains(null)) {
+      return const Err(DataRejected(reason: 'unknown media'));
+    }
+    // chatservice refuses empty content even with photos attached.
     if (body.trim().isEmpty) {
       return const Err(DataRejected(reason: 'empty message'));
     }
-    final sent = _msg(conversationId, body.trim(), _now(), fromMe: true);
+    final sent = _msg(
+      conversationId,
+      body.trim(),
+      _now(),
+      fromMe: true,
+      media: media.cast<MediaAttachment>(),
+    );
     _deliver(sent);
     // Delivered a tick later, so listeners see sent first.
     Future.microtask(() => _setStatus(sent, MessageStatus.delivered));

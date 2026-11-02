@@ -6,8 +6,11 @@ import '../gateway/gateway_json.dart';
 
 const participantFields = 'role profileId displayName photoUrl';
 
+const mediaFields = 'mediaId mimeType byteSize url';
+
 const messageFields =
-    'id conversationId sender { $participantFields } content sentAt readAt';
+    'id conversationId sender { $participantFields } content sentAt readAt '
+    'media { $mediaFields }';
 
 const conversationFields =
     'id unreadCount participants { $participantFields } '
@@ -44,6 +47,17 @@ Message toMessage(Map<String, dynamic> json, String? viewerId) => Message(
   sentAt: dateTimeFromJson(json['sentAt']),
   fromMe: (json['sender'] as Map<String, dynamic>)['profileId'] == viewerId,
   status: json['readAt'] == null ? MessageStatus.delivered : MessageStatus.read,
+  media: [
+    for (final m in json['media'] as List<dynamic>? ?? const [])
+      toMediaAttachment(m as Map<String, dynamic>),
+  ],
+);
+
+MediaAttachment toMediaAttachment(Map<String, dynamic> json) => MediaAttachment(
+  id: json['mediaId'] as String,
+  url: json['url'] as String,
+  mimeType: json['mimeType'] as String?,
+  byteSize: json['byteSize'] as int?,
 );
 
 Party toParty(Map<String, dynamic> json) => Party(

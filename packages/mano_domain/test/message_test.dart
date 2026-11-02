@@ -34,5 +34,24 @@ void main() {
       expect(read.status, MessageStatus.read);
       expect(read.id, 'm');
     });
+
+    test('carries no media by default and compares media by value', () {
+      const photo = MediaAttachment(id: 'm1', url: 'https://x/1');
+      Message withMedia(List<MediaAttachment> media) => Message(
+        id: 'm',
+        conversationId: 'c',
+        body: '',
+        sentAt: DateTime(2026, 1, 1),
+        fromMe: true,
+        media: media,
+      );
+      expect(make().media, isEmpty);
+      expect(withMedia(const [photo]), withMedia(const [photo]));
+      expect(withMedia(const [photo]) == withMedia(const []), isFalse);
+      expect(
+        withMedia(const [photo]).copyWith(status: MessageStatus.read).media,
+        const [photo],
+      );
+    });
   });
 }

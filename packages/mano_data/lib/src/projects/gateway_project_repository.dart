@@ -53,8 +53,7 @@ mutation Discard(\$id: ID!) { discardQuote(quoteId: \$id) { $standaloneQuoteFiel
             'category': draft.category,
             'title': draft.title.trim(),
             'description': draft.description.trim(),
-            // No photo upload yet.
-            'photos': <String>[],
+            'photos': draft.photoUrls,
             'estimatedBudget': draft.budgetCop,
           },
         },

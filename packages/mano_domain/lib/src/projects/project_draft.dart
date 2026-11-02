@@ -21,6 +21,7 @@ final class ProjectDraft {
     this.title = '',
     this.description = '',
     this.budgetCop,
+    this.photoUrls = const [],
   });
 
   final String category;
@@ -29,6 +30,9 @@ final class ProjectDraft {
 
   /// Optional estimate in whole pesos.
   final int? budgetCop;
+
+  /// Uploaded photos of the problem, in order.
+  final List<String> photoUrls;
 
   Set<ProjectDraftProblem> get problems {
     final title = this.title.trim();
@@ -53,11 +57,13 @@ final class ProjectDraft {
     String? description,
     int? budgetCop,
     bool clearBudget = false,
+    List<String>? photoUrls,
   }) => ProjectDraft(
     category: category ?? this.category,
     title: title ?? this.title,
     description: description ?? this.description,
     budgetCop: clearBudget ? null : budgetCop ?? this.budgetCop,
+    photoUrls: photoUrls ?? this.photoUrls,
   );
 
   @override
@@ -66,10 +72,17 @@ final class ProjectDraft {
       other.category == category &&
       other.title == title &&
       other.description == description &&
-      other.budgetCop == budgetCop;
+      other.budgetCop == budgetCop &&
+      other.photoUrls.join('\n') == photoUrls.join('\n');
 
   @override
-  int get hashCode => Object.hash(category, title, description, budgetCop);
+  int get hashCode => Object.hash(
+    category,
+    title,
+    description,
+    budgetCop,
+    Object.hashAll(photoUrls),
+  );
 
   @override
   String toString() => 'ProjectDraft($category, $title)';

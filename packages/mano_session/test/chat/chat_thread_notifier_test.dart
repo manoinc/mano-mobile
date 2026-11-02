@@ -27,8 +27,9 @@ final class _FakeChatRepository implements ChatRepository {
   @override
   Future<Result<Message, DataFailure>> send(
     String conversationId,
-    String body,
-  ) {
+    String body, {
+    List<String> mediaIds = const [],
+  }) {
     sent.add(body);
     pendingSend = Completer();
     return pendingSend!.future;

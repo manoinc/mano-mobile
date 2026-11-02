@@ -38,8 +38,10 @@ subscription MessageAdded(\$conversationId: ID!) {
 
   static const _send =
       '''
-mutation Send(\$id: ID!, \$content: String!) {
-  sendMessage(conversationId: \$id, content: \$content) { $messageFields }
+mutation Send(\$id: ID!, \$content: String!, \$mediaIds: [ID!]) {
+  sendMessage(conversationId: \$id, content: \$content, mediaIds: \$mediaIds) {
+    $messageFields
+  }
 }''';
 
   static const _markRead = '''
@@ -67,11 +69,12 @@ mutation MarkRead(\$id: ID!) { markConversationRead(conversationId: \$id) }''';
   @override
   Future<Result<Message, DataFailure>> send(
     String conversationId,
-    String body,
-  ) => guardGateway(() async {
+    String body, {
+    List<String> mediaIds = const [],
+  }) => guardGateway(() async {
     final data = await _transport.run(
       _send,
-      variables: {'id': conversationId, 'content': body},
+      variables: {'id': conversationId, 'content': body, 'mediaIds': mediaIds},
     );
     return _toMessage(data['sendMessage']);
   });

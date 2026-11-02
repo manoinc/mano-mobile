@@ -35,6 +35,10 @@
 			<key>NSAllowsLocalNetworking</key>
 			<true/>
 		</dict>
+		<key>NSCameraUsageDescription</key>
+		<string>Para tomar fotos del trabajo y enviarlas por chat o en tu perfil.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Para elegir fotos del trabajo y enviarlas por chat o en tu perfil.</string>
 		<key>NSLocalNetworkUsageDescription</key>
 		<string>Mano se conecta al servidor de desarrollo en tu red local.</string>
 		<key>UIApplicationSceneManifest</key>

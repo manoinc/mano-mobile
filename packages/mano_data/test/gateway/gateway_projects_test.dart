@@ -113,7 +113,7 @@ void main() {
       },
     );
 
-    test('publish sends the trimmed draft with no photos', () async {
+    test('publish sends the trimmed draft', () async {
       final repo = GatewayProjectRepository(
         _transport((r) async {
           expect(_body(r)['variables'], {
@@ -144,6 +144,32 @@ void main() {
       );
 
       expect(result, Ok<Project, DataFailure>(_project(quotes: const [])));
+    });
+
+    test('publish sends the uploaded photos in order', () async {
+      final repo = GatewayProjectRepository(
+        _transport((r) async {
+          expect(((_body(r)['variables'] as Map)['input'] as Map)['photos'], [
+            'https://x/1.jpg',
+            'https://x/2.jpg',
+          ]);
+          return _data({
+            'publishProject': {
+              ..._projectJson,
+              'quotes': {'items': []},
+            },
+          });
+        }),
+      );
+
+      await repo.publish(
+        const ProjectDraft(
+          category: ServiceCategories.painting,
+          title: 'Pintar sala',
+          description: 'Sala de 30 m²',
+          photoUrls: ['https://x/1.jpg', 'https://x/2.jpg'],
+        ),
+      );
     });
 
     test('publish refuses an invalid draft without calling', () async {

@@ -33,6 +33,7 @@ Map<String, Object?> _message(
   String content = 'Hola',
   String sentAt = '2026-10-25T14:30:00Z',
   String? readAt,
+  List<Map<String, Object?>> media = const [],
 }) => {
   'id': id,
   'conversationId': 'c1',
@@ -45,6 +46,7 @@ Map<String, Object?> _message(
   'content': content,
   'sentAt': sentAt,
   'readAt': readAt,
+  'media': media,
 };
 
 final class _Subscriptions {
@@ -160,7 +162,11 @@ void main() {
 
   test('send posts sendMessage and returns my message', () async {
     final repo = _repo((r) async {
-      expect(_body(r)['variables'], {'id': 'c1', 'content': 'Hola'});
+      expect(_body(r)['variables'], {
+        'id': 'c1',
+        'content': 'Hola',
+        'mediaIds': <String>[],
+      });
       return _data({'sendMessage': _message('m5', sender: 'me')});
     });
 
@@ -186,5 +192,54 @@ void main() {
     });
 
     expect((await repo.markRead('c1')).isOk, isTrue);
+  });
+
+  test('send passes the uploaded media ids and maps the photos back', () async {
+    final repo = _repo((r) async {
+      expect(_body(r)['query'], contains('mediaIds: \$mediaIds'));
+      expect(
+        _body(r)['query'],
+        contains('media { mediaId mimeType byteSize url }'),
+      );
+      expect(_body(r)['variables']['mediaIds'], ['md1']);
+      return _data({
+        'sendMessage': _message(
+          'm6',
+          sender: 'me',
+          content: '',
+          media: [
+            {
+              'mediaId': 'md1',
+              'mimeType': 'image/jpeg',
+              'byteSize': 2048,
+              'url': 'http://127.0.0.1:3900/mano-media/chat/c1/md1.jpg?X-Amz=1',
+            },
+          ],
+        ),
+      });
+    });
+
+    final result = await repo.send('c1', '', mediaIds: ['md1']);
+
+    final message = (result as Ok<Message, DataFailure>).value;
+    expect(message.media, [
+      const MediaAttachment(
+        id: 'md1',
+        url: 'http://127.0.0.1:3900/mano-media/chat/c1/md1.jpg?X-Amz=1',
+        mimeType: 'image/jpeg',
+        byteSize: 2048,
+      ),
+    ]);
+  });
+
+  test('a message without a media field has no photos', () async {
+    final repo = _repo((_) async {
+      final json = _message('m7', sender: 'me')..remove('media');
+      return _data({'sendMessage': json});
+    });
+
+    final result = await repo.send('c1', 'Hola');
+
+    expect((result as Ok<Message, DataFailure>).value.media, isEmpty);
   });
 }

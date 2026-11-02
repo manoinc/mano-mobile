@@ -36,23 +36,6 @@ final class ProviderStats {
   final int completionRatePct;
 }
 
-/// What a requester wrote after a job.
-final class Review {
-  const Review({
-    required this.id,
-    required this.reviewer,
-    required this.stars,
-    required this.date,
-    required this.text,
-  });
-
-  final String id;
-  final Party reviewer;
-  final int stars;
-  final DateTime date;
-  final String text;
-}
-
 /// Invite-a-colleague progress and the code to share.
 final class ReferralProgram {
   const ReferralProgram({

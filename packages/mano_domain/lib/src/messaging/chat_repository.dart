@@ -10,7 +10,12 @@ abstract interface class ChatRepository {
   /// Messages that arrive after subscribing, from either side.
   Stream<Message> watch(String conversationId);
 
-  Future<Result<Message, DataFailure>> send(String conversationId, String body);
+  /// [mediaIds] come from a finished `MediaUploader` upload to this conversation.
+  Future<Result<Message, DataFailure>> send(
+    String conversationId,
+    String body, {
+    List<String> mediaIds = const [],
+  });
 
   Future<Result<void, DataFailure>> markRead(String conversationId);
 }

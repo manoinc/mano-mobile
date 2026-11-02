@@ -79,7 +79,11 @@ survive unplugging or an adb restart:
 
 ```bash
 adb reverse tcp:8082 tcp:8082   # mano-gateway
+adb reverse tcp:3900 tcp:3900   # Garage (mano-media), for photo uploads
 ```
+
+Chat photos and reviews need the full local stack (Garage, RabbitMQ,
+mano-reviews): `../mano-gateway/docs/local-stack.md`.
 
 ## Design
 

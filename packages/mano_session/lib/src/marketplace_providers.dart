@@ -4,6 +4,7 @@ import 'package:mano_domain/mano_domain.dart';
 
 import 'conversation_providers.dart';
 import 'gateway_subscription_provider.dart';
+import 'media/media_providers.dart';
 import 'offline_marketplace_provider.dart';
 import 'session_notifier.dart';
 import 'session_providers.dart';
@@ -67,6 +68,7 @@ final chatRepositoryProvider = Provider<ChatRepository>((ref) {
   return MockChatRepository(
     replyDelay: const Duration(seconds: 2),
     conversations: inbox is MockConversationRepository ? inbox : null,
+    media: ref.watch(mockMediaLibraryProvider),
   );
 });
 

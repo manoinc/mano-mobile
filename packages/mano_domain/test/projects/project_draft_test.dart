@@ -66,4 +66,13 @@ void main() {
     expect(filled.budgetCop, 300000);
     expect(filled.copyWith(clearBudget: true).budgetCop, isNull);
   });
+
+  test('photos are optional, kept in order and survive copyWith', () {
+    expect(_valid.photoUrls, isEmpty);
+    final withPhotos = _valid.copyWith(photoUrls: ['a', 'b']);
+    expect(withPhotos.photoUrls, ['a', 'b']);
+    expect(withPhotos.copyWith(title: 'Otro').photoUrls, ['a', 'b']);
+    expect(withPhotos == _valid.copyWith(photoUrls: ['b', 'a']), isFalse);
+    expect(withPhotos, _valid.copyWith(photoUrls: ['a', 'b']));
+  });
 }

@@ -31,6 +31,21 @@ WidgetbookCategory profile() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoRatingSummary', {
+      'With reviews': (context) {
+        final average = context.knobs.double.slider(label: 'Average', initialValue: 4.7, min: 1, max: 5);
+        return Center(
+          child: ManoRatingSummary(
+            average: average,
+            averageLabel: average.toStringAsFixed(1).replaceAll('.', ','),
+            countLabel: '32 reseñas',
+          ),
+        );
+      },
+      'No reviews yet': (context) => const Center(
+        child: ManoRatingSummary(average: null, averageLabel: '', countLabel: ''),
+      ),
+    }),
     component('ManoReviewTile', {
       'Default': (context) => _padded(
         ManoReviewTile(

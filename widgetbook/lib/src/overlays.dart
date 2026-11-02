@@ -42,6 +42,12 @@ WidgetbookCategory overlays() => WidgetbookCategory(
         open: (c) => showManoSheet<void>(context: c, builder: (_) => const _Actions()),
       ),
     }),
+    component('ManoMediaSourceSheet', {
+      'Inline': (context) => const Align(
+        alignment: Alignment.bottomCenter,
+        child: ManoMediaSourceSheet(onGallery: noop, onCamera: noop, onClose: noop),
+      ),
+    }),
     component('ManoOptionRow', {
       'Default': (context) => const ManoOptionRow(
         label: 'Notificaciones',

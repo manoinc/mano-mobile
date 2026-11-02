@@ -33,6 +33,49 @@ WidgetbookCategory inputs() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoStarInput', {
+      'Interactive': (context) => _padded(const _StarInputDemo()),
+      'Chosen': (context) => _padded(
+        ManoStarInput(
+          value: context.knobs.int.slider(label: 'Stars', initialValue: 4, min: 0, max: 5),
+          onChanged: (_) {},
+        ),
+      ),
+    }),
+    component('ManoPhotoPickerGrid', {
+      'Empty': (context) => _padded(ManoPhotoPickerGrid(photos: const [], onAdd: noop)),
+      'Uploading, done and failed': (context) => _padded(
+        ManoPhotoPickerGrid(
+          photos: const [
+            ManoPickedPhoto(id: 'a', image: NetworkImage(sampleListingPhoto)),
+            ManoPickedPhoto(
+              id: 'b',
+              image: NetworkImage(sampleListingPhoto),
+              status: ManoPhotoStatus.uploading,
+            ),
+            ManoPickedPhoto(
+              id: 'c',
+              image: NetworkImage(sampleListingPhoto),
+              status: ManoPhotoStatus.failed,
+            ),
+          ],
+          onAdd: noop,
+          onRemove: (_) {},
+          onRetry: (_) {},
+        ),
+      ),
+      'Full': (context) => _padded(
+        ManoPhotoPickerGrid(
+          photos: [
+            for (var i = 0; i < 3; i++)
+              ManoPickedPhoto(id: '$i', image: const NetworkImage(sampleListingPhoto)),
+          ],
+          maxPhotos: 3,
+          onAdd: noop,
+          onRemove: (_) {},
+        ),
+      ),
+    }),
     component('ManoSearchField', {
       'Default': (context) => _padded(ManoSearchField(controller: TextEditingController())),
     }),
@@ -225,3 +268,18 @@ class _TimeRangeDemoState extends State<_TimeRangeDemo> {
 
 Widget _padded(Widget child) =>
     Center(child: Padding(padding: const EdgeInsets.all(ManoSpacing.lg), child: child));
+
+class _StarInputDemo extends StatefulWidget {
+  const _StarInputDemo();
+
+  @override
+  State<_StarInputDemo> createState() => _StarInputDemoState();
+}
+
+class _StarInputDemoState extends State<_StarInputDemo> {
+  var _stars = 0;
+
+  @override
+  Widget build(BuildContext context) =>
+      ManoStarInput(value: _stars, onChanged: (v) => setState(() => _stars = v));
+}

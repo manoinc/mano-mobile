@@ -22,6 +22,10 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 | `ConversationRepository`, `ChatRepository` | `myConversations`, `openConversation(reference: {withWorkerId \| jobId})`, `conversation`, `sendMessage`, `markConversationRead`, `messageAdded` | **live** (D7 chat over gRPC) | `GatewayConversationRepository`, `GatewayChatRepository` |
 | `ProjectRepository` (requester) | `myProjects` with `quotes(page)`, `publishProject`, `cancelProject`, `selectQuote`, `discardQuote` | **live** (D9 mano-projects over gRPC); client role | `GatewayProjectRepository` |
 | `LeadRepository` (provider) | `openProjects(category)`, `submitQuote`, `myQuotes` | **live** (D9); worker role. `purchaseProjectLead` is a D6 stub, so quotes are free | `GatewayLeadRepository` |
+| `MediaUploader` | `requestChatMediaUpload`, `requestAvatarUpload`, `finalizeMediaUpload` + a PUT to Garage | **live** (mano-media, embedded); work-image and review-media uploads are stubs | `GatewayMediaUploader` (project and portfolio photos: `MockMediaUploader`). See [Media](media.md) |
+| `ChatRepository` media | `Message.media`, `sendMessage(mediaIds)` | **live** | `GatewayChatRepository` |
+| `ReviewRepository` | `reviewWorker`, `reviewClient`, `job { worker { averageRating ratingsCount reviews(page) } }` | **live** (D8 mano-reviews over gRPC) | `GatewayReviewRepository`. See [Reviews](reviews.md) |
+| `ProviderDirectory` | none: there is no `workerProfile(id)` | missing | `MockProviderDirectory` |
 | `ProviderOnboardingRepository` | `updateWorkerProfile`, `submitVerificationRequest` | stub (D2, D10 `not implemented`) | `MockProviderOnboardingRepository` |
 | `SessionRepository` | SuperTokens FDI: `/auth/signin`, `/auth/signup` (with `role`), `/auth/session/refresh`, `/auth/signout` | **live** in `mano-auth` (`:3001`); the gateway *verifies* tokens | `SuperTokensSessionRepository` when configured |
 
@@ -259,9 +263,13 @@ DATABASE_URL=postgres://postgres:mano@127.0.0.1:5433/mano BIND_ADDR=0.0.0.0:8082
 # 3. seed the catalog; writes need an authenticated user, so seed straight into Postgres
 docker exec -i mano-dev-postgres psql -q -U postgres -d mano < tools/dev/seed_catalog.sql
 
-# 4. let the phone reach it
+# 4. let the phone reach it (3900 is Garage, for photo uploads and downloads)
 adb reverse tcp:8082 tcp:8082
+adb reverse tcp:3900 tcp:3900
 ```
+
+For chat photos and reviews you need the whole stack: Garage, RabbitMQ and
+mano-reviews. Follow `mano-gateway/docs/local-stack.md`.
 
 The seed uses the canonical category ids (see **Categories**). It is
 idempotent: it truncates the catalog first.
@@ -291,3 +299,19 @@ idempotent: it truncates the catalog first.
 - `workerAvailability` doesn't subtract slots other clients already booked, so
   a client may be offered a taken slot; `bookSlot` then fails and the booking
   screen shows the failure.
+- Profiles: there is no `workerProfile(id)` / `clientProfile(id)`, and
+  `JobServiceOffer` has only `offerantId`. So a requester cannot open a
+  stranger's profile and offer cards cannot show stars. Reviews' `author` is a
+  bare participant (empty name, no photo).
+- Reviews: no "already reviewed" field on `Job` (the app keeps a session set),
+  and `ReviewInput` has no `mediaIds`.
+- Media: `requestWorkImageUpload` and `requestReviewMediaUpload` are stubs, and
+  there is no upload kind for project photos, so `ProjectInput.photos` takes
+  plain URL strings. chatservice refuses an empty `content` even with
+  `mediaIds`, so a photo always needs a caption (the app has to send one).
+  `sendMessage` does not check that the media ids are
+  finalized, owned and in that chat, although the media plan says it should.
+- `docs/schema.graphql` is stale: it misses `requestChatMediaUpload`,
+  `Message.media` and `sendMessage(mediaIds)`. Read the resolvers.
+- Profile, support (`createSupportTicket`) and payout (`registerPayoutAccount`)
+  mutations are all `not implemented` stubs, and the gateway has no billing bridge.

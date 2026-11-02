@@ -28,6 +28,7 @@ final class MockProjectRepository implements ProjectRepository {
       title: draft.title.trim(),
       description: draft.description.trim(),
       budgetCop: draft.budgetCop,
+      photoUrls: draft.photoUrls,
       status: ProjectStatus.open,
       createdAt: _board.now(),
       quotes: const [],

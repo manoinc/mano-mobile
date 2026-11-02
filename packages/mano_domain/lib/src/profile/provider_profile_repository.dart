@@ -1,3 +1,4 @@
+import '../reviews/review.dart';
 import 'provider_profile.dart';
 
 /// The signed-in provider's own profile, standing and referrals.

@@ -42,6 +42,14 @@ void main() {
       },
     );
 
+    test('keeps the photos of a published project', () async {
+      final repos = _repos();
+      final project = (await repos.projects.publish(
+        _draft.copyWith(photoUrls: ['https://x/1.jpg']),
+      )).valueOrNull!;
+      expect(project.photoUrls, ['https://x/1.jpg']);
+    });
+
     test('publishes a trimmed open project with no quotes', () async {
       final repos = _repos();
 
