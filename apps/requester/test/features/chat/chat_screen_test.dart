@@ -372,7 +372,10 @@ void main() {
 
       await attachFromGallery(tester);
       expect(picker.sources, [PhotoSource.gallery]);
-      expect(find.byKey(const Key('mano-composer-attachments')), findsOneWidget);
+      expect(
+        find.byKey(const Key('mano-composer-attachments')),
+        findsOneWidget,
+      );
       final send = find.byKey(const Key('mano-composer-send'));
       expect(tester.widget<IconButton>(send).onPressed, isNull);
 
@@ -404,9 +407,7 @@ void main() {
             body: photoOnlyCaption,
             sentAt: DateTime(2026, 10, 1, 9),
             fromMe: false,
-            media: const [
-              MediaAttachment(id: 'md1', url: 'https://x/1.jpg'),
-            ],
+            media: const [MediaAttachment(id: 'md1', url: 'https://x/1.jpg')],
           ),
         ],
       );
@@ -429,9 +430,7 @@ void main() {
             body: 'La fuga',
             sentAt: DateTime(2026, 10, 1, 9),
             fromMe: false,
-            media: const [
-              MediaAttachment(id: 'md1', url: 'https://x/1.jpg'),
-            ],
+            media: const [MediaAttachment(id: 'md1', url: 'https://x/1.jpg')],
           ),
         ],
       );

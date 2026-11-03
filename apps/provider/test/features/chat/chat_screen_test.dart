@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_media_picker.dart';
 import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
 
@@ -15,6 +16,7 @@ final class _FakeChatRepository implements ChatRepository {
   int failLoads;
   final incoming = StreamController<Message>.broadcast();
   final sends = <Completer<Result<Message, DataFailure>>>[];
+  final mediaIds = <List<String>>[];
 
   @override
   Future<List<Message>> messages(String conversationId) async {
@@ -34,6 +36,7 @@ final class _FakeChatRepository implements ChatRepository {
     String body, {
     List<String> mediaIds = const [],
   }) {
+    this.mediaIds.add(mediaIds);
     final completer = Completer<Result<Message, DataFailure>>();
     sends.add(completer);
     return completer.future;
@@ -74,15 +77,19 @@ Future<void> _type(WidgetTester tester, String text) async {
   await tester.pump();
 }
 
-Future<dynamic> _pumpChat(WidgetTester tester, {ChatRepository? repo}) =>
-    pumpRouterAt(
-      tester,
-      '/inbox/conv-1',
-      session: FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
-      overrides: [
-        if (repo != null) chatRepositoryProvider.overrideWithValue(repo),
-      ],
-    );
+Future<dynamic> _pumpChat(
+  WidgetTester tester, {
+  ChatRepository? repo,
+  MediaPicker? picker,
+}) => pumpRouterAt(
+  tester,
+  '/inbox/conv-1',
+  session: FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
+  overrides: [
+    if (repo != null) chatRepositoryProvider.overrideWithValue(repo),
+    if (picker != null) mediaPickerProvider.overrideWithValue(picker),
+  ],
+);
 
 void main() {
   testWidgets('the header shows the client and their verified badge', (
@@ -300,5 +307,43 @@ void main() {
 
     expect(routerPath(container), '/inbox');
     expect(find.widgetWithText(ManoConversationTile, reply), findsOneWidget);
+  });
+
+  testWidgets('a photo from the camera goes out with the message', (
+    tester,
+  ) async {
+    final repo = _FakeChatRepository();
+    final picker = FakeMediaPicker();
+    await _pumpChat(tester, repo: repo, picker: picker);
+
+    await tester.tap(find.byKey(const Key('mano-composer-attach')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tomar foto'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(picker.sources, [PhotoSource.camera]);
+
+    await _type(tester, 'Así quedó');
+    expect(repo.mediaIds.single, hasLength(1));
+    expect(find.byKey(const Key('chat-bubble-photo')), findsOneWidget);
+    expect(find.text('Así quedó'), findsOneWidget);
+
+    repo.sends.single.complete(
+      Ok(
+        Message(
+          id: 'm9',
+          conversationId: 'conv-1',
+          body: 'Así quedó',
+          sentAt: DateTime(2026, 10, 1, 9),
+          fromMe: true,
+          media: const [MediaAttachment(id: 'md1', url: 'https://x/1.jpg')],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('chat-bubble-photo')));
+    await tester.pumpAndSettle();
+    expect(find.byType(ManoImageViewer), findsOneWidget);
   });
 }

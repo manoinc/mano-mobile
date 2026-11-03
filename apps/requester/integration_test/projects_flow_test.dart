@@ -4,6 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:mano_requester/main.dart';
 import 'package:mano_session/mano_session.dart';
+import 'package:mano_ui/mano_ui.dart';
+
+import '../test/support/fake_media_picker.dart';
 
 import '../test/support/fake_session_repository.dart';
 import '../test/support/pump_app.dart';
@@ -29,6 +32,7 @@ void main() {
           sessionRepositoryProvider.overrideWithValue(
             FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
           ),
+          mediaPickerProvider.overrideWithValue(FakeMediaPicker()),
         ],
         child: const RequesterApp(),
       ),
@@ -54,11 +58,20 @@ void main() {
     );
     await tester.pumpAndSettle();
     await _tap(tester, find.text('Continuar'));
+
+    // One photo of the problem; settling waits out the upload.
+    await _tap(tester, find.text('Agregar fotos'));
+    await _tap(tester, find.text('Elegir de la galería'));
+    expect(find.byType(ManoPhotoPickerGrid), findsOneWidget);
+    await _tap(tester, find.text('Continuar'));
+
     await _tap(tester, find.text('Omitir'));
+    expect(find.text('1 foto'), findsOneWidget);
     await _tap(tester, find.text('Publicar proyecto'));
     expect(find.text('Proyecto publicado'), findsOneWidget);
     await _tap(tester, find.text('Ver proyecto'));
     expect(find.text('Pintar el estudio'), findsOneWidget);
+    expect(find.byType(ManoPhotoGallery), findsOneWidget);
 
     // Back on Proyectos, open the one with quotes and choose the cheapest.
     await _tap(tester, find.byType(BackButton));

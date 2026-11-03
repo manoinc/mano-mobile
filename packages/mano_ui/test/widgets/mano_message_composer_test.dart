@@ -6,7 +6,9 @@ import '../support/tiny_png.dart';
 
 Widget _host(Widget child) => MaterialApp(
   theme: ManoTheme.light(),
-  home: Scaffold(body: Align(alignment: Alignment.bottomCenter, child: child)),
+  home: Scaffold(
+    body: Align(alignment: Alignment.bottomCenter, child: child),
+  ),
 );
 
 final _attach = find.byKey(const Key('mano-composer-attach'));

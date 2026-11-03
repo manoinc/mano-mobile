@@ -35,7 +35,7 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | `ManoProjectFilterTabs` | A row of filter pills (statuses, pricing model). |
 | `ManoWeekdayPicker` | L M X J V S D toggles. |
 | `ManoDateStrip` / `ManoSlotGrid` | Pick a day / pick a time slot (taken slots struck through). |
-| `ManoMessageComposer` | Chat input with send button. |
+| `ManoMessageComposer` | Chat input with send button; optional "+" attach and a strip of pending photos. |
 
 ### Cards and rows
 
@@ -88,7 +88,8 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | Component | Use it for |
 |---|---|
 | `ManoChatThread` | A whole thread: day separators, pending and failed messages, retry. |
-| `ManoChatBubble` | A single message. |
+| `ManoChatBubble` | A single message, with optional photos above the text. |
+| `ManoImageViewer` | One photo full screen: pinch to zoom, tap or swipe down to close. |
 | `ManoChatHeader` | Name, avatar, online dot and verified badge. |
 
 ### Brand

@@ -53,7 +53,8 @@ MediaPicker ──PickedImage──▶ PhotoAttachmentsNotifier ──▶ MediaU
 - `photoAttachmentsProvider(UploadTarget)` is an autoDispose family notifier.
   It holds `List<PhotoAttachment>` (each `uploading | done | failed`, keeping
   the local bytes so the photo shows at once) and offers `pick`, `retry`,
-  `remove` and `clear`, plus `mediaIds`, `urls` and `isUploading`. A photo
+  `remove` and `clear`, plus `mediaIds`, `urls`, `isUploading` and `isReady`
+  (nothing uploading or failed). A photo
   removed while uploading stays removed.
 
 ## UI (`mano_ui`)
@@ -63,10 +64,16 @@ MediaPicker ──PickedImage──▶ PhotoAttachmentsNotifier ──▶ MediaU
 | `ManoMediaSourceSheet` | "Agregar foto": Elegir de la galería / Tomar foto. Show it with `showManoSheet`. |
 | `ManoPhotoPickerGrid` | square tiles with uploading and failed overlays, remove and retry, and a dashed add tile that disappears at `maxPhotos`. Takes `ManoPickedPhoto { id, ImageProvider image, status }`, so the screen maps `PhotoAttachment` to `MemoryImage(bytes)`. |
 
+| `ManoImageViewer` | a photo full screen, opened by `ManoChatThread` and by `ManoPhotoGallery(expandable: true)`. |
+
+The composer's "+" and pending strip, photo bubbles and the viewer are covered
+in [MEDIA-01](../modules/MEDIA-01-chat-photos.md).
+
 !!! note "A photo needs text"
     chatservice refuses `sendMessage` with empty `content`, even when `mediaIds` is
-    set, and the mock does the same. Until that changes a photo goes out with a
-    caption: what the user typed, or a default the chat screen chooses.
+    set, and the mock does the same. So a photo sent without text goes out as
+    `photoOnlyCaption` ("📷 Foto"), which the bubble hides under the photo. The rule
+    lives in `mano_session/lib/src/chat/photo_caption.dart`.
 
 ## Limits (mano-media)
 

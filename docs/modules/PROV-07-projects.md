@@ -30,7 +30,8 @@ with "Ver proyectos", which switches segment.
 
 ### Project detail
 
-The title, category and age, "Presupuesto del cliente", and the description.
+The title, category and age, "Presupuesto del cliente", the description, and the
+client's photos (`ManoPhotoGallery`, tap to open) when there are any.
 The bottom slot is one of:
 
 - **"Ya cotizaste · $X"** when `myQuotesProvider` holds a quote for it;

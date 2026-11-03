@@ -38,6 +38,7 @@ void main() {
     await tester.pumpAndSettle();
     await _tap(tester, find.text('Continuar'));
     await _tap(tester, find.text('Omitir'));
+    await _tap(tester, find.text('Omitir'));
     await _tap(tester, find.text('Publicar proyecto'));
     await _tap(tester, find.text('Ver proyecto'));
     expect(find.text('Pintar el estudio'), findsOneWidget);

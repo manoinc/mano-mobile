@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_provider/features/projects/lead_detail_screen.dart';
 import 'package:mano_session/mano_session.dart';
+import 'package:mano_ui/mano_ui.dart';
 
 import '../../support/pump_app.dart';
 import 'projects_fakes.dart';
@@ -31,6 +32,14 @@ void main() {
     expect(find.text('Limpieza final de obra'), findsOneWidget);
     expect(find.text(r'$450.000'), findsOneWidget);
     expect(find.text('Cotizar gratis'), findsOneWidget);
+  });
+
+  testWidgets('the client photos show when there are any', (tester) async {
+    await pumpRouterAt(tester, '/home/project/project-5', session: signedIn());
+    expect(find.byType(ManoPhotoGallery), findsOneWidget);
+
+    await pumpRouterAt(tester, '/home/project/project-6', session: signedIn());
+    expect(find.byType(ManoPhotoGallery), findsNothing);
   });
 
   testWidgets('sending a quote turns the action into "Ya cotizaste"', (

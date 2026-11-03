@@ -442,18 +442,24 @@ void main() {
         ['md1'],
         ['md1'],
       ]);
-      expect((_items(container).single as OutgoingChatItem).photos, hasLength(1));
+      expect(
+        (_items(container).single as OutgoingChatItem).photos,
+        hasLength(1),
+      );
     });
 
-    test('a history message without photos keeps its body as caption', () async {
-      final repo = _FakeChatRepository()
-        ..history.add(_message('m1', photoOnlyCaption));
-      final container = _container(repo);
+    test(
+      'a history message without photos keeps its body as caption',
+      () async {
+        final repo = _FakeChatRepository()
+          ..history.add(_message('m1', photoOnlyCaption));
+        final container = _container(repo);
 
-      final item = (await _load(container)).single as ConfirmedChatItem;
+        final item = (await _load(container)).single as ConfirmedChatItem;
 
-      expect(item.photoUrls, isEmpty);
-      expect(item.caption, photoOnlyCaption);
-    });
+        expect(item.photoUrls, isEmpty);
+        expect(item.caption, photoOnlyCaption);
+      },
+    );
   });
 }

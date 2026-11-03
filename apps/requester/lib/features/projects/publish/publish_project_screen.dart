@@ -4,13 +4,17 @@ import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../media/photo_picking.dart';
 import 'budget_step.dart';
 import 'category_step.dart';
 import 'details_step.dart';
+import 'photos_step.dart';
 import 'published_view.dart';
 import 'review_step.dart';
 
-enum _Step { category, details, budget, review, published }
+enum _Step { category, details, photos, budget, review, published }
+
+const _photoTarget = ProjectPhotoUpload();
 
 /// Publishing a project, one question per screen (docs/modules/REQ-06-projects.md).
 class PublishProjectScreen extends ConsumerStatefulWidget {
@@ -56,11 +60,14 @@ class _PublishProjectScreenState extends ConsumerState<PublishProjectScreen> {
 
   double get _progress => (_step.index + 1) / (_Step.review.index + 1);
 
+  PhotoAttachmentsNotifier get _photos =>
+      ref.read(photoAttachmentsProvider(_photoTarget).notifier);
+
   Future<void> _publish() async {
     setState(() => _busy = true);
     final result = await ref
         .read(projectActionsProvider.notifier)
-        .publish(_draft);
+        .publish(_draft.copyWith(photoUrls: _photos.urls));
     if (!mounted) return;
     setState(() => _busy = false);
     switch (result) {
@@ -90,7 +97,12 @@ class _PublishProjectScreenState extends ConsumerState<PublishProjectScreen> {
     );
   }
 
-  Widget _current() => switch (_step) {
+  Widget _current() {
+    final photos = ref.watch(photoAttachmentsProvider(_photoTarget));
+    return _stepView(photos);
+  }
+
+  Widget _stepView(List<PhotoAttachment> photos) => switch (_step) {
     _Step.category => CategoryStep(
       draft: _draft,
       progress: _progress,
@@ -109,6 +121,16 @@ class _PublishProjectScreenState extends ConsumerState<PublishProjectScreen> {
           description: _description.text,
         ),
       ),
+      onNext: () => _go(_Step.photos),
+      onBack: _back,
+    ),
+    _Step.photos => PhotosStep(
+      photos: pickedPhotos(photos),
+      uploading: _photos.isUploading,
+      progress: _progress,
+      onAdd: () => pickPhoto(context, _photos),
+      onRemove: _photos.remove,
+      onRetry: _photos.retry,
       onNext: () => _go(_Step.budget),
       onBack: _back,
     ),
@@ -128,7 +150,12 @@ class _PublishProjectScreenState extends ConsumerState<PublishProjectScreen> {
     ),
     _Step.review => ReviewStep(
       draft: _draft,
+      photos: [
+        for (final p in photos)
+          if (p.state == PhotoUploadState.done) MemoryImage(p.bytes),
+      ],
       busy: _busy,
+      uploading: _photos.isUploading,
       onEdit: (index) => _go(_Step.values[index]),
       onPublish: _publish,
       onBack: _back,

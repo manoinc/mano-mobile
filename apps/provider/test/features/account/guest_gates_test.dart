@@ -97,6 +97,16 @@ void main() {
     expect(find.text('Hola'), findsNothing, reason: 'nothing was sent');
   });
 
+  testWidgets('attaching a photo asks a guest to sign in', (tester) async {
+    await _asGuest(tester, '/inbox/conv-1');
+
+    await tester.tap(find.byKey(const Key('mano-composer-attach')));
+    await tester.pumpAndSettle();
+
+    _expectSheet('Inicia sesión para escribirle a tus clientes.');
+    expect(find.byType(ManoMediaSourceSheet), findsNothing);
+  });
+
   testWidgets('Iniciar sesión takes the guest back to the door', (
     tester,
   ) async {

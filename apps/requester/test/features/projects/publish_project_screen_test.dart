@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_requester/features/projects/publish/publish_project_screen.dart';
 import 'package:mano_session/mano_session.dart';
+import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_media_picker.dart';
 import '../../support/pump_app.dart';
 import 'projects_fakes.dart';
 
@@ -84,6 +86,7 @@ void main() {
     );
     await _describe(tester);
     await _tap(tester, 'Continuar');
+    await _tap(tester, 'Omitir');
 
     for (final key in ['1', '8', '0', '0', '000']) {
       await tester.ensureVisible(find.text(key));
@@ -113,6 +116,7 @@ void main() {
     await _describe(tester);
     await _tap(tester, 'Continuar');
     await _tap(tester, 'Omitir');
+    await _tap(tester, 'Omitir');
 
     expect(find.text('Pintar la sala'), findsOneWidget);
     await _tap(tester, 'Publicar proyecto');
@@ -136,9 +140,76 @@ void main() {
     await _describe(tester);
     await _tap(tester, 'Continuar');
     await _tap(tester, 'Omitir');
+    await _tap(tester, 'Omitir');
     await _tap(tester, 'Publicar proyecto');
 
     expect(find.text(const DataUnavailable().message), findsOneWidget);
     expect(find.text('Revisa y publica'), findsOneWidget);
+  });
+
+  group('photos', () {
+    Future<void> toPhotos(WidgetTester tester) async {
+      await pumpRouterAt(
+        tester,
+        '/publish?category=painting',
+        session: signedIn(),
+        overrides: [mediaPickerProvider.overrideWithValue(FakeMediaPicker())],
+      );
+      await _describe(tester);
+      await _tap(tester, 'Continuar');
+    }
+
+    Future<void> addPhoto(WidgetTester tester) async {
+      await tester.ensureVisible(find.text('Agregar fotos'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Agregar fotos'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Elegir de la galería'));
+      await tester.pump();
+      await tester.pump();
+    }
+
+    testWidgets('the photos step comes after the details and is optional', (
+      tester,
+    ) async {
+      await toPhotos(tester);
+
+      expect(find.text('Agrega fotos del trabajo'), findsOneWidget);
+      expect(find.byType(ManoPhotoPickerGrid), findsOneWidget);
+      await _tap(tester, 'Omitir');
+      expect(find.text('¿Cuánto piensas invertir?'), findsOneWidget);
+    });
+
+    testWidgets('Continuar waits for the upload, then the photo travels', (
+      tester,
+    ) async {
+      await toPhotos(tester);
+
+      await addPhoto(tester);
+      expect(find.text('Omitir'), findsNothing);
+      expect(_continueEnabled(tester), isFalse);
+      await tester.pump(const Duration(seconds: 1));
+      expect(_continueEnabled(tester), isTrue);
+
+      await _tap(tester, 'Continuar');
+      await _tap(tester, 'Omitir');
+      expect(find.text('1 foto'), findsOneWidget);
+      await _tap(tester, 'Publicar proyecto');
+      await _tap(tester, 'Ver proyecto');
+
+      final gallery = tester.widget<ManoPhotoGallery>(
+        find.byType(ManoPhotoGallery),
+      );
+      expect(gallery.urls, hasLength(1));
+    });
+
+    testWidgets('stops at six photos', (tester) async {
+      await toPhotos(tester);
+      for (var i = 0; i < 6; i++) {
+        await addPhoto(tester);
+        await tester.pump(const Duration(seconds: 1));
+      }
+      expect(find.text('Agregar fotos'), findsNothing);
+    });
   });
 }
