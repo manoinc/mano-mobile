@@ -44,6 +44,7 @@ nav = [
     "develop/backend-contract.md",
     "develop/media.md",
     "develop/reviews.md",
+    "develop/billing.md",
     "develop/documentation.md",
   ] },
   { "Modules" = [
@@ -66,6 +67,7 @@ nav = [
     "modules/MEDIA-01-chat-photos.md",
     "modules/REVIEWS-01-rating-flows.md",
     "modules/PROV-08-account.md",
+    "modules/PROV-09-wallet.md",
   ] },
 ]
 
