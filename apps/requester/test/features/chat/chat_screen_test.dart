@@ -131,7 +131,7 @@ void main() {
   testWidgets('tapping the header opens the participant profile', (
     tester,
   ) async {
-    await pumpRouterAt(tester, '/inbox/conv-1');
+    final container = await pumpRouterAt(tester, '/inbox/conv-1');
 
     await tester.tap(find.byType(ManoChatHeader));
     await tester.pumpAndSettle();
@@ -147,6 +147,33 @@ void main() {
       findsOneWidget,
     );
 
+    await tester.tap(find.text('Ver perfil'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ManoProfileSheet), findsNothing);
+    expect(routerPath(container), '/provider/provider-2');
+  });
+
+  testWidgets('a client in the header has no profile to open', (tester) async {
+    await pumpRouterAt(
+      tester,
+      '/inbox/conv-9',
+      overrides: [
+        conversationRepositoryProvider.overrideWithValue(
+          _OneConversation(
+            const Conversation(
+              id: 'conv-9',
+              participant: Party(id: 'c9', displayName: 'Luz', photoUrl: ''),
+              participantRole: ManoRole.requester,
+            ),
+          ),
+        ),
+      ],
+    );
+
+    await tester.tap(find.byType(ManoChatHeader));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ver perfil'), findsNothing);
     await tester.tap(find.text('Cerrar'));
     await tester.pumpAndSettle();
     expect(find.byType(ManoProfileSheet), findsNothing);

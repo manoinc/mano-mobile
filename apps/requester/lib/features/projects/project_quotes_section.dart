@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../provider_profile/provider_profile_route.dart';
+import '../provider_profile/rating_labels.dart';
+
 /// A project's quotes: the pick pinned, the rest sorted, discards folded away.
-class ProjectQuotesSection extends StatefulWidget {
+class ProjectQuotesSection extends ConsumerStatefulWidget {
   const ProjectQuotesSection({
     required this.project,
     required this.onSelect,
@@ -16,10 +21,11 @@ class ProjectQuotesSection extends StatefulWidget {
   final ValueChanged<Quote> onDiscard;
 
   @override
-  State<ProjectQuotesSection> createState() => _ProjectQuotesSectionState();
+  ConsumerState<ProjectQuotesSection> createState() =>
+      _ProjectQuotesSectionState();
 }
 
-class _ProjectQuotesSectionState extends State<ProjectQuotesSection> {
+class _ProjectQuotesSectionState extends ConsumerState<ProjectQuotesSection> {
   QuoteOrder _order = QuoteOrder.price;
   bool _showDiscarded = false;
 
@@ -82,6 +88,7 @@ class _ProjectQuotesSectionState extends State<ProjectQuotesSection> {
     final project = widget.project;
     final selected = quote.status == QuoteStatus.selected;
     final photo = quote.worker.photoUrl;
+    final rating = ref.watch(providerRatingProvider(quote.worker.id)).value;
     return Padding(
       padding: const EdgeInsets.only(bottom: ManoSpacing.sm),
       child: ManoQuoteCard(
@@ -94,6 +101,9 @@ class _ProjectQuotesSectionState extends State<ProjectQuotesSection> {
               )
             : ManoAvatar(photoUrl: photo, size: 40),
         name: quote.workerName,
+        ratingLabel: rating == null ? null : ratingBadgeText(rating),
+        rated: rating?.hasRatings ?? false,
+        onProviderTap: () => context.push(providerProfilePath(quote.worker.id)),
         amountLabel: ManoFormat.cop(quote.amountCop),
         ageLabel: ManoFormat.ago(quote.createdAt, now),
         message: quote.message,

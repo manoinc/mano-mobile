@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/mano_theme.dart';
 import 'mano_press_scale.dart';
 import 'mano_price_tag.dart';
+import 'mano_rating_badge.dart';
 
 /// One priced offer: who or what, its pricing model, its zone and its price.
 class ManoOfferCard extends StatelessWidget {
@@ -16,6 +17,9 @@ class ManoOfferCard extends StatelessWidget {
     this.status,
     this.trailing,
     this.onTap,
+    this.ratingLabel,
+    this.rated = true,
+    this.onProviderTap,
     super.key,
   });
 
@@ -30,6 +34,13 @@ class ManoOfferCard extends StatelessWidget {
   // Sits beside the price; meant for a quiet action, never a flame button.
   final Widget? trailing;
   final VoidCallback? onTap;
+
+  /// Shown under the title, e.g. "4,9 · 32"; null hides it.
+  final String? ratingLabel;
+  final bool rated;
+
+  /// Tapping the leading and title area, e.g. to open the provider's profile.
+  final VoidCallback? onProviderTap;
 
   @override
   Widget build(BuildContext context) {
@@ -55,31 +66,37 @@ class ManoOfferCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    if (leading case final leading?) ...[
-                      leading,
-                      const SizedBox(width: ManoSpacing.md),
-                    ],
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.titleSmall,
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            subtitle,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: ManoColors.muted,
+                      child: _ProviderArea(
+                        onTap: onProviderTap,
+                        child: Row(
+                          children: [
+                            if (leading case final leading?) ...[
+                              leading,
+                              const SizedBox(width: ManoSpacing.md),
+                            ],
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.textTheme.titleSmall,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  _Byline(
+                                    ratingLabel: ratingLabel,
+                                    rated: rated,
+                                    subtitle: subtitle,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     if (status case final status?) ...[
@@ -131,4 +148,57 @@ class ManoOfferCard extends StatelessWidget {
       ),
     );
   }
+}
+
+// Rating and subtitle on one line, so a rating never makes the card taller.
+class _Byline extends StatelessWidget {
+  const _Byline({
+    required this.ratingLabel,
+    required this.rated,
+    required this.subtitle,
+  });
+
+  final String? ratingLabel;
+  final bool rated;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.bodySmall
+        ?.copyWith(color: ManoColors.muted);
+    return Row(
+      children: [
+        if (ratingLabel case final rating?) ...[
+          Flexible(
+            child: ManoRatingBadge(label: rating, rated: rated),
+          ),
+          Text('  ·  ', style: style),
+        ],
+        Flexible(
+          child: Text(
+            subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: style,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProviderArea extends StatelessWidget {
+  const _ProviderArea({required this.onTap, required this.child});
+
+  final VoidCallback? onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => onTap == null
+      ? child
+      : InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(ManoRadius.card),
+          child: child,
+        );
 }

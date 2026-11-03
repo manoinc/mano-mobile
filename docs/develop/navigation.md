@@ -18,6 +18,8 @@ app's root. There are no redirects.
 /inbox                             InboxTabScreen        REQ-05
   /inbox/:conversationId  [root]   ChatScreen            REQ-05
 /profile                           ProfileTabScreen
+/provider/:providerId    [root]    ProviderProfileScreen REQ-07
+  /provider/:providerId/reviews    ProviderReviewsScreen REQ-07
 +  → CreateActionSheet (a sheet, not a route)
 ```
 

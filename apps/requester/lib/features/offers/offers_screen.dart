@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../provider_profile/provider_profile_route.dart';
+import '../provider_profile/rating_labels.dart';
+
 const _filterLabels = {
   OfferPricingFilter.all: 'Todas',
   OfferPricingFilter.fixed: 'Precio fijo',
@@ -152,21 +155,25 @@ class _FilteredOffers extends StatelessWidget {
   }
 }
 
-class _OfferTile extends StatelessWidget {
+class _OfferTile extends ConsumerWidget {
   const _OfferTile({required this.offer});
 
   final ServiceOffer offer;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     void book() => context.push('/home/book/${offer.id}');
     final hourly = offer.rateType == RateType.hourly;
+    final rating = ref.watch(providerRatingProvider(offer.offerantId)).value;
 
     // The gateway returns only offerantId, so the provider stays anonymous.
     return ManoOfferCard(
       leading: const ManoInitialsAvatar(initials: 'P', size: 40),
       title: 'Profesional',
       subtitle: hourly ? 'Por hora' : 'Precio fijo',
+      ratingLabel: rating == null ? null : ratingBadgeText(rating),
+      rated: rating?.hasRatings ?? false,
+      onProviderTap: () => context.push(providerProfilePath(offer.offerantId)),
       amountLabel: ManoFormat.cop(offer.amountCop),
       rateLabel: hourly ? '/hora' : 'precio fijo',
       zone: offer.hasZone ? 'Zona: ${offer.zone}' : 'Sin zona definida',

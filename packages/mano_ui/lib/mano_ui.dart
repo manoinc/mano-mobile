@@ -77,6 +77,7 @@ export 'src/widgets/mano_quiet_button.dart';
 export 'src/widgets/mano_pull_to_refresh.dart';
 export 'src/widgets/mano_refresh_list.dart';
 export 'src/widgets/mano_rating_sheet.dart';
+export 'src/widgets/mano_rating_badge.dart';
 export 'src/widgets/mano_rating_summary.dart';
 export 'src/widgets/mano_referral_card.dart';
 export 'src/widgets/mano_request_card.dart';

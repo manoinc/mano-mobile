@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../media/photo_picking.dart';
+import '../provider_profile/provider_profile_route.dart';
 
 class ChatScreen extends ConsumerWidget {
   const ChatScreen({required this.conversationId, super.key});
@@ -95,6 +97,7 @@ class _Header extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final conversation = ref.watch(conversationProvider(conversationId));
     if (conversation == null) return const SizedBox.shrink();
+    final isProvider = conversation.participantRole == ManoRole.provider;
 
     return ManoChatHeader(
       name: conversation.participantLabel,
@@ -117,8 +120,13 @@ class _Header extends ConsumerWidget {
               value: conversation.isOnline ? 'En línea' : 'Desconectado',
             ),
           ],
-          actionLabel: 'Cerrar',
-          onAction: () => Navigator.of(sheet).pop(),
+          actionLabel: isProvider ? 'Ver perfil' : 'Cerrar',
+          onAction: () {
+            Navigator.of(sheet).pop();
+            if (isProvider) {
+              context.push(providerProfilePath(conversation.participant.id));
+            }
+          },
         ),
       ),
     );

@@ -67,6 +67,8 @@ export 'src/requests/request_actions.dart';
 export 'src/reviews/my_reviews.dart';
 export 'src/reviews/rating_flow.dart';
 export 'src/reviews/review_copy.dart';
+export 'src/reviews/provider_profile_view.dart';
+export 'src/reviews/provider_reviews_feed.dart';
 export 'src/reviews/review_providers.dart';
 export 'src/services/my_offers_provider.dart';
 export 'src/services/offer_editor_notifier.dart';
