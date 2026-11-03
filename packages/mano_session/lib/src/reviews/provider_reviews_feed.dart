@@ -12,6 +12,8 @@ final class ReviewFeed {
     this.loadMoreFailed = false,
   });
 
+  static const empty = ReviewFeed(items: []);
+
   final List<Review> items;
   final String? nextCursor;
   final bool loadingMore;

@@ -63,7 +63,7 @@ class _ReviewsScreenState extends ConsumerState<ReviewsScreen> {
 
   Future<void> _more() async {
     setState(() => _loading = true);
-    await ref.read(myReviewsProvider.notifier).loadMore();
+    await ref.read(loadMoreMyReviewsProvider)();
     if (mounted) setState(() => _loading = false);
   }
 

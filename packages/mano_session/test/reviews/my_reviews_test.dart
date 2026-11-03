@@ -29,8 +29,10 @@ void main() {
 
   test('my reviews are the signed-in provider\'s first page', () async {
     final container = make();
+    container.listen(myReviewsProvider, (_, _) {});
 
-    final feed = await container.read(myReviewsProvider.future);
+    await container.read(providerReviewsFeedProvider('w1').future);
+    final feed = container.read(myReviewsProvider).value!;
 
     expect(reviews.reads, [('w1', null)]);
     expect(feed.items.map((r) => r.id), ['a']);
@@ -39,9 +41,10 @@ void main() {
 
   test('more appends the next page and stops at the last', () async {
     final container = make();
-    await container.read(myReviewsProvider.future);
+    container.listen(myReviewsProvider, (_, _) {});
+    await container.read(providerReviewsFeedProvider('w1').future);
 
-    await container.read(myReviewsProvider.notifier).loadMore();
+    await container.read(loadMoreMyReviewsProvider)();
 
     final feed = container.read(myReviewsProvider).value!;
     expect(reviews.reads.last, ('w1', 'c1'));
@@ -52,7 +55,8 @@ void main() {
   test('a guest has no reviews to read', () async {
     final container = make(subject: null);
 
-    expect((await container.read(myReviewsProvider.future)).items, isEmpty);
+    expect(container.read(myReviewsProvider).value!.items, isEmpty);
+    await container.read(loadMoreMyReviewsProvider)();
     expect(await container.read(myRatingProvider.future), RatingSummary.none);
     expect(reviews.reads, isEmpty);
   });
