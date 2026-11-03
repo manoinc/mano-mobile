@@ -42,6 +42,13 @@ Future<void> _scrollTo(WidgetTester tester, String text) =>
           .first,
     );
 
+// Clear of the bottom bar, which floats over the list's last rows.
+Future<void> _centre(WidgetTester tester, Finder finder) async {
+  await tester.ensureVisible(finder);
+  await tester.drag(find.byType(ListView).first, const Offset(0, -300));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   group('the session row', () {
     testWidgets('signed in, Cerrar sesión signs out', (tester) async {
@@ -151,7 +158,7 @@ void main() {
       ),
     );
     await _pump(tester);
-    await tester.ensureVisible(find.byType(ManoReferralCard));
+    await _centre(tester, find.byType(ManoReferralCard));
     await tester.tap(find.byType(ManoReferralCard));
     await tester.pumpAndSettle();
     expect(find.text('ANDRES-M4N0'), findsOneWidget);
@@ -165,7 +172,7 @@ void main() {
 
   testWidgets('the referral sheet links to Billetera', (tester) async {
     final c = await _pump(tester);
-    await tester.ensureVisible(find.byType(ManoReferralCard));
+    await _centre(tester, find.byType(ManoReferralCard));
     await tester.tap(find.byType(ManoReferralCard));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Ver mi Billetera'));

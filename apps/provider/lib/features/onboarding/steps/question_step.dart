@@ -175,59 +175,11 @@ class _ServiceChoices extends StatelessWidget {
     runSpacing: ManoSpacing.sm,
     children: [
       for (final category in ServiceCategories.all)
-        _ServiceChip(
+        ManoChoiceChip(
           label: category.label,
           selected: selected.contains(category.id),
           onTap: () => onToggle(category.id),
         ),
     ],
   );
-}
-
-class _ServiceChip extends StatelessWidget {
-  const _ServiceChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
-
-    return Semantics(
-      button: true,
-      selected: selected,
-      child: Material(
-        color: selected
-            ? ManoColors.flame.withValues(alpha: 0.12)
-            : ManoColors.stone,
-        shape: StadiumBorder(
-          side: BorderSide(
-            color: selected ? ManoColors.flame : Colors.transparent,
-          ),
-        ),
-        child: InkWell(
-          customBorder: const StadiumBorder(),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: ManoSpacing.md,
-              vertical: ManoSpacing.sm + ManoSpacing.xs,
-            ),
-            child: Text(
-              label,
-              style: text.titleSmall?.copyWith(
-                color: selected ? ManoColors.flame : ManoColors.ink,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }

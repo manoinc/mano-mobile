@@ -27,6 +27,9 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 | `ReviewRepository` | `reviewWorker`, `reviewClient`, `job { worker { averageRating ratingsCount reviews(page) } }` | **live** (D8 mano-reviews over gRPC) | `GatewayReviewRepository`. See [Reviews](reviews.md) |
 | `ProviderDirectory` | none: there is no `workerProfile(id)` | missing | `MockProviderDirectory` |
 | `ProviderOnboardingRepository` | `updateWorkerProfile`, `submitVerificationRequest` | stub (D2, D10 `not implemented`) | `MockProviderOnboardingRepository` |
+| `ProviderProfileEditor` | `updateWorkerProfile` | stub, and has no bio, skills or portfolio | `MockProviderProfileRepository` (the same instance Perfil reads) |
+| `SupportDesk` | `createSupportTicket(subject, description)` → `ticketNumber`, `status` FILED | stub; no PQRS kind | `MockSupportDesk` |
+| `PayoutAccounts` | `registerPayoutAccount` (no read or remove) | stub; no billing bridge (mano-billing `RegisterPayoutAccount` is the real shape) | `MockPayoutAccounts` |
 | `SessionRepository` | SuperTokens FDI: `/auth/signin`, `/auth/signup` (with `role`), `/auth/session/refresh`, `/auth/signout` | **live** in `mano-auth` (`:3001`); the gateway *verifies* tokens | `SuperTokensSessionRepository` when configured |
 
 Every live D4/D5/D7 operation needs a signed-in caller; both apps now create
@@ -315,3 +318,7 @@ idempotent: it truncates the catalog first.
   `Message.media` and `sendMessage(mediaIds)`. Read the resolvers.
 - Profile, support (`createSupportTicket`) and payout (`registerPayoutAccount`)
   mutations are all `not implemented` stubs, and the gateway has no billing bridge.
+  Beyond that: `updateWorkerProfile` has no bio, skills or portfolio fields;
+  `createSupportTicket` has no PQRS kind (petición, queja, reclamo,
+  sugerencia); payouts have no read (`myPayoutAccount`) or remove; billing's
+  `AccountHolder` wants an `email` the app cannot read from the token yet.

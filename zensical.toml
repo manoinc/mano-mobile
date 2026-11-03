@@ -61,6 +61,7 @@ nav = [
     "modules/PROV-05-agenda.md",
     "modules/PROV-06-chat.md",
     "modules/PROV-07-projects.md",
+    "modules/PROV-08-account.md",
   ] },
 ]
 

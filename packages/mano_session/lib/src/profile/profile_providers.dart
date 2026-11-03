@@ -4,8 +4,13 @@ import 'package:mano_domain/mano_domain.dart';
 
 // Both ports are mocks until the gateway serves them (docs/develop/backend-contract.md).
 
-final providerProfileRepositoryProvider = Provider<ProviderProfileRepository>(
+/// One in-memory profile, so edits show on Perfil.
+final mockProviderProfileProvider = Provider(
   (ref) => MockProviderProfileRepository(),
+);
+
+final providerProfileRepositoryProvider = Provider<ProviderProfileRepository>(
+  (ref) => ref.watch(mockProviderProfileProvider),
 );
 
 final earningsRepositoryProvider = Provider<EarningsRepository>(

@@ -9,11 +9,14 @@ import '../features/chat/chat_screen.dart';
 import '../features/chat/provider_inbox_screen.dart';
 import '../features/home/provider_home_screen.dart';
 import '../features/projects/lead_detail_screen.dart';
+import '../features/payouts/payout_screen.dart';
 import '../features/profile/earnings_breakdown_screen.dart';
+import '../features/profile/edit/edit_profile_screen.dart';
 import '../features/profile/provider_profile_screen.dart';
 import '../features/profile/reviews_section.dart';
 import '../features/services/my_services_screen.dart';
 import '../features/services/offer_editor_screen.dart';
+import '../features/support/support_screen.dart';
 import '../features/wallet/wallet_screen.dart';
 import 'provider_nav_shell.dart';
 
@@ -108,6 +111,21 @@ final providerRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'reviews',
                     builder: (context, state) => const ReviewsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'edit',
+                    parentNavigatorKey: rootKey,
+                    builder: (context, state) => const EditProfileScreen(),
+                  ),
+                  GoRoute(
+                    path: 'support',
+                    parentNavigatorKey: rootKey,
+                    builder: (context, state) => const SupportScreen(),
+                  ),
+                  GoRoute(
+                    path: 'payout',
+                    parentNavigatorKey: rootKey,
+                    builder: (context, state) => const PayoutScreen(),
                   ),
                   GoRoute(
                     path: 'services',
