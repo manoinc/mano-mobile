@@ -47,9 +47,14 @@ average shows on their cards and profile (HU-C1).
 - `reviewRepositoryProvider` (gateway, or mock offline), `providerDirectoryProvider` (mock).
 - `providerRatingProvider(providerId)` → `RatingSummary`; a failure shows as
   `none`, because stars on a card are decoration and must not break the card.
-- `reviewActionsProvider`: `reviewProvider` / `reviewClient`. A success adds the
-  job to `reviewedJobsProvider` and refreshes ratings. The gateway has no
-  "already reviewed" field, so that set lasts for the session only.
+- `reviewActionsProvider`: `reviewProvider` / `reviewClient`. A success records
+  the job's stars in `reviewedJobsProvider` (jobId → stars, read through
+  `ratedStarsProvider(jobId)`) and refreshes ratings. The gateway has no
+  "already reviewed" field, so that map lasts for the session only.
+- `ratingFlowProvider(jobId)`: the rating sheet's draft, send and error copy
+  (`review_copy.dart`). `myRatingProvider` / `myReviewsProvider`: the signed-in
+  provider's own rating and paged reviews. See
+  [REVIEWS-01](../modules/REVIEWS-01-rating-flows.md).
 
 ## UI (`mano_ui`)
 
@@ -58,6 +63,7 @@ average shows on their cards and profile (HU-C1).
 | `ManoStarInput` | five large tappable stars with the word under them (Muy malo … Excelente), modelled on Thumbtack's rating step. |
 | `ManoRatingSummary` | big average + stars + count (Airbnb / Thumbtack), or "Aún sin reseñas". The screen formats the labels (`4,9`, `32 reseñas`). |
 | `ManoReviewTile` | one review, already used on the provider's Perfil. |
+| `ManoRatingSheet` | the rating sheet both apps open on a finished job: stars, then an optional comment, Enviar, thanks. |
 
 ## Running it locally
 

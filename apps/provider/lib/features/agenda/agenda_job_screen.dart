@@ -8,6 +8,7 @@ import '../chat/job_chat_button.dart';
 import 'agenda_labels.dart';
 import 'agenda_load_error.dart';
 import 'hour_logger_sheet.dart';
+import 'job_rating_sheet.dart';
 
 /// One job the provider works, with the lifecycle step its status allows.
 class AgendaJobScreen extends ConsumerStatefulWidget {
@@ -74,6 +75,21 @@ class _AgendaJobScreenState extends ConsumerState<AgendaJobScreen> {
                 ],
               ],
             ),
+          ),
+        ),
+        final job? when job.status == JobStatus.finished => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(ManoSpacing.md),
+            child: switch (ref.watch(ratedStarsProvider(job.id))) {
+              null => ManoPrimaryButton(
+                label: 'Calificar cliente',
+                onPressed: () => showJobRatingSheet(context, job),
+              ),
+              final stars => ManoQuietButton(
+                label: 'Calificado ★$stars',
+                onPressed: null,
+              ),
+            },
           ),
         ),
         _ => null,

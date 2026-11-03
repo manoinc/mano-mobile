@@ -4,6 +4,7 @@ import 'package:mano_provider/features/agenda/agenda_job_screen.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_reviews.dart';
 import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
 import 'agenda_fakes.dart';
@@ -176,6 +177,81 @@ void main() {
 
     expect(find.text('No pudimos cargar este trabajo.'), findsOneWidget);
     expect(find.text('Reintentar'), findsOneWidget);
+  });
+
+  group('rating the client (HU-T12)', () {
+    testWidgets('a finished job offers Calificar cliente', (tester) async {
+      await pumpRouterAt(tester, '/agenda/job/job-5');
+
+      expect(
+        find.widgetWithText(ManoPrimaryButton, 'Calificar cliente'),
+        findsOne,
+      );
+      expect(find.text('Iniciar trabajo'), findsNothing);
+    });
+
+    testWidgets('a cancelled job has nothing to rate', (tester) async {
+      await pumpRouterAt(tester, '/agenda/job/job-6');
+
+      expect(find.text('Calificar cliente'), findsNothing);
+    });
+
+    testWidgets('rating the client is private, sent, then marked', (
+      tester,
+    ) async {
+      final reviews = FakeReviews();
+      await pumpRouterAt(
+        tester,
+        '/agenda/job/job-5',
+        overrides: [reviewRepositoryProvider.overrideWithValue(reviews)],
+      );
+
+      await tester.tap(find.text('Calificar cliente'));
+      await tester.pumpAndSettle();
+      expect(find.text('¿Cómo te fue con Laura Pérez?'), findsOneWidget);
+      expect(
+        find.text('Solo tú y el cliente verán esta calificación.'),
+        findsOneWidget,
+      );
+      await tester.tap(find.bySemanticsLabel('4 estrellas'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Enviar'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Listo'));
+      await tester.pumpAndSettle();
+
+      expect(reviews.writes, [('client', 'job-5', 4, '')]);
+      expect(find.text('Calificar cliente'), findsNothing);
+      expect(find.widgetWithText(ManoQuietButton, 'Calificado ★4'), findsOne);
+    });
+
+    testWidgets('a job not yet reviewable says to try later', (tester) async {
+      await pumpRouterAt(
+        tester,
+        '/agenda/job/job-5',
+        overrides: [
+          reviewRepositoryProvider.overrideWithValue(
+            FakeReviews(
+              written: const Err(DataRejected(reason: 'FailedPrecondition')),
+            ),
+          ),
+        ],
+      );
+
+      await tester.tap(find.text('Calificar cliente'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.bySemanticsLabel('2 estrellas'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Enviar'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          'Aún no puedes calificar este trabajo. Intenta en unos minutos.',
+        ),
+        findsOneWidget,
+      );
+    });
   });
 
   testWidgets("Escribir opens the job's chat", (tester) async {

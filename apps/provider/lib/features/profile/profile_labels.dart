@@ -36,6 +36,15 @@ String yearsText(int years) =>
 String reviewsCountText(int count) =>
     count == 1 ? '1 reseña' : '$count reseñas';
 
+/// "4,9" and "32 reseñas"; a dash before the first review.
+({String average, String count}) ratingLabels(RatingSummary summary) => (
+  average: switch (summary.average) {
+    final average? => ratingText(average),
+    null => '–',
+  },
+  count: reviewsCountText(summary.count),
+);
+
 String referralProgressText(ReferralProgram program) =>
     '${program.invited} de ${program.goal} invitados';
 

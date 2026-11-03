@@ -91,7 +91,7 @@ void main() {
 
     expect(result.isOk, isTrue);
     expect(reviews.writes, [('provider', 'j1', 5)]);
-    expect(container.read(reviewedJobsProvider), {'j1'});
+    expect(container.read(reviewedJobsProvider), {'j1': 5});
     expect(reviews.ratingCalls, 2);
   });
 

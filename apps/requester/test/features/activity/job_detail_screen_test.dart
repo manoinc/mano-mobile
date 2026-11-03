@@ -4,6 +4,7 @@ import 'package:mano_requester/features/activity/job_detail_screen.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_reviews.dart';
 import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
 import 'activity_fakes.dart';
@@ -125,6 +126,130 @@ void main() {
 
     expect(find.text('Solicitud enviada'), findsOneWidget);
     expect(find.textContaining('Andrés Castro'), findsWidgets);
+  });
+
+  group('rating (HU-C6)', () {
+    Future<FakeReviews> openSheet(
+      WidgetTester tester, {
+      Result<Review, DataFailure>? written,
+    }) async {
+      final reviews = FakeReviews(written: written);
+      await pumpRouterAt(
+        tester,
+        '/projects/job/job-5',
+        overrides: [reviewRepositoryProvider.overrideWithValue(reviews)],
+      );
+      await tester.tap(find.text('Calificar'));
+      await tester.pumpAndSettle();
+      return reviews;
+    }
+
+    Future<void> rate(WidgetTester tester, int stars) async {
+      await tester.tap(find.bySemanticsLabel('$stars estrellas'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Enviar'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('a finished job offers Calificar first, rebooking second', (
+      tester,
+    ) async {
+      await pumpRouterAt(tester, '/projects/job/job-5');
+
+      expect(find.widgetWithText(ManoPrimaryButton, 'Calificar'), findsOne);
+      expect(
+        find.widgetWithText(ManoOutlineButton, 'Volver a contratar'),
+        findsOne,
+      );
+    });
+
+    testWidgets('a cancelled job can only be rebooked', (tester) async {
+      await pumpRouterAt(tester, '/projects/job/job-6');
+
+      expect(find.text('Calificar'), findsNothing);
+      expect(
+        find.widgetWithText(ManoPrimaryButton, 'Volver a contratar'),
+        findsOne,
+      );
+    });
+
+    testWidgets(
+      'rating sends stars and comment, thanks, then shows Calificado',
+      (tester) async {
+        final reviews = await openSheet(tester);
+        expect(find.text('¿Cómo te fue con Andrés Castro?'), findsOneWidget);
+        expect(
+          tester
+              .widget<ManoPrimaryButton>(
+                find.widgetWithText(ManoPrimaryButton, 'Enviar'),
+              )
+              .onPressed,
+          isNull,
+        );
+
+        await tester.tap(find.bySemanticsLabel('5 estrellas'));
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextField), 'Excelente trabajo');
+        await tester.tap(find.text('Enviar'));
+        await tester.pumpAndSettle();
+
+        expect(reviews.writes, [('provider', 'job-5', 5, 'Excelente trabajo')]);
+        expect(find.text('¡Gracias por calificar!'), findsOneWidget);
+        await tester.tap(find.text('Listo'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(ManoRatingSheet), findsNothing);
+        expect(find.text('Calificar'), findsNothing);
+        expect(find.widgetWithText(ManoQuietButton, 'Calificado ★5'), findsOne);
+        expect(
+          find.widgetWithText(ManoPrimaryButton, 'Volver a contratar'),
+          findsOne,
+        );
+      },
+    );
+
+    testWidgets('closing after the thanks still shows Calificado', (
+      tester,
+    ) async {
+      await openSheet(tester);
+      await rate(tester, 4);
+
+      await tester.tapAt(const Offset(20, 20));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Calificado ★4'), findsOneWidget);
+    });
+
+    testWidgets('a job not yet reviewable says to try in a few minutes', (
+      tester,
+    ) async {
+      await openSheet(
+        tester,
+        written: const Err(DataRejected(reason: 'FailedPrecondition: no')),
+      );
+      await rate(tester, 3);
+
+      expect(
+        find.text(
+          'Aún no puedes calificar este trabajo. Intenta en unos minutos.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byType(ManoRatingSheet), findsOneWidget);
+      await tester.tap(find.byTooltip('Cerrar'));
+      await tester.pumpAndSettle();
+      expect(find.text('Calificar'), findsOneWidget);
+    });
+
+    testWidgets('any other failure says to try again', (tester) async {
+      await openSheet(tester, written: const Err(DataUnavailable()));
+      await rate(tester, 3);
+
+      expect(
+        find.text('No pudimos enviar tu calificación. Intenta de nuevo.'),
+        findsOneWidget,
+      );
+    });
   });
 
   testWidgets("Escribir opens the job's chat", (tester) async {

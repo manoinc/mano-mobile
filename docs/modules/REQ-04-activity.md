@@ -61,9 +61,11 @@ It has a single bottom action:
   `ManoPromptSheet` with an optional reason field (`ManoTextField`). Confirming
   ("Sí, cancelar") calls `cancelJob`, and on success a `ManoDialogCard` says
   "Trabajo cancelado".
-- `job.canRebook` shows **"Volver a contratar"** (the screen's one flame
-  button). It calls `rebook`, and on success a `ManoDialogCard` says "Solicitud
-  enviada".
+- `job.canRebook` shows **"Volver a contratar"**. It calls `rebook`, and on
+  success a `ManoDialogCard` says "Solicitud enviada". On a cancelled job it is
+  the flame button. On a finished job **"Calificar"** leads and rebooking is
+  the outline button below it, until the job is rated
+  ([REVIEWS-01](REVIEWS-01-rating-flows.md)).
 
 Any other failure shows `failure.message` in a snackbar. An unknown id shows a
 `ManoEmptyState` with "No encontramos este trabajo." and "Volver a Actividad"

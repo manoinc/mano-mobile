@@ -5,42 +5,67 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_reviews.dart';
 import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
 import '../services/services_fakes.dart';
 
-final _overrides = [
-  serviceCatalogProvider.overrideWithValue(FakeServiceCatalog()),
-];
+final _liveReviews = FakeReviews(
+  rating: const RatingSummary(average: 4.8, count: 12),
+  pages: {
+    null: ReviewPage(
+      items: [
+        FakeReviews.review('a', name: 'Laura Pérez'),
+        FakeReviews.review('b', name: 'Jorge Ruiz', stars: 4),
+      ],
+      nextCursor: 'c1',
+    ),
+    'c1': ReviewPage(items: [FakeReviews.review('c', name: 'Marta Díaz')]),
+  },
+);
 
 Future<ProviderContainer> _pump(
   WidgetTester tester, {
   String path = '/profile',
   SessionRepository? session,
+  ReviewRepository? reviews,
+  String? subject = 'w1',
 }) async {
+  final overrides = [
+    serviceCatalogProvider.overrideWithValue(FakeServiceCatalog()),
+    reviewRepositoryProvider.overrideWithValue(reviews ?? _liveReviews),
+    if (subject != null)
+      currentUserProvider.overrideWithValue(
+        AuthenticatedUser(subject: subject, roles: const {}),
+      ),
+  ];
   tester.view.physicalSize = const Size(800, 3200);
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
   final container = await pumpRouterAt(
     tester,
     path,
-    overrides: _overrides,
+    overrides: overrides,
     session: session,
   );
   return container;
 }
 
-Future<void> _scrollTo(WidgetTester tester, String text) =>
-    tester.scrollUntilVisible(
-      find.text(text),
-      400,
-      scrollable: find
-          .descendant(
-            of: find.byType(ListView).first,
-            matching: find.byType(Scrollable),
-          )
-          .first,
-    );
+// Scrolls [text] to the top so the bottom bar can't cover it.
+Future<void> _scrollTo(WidgetTester tester, String text) async {
+  await tester.scrollUntilVisible(
+    find.text(text),
+    400,
+    scrollable: find
+        .descendant(
+          of: find.byType(ListView).first,
+          matching: find.byType(Scrollable),
+        )
+        .first,
+  );
+  await tester.ensureVisible(find.text(text));
+  await tester.pumpAndSettle();
+}
 
 void main() {
   group('the session row', () {
@@ -92,20 +117,54 @@ void main() {
     expect(find.text('\$2.650.000'), findsOneWidget);
   });
 
-  testWidgets('shows the stats grid', (tester) async {
+  testWidgets('shows the stats grid with the live rating', (tester) async {
     await _pump(tester);
-    expect(find.text('4,9'), findsOneWidget);
+    expect(find.widgetWithText(ManoStatTile, '4,8'), findsOneWidget);
     expect(find.text('118'), findsOneWidget);
     expect(find.text('96 %'), findsOneWidget);
     expect(find.text('98 %'), findsOneWidget);
   });
 
-  testWidgets('shows latest reviews and links to all', (tester) async {
-    await _pump(tester);
+  testWidgets('without ratings yet the stat reads a dash', (tester) async {
+    await _pump(tester, reviews: FakeReviews());
+    expect(find.widgetWithText(ManoStatTile, '–'), findsOneWidget);
+    expect(find.text('Ver todas'), findsNothing);
+  });
+
+  testWidgets('latest live reviews link to all, a page at a time', (
+    tester,
+  ) async {
+    final reviews = FakeReviews(
+      rating: _liveReviews.rating,
+      pages: _liveReviews.pages,
+    );
+    await _pump(tester, reviews: reviews);
     expect(find.byType(ManoReviewTile), findsNWidgets(2));
+    expect(find.text('Laura Pérez'), findsOneWidget);
+
     await tester.tap(find.text('Ver todas'));
     await tester.pumpAndSettle();
-    expect(find.byType(ManoReviewTile), findsNWidgets(4));
+    final summary = tester.widget<ManoRatingSummary>(
+      find.byType(ManoRatingSummary),
+    );
+    expect(summary.averageLabel, '4,8');
+    expect(summary.countLabel, '12 reseñas');
+    expect(find.byType(ManoReviewTile), findsNWidgets(2));
+
+    await tester.tap(find.text('Ver más'));
+    await tester.pumpAndSettle();
+
+    expect(reviews.reads.last, ('w1', 'c1'));
+    expect(find.byType(ManoReviewTile), findsNWidgets(3));
+    expect(find.text('Marta Díaz'), findsOneWidget);
+    expect(find.text('Ver más'), findsNothing);
+  });
+
+  testWidgets('the public preview shows the live rating', (tester) async {
+    await _pump(tester);
+    await tester.tap(find.text('Ver perfil público'));
+    await tester.pumpAndSettle();
+    expect(find.text('4,8 · 12 reseñas'), findsOneWidget);
   });
 
   testWidgets('the earnings section opens the breakdown', (tester) async {

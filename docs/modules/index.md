@@ -31,6 +31,7 @@ routes are already registered, so a module never edits the router.
 | ID | Module | Folders | Ports | Doc |
 |---|---|---|---|---|
 | MEDIA-01 | Chat photos & project photos | `chat/`, `media/` and `projects/` in both apps | `MediaPicker`, `MediaUploader`, `ChatRepository`, `ProjectRepository` | [MEDIA-01](MEDIA-01-chat-photos.md) |
+| REVIEWS-01 | Rating flows | `activity/`, `agenda/`, `profile/` | `ReviewRepository` (live) | [REVIEWS-01](REVIEWS-01-rating-flows.md) |
 
 Shared state goes in `mano_session/lib/src/<module>/`:
 
