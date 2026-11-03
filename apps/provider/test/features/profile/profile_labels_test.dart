@@ -5,6 +5,17 @@ import 'package:mano_session/mano_session.dart';
 void main() {
   test('rating uses a decimal comma', () => expect(ratingText(4.9), '4,9'));
 
+  test('a rating summary reads as average and count', () {
+    final labels = ratingLabels(const RatingSummary(average: 4.86, count: 32));
+    expect(labels.average, '4,9');
+    expect(labels.count, '32 reseñas');
+    expect(
+      ratingLabels(const RatingSummary(average: 5, count: 1)).count,
+      '1 reseña',
+    );
+    expect(ratingLabels(RatingSummary.none).average, '–');
+  });
+
   test('payout line shows amount and date, or says none is pending', () {
     expect(
       payoutLine(Payout(amountCop: 375000, date: DateTime(2026, 10, 17))),

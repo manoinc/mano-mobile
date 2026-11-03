@@ -18,21 +18,17 @@ void main() {
     );
   });
 
-  test(
-    'the profile, stats, reviews and referral resolve from the mock',
-    () async {
-      expect(
-        (await container.read(providerProfileProvider.future)).firstName,
-        isNotEmpty,
-      );
-      expect(
-        (await container.read(providerStatsProvider.future)).rating,
-        greaterThan(0),
-      );
-      expect(await container.read(providerReviewsProvider.future), isNotEmpty);
-      expect((await container.read(referralProvider.future)).rewardCoins, 10);
-    },
-  );
+  test('the profile, stats and referral resolve from the mock', () async {
+    expect(
+      (await container.read(providerProfileProvider.future)).firstName,
+      isNotEmpty,
+    );
+    expect(
+      (await container.read(providerStatsProvider.future)).rating,
+      greaterThan(0),
+    );
+    expect((await container.read(referralProvider.future)).rewardCoins, 10);
+  });
 
   test('earnings are read per period', () async {
     final week = await container.read(

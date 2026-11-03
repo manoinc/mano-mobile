@@ -21,6 +21,20 @@ WidgetbookCategory overlays() => WidgetbookCategory(
         open: (c) => showManoSheet<void>(context: c, builder: (_) => const _Prompt()),
       ),
     }),
+    component('ManoRatingSheet', {
+      'Interactive': (context) => const Align(alignment: Alignment.bottomCenter, child: _RatingDemo()),
+      'No stars yet': (context) => const Align(alignment: Alignment.bottomCenter, child: _Rating()),
+      'Sending': (context) => const Align(alignment: Alignment.bottomCenter, child: _Rating(stars: 4, busy: true)),
+      'Not yet reviewable': (context) => const Align(
+        alignment: Alignment.bottomCenter,
+        child: _Rating(stars: 4, error: 'Aún no puedes calificar este trabajo. Intenta en unos minutos.'),
+      ),
+      'Thanks': (context) => const Align(alignment: Alignment.bottomCenter, child: _Rating(stars: 5, done: true)),
+      'Open with showManoSheet': (context) => _Launcher(
+        label: 'Calificar',
+        open: (c) => showManoSheet<void>(context: c, builder: (_) => const _RatingDemo()),
+      ),
+    }),
     component('ManoAccountNeededSheet', {
       'Inline': (context) => const Align(alignment: Alignment.bottomCenter, child: _AccountNeeded()),
       'Open with showManoSheet': (context) => _Launcher(
@@ -87,6 +101,62 @@ class _Prompt extends StatelessWidget {
     primaryLabel: 'Iniciar sesión',
     onPrimary: noop,
     onClose: noop,
+  );
+}
+
+class _Rating extends StatelessWidget {
+  const _Rating({this.stars = 0, this.busy = false, this.error, this.done = false});
+
+  final int stars;
+  final bool busy;
+  final String? error;
+  final bool done;
+
+  @override
+  Widget build(BuildContext context) => ManoRatingSheet(
+    title: '¿Cómo te fue con Carlos?',
+    subtitle: 'Tu calificación ayuda a otros a elegir bien.',
+    stars: stars,
+    onStarsChanged: (_) {},
+    onCommentChanged: (_) {},
+    onSubmit: stars == 0 ? null : noop,
+    onClose: noop,
+    busy: busy,
+    error: error,
+    done: done,
+    doneTitle: '¡Gracias por calificar!',
+    doneMessage: 'Tu opinión ayuda a que Mano siga siendo confiable.',
+    onDone: noop,
+  );
+}
+
+class _RatingDemo extends StatefulWidget {
+  const _RatingDemo();
+
+  @override
+  State<_RatingDemo> createState() => _RatingDemoState();
+}
+
+class _RatingDemoState extends State<_RatingDemo> {
+  int _stars = 0;
+  bool _done = false;
+
+  @override
+  Widget build(BuildContext context) => ManoRatingSheet(
+    title: '¿Cómo te fue con Carlos?',
+    subtitle: 'Tu calificación ayuda a otros a elegir bien.',
+    stars: _stars,
+    onStarsChanged: (v) => setState(() => _stars = v),
+    onCommentChanged: (_) {},
+    onSubmit: _stars == 0 ? null : () => setState(() => _done = true),
+    onClose: () => setState(() => _stars = 0),
+    done: _done,
+    doneTitle: '¡Gracias por calificar!',
+    doneMessage: 'Tu opinión ayuda a que Mano siga siendo confiable.',
+    onDone: () => setState(() {
+      _stars = 0;
+      _done = false;
+    }),
   );
 }
 

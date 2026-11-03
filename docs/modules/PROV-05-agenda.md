@@ -63,6 +63,8 @@ The bottom bar has one flame action, chosen by the job's state:
 - `canCancel` adds a quiet **"Cancelar trabajo"** below the main action. It
   opens a sheet with an optional reason (`ManoTextField`). "Sí, cancelar" calls
   `activityActionsProvider.cancelJob`.
+- A finished job shows **"Calificar cliente"**, and "Calificado ★N" once rated
+  ([REVIEWS-01](REVIEWS-01-rating-flows.md)).
 
 Every action reports its outcome in a snackbar: "Trabajo iniciado.", "Trabajo
 finalizado.", "Trabajo cancelado.", or `failure.message`.

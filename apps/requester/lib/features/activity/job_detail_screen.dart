@@ -6,6 +6,7 @@ import 'package:mano_ui/mano_ui.dart';
 
 import '../chat/job_chat_button.dart';
 import 'activity_labels.dart';
+import 'job_rating_sheet.dart';
 import 'load_error.dart';
 
 /// One job the requester hired, with the action its status allows.
@@ -50,21 +51,58 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
         final job? when job.canCancel || job.canRebook => SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(ManoSpacing.md),
-            child: job.canRebook
-                ? ManoPrimaryButton(
-                    label: 'Volver a contratar',
-                    busy: _busy,
-                    onPressed: () => _rebook(job),
-                  )
-                : ManoOutlineButton(
-                    label: 'Cancelar',
-                    busy: _busy,
-                    onPressed: () => _cancel(job),
-                  ),
+            child: _actionsFor(job),
           ),
         ),
         _ => null,
       },
+    );
+  }
+
+  // Finished and unrated: Calificar leads, rebooking follows.
+  Widget _actionsFor(Job job) {
+    if (job.canCancel) {
+      return ManoOutlineButton(
+        label: 'Cancelar',
+        busy: _busy,
+        onPressed: () => _cancel(job),
+      );
+    }
+    void rebook() => _rebook(job);
+    if (job.status != JobStatus.finished) {
+      return ManoPrimaryButton(
+        label: 'Volver a contratar',
+        busy: _busy,
+        onPressed: rebook,
+      );
+    }
+    final rated = ref.watch(ratedStarsProvider(job.id));
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: rated == null
+          ? [
+              ManoPrimaryButton(
+                label: 'Calificar',
+                onPressed: _busy
+                    ? null
+                    : () => showJobRatingSheet(context, job),
+              ),
+              const SizedBox(height: ManoSpacing.sm),
+              ManoOutlineButton(
+                label: 'Volver a contratar',
+                busy: _busy,
+                onPressed: rebook,
+              ),
+            ]
+          : [
+              ManoPrimaryButton(
+                label: 'Volver a contratar',
+                busy: _busy,
+                onPressed: rebook,
+              ),
+              const SizedBox(height: ManoSpacing.xs),
+              ManoQuietButton(label: 'Calificado ★$rated', onPressed: null),
+            ],
     );
   }
 

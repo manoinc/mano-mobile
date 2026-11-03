@@ -63,6 +63,17 @@ void main() {
     await _tap(tester, find.text('Sí, finalizar'));
     expect(find.widgetWithText(ManoStatusChip, 'Finalizado'), findsOneWidget);
 
+    // HU-T12: rate the client once the job is finished.
+    await _tap(tester, find.text('Calificar cliente'));
+    expect(
+      find.text('Solo tú y el cliente verán esta calificación.'),
+      findsOneWidget,
+    );
+    await _tap(tester, find.bySemanticsLabel('4 estrellas'));
+    await _tap(tester, find.text('Enviar'));
+    await _tap(tester, find.text('Listo'));
+    expect(find.text('Calificado ★4'), findsOneWidget);
+
     await tester.tap(
       find.byType(BackButton),
     ); // locale-proof, unlike pageBack()

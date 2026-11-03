@@ -27,17 +27,22 @@ final providerRatingProvider = FutureProvider.family<RatingSummary, String>((
   return result.valueOrNull ?? RatingSummary.none;
 });
 
-/// Jobs rated in this session; the gateway has no "already reviewed" field.
-final reviewedJobsProvider = NotifierProvider<ReviewedJobs, Set<String>>(
+/// Jobs rated in this session and their stars; the gateway has no "already reviewed" field.
+final reviewedJobsProvider = NotifierProvider<ReviewedJobs, Map<String, int>>(
   ReviewedJobs.new,
 );
 
-final class ReviewedJobs extends Notifier<Set<String>> {
+final class ReviewedJobs extends Notifier<Map<String, int>> {
   @override
-  Set<String> build() => const {};
+  Map<String, int> build() => const {};
 
-  void add(String jobId) => state = {...state, jobId};
+  void add(String jobId, int stars) => state = {...state, jobId: stars};
 }
+
+/// The stars this session gave [jobId], or null if not rated yet.
+final ratedStarsProvider = Provider.family<int?, String>(
+  (ref, jobId) => ref.watch(reviewedJobsProvider)[jobId],
+);
 
 /// Rating either side of a finished job.
 final class ReviewActions extends Notifier<void> {
@@ -61,8 +66,8 @@ final class ReviewActions extends Notifier<void> {
     Future<Result<Review, DataFailure>> write,
   ) async {
     final result = await write;
-    if (result.isOk) {
-      ref.read(reviewedJobsProvider.notifier).add(jobId);
+    if (result case Ok(:final value)) {
+      ref.read(reviewedJobsProvider.notifier).add(jobId, value.stars);
       ref.invalidate(providerRatingProvider);
     }
     return result;

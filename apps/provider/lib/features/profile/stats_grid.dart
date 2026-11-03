@@ -5,7 +5,7 @@ import 'package:mano_ui/mano_ui.dart';
 
 import 'profile_labels.dart';
 
-/// Past performance as four calm tiles.
+/// Past performance as four calm tiles; the rating is live, the rest mock.
 class StatsGrid extends ConsumerWidget {
   const StatsGrid({super.key});
 
@@ -13,6 +13,7 @@ class StatsGrid extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final stats = ref.watch(providerStatsProvider).value;
     if (stats == null) return const SizedBox.shrink();
+    final rating = ref.watch(myRatingProvider).value ?? RatingSummary.none;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -21,7 +22,7 @@ class StatsGrid extends ConsumerWidget {
         const SizedBox(height: ManoSpacing.md),
         _row(
           ManoStatTile(
-            value: ratingText(stats.rating),
+            value: ratingLabels(rating).average,
             label: 'Calificación',
             icon: Icons.star_rounded,
           ),

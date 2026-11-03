@@ -20,13 +20,15 @@ class ProviderProfileScreen extends ConsumerWidget {
     final profile = ref.watch(providerProfileProvider).value;
     final stats = ref.watch(providerStatsProvider).value;
     final referral = ref.watch(referralProvider).value;
+    final rating = ref.watch(myRatingProvider).value ?? RatingSummary.none;
 
     return Scaffold(
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(ManoSpacing.md),
           children: [
-            if (profile != null) _Header(profile: profile, stats: stats),
+            if (profile != null)
+              _Header(profile: profile, stats: stats, rating: rating),
             const SizedBox(height: ManoSpacing.lg),
             const EarningsSection(),
             const SizedBox(height: ManoSpacing.lg),
@@ -72,10 +74,15 @@ class _SessionRow extends ConsumerWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.profile, required this.stats});
+  const _Header({
+    required this.profile,
+    required this.stats,
+    required this.rating,
+  });
 
   final ProviderProfile profile;
   final ProviderStats? stats;
+  final RatingSummary rating;
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +135,7 @@ class _Header extends StatelessWidget {
         const SizedBox(height: ManoSpacing.xs),
         ManoTextAction(
           label: 'Ver perfil público',
-          onPressed: () => showPublicProfile(context, profile, stats),
+          onPressed: () => showPublicProfile(context, profile, stats, rating),
         ),
       ],
     );
@@ -140,15 +147,16 @@ Future<void> showPublicProfile(
   BuildContext context,
   ProviderProfile profile,
   ProviderStats? stats,
+  RatingSummary rating,
 ) => showManoSheet<void>(
   context: context,
   builder: (sheet) => ManoProfileSheet(
     name: profile.party.displayName,
     photoUrl: profile.party.photoUrl,
     verified: profile.verified,
-    ratingLabel: stats == null
-        ? null
-        : '${ratingText(stats.rating)} · ${reviewsCountText(stats.reviewCount)}',
+    ratingLabel: rating.hasRatings
+        ? '${ratingLabels(rating).average} · ${ratingLabels(rating).count}'
+        : null,
     facts: [
       ManoProfileFact(
         label: 'Experiencia',
