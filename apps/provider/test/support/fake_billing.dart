@@ -59,27 +59,6 @@ final class ScriptedWallet implements WalletRepository {
 
   @override
   Future<Result<List<Bank>, DataFailure>> pseBanks() async => Ok(banks);
-
-  @override
-  Future<Result<CoinTransaction, DataFailure>> spendForLead(
-    String requestId,
-    int cost, {
-    required String label,
-  }) async => cost > balance
-      ? Err(InsufficientCoins(needed: cost, available: balance))
-      : Ok(
-          CoinTransaction(
-            id: 'lead-$requestId',
-            kind: CoinTransactionKind.leadSpend,
-            amount: -cost,
-            label: label,
-            at: DateTime(2026, 11, 3),
-          ),
-        );
-
-  @override
-  Future<Result<Wallet, DataFailure>> refundLead(String requestId) async =>
-      const Err(DataNotFound());
 }
 
 /// Records the links the app asked to open.

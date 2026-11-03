@@ -8,7 +8,7 @@ import 'coin_purchase_draft.dart';
 import 'coin_transaction.dart';
 import 'wallet.dart';
 
-/// The provider's coins: balance, history, top-ups and lead payments.
+/// The provider's coins: balance, history and top-ups.
 abstract interface class WalletRepository {
   Future<Wallet> wallet();
 
@@ -26,14 +26,4 @@ abstract interface class WalletRepository {
 
   /// The banks PSE can charge.
   Future<Result<List<Bank>, DataFailure>> pseBanks();
-
-  /// Pays [cost] coins to answer [requestId]; [InsufficientCoins] when short.
-  Future<Result<CoinTransaction, DataFailure>> spendForLead(
-    String requestId,
-    int cost, {
-    required String label,
-  });
-
-  /// Gives back what [requestId] cost, e.g. when the answer itself failed.
-  Future<Result<Wallet, DataFailure>> refundLead(String requestId);
 }

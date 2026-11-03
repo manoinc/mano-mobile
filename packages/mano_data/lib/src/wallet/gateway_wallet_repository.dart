@@ -6,7 +6,7 @@ import '../gateway/gateway_failure.dart';
 import '../gateway/gateway_json.dart';
 import '../gateway/gateway_transport.dart';
 
-/// [WalletRepository] over D6; leads are gated on the balance but not charged (billing has no coin spend yet).
+/// [WalletRepository] over D6 (mano-billing).
 final class GatewayWalletRepository implements WalletRepository {
   GatewayWalletRepository(this._transport);
 
@@ -76,39 +76,4 @@ final class GatewayWalletRepository implements WalletRepository {
         bankFromJson(json as Map<String, dynamic>),
     ];
   });
-
-  @override
-  Future<Result<CoinTransaction, DataFailure>> spendForLead(
-    String requestId,
-    int cost, {
-    required String label,
-  }) => _withWallet((wallet) {
-    if (!wallet.canAfford(cost)) {
-      return Err(InsufficientCoins(needed: cost, available: wallet.balance));
-    }
-    return Ok(
-      CoinTransaction(
-        id: 'lead-$requestId',
-        kind: CoinTransactionKind.leadSpend,
-        amount: -cost,
-        label: label,
-        at: DateTime.now(),
-        requestId: requestId,
-      ),
-    );
-  });
-
-  @override
-  Future<Result<Wallet, DataFailure>> refundLead(String requestId) =>
-      _withWallet(Ok.new);
-
-  Future<Result<T, DataFailure>> _withWallet<T>(
-    Result<T, DataFailure> Function(Wallet wallet) decide,
-  ) async {
-    final read = await guardGateway(wallet);
-    return switch (read) {
-      Ok(:final value) => decide(value),
-      Err(:final failure) => Err(failure),
-    };
-  }
 }

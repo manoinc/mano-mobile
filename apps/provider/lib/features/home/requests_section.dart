@@ -4,9 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-import '../wallet/recharge_sheet.dart';
-import '../wallet/wallet_labels.dart';
-import 'insufficient_coins_sheet.dart';
 import 'reject_sheet.dart';
 import 'request_actions_row.dart';
 import 'request_detail_sheet.dart';
@@ -108,7 +105,6 @@ class _RequestsSectionState extends ConsumerState<RequestsSection> {
         actions: request.canRespond
             ? RequestActionsRow(
                 busy: _busyId == request.id,
-                acceptLabel: 'Aceptar · ${coinsLabel(request.leadCost)}',
                 onAccept: () => _accept(request),
                 onReject: () => _reject(request),
               )
@@ -153,11 +149,6 @@ class _RequestsSectionState extends ConsumerState<RequestsSection> {
         .respond(request);
     if (!mounted) return;
     setState(() => _busyId = null);
-    if (result.failureOrNull case final InsufficientCoins failure) {
-      final recharge = await showInsufficientCoinsSheet(context, failure);
-      if (recharge == true && mounted) await showRechargeSheet(context);
-      return;
-    }
     _announce(
       result,
       success: 'Solicitud aceptada · quedó en tu agenda',

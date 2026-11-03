@@ -351,5 +351,41 @@ void main() {
         _quote.copyWith(status: QuoteStatus.selected),
       ]);
     });
+
+    test('purchaseLead sends the quote and maps the unlocked quote', () async {
+      final repo = GatewayLeadRepository(
+        _transport((r) async {
+          final body = _body(r);
+          expect(body['query'], contains('purchaseProjectLead'));
+          expect(body['variables'], {'quoteId': 'q1'});
+          return _data({
+            'purchaseProjectLead': {
+              ..._quoteJson,
+              'status': 'SELECTED',
+              'leadPurchased': true,
+              'project': {'id': 'p1', 'title': 'Pintar sala'},
+            },
+          });
+        }),
+      );
+      final bought = (await repo.purchaseLead('q1')).valueOrNull!;
+      expect(bought.status, QuoteStatus.selected);
+      expect(bought.leadPurchased, isTrue);
+      expect(bought.id, 'q1');
+    });
+
+    test('purchaseLead without enough coins is a refusal', () async {
+      final repo = GatewayLeadRepository(
+        _transport(
+          (_) async => _error(
+            'FailedPrecondition: the provider does not have enough coins',
+          ),
+        ),
+      );
+      expect(
+        (await repo.purchaseLead('q1')).failureOrNull,
+        isA<DataRejected>(),
+      );
+    });
   });
 }

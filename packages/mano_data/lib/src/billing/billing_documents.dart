@@ -8,7 +8,7 @@ const coinPacksQuery =
 const coinMovementsQuery = '''
 query CoinMovements {
   myCoinMovements(page: {first: 50}) {
-    items { id type coins paymentId createdAt }
+    items { id type coins paymentId leadId createdAt }
   }
 }''';
 

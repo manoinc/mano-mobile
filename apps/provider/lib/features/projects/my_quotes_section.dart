@@ -5,6 +5,7 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import 'lead_labels.dart';
+import 'lead_purchase_sheet.dart';
 import 'load_error.dart';
 
 /// Inicio's Mis cotizaciones segment: the quotes sent, and how each went.
@@ -37,7 +38,9 @@ class MyQuotesSection extends ConsumerWidget {
                 trailingLabel: quote.status == QuoteStatus.selected
                     ? ManoFormat.cop(quote.amountCop)
                     : null,
-                onTap: () => context.push('/home/project/${quote.projectId}'),
+                onTap: () => canBuyLead(quote)
+                    ? showLeadPurchaseSheet(context, quote)
+                    : context.push('/home/project/${quote.projectId}'),
               ),
             ),
         ],

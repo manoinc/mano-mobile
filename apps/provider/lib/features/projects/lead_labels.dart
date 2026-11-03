@@ -15,9 +15,27 @@ ManoStatusTone quoteTone(Quote quote) => quote.status == QuoteStatus.selected
     : ManoStatusTone.neutral;
 
 /// What a quote's own card says under its title.
-String myQuoteSubtitle(Quote quote) => quote.status == QuoteStatus.selected
-    ? 'El cliente te elegió. Pronto podrás contactarlo.'
-    : 'Tu cotización ${ManoFormat.cop(quote.amountCop)}';
+String myQuoteSubtitle(Quote quote) => switch (quote) {
+  Quote(leadPurchased: true) => 'Contacto desbloqueado. Escríbele al cliente.',
+  Quote(status: QuoteStatus.selected) =>
+    'El cliente te elegió. Compra su contacto por '
+        '${leadCostLabel(quote.projectCategory)}.',
+  _ => 'Tu cotización ${ManoFormat.cop(quote.amountCop)}',
+};
+
+/// What the lead of a project in [category] costs.
+String leadCostLabel(String category) {
+  final coins = LeadPricing.costFor(category);
+  return coins == 1 ? '1 coin' : '$coins coins';
+}
+
+/// A selected quote whose lead is still to buy.
+bool canBuyLead(Quote quote) =>
+    quote.status == QuoteStatus.selected && !quote.leadPurchased;
+
+/// Billing refuses a lead the wallet cannot cover with this wording.
+bool isShortOfCoins(DataFailure failure) =>
+    failure is DataRejected && (failure.reason ?? '').contains('enough coins');
 
 /// The failure of a quote, in the provider's words.
 String quoteFailureMessage(DataFailure failure) {

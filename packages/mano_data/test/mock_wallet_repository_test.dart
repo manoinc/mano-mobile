@@ -75,30 +75,4 @@ void main() {
     expect((await wallet.checkoutTerms()).valueOrNull, isNotEmpty);
     expect((await wallet.pseBanks()).valueOrNull, isNotEmpty);
   });
-
-  test('spending debits and logs against the request', () async {
-    final result = await wallet.spendForLead('request-1', 3, label: 'Limpieza');
-    expect(result.valueOrNull!.amount, -3);
-    expect((await wallet.wallet()).balance, 22);
-    expect((await wallet.history()).first.requestId, 'request-1');
-  });
-
-  test('spending more than the balance fails and changes nothing', () async {
-    final result = await wallet.spendForLead('r', 26, label: 'x');
-    expect(
-      result.failureOrNull,
-      const InsufficientCoins(needed: 26, available: 25),
-    );
-    expect((await wallet.wallet()).balance, 25);
-  });
-
-  test('refunding gives back the spend once', () async {
-    await wallet.spendForLead('request-1', 3, label: 'x');
-    expect((await wallet.refundLead('request-1')).valueOrNull!.balance, 25);
-    expect((await wallet.history()).first.kind, CoinTransactionKind.refund);
-    expect(
-      (await wallet.refundLead('request-1')).failureOrNull,
-      isA<DataNotFound>(),
-    );
-  });
 }

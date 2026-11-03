@@ -13,12 +13,17 @@ final class FakeLeads implements LeadRepository {
     this.quotes = const [],
     this.fails = false,
     this.refusal = const DataUnavailable(),
+    this.purchaseRefusal,
   });
 
   final List<Project> open;
   final List<Quote> quotes;
   final bool fails;
   final DataFailure refusal;
+
+  /// Refuses lead purchases when set; otherwise the lead is bought.
+  final DataFailure? purchaseRefusal;
+  final List<String> purchased = [];
 
   @override
   Future<List<Project>> openProjects({String? category}) async {
@@ -39,7 +44,19 @@ final class FakeLeads implements LeadRepository {
   @override
   Future<List<Quote>> myQuotes() async {
     if (fails) throw StateError('offline');
-    return quotes;
+    return [
+      for (final q in quotes)
+        purchased.contains(q.id) ? q.copyWith(leadPurchased: true) : q,
+    ];
+  }
+
+  @override
+  Future<Result<Quote, DataFailure>> purchaseLead(String quoteId) async {
+    if (purchaseRefusal case final refusal?) return Err(refusal);
+    purchased.add(quoteId);
+    return Ok(
+      quotes.firstWhere((q) => q.id == quoteId).copyWith(leadPurchased: true),
+    );
   }
 }
 

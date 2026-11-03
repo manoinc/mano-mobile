@@ -119,5 +119,41 @@ void main() {
       await c.read(myQuotesProvider.future);
       expect(builds, before);
     });
+
+    test(
+      'the selected quote\'s lead is bought; an unselected one is refused',
+      () async {
+        final c = _offline();
+        final before = await c.read(myQuotesProvider.future);
+        // Offline one board backs both apps: pick a project the mock requester owns.
+        final owned = {
+          for (final p in await c.read(myProjectsProvider.future)) p.id,
+        };
+        final fresh = (await c.read(openProjectsProvider(null).future))
+            .firstWhere(
+              (p) =>
+                  owned.contains(p.id) &&
+                  !before.any((q) => q.projectId == p.id),
+            );
+        final leads = c.read(leadActionsProvider.notifier);
+        final quote = (await leads.submitQuote(
+          fresh.id,
+          amountCop: 250000,
+        )).valueOrNull!;
+
+        final refused = await leads.purchaseLead(quote.id);
+        expect(refused.failureOrNull, isA<DataRejected>());
+
+        final selected = await c
+            .read(projectActionsProvider.notifier)
+            .selectQuote(quote.id);
+        expect(selected.isOk, isTrue);
+        final bought = await leads.purchaseLead(quote.id);
+
+        expect(bought.valueOrNull?.leadPurchased, isTrue);
+        final mine = await c.read(myQuotesProvider.future);
+        expect(mine.firstWhere((q) => q.id == quote.id).leadPurchased, isTrue);
+      },
+    );
   });
 }

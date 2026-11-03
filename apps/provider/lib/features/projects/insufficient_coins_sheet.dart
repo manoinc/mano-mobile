@@ -27,8 +27,8 @@ Future<bool?> showInsufficientCoinsSheet(
             ),
             const SizedBox(height: ManoSpacing.sm),
             Text(
-              'Esta solicitud cuesta ${coinsLabel(failure.needed)} y tienes '
-              '${coinsLabel(failure.available)}. Recarga para aceptarla.',
+              'Este contacto cuesta ${coinsLabel(failure.needed)} y tienes '
+              '${coinsLabel(failure.available)}. Recarga para comprarlo.',
               style: textTheme.bodyLarge?.copyWith(color: ManoColors.muted),
             ),
             const SizedBox(height: ManoSpacing.lg),

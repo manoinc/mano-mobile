@@ -95,12 +95,7 @@ final class MockWalletRepository implements WalletRepository {
   late int _balance;
   int _nextId = 100;
 
-  void _record(
-    CoinTransactionKind kind,
-    int amount,
-    String label, {
-    String? requestId,
-  }) {
+  void _record(CoinTransactionKind kind, int amount, String label) {
     _balance += amount;
     _history.insert(
       0,
@@ -110,7 +105,6 @@ final class MockWalletRepository implements WalletRepository {
         amount: amount,
         label: label,
         at: _now(),
-        requestId: requestId,
       ),
     );
   }
@@ -162,35 +156,4 @@ final class MockWalletRepository implements WalletRepository {
   @override
   Future<Result<List<Bank>, DataFailure>> pseBanks() async =>
       const Ok(mockBanks);
-
-  @override
-  Future<Result<CoinTransaction, DataFailure>> spendForLead(
-    String requestId,
-    int cost, {
-    required String label,
-  }) async {
-    if (cost > _balance) {
-      return Err(InsufficientCoins(needed: cost, available: _balance));
-    }
-    _record(CoinTransactionKind.leadSpend, -cost, label, requestId: requestId);
-    return Ok(_history.first);
-  }
-
-  @override
-  Future<Result<Wallet, DataFailure>> refundLead(String requestId) async {
-    bool isFor(CoinTransaction t, CoinTransactionKind kind) =>
-        t.requestId == requestId && t.kind == kind;
-    final spend = _history
-        .where((t) => isFor(t, CoinTransactionKind.leadSpend))
-        .firstOrNull;
-    final refunded = _history.any((t) => isFor(t, CoinTransactionKind.refund));
-    if (spend == null || refunded) return const Err(DataNotFound());
-    _record(
-      CoinTransactionKind.refund,
-      -spend.amount,
-      'Reembolso · ${spend.label}',
-      requestId: requestId,
-    );
-    return Ok(Wallet(balance: _balance));
-  }
 }

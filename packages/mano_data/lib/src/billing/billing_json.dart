@@ -14,14 +14,19 @@ CoinPack coinPackFromJson(Map<String, dynamic> json) => CoinPack(
   priceCop: ((json['price'] as Map<String, dynamic>)['amount'] as num).round(),
 );
 
-/// Only purchases exist on the gateway today (`CoinMovementType.PURCHASE`).
+/// A `CoinMovement`: a purchase, a lead spend or a lead refund.
 CoinTransaction coinMovementFromJson(Map<String, dynamic> json) {
   final coins = json['coins'] as int;
+  final (kind, label) = switch (json['type']) {
+    'LEAD_SPEND' => (CoinTransactionKind.leadSpend, 'Contacto de proyecto'),
+    'LEAD_REFUND' => (CoinTransactionKind.refund, 'Reembolso de contacto'),
+    _ => (CoinTransactionKind.purchase, purchaseLabel(coins)),
+  };
   return CoinTransaction(
     id: json['id'] as String,
-    kind: CoinTransactionKind.purchase,
+    kind: kind,
     amount: coins,
-    label: purchaseLabel(coins),
+    label: label,
     at: dateTimeFromJson(json['createdAt']),
   );
 }

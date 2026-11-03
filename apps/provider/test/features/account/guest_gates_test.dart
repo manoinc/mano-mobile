@@ -41,7 +41,7 @@ void main() {
   testWidgets('accepting a request asks a guest to sign in', (tester) async {
     await _asGuest(tester, '/home');
 
-    await _tap(tester, find.text('Aceptar · 2 coins').first);
+    await _tap(tester, find.text('Aceptar').first);
 
     _expectSheet('Inicia sesión para responder solicitudes.');
   });

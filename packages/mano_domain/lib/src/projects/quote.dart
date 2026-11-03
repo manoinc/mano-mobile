@@ -13,6 +13,8 @@ final class Quote {
     required this.status,
     required this.createdAt,
     this.message,
+    this.leadPurchased = false,
+    this.projectCategory = '',
   });
 
   final String id;
@@ -24,7 +26,17 @@ final class Quote {
   final QuoteStatus status;
   final DateTime createdAt;
 
-  Quote copyWith({QuoteStatus? status}) => Quote(
+  /// Its worker bought the lead and sees the requester's contact.
+  final bool leadPurchased;
+
+  /// The project's canonical category; empty when the reader did not ask for it.
+  final String projectCategory;
+
+  Quote copyWith({
+    QuoteStatus? status,
+    bool? leadPurchased,
+    String? projectCategory,
+  }) => Quote(
     id: id,
     projectId: projectId,
     projectTitle: projectTitle,
@@ -33,6 +45,8 @@ final class Quote {
     message: message,
     status: status ?? this.status,
     createdAt: createdAt,
+    leadPurchased: leadPurchased ?? this.leadPurchased,
+    projectCategory: projectCategory ?? this.projectCategory,
   );
 
   @override
@@ -45,7 +59,9 @@ final class Quote {
       other.amountCop == amountCop &&
       other.message == message &&
       other.status == status &&
-      other.createdAt == createdAt;
+      other.createdAt == createdAt &&
+      other.leadPurchased == leadPurchased &&
+      other.projectCategory == projectCategory;
 
   @override
   int get hashCode => Object.hash(
@@ -57,6 +73,8 @@ final class Quote {
     message,
     status,
     createdAt,
+    leadPurchased,
+    projectCategory,
   );
 
   @override
