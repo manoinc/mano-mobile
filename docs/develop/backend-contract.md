@@ -27,6 +27,10 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 | `ReviewRepository` | `reviewWorker`, `reviewClient`, `job { worker { averageRating ratingsCount reviews(page) } }` | **live** (D8 mano-reviews over gRPC) | `GatewayReviewRepository`. See [Reviews](reviews.md) |
 | `ProviderDirectory` | none: there is no `workerProfile(id)` | missing | `MockProviderDirectory` |
 | `ProviderOnboardingRepository` | `updateWorkerProfile`, `submitVerificationRequest` | stub (D2, D10 `not implemented`) | `MockProviderOnboardingRepository` |
+| `ClientProfileRepository` | `updateClientProfile(displayName, photoUrl, phone, email)` | stub (D2 `not implemented`); no client-profile query | `MockClientProfileRepository`. See [REQ-07](../modules/REQ-07-perfil.md) |
+| `AddressBook` | none | missing | `MockAddressBook` |
+| `PaymentMethods` | none (no billing bridge; cards to be tokenised by Wompi) | missing | `MockPaymentMethods` (display data only) |
+| `SupportDesk` (both apps) | `createSupportTicket(subject, description)` → `ticketNumber` | stub (D11) | `MockSupportDesk` |
 | `SessionRepository` | SuperTokens FDI: `/auth/signin`, `/auth/signup` (with `role`), `/auth/session/refresh`, `/auth/signout` | **live** in `mano-auth` (`:3001`); the gateway *verifies* tokens | `SuperTokensSessionRepository` when configured |
 
 Every live D4/D5/D7 operation needs a signed-in caller; both apps now create

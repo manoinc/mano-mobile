@@ -24,3 +24,9 @@ const ManoConfig requesterConfig = ManoConfig(
       ? String.fromEnvironment('SUPERTOKENS_API_DOMAIN')
       : null,
 );
+
+/// Shown in Configuración; keep in step with `version` in pubspec.yaml.
+const String requesterAppVersion = String.fromEnvironment(
+  'MANO_APP_VERSION',
+  defaultValue: '0.1.0',
+);

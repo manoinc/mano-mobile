@@ -17,9 +17,17 @@ app's root. There are no redirects.
   /projects/job/:id                JobDetailScreen       REQ-04
 /inbox                             InboxTabScreen        REQ-05
   /inbox/:conversationId  [root]   ChatScreen            REQ-05
-/profile                           ProfileTabScreen
 /provider/:providerId    [root]    ProviderProfileScreen REQ-07
   /provider/:providerId/reviews    ProviderReviewsScreen REQ-07
+  /home/addresses                  AddressesScreen       REQ-08
+/profile                           ProfileTabScreen      REQ-08
+  /profile/personal                PersonalInfoScreen    REQ-08
+  /profile/addresses               AddressesScreen       REQ-08
+  /profile/payments                PaymentMethodsScreen  REQ-08
+  /profile/history                 OrderHistoryScreen    REQ-08
+  /profile/history/job/:id         JobDetailScreen       REQ-08
+  /profile/support                 SupportScreen         REQ-08
+  /profile/settings                SettingsScreen        REQ-08
 +  → CreateActionSheet (a sheet, not a route)
 ```
 

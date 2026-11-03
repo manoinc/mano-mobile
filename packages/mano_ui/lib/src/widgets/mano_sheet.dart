@@ -39,6 +39,7 @@ class ManoOptionRow extends StatelessWidget {
     this.icon,
     this.detail,
     this.destructive = false,
+    this.tag,
     super.key,
   });
 
@@ -46,6 +47,9 @@ class ManoOptionRow extends StatelessWidget {
   final VoidCallback? onPressed;
   final IconData? icon;
   final String? detail;
+
+  /// A small pill after the label, e.g. "Predeterminada".
+  final String? tag;
 
   /// Marks a row that undoes or removes something, e.g. "Eliminar cuenta".
   /// Ignored while the row is disabled -- a row nobody can tap stays quiet
@@ -77,7 +81,15 @@ class ManoOptionRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: theme.textTheme.titleSmall?.copyWith(color: ink)),
+                  Wrap(
+                    spacing: ManoSpacing.sm,
+                    runSpacing: ManoSpacing.xs,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(label, style: theme.textTheme.titleSmall?.copyWith(color: ink)),
+                      if (tag case final tag?) _Tag(tag),
+                    ],
+                  ),
                   if (detail != null) ...[
                     const SizedBox(height: 2),
                     Text(
@@ -101,6 +113,33 @@ class ManoOptionRow extends StatelessWidget {
                   enabled ? ManoColors.faint : theme.colorScheme.outlineVariant,
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Tag extends StatelessWidget {
+  const _Tag(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(ManoRadius.pill),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: ManoSpacing.sm,
+          vertical: 2,
+        ),
+        child: Text(
+          label,
+          style: theme.textTheme.labelSmall?.copyWith(color: ManoColors.muted),
         ),
       ),
     );

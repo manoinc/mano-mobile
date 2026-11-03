@@ -31,6 +31,9 @@ export 'src/session/supertokens_session_repository.dart';
 export 'src/session/token_store.dart';
 
 // Mock implementations pending real gateway-backed adapters.
+export 'src/account/mock_address_book.dart';
+export 'src/account/mock_client_profile_repository.dart';
+export 'src/account/mock_payment_methods.dart';
 export 'src/catalog/mock_catalog_repository.dart';
 export 'src/catalog/mock_offer_management.dart';
 export 'src/earnings/mock_earnings_repository.dart';
@@ -48,4 +51,5 @@ export 'src/onboarding/mock_provider_onboarding_repository.dart';
 export 'src/requests/mock_service_request_repository.dart';
 export 'src/reviews/mock_review_repository.dart';
 export 'src/scheduling/mock_availability_repository.dart';
+export 'src/support/mock_support_desk.dart';
 export 'src/wallet/mock_wallet_repository.dart';

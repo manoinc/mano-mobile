@@ -69,6 +69,13 @@ WidgetbookCategory overlays() => WidgetbookCategory(
         detail: 'Activadas',
         onPressed: noop,
       ),
+      'Tagged': (context) => const ManoOptionRow(
+        label: 'Casa',
+        icon: Icons.home_outlined,
+        detail: 'Calle 45 # 12-30, Chapinero',
+        tag: 'Predeterminada',
+        onPressed: noop,
+      ),
       'Destructive': (context) => const ManoOptionRow(
         label: 'Cerrar sesión',
         icon: Icons.logout,

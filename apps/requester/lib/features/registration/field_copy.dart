@@ -11,11 +11,14 @@ String nameProblemCopy(FieldProblem problem, {required String field}) =>
       FieldProblem.tooShort => 'Tu $field es muy corto.',
       FieldProblem.tooLong => 'Tu $field es muy largo.',
       FieldProblem.invalidCharacters => 'Usa solo letras en tu $field.',
+      FieldProblem.malformed || FieldProblem.expired => 'Revisa tu $field.',
     };
 
 String addressProblemCopy(FieldProblem problem) => switch (problem) {
   FieldProblem.empty => 'Escribe tu dirección.',
   FieldProblem.tooShort => 'Escribe la dirección completa.',
   FieldProblem.tooLong => 'Esa dirección es muy larga.',
-  FieldProblem.invalidCharacters => 'Revisa tu dirección.',
+  FieldProblem.invalidCharacters ||
+  FieldProblem.malformed ||
+  FieldProblem.expired => 'Revisa tu dirección.',
 };

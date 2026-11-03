@@ -14,6 +14,7 @@ class ManoAvatar extends StatelessWidget {
     required this.photoUrl,
     this.size = 44,
     this.online,
+    this.image,
     super.key,
   });
 
@@ -22,6 +23,9 @@ class ManoAvatar extends StatelessWidget {
   /// `Image.network` entirely rather than requesting a URL that isn't there.
   final String? photoUrl;
   final double size;
+
+  /// Shown instead of [photoUrl], e.g. a photo still uploading.
+  final ImageProvider? image;
 
   /// `null` = no online indicator at all. `true`/`false` shows the dot.
   final bool? online;
@@ -36,11 +40,18 @@ class ManoAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final url = photoUrl;
+    final local = image;
     final photo = ClipOval(
       child: SizedBox(
         width: size,
         height: size,
-        child: url == null
+        child: local != null
+            ? Image(
+                image: local,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => _fallback(),
+              )
+            : url == null
             ? _fallback()
             : Image.network(
                 url,

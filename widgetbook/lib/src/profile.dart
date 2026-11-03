@@ -10,6 +10,34 @@ Widget _padded(Widget child) =>
 WidgetbookCategory profile() => WidgetbookCategory(
   name: 'Profile & earnings',
   children: [
+    component('ManoAvatarEditor', {
+      'Default': (context) => Center(
+        child: ManoAvatarEditor(
+          photoUrl: null,
+          uploading: context.knobs.boolean(label: 'Uploading'),
+          onTap: noop,
+        ),
+      ),
+    }),
+    component('ManoSupportForm', {
+      'Default': (context) => SingleChildScrollView(
+        child: _padded(
+          ManoSupportForm(
+            onSubmit: (_, _) {},
+            sending: context.knobs.boolean(label: 'Sending'),
+          ),
+        ),
+      ),
+      'With errors': (context) => SingleChildScrollView(
+        child: _padded(
+          ManoSupportForm(
+            onSubmit: (_, _) {},
+            subjectError: 'Escribe un asunto.',
+            descriptionError: 'Cuéntanos un poco más.',
+          ),
+        ),
+      ),
+    }),
     component('ManoBarChart', {
       'Week': (context) => _padded(
         const ManoBarChart(

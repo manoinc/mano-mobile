@@ -1,91 +1,107 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mano_requester/screens/profile_tab_screen.dart';
 import 'package:mano_session/mano_session.dart';
+import 'package:mano_ui/mano_ui.dart';
 
-const _user = AuthenticatedUser(
-  subject: 'user-1',
-  username: 'mano-test',
-  roles: {ManoRole.requester},
-);
+import '../support/fake_session_repository.dart';
+import '../support/pump_app.dart';
 
-Session _fakeSession() => Session(
-  user: _user,
-  accessToken: 'access-1',
-  expiresAt: DateTime.now().add(const Duration(minutes: 5)),
-);
-
-Future<InMemorySessionRepository> _host(WidgetTester tester) async {
-  final repository = InMemorySessionRepository(
-    onRestore: () async => Ok(_fakeSession()),
+Future<(ProviderContainer, InMemorySessionRepository)> _signedIn(
+  WidgetTester tester,
+) async {
+  final repository = FakeSessionRepository(
+    onRestore: () async => Ok(fakeSession()),
   );
-  await tester.pumpWidget(
-    ProviderScope(
-      overrides: [sessionRepositoryProvider.overrideWithValue(repository)],
-      child: MaterialApp(home: const ProfileTabScreen()),
-    ),
-  );
-  await tester.pumpAndSettle();
-  return repository;
+  final container = await pumpRouterAt(tester, '/profile', session: repository);
+  return (container, repository);
 }
 
 void main() {
   testWidgets('renders the signed-in user\'s name in the header', (
     tester,
   ) async {
-    await _host(tester);
+    await _signedIn(tester);
 
     expect(find.text('mano-test'), findsOneWidget);
   });
 
-  testWidgets('renders every non-destructive menu label', (tester) async {
-    await _host(tester);
+  testWidgets('renders every menu label and Cerrar sesión', (tester) async {
+    await _signedIn(tester);
 
-    expect(find.text('Información personal'), findsOneWidget);
-    expect(find.text('Direcciones guardadas'), findsOneWidget);
-    expect(find.text('Métodos de pago'), findsOneWidget);
-    expect(find.text('Historial de pedidos'), findsOneWidget);
-    expect(find.text('Atención al cliente'), findsOneWidget);
-    expect(find.text('Configuración'), findsOneWidget);
+    for (final label in [
+      'Información personal',
+      'Direcciones guardadas',
+      'Métodos de pago',
+      'Historial de pedidos',
+      'Atención al cliente',
+      'Configuración',
+      'Cerrar sesión',
+    ]) {
+      expect(find.text(label), findsOneWidget);
+    }
   });
 
-  testWidgets('renders the Log Out row', (tester) async {
-    await _host(tester);
+  for (final (label, path) in [
+    ('Información personal', '/profile/personal'),
+    ('Direcciones guardadas', '/profile/addresses'),
+    ('Métodos de pago', '/profile/payments'),
+    ('Historial de pedidos', '/profile/history'),
+    ('Atención al cliente', '/profile/support'),
+    ('Configuración', '/profile/settings'),
+  ]) {
+    testWidgets('$label opens $path', (tester) async {
+      final (container, _) = await _signedIn(tester);
 
-    expect(find.text('Cerrar sesión'), findsOneWidget);
-  });
+      await tester.tap(find.text(label));
+      await tester.pumpAndSettle();
 
-  testWidgets('tapping a non-destructive row shows the stub notice', (
+      expect(routerPath(container), path);
+      expect(find.text('Muy pronto'), findsNothing);
+    });
+  }
+
+  testWidgets('the header edit button opens Información personal', (
     tester,
   ) async {
-    await _host(tester);
+    final (container, _) = await _signedIn(tester);
 
-    await tester.tap(find.text('Información personal'));
+    await tester.tap(find.byTooltip('Editar'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Muy pronto'), findsOneWidget);
+    expect(routerPath(container), '/profile/personal');
   });
 
-  testWidgets('tapping Log Out calls signOut on the repository, not a stub', (
-    tester,
-  ) async {
-    final repository = await _host(tester);
+  testWidgets('tapping Cerrar sesión signs out', (tester) async {
+    final (_, repository) = await _signedIn(tester);
 
     await tester.tap(find.text('Cerrar sesión'));
     await tester.pumpAndSettle();
 
     expect(repository.signOutCalls, 1);
-    expect(find.text('Muy pronto'), findsNothing);
   });
 
   testWidgets(
-    'does not fetch a network photo for the header -- no real photo exists yet, and inventing one from the subject would leak it',
+    'does not fetch a network photo for the header until one is uploaded',
     (tester) async {
-      await _host(tester);
+      await _signedIn(tester);
 
       expect(find.byType(Image), findsNothing);
       expect(find.byIcon(Icons.person), findsOneWidget);
     },
   );
+
+  testWidgets('a guest is asked for an account before personal data', (
+    tester,
+  ) async {
+    final container = await pumpRouterAt(tester, '/profile');
+    container.read(sessionProvider.notifier).browseAsGuest();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Información personal'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ManoAccountNeededSheet), findsOneWidget);
+    expect(routerPath(container), '/profile');
+  });
 }

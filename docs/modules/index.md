@@ -14,6 +14,7 @@ routes are already registered, so a module never edits the router.
 | REQ-05 | Inbox & Chat | `chat/` + `screens/inbox_tab_screen.dart` | `/inbox`, `/inbox/:conversationId` (full screen) | `ConversationRepository`, `ChatRepository` | [REQ-05](REQ-05-chat.md) |
 | REQ-06 | Projects & Quotes | `projects/` | `/publish?category=` (full screen), `/projects?segment=proyectos`, `/projects/project/:id` | `ProjectRepository` (live) | [REQ-06](REQ-06-projects.md) |
 | REQ-07 | Provider Profile | `provider_profile/` | `/provider/:providerId`, `/provider/:providerId/reviews` (full screen) | `ProviderDirectory` (mock), `ReviewRepository` | [REQ-07](REQ-07-provider-profile.md) |
+| REQ-08 | Perfil | `profile/` + `screens/profile_tab_screen.dart` | `/profile/personal`, `/profile/addresses` (also `/home/addresses`), `/profile/payments`, `/profile/history`, `/profile/support`, `/profile/settings` | `ClientProfileRepository`, `AddressBook`, `PaymentMethods`, `SupportDesk` (mocks), `MediaUploader` (live avatar) | [REQ-08](REQ-08-perfil.md) |
 
 ## Provider (`apps/provider`)
 

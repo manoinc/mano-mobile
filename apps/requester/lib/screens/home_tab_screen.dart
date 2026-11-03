@@ -32,9 +32,7 @@ double _listingCardHeight(BuildContext context, double railWidth) {
 /// The Inicio tab: a greeting (or a neutral headline for guests), an address
 /// and a search pill, a category rail, and horizontal rails of listings.
 ///
-/// Search, "Ver todo" and the category rail lead into Explore (REQ-01). The
-/// address picker and listing detail don't exist yet, so those taps show a
-/// stub notice instead of a silent no-op.
+/// Search and categories open Explore, the pill opens addresses; listing taps are still a stub.
 class HomeTabScreen extends ConsumerWidget {
   const HomeTabScreen({super.key});
 
@@ -44,6 +42,7 @@ class HomeTabScreen extends ConsumerWidget {
     final signedIn = ref.watch(hasAccountProvider);
     final categories = ref.watch(serviceCategoriesProvider);
     final sections = ref.watch(homeSectionsProvider);
+    final defaultAddress = ref.watch(defaultAddressProvider).value;
     final name = requesterGreetingName(user, ref.watch(onboardingFlowProvider));
     final textTheme = Theme.of(context).textTheme;
 
@@ -70,12 +69,12 @@ class HomeTabScreen extends ConsumerWidget {
               ),
             ManoGreetingHeader(name: name),
             const SizedBox(height: ManoSpacing.md),
-            // There is no address feature yet, so this is a neutral
-            // placeholder label rather than invented data claiming to be the
-            // real user's actual address.
             ManoAddressPill(
-              address: 'Agrega tu dirección',
-              onTap: () => _showStub(context),
+              address: switch (defaultAddress) {
+                final a? => '${a.label} · ${a.line}',
+                null => 'Agrega tu dirección',
+              },
+              onTap: () => context.push('/home/addresses'),
             ),
             const SizedBox(height: ManoSpacing.md),
             ManoSearchPill(onTap: () => context.push('/home/search')),

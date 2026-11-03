@@ -62,6 +62,23 @@ void main() {
       expect(image.loadingBuilder, isNotNull);
     });
 
+    testWidgets('an image provider wins over the url', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          const ManoAvatar(
+            photoUrl: photoUrl,
+            image: NetworkImage('https://example.com/local.png'),
+          ),
+        ),
+      );
+
+      final image = tester.widget<Image>(find.byType(Image));
+      expect(
+        (image.image as NetworkImage).url,
+        'https://example.com/local.png',
+      );
+    });
+
     testWidgets(
       'renders the stone-circle-and-person-icon fallback when photoUrl is null, without fetching an Image',
       (tester) async {
