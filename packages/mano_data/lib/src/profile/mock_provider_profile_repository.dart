@@ -2,15 +2,15 @@ import 'package:mano_domain/mano_domain.dart';
 
 import '../mock/mock_fixtures.dart';
 
-/// In-memory [ProviderProfileRepository] for the first mock professional.
-final class MockProviderProfileRepository implements ProviderProfileRepository {
+/// In-memory profile of the first mock professional; edits are kept in memory.
+final class MockProviderProfileRepository
+    implements ProviderProfileRepository, ProviderProfileEditor {
   MockProviderProfileRepository({DateTime Function()? now})
     : _now = now ?? DateTime.now;
 
   final DateTime Function() _now;
 
-  @override
-  Future<ProviderProfile> profile() async => ProviderProfile(
+  ProviderProfile _profile = ProviderProfile(
     party: mockProviders.first,
     bio:
         'Más de ocho años cuidando casas en Bogotá. Puntual, ordenado y '
@@ -18,7 +18,38 @@ final class MockProviderProfileRepository implements ProviderProfileRepository {
     zones: const ['Chapinero', 'Usaquén', 'Teusaquillo'],
     yearsExperience: 8,
     verified: true,
+    skills: const ['cleaning', 'painting', 'plumbing'],
+    portfolioUrls: [
+      mockPhoto('1581578731548-c64695cc6952'),
+      mockPhoto('1562259949-e8e7689d7828'),
+    ],
   );
+
+  @override
+  Future<ProviderProfile> profile() async => _profile;
+
+  @override
+  Future<Result<ProviderProfile, DataFailure>> save(
+    ProviderProfileDraft draft,
+  ) async {
+    if (!draft.isValid) {
+      return Err(DataRejected(reason: '${draft.problems}'));
+    }
+    _profile = ProviderProfile(
+      party: Party(
+        id: _profile.party.id,
+        displayName: draft.displayName.trim(),
+        photoUrl: draft.photoUrl,
+      ),
+      bio: draft.bio.trim(),
+      zones: draft.zones,
+      yearsExperience: _profile.yearsExperience,
+      verified: _profile.verified,
+      skills: draft.skills,
+      portfolioUrls: draft.portfolioUrls,
+    );
+    return Ok(_profile);
+  }
 
   @override
   Future<ProviderStats> stats() async => const ProviderStats(

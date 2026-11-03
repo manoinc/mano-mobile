@@ -33,6 +33,37 @@ WidgetbookCategory inputs() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoChoiceChip', {
+      'Selectable': (context) => _padded(
+        Wrap(
+          spacing: ManoSpacing.sm,
+          children: [
+            ManoChoiceChip(
+              label: context.knobs.string(label: 'Label', initialValue: 'Plomería'),
+              selected: context.knobs.boolean(label: 'Selected', initialValue: true),
+              onTap: noop,
+            ),
+            ManoChoiceChip(label: 'Pintura', onTap: noop),
+          ],
+        ),
+      ),
+      'Removable': (context) => _padded(
+        ManoChoiceChip(label: 'Chapinero', onRemove: noop),
+      ),
+    }),
+    component('ManoSupportForm', {
+      'Default': (context) => _padded(
+        ManoSupportForm(
+          kinds: const ['Petición', 'Queja', 'Reclamo', 'Sugerencia'],
+          selectedKind: context.knobs.int.slider(label: 'Kind', initialValue: 0, min: 0, max: 3),
+          onKind: (_) {},
+          subject: TextEditingController(),
+          description: TextEditingController(),
+          onChanged: noop,
+          subjectError: context.knobs.stringOrNull(label: 'Subject error'),
+        ),
+      ),
+    }),
     component('ManoStarInput', {
       'Interactive': (context) => _padded(const _StarInputDemo()),
       'Chosen': (context) => _padded(

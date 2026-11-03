@@ -1,68 +1,84 @@
 import 'package:flutter/material.dart';
 
 import '../theme/mano_theme.dart';
-import 'mano_primary_button.dart';
+import 'mano_choice_chip.dart';
 import 'mano_text_field.dart';
 
-/// "Escribir a soporte": a subject and what happened, shared by both apps.
-class ManoSupportForm extends StatefulWidget {
+/// A support request: its kind, a subject and a description; the screen sends it.
+class ManoSupportForm extends StatelessWidget {
   const ManoSupportForm({
-    required this.onSubmit,
+    required this.kinds,
+    required this.selectedKind,
+    required this.onKind,
+    required this.subject,
+    required this.description,
+    required this.onChanged,
     this.subjectError,
     this.descriptionError,
-    this.sending = false,
+    this.kindLabel = 'Tipo de solicitud',
+    this.subjectLabel = 'Asunto',
+    this.descriptionLabel = 'Cuéntanos qué pasó',
     super.key,
   });
 
-  final void Function(String subject, String description) onSubmit;
+  final List<String> kinds;
+  final int selectedKind;
+  final ValueChanged<int> onKind;
+  final TextEditingController subject;
+  final TextEditingController description;
+
+  /// Called on every keystroke in either field.
+  final VoidCallback onChanged;
   final String? subjectError;
   final String? descriptionError;
-  final bool sending;
-
-  @override
-  State<ManoSupportForm> createState() => _ManoSupportFormState();
-}
-
-class _ManoSupportFormState extends State<ManoSupportForm> {
-  final _subject = TextEditingController();
-  final _description = TextEditingController();
-
-  @override
-  void dispose() {
-    _subject.dispose();
-    _description.dispose();
-    super.dispose();
-  }
+  final String kindLabel;
+  final String subjectLabel;
+  final String descriptionLabel;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        ManoTextField(
-          label: 'Asunto',
-          controller: _subject,
-          errorText: widget.subjectError,
-          textCapitalization: TextCapitalization.sentences,
-          textInputAction: TextInputAction.next,
+        Text(
+          kindLabel,
+          style: theme.textTheme.labelMedium?.copyWith(color: ManoColors.faint),
+        ),
+        const SizedBox(height: ManoSpacing.sm),
+        Wrap(
+          spacing: ManoSpacing.sm,
+          runSpacing: ManoSpacing.sm,
+          children: [
+            for (final (i, kind) in kinds.indexed)
+              ManoChoiceChip(
+                label: kind,
+                selected: i == selectedKind,
+                onTap: () => onKind(i),
+              ),
+          ],
         ),
         const SizedBox(height: ManoSpacing.lg),
         ManoTextField(
-          label: 'Cuéntanos qué pasó',
-          controller: _description,
-          errorText: widget.descriptionError,
-          helperText: 'Incluye fechas, el servicio y el profesional si aplica.',
+          key: const Key('support-subject'),
+          label: subjectLabel,
+          controller: subject,
+          errorText: subjectError,
           textCapitalization: TextCapitalization.sentences,
-          keyboardType: TextInputType.multiline,
+          textInputAction: TextInputAction.next,
+          onChanged: (_) => onChanged(),
+        ),
+        const SizedBox(height: ManoSpacing.lg),
+        ManoTextField(
+          key: const Key('support-description'),
+          label: descriptionLabel,
+          controller: description,
+          errorText: descriptionError,
+          textCapitalization: TextCapitalization.sentences,
           minLines: 4,
           maxLines: 8,
-        ),
-        const SizedBox(height: ManoSpacing.xl),
-        ManoPrimaryButton(
-          label: 'Enviar',
-          busy: widget.sending,
-          onPressed: () => widget.onSubmit(_subject.text, _description.text),
+          onChanged: (_) => onChanged(),
         ),
       ],
     );

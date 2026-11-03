@@ -1,8 +1,9 @@
 import '../result.dart';
 import '../shared/data_failure.dart';
 import 'support_ticket.dart';
+import 'support_ticket_draft.dart';
 
-/// Where either app files a request to Mano support (gateway: `createSupportTicket`).
+/// Files support requests (PQRS) for either side.
 abstract interface class SupportDesk {
-  Future<Result<SupportTicket, DataFailure>> file(SupportTicketDraft draft);
+  Future<Result<SupportTicket, DataFailure>> submit(SupportTicketDraft draft);
 }

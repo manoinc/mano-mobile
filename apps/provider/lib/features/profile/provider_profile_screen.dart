@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../account/account_gate.dart';
+import 'account_rows.dart';
 import 'earnings_section.dart';
 import 'profile_labels.dart';
 import 'referral_sheet.dart';
@@ -48,6 +50,8 @@ class ProviderProfileScreen extends ConsumerWidget {
                 onTap: () => showReferralSheet(context, referral),
               ),
             const SizedBox(height: ManoSpacing.lg),
+            const AccountRows(),
+            const SizedBox(height: ManoSpacing.sm),
             const _SessionRow(),
           ],
         ),
@@ -73,7 +77,7 @@ class _SessionRow extends ConsumerWidget {
   }
 }
 
-class _Header extends StatelessWidget {
+class _Header extends ConsumerWidget {
   const _Header({
     required this.profile,
     required this.stats,
@@ -85,7 +89,7 @@ class _Header extends StatelessWidget {
   final RatingSummary rating;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final text = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,9 +137,23 @@ class _Header extends StatelessWidget {
         const SizedBox(height: ManoSpacing.md),
         Text(profile.bio, style: text.bodyMedium),
         const SizedBox(height: ManoSpacing.xs),
-        ManoTextAction(
-          label: 'Ver perfil público',
-          onPressed: () => showPublicProfile(context, profile, stats, rating),
+        Wrap(
+          children: [
+            ManoTextAction(
+              label: 'Editar perfil',
+              padding: EdgeInsets.zero,
+              onPressed: () => requireAccount(
+                context,
+                ref,
+                reason: AccountReason.profile,
+                action: () => context.push('/profile/edit'),
+              ),
+            ),
+            ManoTextAction(
+              label: 'Ver perfil público',
+              onPressed: () => showPublicProfile(context, profile, stats, rating),
+            ),
+          ],
         ),
       ],
     );
@@ -163,6 +181,11 @@ Future<void> showPublicProfile(
         value: yearsText(profile.yearsExperience),
       ),
       ManoProfileFact(label: 'Zonas', value: profile.zones.join(', ')),
+      if (profile.skills.isNotEmpty)
+        ManoProfileFact(
+          label: 'Servicios',
+          value: profile.skills.map(ServiceCategories.labelOf).join(', '),
+        ),
       if (stats != null)
         ManoProfileFact(
           label: 'Trabajos completados',

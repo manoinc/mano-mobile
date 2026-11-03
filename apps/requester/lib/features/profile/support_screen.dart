@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-import 'profile_copy.dart';
 import 'profile_sheets.dart';
 import 'support_faq.dart';
 
@@ -17,16 +16,25 @@ class SupportScreen extends ConsumerStatefulWidget {
 }
 
 class _SupportScreenState extends ConsumerState<SupportScreen> {
-  Map<SupportField, FieldProblem> _problems = const {};
+  final _subject = TextEditingController();
+  final _description = TextEditingController();
+  var _draft = const SupportTicketDraft();
   bool _sending = false;
   SupportTicket? _ticket;
+
+  @override
+  void dispose() {
+    _subject.dispose();
+    _description.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Atención al cliente')),
       body: switch (_ticket) {
-        final ticket? => _Filed(ticket: ticket),
+        final ticket? => _Filed(ticket: ticket, kind: _draft.kind),
         null => _askView(context),
       },
     );
@@ -34,6 +42,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
 
   Widget _askView(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final problems = _draft.problems;
     return ListView(
       padding: const EdgeInsets.all(ManoSpacing.lg),
       children: [
@@ -57,32 +66,37 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
         Text('Escribir a soporte', style: textTheme.titleMedium),
         const SizedBox(height: ManoSpacing.md),
         ManoSupportForm(
-          sending: _sending,
-          subjectError: switch (_problems[SupportField.subject]) {
-            final FieldProblem p => problemCopy(p, field: 'el asunto'),
-            _ => null,
-          },
-          descriptionError: switch (_problems[SupportField.description]) {
-            final FieldProblem p => descriptionCopy(p),
-            _ => null,
-          },
-          onSubmit: _file,
+          kinds: [
+            for (final k in SupportTicketKind.values) supportKindLabel(k),
+          ],
+          selectedKind: _draft.kind.index,
+          onKind: (i) => setState(
+            () => _draft = _draft.copyWith(kind: SupportTicketKind.values[i]),
+          ),
+          subject: _subject,
+          description: _description,
+          subjectError: subjectError(problems),
+          descriptionError: descriptionError(problems),
+          onChanged: () => setState(
+            () => _draft = _draft.copyWith(
+              subject: _subject.text,
+              description: _description.text,
+            ),
+          ),
+        ),
+        const SizedBox(height: ManoSpacing.lg),
+        ManoPrimaryButton(
+          label: 'Enviar',
+          busy: _sending,
+          onPressed: _draft.isValid && !_sending ? _file : null,
         ),
       ],
     );
   }
 
-  Future<void> _file(String subject, String description) async {
-    final draft = SupportTicketDraft(
-      subject: subject,
-      description: description,
-    );
-    setState(() => _problems = draft.problems);
-    if (_problems.isNotEmpty) return;
+  Future<void> _file() async {
     setState(() => _sending = true);
-    final result = await ref
-        .read(supportDeskActionsProvider.notifier)
-        .file(draft);
+    final result = await ref.read(supportDeskProvider).submit(_draft);
     if (!mounted) return;
     setState(() => _sending = false);
     switch (result) {
@@ -95,9 +109,10 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
 }
 
 class _Filed extends StatelessWidget {
-  const _Filed({required this.ticket});
+  const _Filed({required this.ticket, required this.kind});
 
   final SupportTicket ticket;
+  final SupportTicketKind kind;
 
   @override
   Widget build(BuildContext context) {
@@ -115,13 +130,13 @@ class _Filed extends StatelessWidget {
           ),
           const SizedBox(height: ManoSpacing.md),
           Text(
-            'Recibimos tu mensaje',
+            'Recibimos tu ${supportKindLabel(kind).toLowerCase()}',
             textAlign: TextAlign.center,
             style: textTheme.titleLarge,
           ),
           const SizedBox(height: ManoSpacing.sm),
           Text(
-            'Tu radicado es ${ticket.ticketNumber}. Te responderemos por '
+            'Tu radicado es ${ticket.number}. Te responderemos por '
             'correo en máximo 15 días hábiles.',
             textAlign: TextAlign.center,
             style: textTheme.bodyMedium?.copyWith(color: ManoColors.muted),

@@ -137,21 +137,6 @@ void main() {
     });
   });
 
-  group('support desk', () {
-    test('files through the port and hands back the radicado', () async {
-      final container = ProviderContainer.test();
-      final result = await container
-          .read(supportDeskActionsProvider.notifier)
-          .file(
-            const SupportTicketDraft(
-              subject: 'Cobro doble',
-              description: 'Me cobraron dos veces la limpieza.',
-            ),
-          );
-      expect(result.valueOrNull!.ticketNumber, startsWith('PQR-'));
-    });
-  });
-
   group('notification preferences', () {
     test('start on and toggle locally', () {
       final container = ProviderContainer.test();

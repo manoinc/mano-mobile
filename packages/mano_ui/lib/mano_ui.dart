@@ -34,6 +34,7 @@ export 'src/widgets/mano_brand_button.dart';
 export 'src/widgets/mano_category_chip.dart';
 export 'src/widgets/mano_category_rail.dart';
 export 'src/widgets/mano_chat_bubble.dart';
+export 'src/widgets/mano_choice_chip.dart';
 export 'src/widgets/mano_receipt_mark.dart';
 export 'src/widgets/mano_chat_header.dart';
 export 'src/widgets/mano_chat_thread.dart';

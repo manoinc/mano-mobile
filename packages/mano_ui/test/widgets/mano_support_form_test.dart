@@ -2,50 +2,92 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-Widget _host(Widget child) => MaterialApp(
-  theme: ManoTheme.light(),
-  home: Scaffold(body: SingleChildScrollView(child: child)),
-);
-
 void main() {
-  testWidgets('hands back what was typed on Enviar', (tester) async {
-    (String, String)? sent;
-    await tester.pumpWidget(
-      _host(ManoSupportForm(onSubmit: (s, d) => sent = (s, d))),
-    );
+  late TextEditingController subject;
+  late TextEditingController description;
 
-    await tester.enterText(find.byType(TextField).first, 'Cobro doble');
-    await tester.enterText(
-      find.byType(TextField).last,
-      'Me cobraron dos veces.',
-    );
-    await tester.tap(find.text('Enviar'));
-
-    expect(sent, ('Cobro doble', 'Me cobraron dos veces.'));
+  setUp(() {
+    subject = TextEditingController();
+    description = TextEditingController();
   });
 
-  testWidgets('shows the errors it is given', (tester) async {
+  Future<List<int>> pump(
+    WidgetTester tester, {
+    String? subjectError,
+    List<String>? changes,
+  }) async {
+    final picked = <int>[];
     await tester.pumpWidget(
-      _host(
-        ManoSupportForm(
-          onSubmit: (_, _) {},
-          subjectError: 'Escribe un asunto.',
-          descriptionError: 'Cuéntanos qué pasó.',
+      MaterialApp(
+        theme: ManoTheme.light(),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ManoSupportForm(
+              kinds: const ['Petición', 'Queja', 'Reclamo', 'Sugerencia'],
+              selectedKind: 1,
+              onKind: picked.add,
+              subject: subject,
+              description: description,
+              onChanged: () => changes?.add(subject.text),
+              subjectError: subjectError,
+            ),
+          ),
         ),
       ),
     );
+    return picked;
+  }
 
-    expect(find.text('Escribe un asunto.'), findsOneWidget);
-    expect(find.text('Cuéntanos qué pasó.'), findsOneWidget);
+  testWidgets('picks a kind', (tester) async {
+    final picked = await pump(tester);
+    expect(find.text('Queja'), findsOneWidget);
+    await tester.tap(find.text('Reclamo'));
+    expect(picked, [2]);
   });
 
-  testWidgets('ignores Enviar while sending', (tester) async {
-    var sent = 0;
-    await tester.pumpWidget(
-      _host(ManoSupportForm(onSubmit: (_, _) => sent++, sending: true)),
+  testWidgets('reports typing and shows errors', (tester) async {
+    final changes = <String>[];
+    await pump(tester, subjectError: 'Escribe un asunto', changes: changes);
+
+    await tester.enterText(find.byKey(const Key('support-subject')), 'Pago');
+    await tester.enterText(
+      find.byKey(const Key('support-description')),
+      'Detalle',
     );
 
-    await tester.tap(find.byType(ManoPrimaryButton));
-    expect(sent, 0);
+    expect(changes, ['Pago', 'Pago']);
+    expect(description.text, 'Detalle');
+    expect(find.text('Escribe un asunto'), findsOneWidget);
+  });
+
+  testWidgets('fits a 360 dp phone at twice the text size', (tester) async {
+    tester.view
+      ..physicalSize = const Size(360, 800)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ManoTheme.light(),
+        home: MediaQuery(
+          data: const MediaQueryData(
+            size: Size(360, 800),
+            textScaler: TextScaler.linear(2),
+          ),
+          child: Scaffold(
+            body: SingleChildScrollView(
+              child: ManoSupportForm(
+                kinds: const ['Petición', 'Queja', 'Reclamo', 'Sugerencia'],
+                selectedKind: 0,
+                onKind: (_) {},
+                subject: subject,
+                description: description,
+                onChanged: () {},
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
   });
 }

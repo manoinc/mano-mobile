@@ -19,25 +19,6 @@ WidgetbookCategory profile() => WidgetbookCategory(
         ),
       ),
     }),
-    component('ManoSupportForm', {
-      'Default': (context) => SingleChildScrollView(
-        child: _padded(
-          ManoSupportForm(
-            onSubmit: (_, _) {},
-            sending: context.knobs.boolean(label: 'Sending'),
-          ),
-        ),
-      ),
-      'With errors': (context) => SingleChildScrollView(
-        child: _padded(
-          ManoSupportForm(
-            onSubmit: (_, _) {},
-            subjectError: 'Escribe un asunto.',
-            descriptionError: 'Cuéntanos un poco más.',
-          ),
-        ),
-      ),
-    }),
     component('ManoBarChart', {
       'Week': (context) => _padded(
         const ManoBarChart(

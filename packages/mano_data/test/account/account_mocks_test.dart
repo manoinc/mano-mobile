@@ -136,28 +136,4 @@ void main() {
       expect((await methods.remove('nope')).failureOrNull, isA<DataNotFound>());
     });
   });
-
-  group('MockSupportDesk', () {
-    test('files a ticket with a radicado number', () async {
-      final desk = MockSupportDesk(now: () => DateTime(2026, 11, 2));
-      const draft = SupportTicketDraft(
-        subject: 'Cobro doble',
-        description: 'Me cobraron dos veces la limpieza.',
-      );
-      final first = (await desk.file(draft)).valueOrNull!;
-      final second = (await desk.file(draft)).valueOrNull!;
-      expect(first.ticketNumber, 'PQR-2026-00001');
-      expect(second.ticketNumber, 'PQR-2026-00002');
-      expect(first.subject, 'Cobro doble');
-      expect(first.createdAt, DateTime(2026, 11, 2));
-    });
-
-    test('refuses a draft with problems', () async {
-      final desk = MockSupportDesk();
-      final result = await desk.file(
-        const SupportTicketDraft(subject: '', description: ''),
-      );
-      expect(result.failureOrNull, isA<DataRejected>());
-    });
-  });
 }

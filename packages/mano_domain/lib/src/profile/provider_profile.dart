@@ -8,6 +8,8 @@ final class ProviderProfile {
     required this.zones,
     required this.yearsExperience,
     required this.verified,
+    this.skills = const [],
+    this.portfolioUrls = const [],
   });
 
   final Party party;
@@ -15,6 +17,12 @@ final class ProviderProfile {
   final List<String> zones;
   final int yearsExperience;
   final bool verified;
+
+  /// Service category ids (`ServiceCategories`).
+  final List<String> skills;
+
+  /// Photos of past work, in order.
+  final List<String> portfolioUrls;
 
   String get firstName => party.displayName.trim().split(' ').first;
 }

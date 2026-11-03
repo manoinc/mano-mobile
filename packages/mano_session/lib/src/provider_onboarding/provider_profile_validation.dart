@@ -1,3 +1,5 @@
+import 'package:mano_domain/mano_domain.dart';
+
 /// Why a profile field cannot be accepted yet.
 enum ProfileProblem { empty, tooShort, invalid }
 
@@ -17,11 +19,7 @@ ProfileProblem? validateWorkZone(String value) =>
     value.trim().isEmpty ? ProfileProblem.empty : null;
 
 /// The ten-digit Colombian mobile number, or null if [value] is not one.
-String? normalizePhone(String value) {
-  var digits = value.replaceAll(RegExp(r'[\s\-()]'), '');
-  if (digits.startsWith('+57')) digits = digits.substring(3);
-  return RegExp(r'^3\d{9}$').hasMatch(digits) ? digits : null;
-}
+String? normalizePhone(String value) => normalizeColombianMobile(value);
 
 ProfileProblem? validateServices(List<String> categories) =>
     categories.isEmpty ? ProfileProblem.empty : null;

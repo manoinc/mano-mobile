@@ -1,29 +1,28 @@
 import 'package:mano_domain/mano_domain.dart';
 
-/// In-memory [SupportDesk] that numbers tickets `PQR-<year>-<sequence>`.
+/// In-memory [SupportDesk]: numbers tickets MANO-yyyymmdd-0001 upwards.
 final class MockSupportDesk implements SupportDesk {
   MockSupportDesk({DateTime Function()? now}) : _now = now ?? DateTime.now;
 
   final DateTime Function() _now;
-  int _sequence = 0;
+  var _filed = 0;
 
   @override
-  Future<Result<SupportTicket, DataFailure>> file(
+  Future<Result<SupportTicket, DataFailure>> submit(
     SupportTicketDraft draft,
   ) async {
-    if (draft.problems.isNotEmpty) {
-      return Err(DataRejected(reason: '${draft.problems}'));
-    }
+    if (!draft.isValid) return Err(DataRejected(reason: '${draft.problems}'));
     final at = _now();
-    final sequence = ++_sequence;
+    _filed++;
     return Ok(
       SupportTicket(
-        id: 'ticket-$sequence',
-        ticketNumber: 'PQR-${at.year}-${'$sequence'.padLeft(5, '0')}',
-        subject: draft.subject.trim(),
-        description: draft.description.trim(),
+        number: 'MANO-${_date(at)}-${'$_filed'.padLeft(4, '0')}',
+        status: SupportTicketStatus.filed,
         createdAt: at,
       ),
     );
   }
 }
+
+String _date(DateTime d) =>
+    '${d.year}${'${d.month}'.padLeft(2, '0')}${'${d.day}'.padLeft(2, '0')}';

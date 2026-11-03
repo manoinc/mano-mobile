@@ -36,6 +36,9 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | `ManoWeekdayPicker` | L M X J V S D toggles. |
 | `ManoDateStrip` / `ManoSlotGrid` | Pick a day / pick a time slot (taken slots struck through). |
 | `ManoMessageComposer` | Chat input with send button; optional "+" attach and a strip of pending photos. |
+| `ManoMessageComposer` | Chat input with send button. |
+| `ManoChoiceChip` | A pill to pick (skills, a ticket kind) or, with `onRemove`, to take away (zones). |
+| `ManoSupportForm` | A PQRS request: kind pills, subject and description; the screen sends it. Shared by both apps. |
 
 ### Cards and rows
 

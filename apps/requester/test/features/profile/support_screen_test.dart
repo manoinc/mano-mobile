@@ -37,31 +37,32 @@ void main() {
     expect(find.textContaining('Actividad'), findsWidgets);
   });
 
-  testWidgets('a thin message is sent back with what is missing', (
-    tester,
-  ) async {
+  testWidgets('Enviar waits for a subject and a description', (tester) async {
     await _open(tester);
 
-    await _tapEnviar(tester);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Escribe el asunto.'), findsOneWidget);
-    expect(find.text('Cuéntanos qué pasó.'), findsOneWidget);
+    await tester.ensureVisible(find.text('Enviar'));
+    final enviar = tester.widget<ManoPrimaryButton>(
+      find.widgetWithText(ManoPrimaryButton, 'Enviar'),
+    );
+    expect(enviar.onPressed, isNull);
   });
 
-  testWidgets('filing a ticket confirms it with its radicado', (tester) async {
+  testWidgets('filing a queja confirms it with its radicado', (tester) async {
     await _open(tester);
 
+    await tester.ensureVisible(find.text('Queja'));
+    await tester.tap(find.text('Queja'));
     await tester.enterText(_field('Asunto'), 'Cobro doble');
     await tester.enterText(
       _field('Cuéntanos qué pasó'),
       'Me cobraron dos veces la limpieza del sábado.',
     );
+    await tester.pump();
     await _tapEnviar(tester);
     await tester.pumpAndSettle();
 
-    expect(find.text('Recibimos tu mensaje'), findsOneWidget);
-    expect(find.textContaining('PQR-'), findsOneWidget);
+    expect(find.text('Recibimos tu queja'), findsOneWidget);
+    expect(find.textContaining('MANO-'), findsOneWidget);
     expect(find.byType(ManoSupportForm), findsNothing);
   });
 }

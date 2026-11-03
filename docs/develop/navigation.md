@@ -46,6 +46,10 @@ shell for signed-in users and guests.
   /services/availability           AvailabilityScreen    PROV-03
   /services/new           [root]   OfferEditorScreen     PROV-02
   /services/offer/:id     [root]   OfferEditorScreen     PROV-02
+/profile                           ProviderProfileScreen
+  /profile/edit           [root]   EditProfileScreen     PROV-08
+  /profile/support        [root]   SupportScreen         PROV-08
+  /profile/payout         [root]   PayoutScreen          PROV-08
 +  → /services/new
 ```
 
