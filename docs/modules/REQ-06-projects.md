@@ -29,10 +29,12 @@ One `ManoQuestionStep` per screen, moved by `ManoStepTransition`:
 1. **Category**: `ManoCategoryChip`s; Continuar waits for `unknownCategory` to clear.
 2. **Title and description**: `ManoTextField`s; Continuar waits for the title
    and description problems to clear.
-3. **Budget**: optional, on `ManoAmountPad` (`typeAmount` / `eraseAmount`);
+3. **Photos**: optional, up to 6 on `ManoPhotoPickerGrid`; Continuar waits for
+   uploads. See [MEDIA-01](MEDIA-01-chat-photos.md).
+4. **Budget**: optional, on `ManoAmountPad` (`typeAmount` / `eraseAmount`);
    Omitir clears it.
-4. **Review**: each part has Editar; "Publicar proyecto" calls
-   `projectActionsProvider.publish`. A failure shows its message in a snackbar.
+5. **Review**: each part has Editar; "Publicar proyecto" calls
+   `projectActionsProvider.publish` with the photo URLs, and waits for uploads. A failure shows its message in a snackbar.
 
 Success shows "Proyecto publicado"; "Ver proyecto" goes to
 `/projects/project/<id>?segment=proyectos`.
@@ -55,7 +57,8 @@ proyecto". Error: "No pudimos cargar tus proyectos." with Reintentar.
 ### Project detail
 
 A status strip (ABIERTO · ELEGIDO · CERRADO, or a Cancelado chip), the title,
-category and age, budget and description, then `ProjectQuotesSection`:
+category and age, budget and description, the photos (`ManoPhotoGallery`, tap to
+open) when there are any, then `ProjectQuotesSection`:
 
 - `arrangeQuotes` pins the selected quote with an "Elegida" chip, sorts the rest
   by price ("Menor precio") or recency ("Más recientes"), and folds discarded

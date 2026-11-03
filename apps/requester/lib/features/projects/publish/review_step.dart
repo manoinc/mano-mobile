@@ -4,11 +4,13 @@ import 'package:mano_ui/mano_ui.dart';
 
 import '../project_labels.dart';
 
-/// Step 4: everything at a glance, each part editable, then publish.
+/// Step 5: everything at a glance, each part editable, then publish.
 class ReviewStep extends StatelessWidget {
   const ReviewStep({
     required this.draft,
     required this.busy,
+    this.photos = const [],
+    this.uploading = false,
     required this.onEdit,
     required this.onPublish,
     required this.onBack,
@@ -17,6 +19,12 @@ class ReviewStep extends StatelessWidget {
 
   final ProjectDraft draft;
   final bool busy;
+
+  /// Uploaded photos, drawn from their local bytes.
+  final List<ImageProvider> photos;
+
+  /// Publishing waits for every photo to finish uploading.
+  final bool uploading;
 
   /// Called with the step to go back to.
   final ValueChanged<int> onEdit;
@@ -31,7 +39,7 @@ class ReviewStep extends StatelessWidget {
       progress: 1,
       primaryLabel: 'Publicar proyecto',
       busy: busy,
-      onPrimary: draft.isValid ? onPublish : null,
+      onPrimary: draft.isValid && !uploading ? onPublish : null,
       onBack: onBack,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -63,6 +71,10 @@ class ReviewStep extends StatelessWidget {
           ),
           _Part(
             onEdit: () => onEdit(2),
+            child: _PhotosSummary(photos: photos),
+          ),
+          _Part(
+            onEdit: () => onEdit(3),
             child: Text(
               'Presupuesto  ${budgetLabel(draft.budgetCop)}',
               style: textTheme.bodyLarge,
@@ -100,6 +112,43 @@ class _Part extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _PhotosSummary extends StatelessWidget {
+  const _PhotosSummary({required this.photos});
+
+  static const _side = 40.0;
+
+  final List<ImageProvider> photos;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    if (photos.isEmpty) {
+      return Text('Sin fotos', style: textTheme.bodyLarge);
+    }
+    return Row(
+      children: [
+        for (final photo in photos.take(3)) ...[
+          ClipRRect(
+            borderRadius: BorderRadius.circular(ManoRadius.card),
+            child: Image(
+              image: photo,
+              width: _side,
+              height: _side,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(width: ManoSpacing.xs),
+        ],
+        const SizedBox(width: ManoSpacing.xs),
+        Text(
+          photos.length == 1 ? '1 foto' : '${photos.length} fotos',
+          style: textTheme.bodyLarge,
+        ),
+      ],
     );
   }
 }

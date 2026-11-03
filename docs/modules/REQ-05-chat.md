@@ -28,9 +28,9 @@ Shared state lives in `packages/mano_session/lib/src/chat/` and has no app-speci
 
 - `ChatThreadItem` (sealed UI-state value, not domain):
   - `ConfirmedChatItem(Message message)`
-  - `OutgoingChatItem({localId, body, sentAt, failed = false})`, with `copyWith({failed})`
+  - `OutgoingChatItem({localId, body, sentAt, photos = const [], failed = false})`, with `copyWith({failed})`
 
-  Both expose `body`, `sentAt` and `fromMe`.
+  Both expose `body`, `sentAt`, `fromMe`, `hasPhotos` and `caption`; photos are covered in [MEDIA-01](MEDIA-01-chat-photos.md).
 - `chatThreadProvider`: `AsyncNotifierProvider.autoDispose.family<ChatThreadNotifier, List<ChatThreadItem>, String /* conversationId */>`. `retry` is disabled because the screen offers its own retry, and Riverpod 3's silent auto-retry would hide the error.
 - `ChatThreadNotifier`:
   - `build()`:
@@ -38,7 +38,7 @@ Shared state lives in `packages/mano_session/lib/src/chat/` and has no app-speci
     2. Loads `messages(id)`.
     3. Merges in any messages that arrived during the load, deduplicated by id.
     4. Fires `markRead(id)`. On `Ok` it invalidates `conversationsProvider`, so Bandeja's unread badges refresh.
-  - `send(text)`: trims the text and ignores blanks. It appends a pending `OutgoingChatItem`, then awaits `ChatRepository.send`.
+  - `send(text)`: trims the text and ignores blanks unless photos are attached; waits while a photo uploads (see [MEDIA-01](MEDIA-01-chat-photos.md)). It appends a pending `OutgoingChatItem`, then awaits `ChatRepository.send`.
     - `Ok(message)`: the pending item is removed and the message is added as confirmed, unless that id is already present.
     - `Err`: the item becomes `failed`.
   - `retry(localId)`: moves a failed item back to pending and sends it again.

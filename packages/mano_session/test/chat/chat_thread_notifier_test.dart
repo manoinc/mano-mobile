@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,6 +10,7 @@ final class _FakeChatRepository implements ChatRepository {
   Object? historyError;
   final incoming = StreamController<Message>.broadcast();
   final sent = <String>[];
+  final sentMediaIds = <List<String>>[];
   final markedRead = <String>[];
   Completer<Result<Message, DataFailure>>? pendingSend;
 
@@ -31,6 +33,7 @@ final class _FakeChatRepository implements ChatRepository {
     List<String> mediaIds = const [],
   }) {
     sent.add(body);
+    sentMediaIds.add(mediaIds);
     pendingSend = Completer();
     return pendingSend!.future;
   }
@@ -72,17 +75,63 @@ Message _message(
   status: status,
 );
 
+final class _Picker implements MediaPicker {
+  @override
+  Future<PickedImage?> pick(PhotoSource source) async => PickedImage(
+    bytes: Uint8List.fromList([7, 7]),
+    mimeType: 'image/png',
+    name: 'a.png',
+  );
+}
+
+final class _Uploader implements MediaUploader {
+  final pending = <Completer<Result<MediaAttachment, DataFailure>>>[];
+
+  @override
+  Future<Result<MediaAttachment, DataFailure>> upload(
+    PickedImage image,
+    UploadTarget target,
+  ) {
+    final c = Completer<Result<MediaAttachment, DataFailure>>();
+    pending.add(c);
+    return c.future;
+  }
+}
+
 ProviderContainer _container(
   ChatRepository chat, {
   ConversationRepository? conversations,
+  MediaUploader? uploader,
 }) => ProviderContainer.test(
   overrides: [
     chatRepositoryProvider.overrideWithValue(chat),
     conversationRepositoryProvider.overrideWithValue(
       conversations ?? _CountingConversations(),
     ),
+    mediaPickerProvider.overrideWithValue(_Picker()),
+    mediaUploaderProvider.overrideWithValue(uploader ?? _Uploader()),
   ],
 );
+
+const _photos = ChatUpload('c1');
+
+/// Picks one photo into the c1 composer; completes the upload with [id] unless null.
+Future<void> _attach(
+  ProviderContainer container,
+  _Uploader uploader, {
+  String? id = 'md1',
+}) async {
+  container.listen(photoAttachmentsProvider(_photos), (_, _) {});
+  final picking = container
+      .read(photoAttachmentsProvider(_photos).notifier)
+      .pick(PhotoSource.gallery);
+  await pumpEventQueue();
+  if (id == null) return;
+  uploader.pending.last.complete(
+    Ok(MediaAttachment(id: id, url: 'https://x/$id')),
+  );
+  await picking;
+}
 
 List<String> _bodies(List<ChatThreadItem> items) => [
   for (final item in items) item.body,
@@ -303,4 +352,114 @@ void main() {
       );
     },
   );
+
+  group('photos', () {
+    test('send attaches the uploaded photos, then clears them', () async {
+      final repo = _FakeChatRepository();
+      final uploader = _Uploader();
+      final container = _container(repo, uploader: uploader);
+      await _load(container);
+      await _attach(container, uploader);
+
+      final sending = container
+          .read(chatThreadProvider('c1').notifier)
+          .send('');
+
+      final pending = _items(container).single as OutgoingChatItem;
+      expect(pending.photos.single.bytes, [7, 7]);
+      expect(pending.caption, isEmpty);
+      expect(repo.sent, [photoOnlyCaption]);
+      expect(repo.sentMediaIds, [
+        ['md1'],
+      ]);
+      expect(container.read(photoAttachmentsProvider(_photos)), isEmpty);
+
+      repo.pendingSend!.complete(
+        Ok(
+          Message(
+            id: 'm5',
+            conversationId: 'c1',
+            body: photoOnlyCaption,
+            sentAt: DateTime(2026, 10, 1, 9),
+            fromMe: true,
+            media: const [MediaAttachment(id: 'md1', url: 'https://x/md1')],
+          ),
+        ),
+      );
+      await sending;
+
+      final confirmed = _items(container).single as ConfirmedChatItem;
+      expect(confirmed.photoUrls, ['https://x/md1']);
+      expect(confirmed.caption, isEmpty);
+    });
+
+    test('typed text travels with the photos and stays visible', () async {
+      final repo = _FakeChatRepository();
+      final uploader = _Uploader();
+      final container = _container(repo, uploader: uploader);
+      await _load(container);
+      await _attach(container, uploader);
+
+      unawaited(
+        container.read(chatThreadProvider('c1').notifier).send('Mira esto'),
+      );
+
+      expect(repo.sent, ['Mira esto']);
+      expect(_items(container).single.caption, 'Mira esto');
+    });
+
+    test('send waits while a photo is still uploading', () async {
+      final repo = _FakeChatRepository();
+      final uploader = _Uploader();
+      final container = _container(repo, uploader: uploader);
+      await _load(container);
+      await _attach(container, uploader, id: null);
+
+      await container.read(chatThreadProvider('c1').notifier).send('Hola');
+
+      expect(repo.sent, isEmpty);
+      expect(_items(container), isEmpty);
+      expect(container.read(photoAttachmentsProvider(_photos)), hasLength(1));
+    });
+
+    test('retry resends the same photos', () async {
+      final repo = _FakeChatRepository();
+      final uploader = _Uploader();
+      final container = _container(repo, uploader: uploader);
+      await _load(container);
+      await _attach(container, uploader);
+      final notifier = container.read(chatThreadProvider('c1').notifier);
+
+      final sending = notifier.send('');
+      repo.pendingSend!.complete(const Err(DataUnavailable()));
+      await sending;
+      final failed = _items(container).single as OutgoingChatItem;
+      expect(failed.photos, hasLength(1));
+
+      unawaited(notifier.retry(failed.localId));
+
+      expect(repo.sentMediaIds, [
+        ['md1'],
+        ['md1'],
+      ]);
+      expect(
+        (_items(container).single as OutgoingChatItem).photos,
+        hasLength(1),
+      );
+    });
+
+    test(
+      'a history message without photos keeps its body as caption',
+      () async {
+        final repo = _FakeChatRepository()
+          ..history.add(_message('m1', photoOnlyCaption));
+        final container = _container(repo);
+
+        final item = (await _load(container)).single as ConfirmedChatItem;
+
+        expect(item.photoUrls, isEmpty);
+        expect(item.caption, photoOnlyCaption);
+      },
+    );
+  });
 }

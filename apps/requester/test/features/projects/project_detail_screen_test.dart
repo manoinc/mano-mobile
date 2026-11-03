@@ -37,6 +37,14 @@ void main() {
     expect(_quoteNames(tester), ['Jorge Peña', 'Andrés Castro', 'Ana Gómez']);
   });
 
+  testWidgets('the project photos show and open full screen', (tester) async {
+    await pumpRouterAt(tester, '/projects/project/project-1');
+
+    expect(find.byType(ManoPhotoGallery), findsOneWidget);
+    await _tap(tester, find.bySemanticsLabel('Ver foto 1'));
+    expect(find.byType(ManoImageViewer), findsOneWidget);
+  });
+
   testWidgets('the sort toggles to the newest first', (tester) async {
     await pumpRouterAt(tester, '/projects/project/project-1');
 

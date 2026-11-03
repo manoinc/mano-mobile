@@ -172,6 +172,10 @@ class _Body extends StatelessWidget {
         ),
         const SizedBox(height: ManoSpacing.sm),
         Text(project.description, style: textTheme.bodyLarge),
+        if (project.photoUrls.isNotEmpty) ...[
+          const SizedBox(height: ManoSpacing.md),
+          ManoPhotoGallery(urls: project.photoUrls, expandable: true),
+        ],
         const SizedBox(height: ManoSpacing.lg),
         const Divider(color: ManoColors.stone),
         const SizedBox(height: ManoSpacing.md),

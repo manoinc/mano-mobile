@@ -36,6 +36,7 @@ export 'src/catalog_providers.dart';
 export 'src/chat/chat_thread_item.dart';
 export 'src/chat/conversation_actions.dart';
 export 'src/chat/conversation_preview.dart';
+export 'src/chat/photo_caption.dart';
 export 'src/chat/chat_thread_notifier.dart';
 export 'src/conversation_providers.dart';
 export 'src/explore/service_search.dart';

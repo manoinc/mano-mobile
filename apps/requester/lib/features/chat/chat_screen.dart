@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../media/photo_picking.dart';
+
 class ChatScreen extends ConsumerWidget {
   const ChatScreen({required this.conversationId, super.key});
 
@@ -12,6 +14,9 @@ class ChatScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final provider = chatThreadProvider(conversationId);
     final thread = ref.watch(provider);
+    final attachments = photoAttachmentsProvider(ChatUpload(conversationId));
+    final photos = ref.watch(attachments);
+    final photosNotifier = ref.read(attachments.notifier);
 
     return Scaffold(
       appBar: AppBar(title: _Header(conversationId: conversationId)),
@@ -30,6 +35,11 @@ class ChatScreen extends ConsumerWidget {
               ManoMessageComposer(
                 hintText: 'Escribe un mensaje',
                 onSend: ref.read(provider.notifier).send,
+                onAttach: () => pickPhoto(context, photosNotifier),
+                attachments: pickedPhotos(photos),
+                onRemoveAttachment: photosNotifier.remove,
+                onRetryAttachment: photosNotifier.retry,
+                canSend: photosNotifier.isReady,
               ),
             ],
           ),
@@ -48,19 +58,21 @@ class ChatScreen extends ConsumerWidget {
   static ManoChatEntry _entry(ChatThreadItem item) => switch (item) {
     ConfirmedChatItem(:final message) => ManoChatEntry(
       id: message.id,
-      text: message.body,
+      text: item.caption,
       sentAt: message.sentAt,
       mine: message.fromMe,
       receipt: _receipt(message.status),
+      photos: [for (final url in item.photoUrls) NetworkImage(url)],
     ),
     OutgoingChatItem() => ManoChatEntry(
       id: item.localId,
-      text: item.body,
+      text: item.caption,
       sentAt: item.sentAt,
       mine: true,
       status: item.failed
           ? ManoChatEntryStatus.failed
           : ManoChatEntryStatus.pending,
+      photos: [for (final p in item.photos) MemoryImage(p.bytes)],
     ),
   };
 }

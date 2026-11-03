@@ -5,7 +5,9 @@ import 'package:mano_domain/mano_domain.dart';
 
 import '../conversation_providers.dart';
 import '../marketplace_providers.dart';
+import '../media/photo_attachments_notifier.dart';
 import 'chat_thread_item.dart';
+import 'photo_caption.dart';
 
 /// One conversation's live thread: history, incoming messages and my outgoing ones.
 final chatThreadProvider = AsyncNotifierProvider.autoDispose
@@ -45,14 +47,20 @@ final class ChatThreadNotifier extends AsyncNotifier<List<ChatThreadItem>> {
     return _items();
   }
 
+  /// Sends [text] with the composer's photos; waits while any is not uploaded.
   Future<void> send(String text) async {
-    final body = text.trim();
-    if (body.isEmpty) return;
+    final attachments = photoAttachmentsProvider(ChatUpload(conversationId));
+    final photos = ref.read(attachments);
+    if (!ref.read(attachments.notifier).isReady) return;
+    final typed = text.trim();
+    if (typed.isEmpty && photos.isEmpty) return;
     final item = OutgoingChatItem(
       localId: 'local-${_nextLocalId++}',
-      body: body,
+      body: outgoingBody(typed, hasPhotos: photos.isNotEmpty),
       sentAt: DateTime.now(),
+      photos: photos,
     );
+    if (photos.isNotEmpty) ref.read(attachments.notifier).clear();
     _outgoing.add(item);
     _emit();
     await _deliver(item);
@@ -68,7 +76,11 @@ final class ChatThreadNotifier extends AsyncNotifier<List<ChatThreadItem>> {
   }
 
   Future<void> _deliver(OutgoingChatItem item) async {
-    final result = await _repository.send(conversationId, item.body);
+    final result = await _repository.send(
+      conversationId,
+      item.body,
+      mediaIds: item.mediaIds,
+    );
     if (!ref.mounted) return;
     final index = _outgoing.indexWhere((o) => o.localId == item.localId);
     if (index < 0) return;

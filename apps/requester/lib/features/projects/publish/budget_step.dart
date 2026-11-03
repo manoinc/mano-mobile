@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-/// Step 3: an optional budget on a keypad.
+/// Step 4: an optional budget on a keypad.
 class BudgetStep extends StatelessWidget {
   const BudgetStep({
     required this.draft,

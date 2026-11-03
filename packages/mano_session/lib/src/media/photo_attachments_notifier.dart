@@ -22,6 +22,9 @@ final class PhotoAttachmentsNotifier extends Notifier<List<PhotoAttachment>> {
   bool get isUploading =>
       state.any((p) => p.state == PhotoUploadState.uploading);
 
+  /// True when nothing is uploading or failed, so the photos can go out.
+  bool get isReady => state.every((p) => p.state == PhotoUploadState.done);
+
   /// Ids to attach, in the order the photos were added.
   List<String> get mediaIds => [
     for (final p in state)

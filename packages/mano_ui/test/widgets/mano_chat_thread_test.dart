@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../support/tiny_png.dart';
+
 Future<void> _pump(WidgetTester tester, Widget child) => tester.pumpWidget(
   MaterialApp(
     theme: ManoTheme.light(),
@@ -168,6 +170,52 @@ void main() {
       expect(find.text('No se envió. Toca para reintentar.'), findsOneWidget);
       await tester.tap(find.byKey(const Key('chat-item-failed')));
       expect(retried, ['local-1']);
+    });
+
+    testWidgets('tapping a photo opens it full screen', (tester) async {
+      await _pump(
+        tester,
+        ManoChatThread(
+          entries: [
+            ManoChatEntry(
+              id: 'm1',
+              text: '',
+              sentAt: DateTime(2026, 10, 1, 9),
+              photos: [tinyImage],
+            ),
+          ],
+          emptyMessage: 'Vacío',
+          onRetry: (_) {},
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('chat-bubble-photo')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ManoImageViewer), findsOneWidget);
+    });
+
+    testWidgets('my pending photo shows its upload progress', (tester) async {
+      await _pump(
+        tester,
+        ManoChatThread(
+          entries: [
+            ManoChatEntry(
+              id: 'local-1',
+              text: '',
+              sentAt: DateTime(2026, 10, 1, 9),
+              mine: true,
+              status: ManoChatEntryStatus.pending,
+              photos: [tinyImage],
+            ),
+          ],
+          emptyMessage: 'Vacío',
+          onRetry: (_) {},
+        ),
+      );
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.text('Enviando…'), findsOneWidget);
     });
 
     testWidgets('no entries shows the empty message', (tester) async {

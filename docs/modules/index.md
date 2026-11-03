@@ -26,6 +26,12 @@ routes are already registered, so a module never edits the router.
 | PROV-06 | Inbox & Chat | `chat/` | `/inbox`, `/inbox/:conversationId` | `ConversationRepository`, `ChatRepository` | [PROV-06](PROV-06-chat.md) |
 | PROV-07 | Open Projects & Quotes | `projects/` + `home/home_segments.dart` | `/home` (Proyectos, Mis cotizaciones), `/home/project/:id` | `LeadRepository` (live) | [PROV-07](PROV-07-projects.md) |
 
+## Shared
+
+| ID | Module | Folders | Ports | Doc |
+|---|---|---|---|---|
+| MEDIA-01 | Chat photos & project photos | `chat/`, `media/` and `projects/` in both apps | `MediaPicker`, `MediaUploader`, `ChatRepository`, `ProjectRepository` | [MEDIA-01](MEDIA-01-chat-photos.md) |
+
 Shared state goes in `mano_session/lib/src/<module>/`:
 
 - REQ-04 builds the jobs/requests notifiers that PROV-04 and PROV-05 reuse.

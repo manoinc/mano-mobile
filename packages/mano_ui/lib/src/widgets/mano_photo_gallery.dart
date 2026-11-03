@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/mano_theme.dart';
+import 'mano_image_viewer.dart';
 
 /// A network photo that falls back to a flat stone block when it cannot load.
 class ManoPhoto extends StatelessWidget {
@@ -24,10 +25,18 @@ class ManoPhoto extends StatelessWidget {
 
 /// A horizontal strip of photos, e.g. what the client shot of the problem.
 class ManoPhotoGallery extends StatelessWidget {
-  const ManoPhotoGallery({required this.urls, this.height = 160, super.key});
+  const ManoPhotoGallery({
+    required this.urls,
+    this.height = 160,
+    this.expandable = false,
+    super.key,
+  });
 
   final List<String> urls;
   final double height;
+
+  /// Tapping a photo opens it in [ManoImageViewer].
+  final bool expandable;
 
   @override
   Widget build(BuildContext context) {
@@ -39,13 +48,29 @@ class ManoPhotoGallery extends StatelessWidget {
         itemCount: urls.length,
         separatorBuilder: (context, index) =>
             const SizedBox(width: ManoSpacing.sm),
-        itemBuilder: (context, i) => ClipRRect(
-          borderRadius: BorderRadius.circular(ManoRadius.card),
-          child: AspectRatio(
-            aspectRatio: 3 / 2,
-            child: ManoPhoto(url: urls[i]),
-          ),
-        ),
+        itemBuilder: (context, i) {
+          final photo = ClipRRect(
+            borderRadius: BorderRadius.circular(ManoRadius.card),
+            child: AspectRatio(
+              aspectRatio: 3 / 2,
+              child: ManoPhoto(url: urls[i]),
+            ),
+          );
+          if (!expandable) return photo;
+          final tag = ManoImageViewer.heroTagFor(urls[i], i);
+          return Semantics(
+            label: 'Ver foto ${i + 1}',
+            button: true,
+            child: GestureDetector(
+              onTap: () => ManoImageViewer.show(
+                context,
+                image: NetworkImage(urls[i]),
+                heroTag: tag,
+              ),
+              child: Hero(tag: tag, child: photo),
+            ),
+          );
+        },
       ),
     );
   }

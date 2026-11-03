@@ -79,6 +79,17 @@ void main() {
     expect(find.byType(Image), findsNWidgets(3));
   });
 
+  testWidgets('an expandable gallery opens the tapped photo full screen', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(const ManoPhotoGallery(urls: ['a', 'b'], expandable: true)),
+    );
+    await tester.tap(find.bySemanticsLabel('Ver foto 2'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ManoImageViewer), findsOneWidget);
+  });
+
   testWidgets('photo gallery is empty without photos', (tester) async {
     await tester.pumpWidget(_host(const ManoPhotoGallery(urls: [])));
     expect(find.byType(Image), findsNothing);
