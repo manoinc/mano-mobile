@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../support/tiny_png.dart';
+
 Future<void> _pump(WidgetTester tester, Widget child) => tester.pumpWidget(
   MaterialApp(
     theme: ManoTheme.light(),
@@ -131,6 +133,87 @@ void main() {
         ),
       );
       expect(find.byKey(const Key('chat-receipt-read')), findsNothing);
+    });
+  });
+
+  group('ManoChatBubble with photos', () {
+    testWidgets('draws each photo above the text', (tester) async {
+      await _pump(
+        tester,
+        ManoChatBubble(
+          text: 'Mira',
+          mine: true,
+          timeLabel: '9:00',
+          photos: [tinyImage, tinyImage],
+        ),
+      );
+
+      expect(find.byKey(const Key('chat-bubble-photo')), findsNWidgets(2));
+      final photo = tester.getTopLeft(
+        find.byKey(const Key('chat-bubble-photo')).first,
+      );
+      expect(photo.dy, lessThan(tester.getTopLeft(find.text('Mira')).dy));
+    });
+
+    testWidgets('photos alone draw no text bubble but keep the time', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        ManoChatBubble(
+          text: '',
+          mine: true,
+          timeLabel: '9:00',
+          receipt: ManoReceipt.read,
+          photos: [tinyImage],
+        ),
+      );
+
+      expect(find.byKey(const Key('chat-bubble-body')), findsNothing);
+      expect(find.text('9:00'), findsOneWidget);
+      expect(find.byKey(const Key('chat-receipt-read')), findsOneWidget);
+    });
+
+    testWidgets('tapping a photo reports its index', (tester) async {
+      final tapped = <int>[];
+      await _pump(
+        tester,
+        ManoChatBubble(
+          text: '',
+          mine: false,
+          photos: [tinyImage, tinyImage],
+          onPhotoTap: tapped.add,
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('chat-bubble-photo')).last);
+      expect(tapped, [1]);
+    });
+
+    testWidgets('an uploading photo shows progress, a failed one an alert', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        ManoChatBubble(
+          text: '',
+          mine: true,
+          photos: [tinyImage],
+          photoStatus: ManoPhotoStatus.uploading,
+        ),
+      );
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      await _pump(
+        tester,
+        ManoChatBubble(
+          text: '',
+          mine: true,
+          photos: [tinyImage],
+          photoStatus: ManoPhotoStatus.failed,
+        ),
+      );
+      expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
     });
   });
 }

@@ -87,6 +87,10 @@ WidgetbookCategory wallet() => WidgetbookCategory(
         padding: EdgeInsets.all(ManoSpacing.md),
         child: ManoPhotoGallery(urls: _leadPhotos),
       ),
+      'Expandable': (context) => const Padding(
+        padding: EdgeInsets.all(ManoSpacing.md),
+        child: ManoPhotoGallery(urls: _leadPhotos, expandable: true),
+      ),
     }),
     component('ManoPhoto', {
       'Default': (context) => const SizedBox(

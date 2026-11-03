@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../theme/mano_theme.dart';
+import 'chat_photo_block.dart';
+import 'mano_photo_picker_grid.dart';
 import 'mano_receipt_mark.dart';
 
 /// One chat message; [mine] puts it on the right in ink.
@@ -8,7 +10,7 @@ import 'mano_receipt_mark.dart';
 /// Bubbles in a run from one sender tighten the corners they share, so the run
 /// reads as one block: [isFirstInGroup] and [isLastInGroup] say where this one
 /// sits. The time and receipt belong to the run, so only the last bubble gets a
-/// [timeLabel].
+/// [timeLabel]. [photos] sit above the text; an empty [text] draws photos only.
 class ManoChatBubble extends StatelessWidget {
   const ManoChatBubble({
     required this.text,
@@ -17,6 +19,10 @@ class ManoChatBubble extends StatelessWidget {
     this.receipt,
     this.isFirstInGroup = true,
     this.isLastInGroup = true,
+    this.photos = const [],
+    this.photoStatus = ManoPhotoStatus.done,
+    this.onPhotoTap,
+    this.photoHeroTags,
     super.key,
   });
 
@@ -30,6 +36,17 @@ class ManoChatBubble extends StatelessWidget {
   final ManoReceipt? receipt;
   final bool isFirstInGroup;
   final bool isLastInGroup;
+
+  final List<ImageProvider> photos;
+
+  /// Uploading or failed, for my message that is still on its way.
+  final ManoPhotoStatus photoStatus;
+
+  /// Gets the index of the tapped photo.
+  final ValueChanged<int>? onPhotoTap;
+
+  /// One per photo, for a [Hero] into the full-screen viewer.
+  final List<Object>? photoHeroTags;
 
   BorderRadius get _radius {
     const round = Radius.circular(ManoRadius.lg);
@@ -106,25 +123,78 @@ class ManoChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final maxWidth = MediaQuery.sizeOf(context).width * 0.75;
+    final Widget child;
+    if (photos.isEmpty) {
+      child = _textBubble(context);
+    } else {
+      final time = timeLabel;
+      child = Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: mine
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
+        children: [
+          ChatPhotoBlock(
+            photos: photos,
+            width: maxWidth < _photoWidth ? maxWidth : _photoWidth,
+            status: photoStatus,
+            onTap: onPhotoTap,
+            heroTags: photoHeroTags,
+          ),
+          if (text.isNotEmpty) ...[
+            const SizedBox(height: ManoSpacing.xs),
+            _textBubble(context),
+          ] else if (time != null)
+            Padding(
+              padding: const EdgeInsets.only(top: ManoSpacing.xs),
+              child: _meta(context, time, ManoColors.faint),
+            ),
+        ],
+      );
+    }
+    return Align(
+      alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth),
+        child: child,
+      ),
+    );
+  }
+
+  static const _photoWidth = 260.0;
+
+  ManoReceiptMark? _mark(Color color) => mine && receipt != null
+      ? ManoReceiptMark(receipt: receipt!, color: color)
+      : null;
+
+  Widget _meta(BuildContext context, String time, Color color) {
+    final mark = _mark(color);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          time,
+          key: const Key('chat-bubble-time'),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: color),
+        ),
+        if (mark != null) ...[const SizedBox(width: ManoSpacing.xs), mark],
+      ],
+    );
+  }
+
+  Widget _textBubble(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final foreground = mine ? Colors.white : ManoColors.ink;
     final quiet = mine ? ManoColors.stone : ManoColors.faint;
     final bodyStyle = textTheme.bodyMedium?.copyWith(color: foreground);
     final timeStyle = textTheme.labelSmall?.copyWith(color: quiet);
     final time = timeLabel;
-    final mark = mine && receipt != null
-        ? ManoReceiptMark(receipt: receipt!, color: quiet)
-        : null;
+    final mark = _mark(quiet);
 
     Widget content = Text(text, style: bodyStyle);
     if (time != null) {
-      final meta = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(time, key: const Key('chat-bubble-time'), style: timeStyle),
-          if (mark != null) ...[const SizedBox(width: ManoSpacing.xs), mark],
-        ],
-      );
+      final meta = _meta(context, time, quiet);
       content = LayoutBuilder(
         builder: (context, constraints) => _withMeta(
           context,
@@ -137,26 +207,18 @@ class ManoChatBubble extends StatelessWidget {
         ),
       );
     }
-    return Align(
-      alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.sizeOf(context).width * 0.75,
+    return DecoratedBox(
+      key: const Key('chat-bubble-body'),
+      decoration: BoxDecoration(
+        color: mine ? ManoColors.ink : ManoColors.sand,
+        borderRadius: _radius,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: ManoSpacing.sm + ManoSpacing.xs,
+          vertical: ManoSpacing.sm,
         ),
-        child: DecoratedBox(
-          key: const Key('chat-bubble-body'),
-          decoration: BoxDecoration(
-            color: mine ? ManoColors.ink : ManoColors.sand,
-            borderRadius: _radius,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: ManoSpacing.sm + ManoSpacing.xs,
-              vertical: ManoSpacing.sm,
-            ),
-            child: content,
-          ),
-        ),
+        child: content,
       ),
     );
   }

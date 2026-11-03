@@ -192,6 +192,34 @@ WidgetbookCategory inputs() => WidgetbookCategory(
         alignment: Alignment.bottomCenter,
         child: ManoMessageComposer(hintText: 'Escribe un mensaje', onSend: (_) {}),
       ),
+      'With attach': (context) => Align(
+        alignment: Alignment.bottomCenter,
+        child: ManoMessageComposer(hintText: 'Escribe un mensaje', onSend: (_) {}, onAttach: noop),
+      ),
+      'Pending photos': (context) => Align(
+        alignment: Alignment.bottomCenter,
+        child: ManoMessageComposer(
+          hintText: 'Escribe un mensaje',
+          onSend: (_) {},
+          onAttach: noop,
+          onRemoveAttachment: (_) {},
+          onRetryAttachment: (_) {},
+          canSend: context.knobs.boolean(label: 'Can send', initialValue: false),
+          attachments: [
+            const ManoPickedPhoto(id: 'a', image: NetworkImage(sampleListingPhoto)),
+            ManoPickedPhoto(
+              id: 'b',
+              image: const NetworkImage(sampleListingPhoto),
+              status: context.knobs.object.segmented(
+                label: 'Second photo',
+                options: ManoPhotoStatus.values,
+                initialOption: ManoPhotoStatus.uploading,
+                labelBuilder: (s) => s.name,
+              ),
+            ),
+          ],
+        ),
+      ),
     }),
     component('ManoAmountPad', {
       'Default': (context) => _padded(

@@ -156,4 +156,16 @@ void main() {
     );
     await p;
   });
+
+  test('isReady only while every photo is uploaded', () async {
+    expect(notifier().isReady, isTrue);
+    final p = notifier().pick(PhotoSource.gallery);
+    await pumpEventQueue();
+    expect(notifier().isReady, isFalse);
+    uploader.pending.single.complete(const Err(DataUnavailable()));
+    await p;
+    expect(notifier().isReady, isFalse);
+    notifier().remove(state().single.localId);
+    expect(notifier().isReady, isTrue);
+  });
 }

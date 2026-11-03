@@ -32,6 +32,39 @@ WidgetbookCategory chat() => WidgetbookCategory(
           ],
         ),
       ),
+      'Photo': (context) => Padding(
+        padding: const EdgeInsets.all(ManoSpacing.md),
+        child: Center(
+          child: ManoChatBubble(
+            text: context.knobs.string(label: 'Caption', initialValue: ''),
+            timeLabel: '12:07 p. m.',
+            mine: context.knobs.boolean(label: 'Mine', initialValue: true),
+            receipt: ManoReceipt.delivered,
+            photos: const [NetworkImage(sampleListingPhoto)],
+            onPhotoTap: (_) {},
+            photoStatus: context.knobs.object.segmented(
+              label: 'Photo status',
+              options: ManoPhotoStatus.values,
+              labelBuilder: (s) => s.name,
+            ),
+          ),
+        ),
+      ),
+      'Several photos': (context) => const Padding(
+        padding: EdgeInsets.all(ManoSpacing.md),
+        child: Center(
+          child: ManoChatBubble(
+            text: 'Así quedó el baño.',
+            timeLabel: '12:07 p. m.',
+            mine: false,
+            photos: [
+              NetworkImage(sampleListingPhoto),
+              NetworkImage(sampleListingPhoto),
+              NetworkImage(sampleListingPhoto),
+            ],
+          ),
+        ),
+      ),
       'Receipt': (context) => Padding(
         padding: const EdgeInsets.all(ManoSpacing.md),
         child: Center(
@@ -128,10 +161,50 @@ WidgetbookCategory chat() => WidgetbookCategory(
           ],
         );
       },
+      'With photos': (context) {
+        final day = DateTime(2026, 10, 5, 12);
+        return ManoChatThread(
+          emptyMessage: 'Escribe el primer mensaje',
+          onRetry: (_) {},
+          entries: [
+            ManoChatEntry(id: '0', text: '¿Me mandas una foto de la fuga?', sentAt: day),
+            ManoChatEntry(
+              id: '1',
+              text: '',
+              sentAt: day.add(const Duration(minutes: 3)),
+              mine: true,
+              receipt: ManoReceipt.read,
+              photos: const [NetworkImage(sampleListingPhoto)],
+            ),
+            ManoChatEntry(
+              id: '2',
+              text: 'Y esta es la llave.',
+              sentAt: day.add(const Duration(minutes: 4)),
+              mine: true,
+              status: ManoChatEntryStatus.pending,
+              photos: const [NetworkImage(sampleListingPhoto)],
+            ),
+          ],
+        );
+      },
       'Empty': (context) => ManoChatThread(
         emptyMessage: 'Escribe el primer mensaje',
         onRetry: (_) {},
         entries: const [],
+      ),
+    }),
+      component('ManoImageViewer', {
+      'Default': (context) => const ManoImageViewer(image: NetworkImage(sampleListingPhoto)),
+      'Opened from a thumbnail': (context) => Center(
+        child: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => ManoImageViewer.show(
+              context,
+              image: const NetworkImage(sampleListingPhoto),
+            ),
+            child: const Text('Abrir foto'),
+          ),
+        ),
       ),
     }),
   ],

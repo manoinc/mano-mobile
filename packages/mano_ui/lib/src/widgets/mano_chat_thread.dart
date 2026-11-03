@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../format/mano_format.dart';
 import '../theme/mano_theme.dart';
 import 'mano_chat_bubble.dart';
+import 'mano_image_viewer.dart';
+import 'mano_photo_picker_grid.dart';
 import 'mano_receipt_mark.dart';
 
 /// Delivery state of a [ManoChatEntry].
@@ -17,6 +19,7 @@ class ManoChatEntry {
     this.mine = false,
     this.status = ManoChatEntryStatus.sent,
     this.receipt = ManoReceipt.sent,
+    this.photos = const [],
   });
 
   final String id;
@@ -27,11 +30,19 @@ class ManoChatEntry {
 
   /// How far my confirmed message got; ignored on theirs.
   final ManoReceipt receipt;
+
+  /// Drawn above [text]; an empty [text] shows the photos alone.
+  final List<ImageProvider> photos;
+
+  List<Object> get heroTags => [
+    for (var i = 0; i < photos.length; i++) ManoImageViewer.heroTagFor(id, i),
+  ];
 }
 
 /// A chat history, oldest first in [entries], pinned to the newest message.
 ///
 /// Confirmed messages from one sender within two minutes read as one group.
+/// Tapping a photo opens it in [ManoImageViewer].
 class ManoChatThread extends StatelessWidget {
   const ManoChatThread({
     required this.entries,
@@ -83,6 +94,7 @@ class ManoChatThread extends StatelessWidget {
         Padding(
           padding: EdgeInsets.only(top: gap),
           child: _row(
+            context,
             entry,
             isFirst: !joinedPrevious,
             isLast: next == null || !_joined(entry, next),
@@ -105,6 +117,7 @@ class ManoChatThread extends StatelessWidget {
   }
 
   Widget _row(
+    BuildContext context,
     ManoChatEntry entry, {
     required bool isFirst,
     required bool isLast,
@@ -116,14 +129,23 @@ class ManoChatThread extends StatelessWidget {
       receipt: entry.mine && isLast ? entry.receipt : null,
       isFirstInGroup: isFirst,
       isLastInGroup: isLast,
+      photos: entry.photos,
+      photoHeroTags: entry.heroTags,
+      onPhotoTap: (i) => ManoImageViewer.show(
+        context,
+        image: entry.photos[i],
+        heroTag: entry.heroTags[i],
+      ),
     ),
     ManoChatEntryStatus.pending => Opacity(
       key: const Key('chat-item-pending'),
-      opacity: 0.55,
+      opacity: entry.photos.isEmpty ? 0.55 : 1,
       child: ManoChatBubble(
         text: entry.text,
         timeLabel: 'Enviando…',
         mine: entry.mine,
+        photos: entry.photos,
+        photoStatus: ManoPhotoStatus.uploading,
       ),
     ),
     ManoChatEntryStatus.failed => _FailedRow(
@@ -158,6 +180,8 @@ class _FailedRow extends StatelessWidget {
               text: entry.text,
               timeLabel: ManoFormat.time(entry.sentAt),
               mine: entry.mine,
+              photos: entry.photos,
+              photoStatus: ManoPhotoStatus.failed,
             ),
           ),
           Row(

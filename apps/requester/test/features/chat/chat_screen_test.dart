@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_media_picker.dart';
 import '../../support/pump_app.dart';
 
 final class _FakeChatRepository implements ChatRepository {
@@ -14,6 +15,8 @@ final class _FakeChatRepository implements ChatRepository {
   int failLoads;
   final incoming = StreamController<Message>.broadcast();
   final sends = <Completer<Result<Message, DataFailure>>>[];
+  final bodies = <String>[];
+  final mediaIds = <List<String>>[];
 
   @override
   Future<List<Message>> messages(String conversationId) async {
@@ -33,6 +36,8 @@ final class _FakeChatRepository implements ChatRepository {
     String body, {
     List<String> mediaIds = const [],
   }) {
+    bodies.add(body);
+    this.mediaIds.add(mediaIds);
     final completer = Completer<Result<Message, DataFailure>>();
     sends.add(completer);
     return completer.future;
@@ -339,5 +344,111 @@ void main() {
       findsOneWidget,
     );
     await tester.pump(const Duration(seconds: 3));
+  });
+
+  group('photos', () {
+    Future<void> attachFromGallery(WidgetTester tester) async {
+      await tester.tap(find.byKey(const Key('mano-composer-attach')));
+      await tester.pumpAndSettle();
+      expect(find.byType(ManoMediaSourceSheet), findsOneWidget);
+      await tester.tap(find.text('Elegir de la galería'));
+      await tester.pump();
+      await tester.pump();
+    }
+
+    testWidgets('a picked photo waits in the composer, then goes out', (
+      tester,
+    ) async {
+      final repo = _FakeChatRepository();
+      final picker = FakeMediaPicker();
+      await pumpRouterAt(
+        tester,
+        '/inbox/conv-1',
+        overrides: [
+          chatRepositoryProvider.overrideWithValue(repo),
+          mediaPickerProvider.overrideWithValue(picker),
+        ],
+      );
+
+      await attachFromGallery(tester);
+      expect(picker.sources, [PhotoSource.gallery]);
+      expect(find.byKey(const Key('mano-composer-attachments')), findsOneWidget);
+      final send = find.byKey(const Key('mano-composer-send'));
+      expect(tester.widget<IconButton>(send).onPressed, isNull);
+
+      await tester.pump(const Duration(seconds: 1));
+      expect(tester.widget<IconButton>(send).onPressed, isNotNull);
+      await tester.tap(send);
+      await tester.pump();
+
+      expect(repo.bodies, [photoOnlyCaption]);
+      expect(repo.mediaIds.single, hasLength(1));
+      expect(find.byKey(const Key('mano-composer-attachments')), findsNothing);
+      expect(find.byKey(const Key('chat-bubble-photo')), findsOneWidget);
+      expect(find.text(photoOnlyCaption), findsNothing);
+
+      repo.sends.single.complete(const Err(DataUnavailable()));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('chat-item-failed')), findsOneWidget);
+      expect(find.byKey(const Key('chat-bubble-photo')), findsOneWidget);
+    });
+
+    testWidgets('a photo-only message shows the photo, not the caption', (
+      tester,
+    ) async {
+      final repo = _FakeChatRepository(
+        history: [
+          Message(
+            id: 'm1',
+            conversationId: 'conv-1',
+            body: photoOnlyCaption,
+            sentAt: DateTime(2026, 10, 1, 9),
+            fromMe: false,
+            media: const [
+              MediaAttachment(id: 'md1', url: 'https://x/1.jpg'),
+            ],
+          ),
+        ],
+      );
+      await pumpRouterAt(
+        tester,
+        '/inbox/conv-1',
+        overrides: [chatRepositoryProvider.overrideWithValue(repo)],
+      );
+
+      expect(find.byKey(const Key('chat-bubble-photo')), findsOneWidget);
+      expect(find.text(photoOnlyCaption), findsNothing);
+    });
+
+    testWidgets('tapping a photo opens it full screen', (tester) async {
+      final repo = _FakeChatRepository(
+        history: [
+          Message(
+            id: 'm1',
+            conversationId: 'conv-1',
+            body: 'La fuga',
+            sentAt: DateTime(2026, 10, 1, 9),
+            fromMe: false,
+            media: const [
+              MediaAttachment(id: 'md1', url: 'https://x/1.jpg'),
+            ],
+          ),
+        ],
+      );
+      await pumpRouterAt(
+        tester,
+        '/inbox/conv-1',
+        overrides: [chatRepositoryProvider.overrideWithValue(repo)],
+      );
+
+      expect(find.text('La fuga'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('chat-bubble-photo')));
+      await tester.pumpAndSettle();
+      expect(find.byType(ManoImageViewer), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Cerrar'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ManoImageViewer), findsNothing);
+    });
   });
 }
