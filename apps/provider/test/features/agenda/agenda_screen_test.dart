@@ -123,6 +123,8 @@ void main() {
   });
 
   testWidgets('every view has an empty state', (tester) async {
+    // A six-week month pushes the day list below a short test screen.
+    useTallPhone(tester);
     final c = await pumpRouterAt(tester, '/agenda', overrides: emptyAgenda());
 
     expect(find.text('No tienes trabajos este día.'), findsOneWidget);

@@ -1,0 +1,101 @@
+name: Flutter
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# A newer push to the same branch cancels the older run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Same Flutter as local development; bump together.
+  FLUTTER_VERSION: 3.47.2
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter pub get
+      # The whole pub workspace; boundary violations are errors here.
+      - run: dart analyze
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: packages/mano_domain
+            command: dart test # no Flutter binding
+          - package: packages/mano_data
+            command: flutter test
+          - package: packages/mano_session
+            command: flutter test
+          - package: packages/mano_ui
+            command: flutter test
+          - package: apps/requester
+            command: flutter test
+          - package: apps/provider
+            command: flutter test
+          - package: widgetbook
+            command: flutter test
+    name: test (${{ matrix.package }})
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter pub get
+      - run: ${{ matrix.command }}
+        working-directory: ${{ matrix.package }}
+
+  build-android:
+    needs: [analyze, test]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [requester, provider]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter pub get
+      # Release builds are debug-signed until a Play upload key exists.
+      - run: flutter build appbundle --release
+        working-directory: apps/${{ matrix.app }}
+
+  build-ios:
+    # macOS minutes cost 10x on a private repo, so only main builds iOS.
+    if: github.event_name == 'push'
+    needs: [analyze, test]
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [requester, provider]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter pub get
+      - run: flutter build ios --release --no-codesign
+        working-directory: apps/${{ matrix.app }}
