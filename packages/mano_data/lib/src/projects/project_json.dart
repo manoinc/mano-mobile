@@ -8,14 +8,14 @@ const projectFields =
 
 const quoteFields =
     'id worker { id displayName photoUrl } amount { amount } message status '
-    'createdAt';
+    'leadPurchased createdAt';
 
 /// A project as its owner reads it, quotes included.
 const ownedProjectFields =
     '$projectFields quotes(page: {first: 50}) { items { $quoteFields } }';
 
 /// A quote read on its own, naming its project.
-const standaloneQuoteFields = '$quoteFields project { id title }';
+const standaloneQuoteFields = '$quoteFields project { id title category }';
 
 Iterable<Map<String, dynamic>> pageItems(Object? page) =>
     ((page as Map<String, dynamic>)['items'] as List<dynamic>)
@@ -73,6 +73,11 @@ Quote quoteFromJson(
       _ => QuoteStatus.submitted,
     },
     createdAt: DateTime.parse(json['createdAt'] as String),
+    leadPurchased: json['leadPurchased'] as bool? ?? false,
+    projectCategory: switch (project?['category']) {
+      final String category => ServiceCategories.normalize(category),
+      _ => '',
+    },
   );
 }
 

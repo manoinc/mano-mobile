@@ -21,7 +21,8 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 | `AvailabilityRepository` | `workerAvailability`, `myAvailabilityRules`, `upsertAvailabilityRule`, `removeAvailabilityRule`, `myCalendarBlocks`, `blockCalendar`, `unblockCalendar`, `myCalendarFeed`, `regenerateCalendarFeed`, `revokeCalendarFeed` + `.ics` route | **live** (D4 scheduler over gRPC) | `GatewayAvailabilityRepository` |
 | `ConversationRepository`, `ChatRepository` | `myConversations`, `openConversation(reference: {withWorkerId \| jobId})`, `conversation`, `sendMessage`, `markConversationRead`, `messageAdded` | **live** (D7 chat over gRPC) | `GatewayConversationRepository`, `GatewayChatRepository` |
 | `ProjectRepository` (requester) | `myProjects` with `quotes(page)`, `publishProject`, `cancelProject`, `selectQuote`, `discardQuote` | **live** (D9 mano-projects over gRPC); client role | `GatewayProjectRepository` |
-| `LeadRepository` (provider) | `openProjects(category)`, `submitQuote`, `myQuotes` | **live** (D9); worker role. `purchaseProjectLead` is a D6 stub, so quotes are free | `GatewayLeadRepository` |
+| `LeadRepository` (provider) | `openProjects(category)`, `submitQuote`, `myQuotes`, `purchaseProjectLead(quoteId)` | **live** (D9, and D6 for the lead); worker role. Quotes are free; the selected worker buys the lead in coins, priced by category | `GatewayLeadRepository` |
+| `WalletRepository` (provider) | `myCoinWallet`, `myCoinMovements`, `coinPacks`, `checkoutTerms`, `buyCoinPack` (Nequi) | **live** (D6 mano-billing over gRPC) | `GatewayWalletRepository` (offline: `MockWalletRepository`) |
 | `MediaUploader` | `requestChatMediaUpload`, `requestAvatarUpload`, `finalizeMediaUpload` + a PUT to Garage | **live** (mano-media, embedded); work-image and review-media uploads are stubs | `GatewayMediaUploader` (project and portfolio photos: `MockMediaUploader`). See [Media](media.md) |
 | `ChatRepository` media | `Message.media`, `sendMessage(mediaIds)` | **live** | `GatewayChatRepository` |
 | `ReviewRepository` | `reviewWorker`, `reviewClient`, `job { worker { averageRating ratingsCount reviews(page) } }` | **live** (D8 mano-reviews over gRPC) | `GatewayReviewRepository`. See [Reviews](reviews.md) |
@@ -29,11 +30,11 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 | `ProviderOnboardingRepository` | `updateWorkerProfile`, `submitVerificationRequest` | stub (D2, D10 `not implemented`) | `MockProviderOnboardingRepository` |
 | `ClientProfileRepository` | `updateClientProfile(displayName, photoUrl, phone, email)` | stub (D2 `not implemented`); no client-profile query | `MockClientProfileRepository`. See [REQ-08](../modules/REQ-08-perfil.md) |
 | `AddressBook` | none | missing | `MockAddressBook` |
-| `PaymentMethods` | none (no billing bridge; cards to be tokenised by Wompi) | missing | `MockPaymentMethods` (display data only) |
+| `PaymentMethods` | none: billing keeps no saved methods, every charge carries its own (Nequi, PSE, a Wompi card token) | missing by design | `MockPaymentMethods` (display data only) |
 | `SupportDesk` (both apps) | `createSupportTicket(subject, description)` → `ticketNumber` | stub (D11) | `MockSupportDesk` |
 | `ProviderProfileEditor` | `updateWorkerProfile` | stub, and has no bio, skills or portfolio | `MockProviderProfileRepository` (the same instance Perfil reads) |
 | `SupportDesk` | `createSupportTicket(subject, description)` → `ticketNumber`, `status` FILED | stub; no PQRS kind | `MockSupportDesk` |
-| `PayoutAccounts` | `registerPayoutAccount` (no read or remove) | stub; no billing bridge (mano-billing `RegisterPayoutAccount` is the real shape) | `MockPayoutAccounts` |
+| `PayoutAccounts` | `registerPayoutAccount` (no read or remove) | live in the gateway (D6), not wired in the app yet | `MockPayoutAccounts` |
 | `SessionRepository` | SuperTokens FDI: `/auth/signin`, `/auth/signup` (with `role`), `/auth/session/refresh`, `/auth/signout` | **live** in `mano-auth` (`:3001`); the gateway *verifies* tokens | `SuperTokensSessionRepository` when configured |
 
 Every live D4/D5/D7 operation needs a signed-in caller; both apps now create
@@ -322,9 +323,27 @@ idempotent: it truncates the catalog first.
   finalized, owned and in that chat, although the media plan says it should.
 - `docs/schema.graphql` is stale: it misses `requestChatMediaUpload`,
   `Message.media` and `sendMessage(mediaIds)`. Read the resolvers.
-- Profile, support (`createSupportTicket`) and payout (`registerPayoutAccount`)
-  mutations are all `not implemented` stubs, and the gateway has no billing bridge.
+- Profile and support (`createSupportTicket`) mutations are `not implemented`
+  stubs. Billing is bridged (see **Coins and leads**).
   Beyond that: `updateWorkerProfile` has no bio, skills or portfolio fields;
   `createSupportTicket` has no PQRS kind (petición, queja, reclamo,
   sugerencia); payouts have no read (`myPayoutAccount`) or remove; billing's
   `AccountHolder` wants an `email` the app cannot read from the token yet.
+
+## Coins and leads
+
+- Coins are spent only on **project leads**: accepting a service request is
+  free. The selected worker buys the lead from Mis cotizaciones
+  (`purchaseProjectLead`); the gateway checks the quote in mano-projects,
+  billing spends the coins, and mano-projects unlocks the contact. Not enough
+  coins comes back as `FailedPrecondition: ... enough coins`, which the app
+  turns into the recharge prompt.
+- The cost shown before buying comes from `LeadPricing`, the same
+  placeholder prices billing is seeded with; billing's `leadPrices` query is
+  the source of truth and is not read yet.
+- A top-up is paid with Nequi only for now: `buyCoinPack` answers
+  `AWAIT_APPROVAL`, the payer approves in the Nequi app, and the coins arrive
+  when the charge completes (webhook or billing's reconciler). PSE (a bank
+  redirect) and cards (a Wompi tokenizer) are not offered yet.
+- `CoinTransaction.requestId` is null for gateway movements: billing's
+  history names a payment or a lead, not a service request.

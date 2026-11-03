@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:mano_ui/mano_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_provider/features/wallet/wallet_labels.dart';
 import 'package:mano_session/mano_session.dart';
@@ -48,9 +50,33 @@ void main() {
 
     await tester.tap(find.text('25 coins'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Comprar · \$45.000'));
+    final pay = find.text('Pagar con Nequi · \$45.000');
+    expect(
+      tester
+          .widget<ManoPrimaryButton>(
+            find.ancestor(of: pay, matching: find.byType(ManoPrimaryButton)),
+          )
+          .onPressed,
+      isNull,
+      reason: 'it waits for the phone, email and terms',
+    );
+
+    await tester.enterText(
+      find.byKey(const Key('recharge-phone')).last,
+      '3001234567',
+    );
+    await tester.enterText(
+      find.byKey(const Key('recharge-email')).last,
+      'ana@example.co',
+    );
+    await tester.ensureVisible(find.byKey(const Key('recharge-terms')));
+    await tester.tap(find.byType(Switch).last);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(pay);
+    await tester.tap(pay);
     await tester.pumpAndSettle();
 
+    expect(find.text('Listo: sumaste 28 coins'), findsOneWidget);
     expect(find.text('53'), findsOneWidget);
     expect(find.text('Recarga de 28 coins'), findsOneWidget);
   });

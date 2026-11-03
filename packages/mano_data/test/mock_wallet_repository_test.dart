@@ -21,40 +21,43 @@ void main() {
     },
   );
 
+  const nequi = NequiPayment(
+    phone: '3001234567',
+    payerEmail: 'ana@example.co',
+    acceptedTerms: true,
+  );
+
   test('buying a pack credits coins and bonus and logs a purchase', () async {
     final pack = (await wallet.packs()).firstWhere((p) => p.bonus > 0);
-    final result = await wallet.buyPack(pack.id);
-    expect(result.valueOrNull!.balance, 25 + pack.totalCoins);
+    final result = await wallet.buyPack(pack.id, nequi);
+    expect(result.valueOrNull!.coins, pack.totalCoins);
+    expect(result.valueOrNull!.step, PurchaseStep.done);
+    expect((await wallet.wallet()).balance, 25 + pack.totalCoins);
     expect((await wallet.history()).first.kind, CoinTransactionKind.purchase);
   });
 
   test('unknown pack is not found', () async {
-    expect((await wallet.buyPack('nope')).failureOrNull, isA<DataNotFound>());
-  });
-
-  test('spending debits and logs against the request', () async {
-    final result = await wallet.spendForLead('request-1', 3, label: 'Limpieza');
-    expect(result.valueOrNull!.amount, -3);
-    expect((await wallet.wallet()).balance, 22);
-    expect((await wallet.history()).first.requestId, 'request-1');
-  });
-
-  test('spending more than the balance fails and changes nothing', () async {
-    final result = await wallet.spendForLead('r', 26, label: 'x');
     expect(
-      result.failureOrNull,
-      const InsufficientCoins(needed: 26, available: 25),
+      (await wallet.buyPack('nope', nequi)).failureOrNull,
+      isA<DataNotFound>(),
+    );
+  });
+
+  test('a purchase without the terms is refused and credits nothing', () async {
+    final pack = (await wallet.packs()).first;
+    const refused = NequiPayment(
+      phone: '3001234567',
+      payerEmail: 'ana@example.co',
+      acceptedTerms: false,
+    );
+    expect(
+      (await wallet.buyPack(pack.id, refused)).failureOrNull,
+      isA<DataRejected>(),
     );
     expect((await wallet.wallet()).balance, 25);
   });
 
-  test('refunding gives back the spend once', () async {
-    await wallet.spendForLead('request-1', 3, label: 'x');
-    expect((await wallet.refundLead('request-1')).valueOrNull!.balance, 25);
-    expect((await wallet.history()).first.kind, CoinTransactionKind.refund);
-    expect(
-      (await wallet.refundLead('request-1')).failureOrNull,
-      isA<DataNotFound>(),
-    );
+  test('offers the terms to accept', () async {
+    expect(await wallet.checkoutTerms(), isNotEmpty);
   });
 }

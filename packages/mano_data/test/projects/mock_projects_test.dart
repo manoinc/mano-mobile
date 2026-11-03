@@ -178,7 +178,9 @@ void main() {
 
       expect(quote.status, QuoteStatus.submitted);
       expect(quote.projectTitle, project.title);
-      expect((await repos.leads.myQuotes()).first, quote);
+      final mine = (await repos.leads.myQuotes()).first;
+      expect(mine.id, quote.id);
+      expect(mine.projectCategory, project.category);
       expect((await _mineById(repos.projects, project.id)).quotes, [quote]);
     });
 

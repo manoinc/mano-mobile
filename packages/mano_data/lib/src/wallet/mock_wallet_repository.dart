@@ -114,45 +114,37 @@ final class MockWalletRepository implements WalletRepository {
   Future<List<CoinPack>> packs() async => _packs;
 
   @override
-  Future<Result<Wallet, DataFailure>> buyPack(String packId) async {
+  Future<List<CheckoutTerm>> checkoutTerms() async => const [
+    CheckoutTerm(
+      label: 'Términos y condiciones',
+      url: 'https://mano.app/terminos',
+    ),
+  ];
+
+  /// Credits at once: offline there is no charge to wait for.
+  @override
+  Future<Result<PackPurchase, DataFailure>> buyPack(
+    String packId,
+    NequiPayment payment,
+  ) async {
     final pack = _packs.where((p) => p.id == packId).firstOrNull;
     if (pack == null) return const Err(DataNotFound());
+    if (!payment.acceptedTerms) {
+      return const Err(
+        DataRejected(reason: 'FailedPrecondition: terms not accepted'),
+      );
+    }
     _record(
       CoinTransactionKind.purchase,
       pack.totalCoins,
       'Recarga de ${pack.totalCoins} coins',
     );
-    return Ok(Wallet(balance: _balance));
-  }
-
-  @override
-  Future<Result<CoinTransaction, DataFailure>> spendForLead(
-    String requestId,
-    int cost, {
-    required String label,
-  }) async {
-    if (cost > _balance) {
-      return Err(InsufficientCoins(needed: cost, available: _balance));
-    }
-    _record(CoinTransactionKind.leadSpend, -cost, label, requestId: requestId);
-    return Ok(_history.first);
-  }
-
-  @override
-  Future<Result<Wallet, DataFailure>> refundLead(String requestId) async {
-    bool isFor(CoinTransaction t, CoinTransactionKind kind) =>
-        t.requestId == requestId && t.kind == kind;
-    final spend = _history
-        .where((t) => isFor(t, CoinTransactionKind.leadSpend))
-        .firstOrNull;
-    final refunded = _history.any((t) => isFor(t, CoinTransactionKind.refund));
-    if (spend == null || refunded) return const Err(DataNotFound());
-    _record(
-      CoinTransactionKind.refund,
-      -spend.amount,
-      'Reembolso · ${spend.label}',
-      requestId: requestId,
+    return Ok(
+      PackPurchase(
+        paymentId: 'payment-${_nextId++}',
+        coins: pack.totalCoins,
+        step: PurchaseStep.done,
+      ),
     );
-    return Ok(Wallet(balance: _balance));
   }
 }

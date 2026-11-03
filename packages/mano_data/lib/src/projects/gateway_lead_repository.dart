@@ -4,7 +4,7 @@ import '../gateway/gateway_failure.dart';
 import '../gateway/gateway_transport.dart';
 import 'project_json.dart';
 
-/// [LeadRepository] over the gateway's D9 projects operations. Quotes are free.
+/// [LeadRepository] over the gateway's D9 operations; quotes are free, leads cost coins.
 final class GatewayLeadRepository implements LeadRepository {
   const GatewayLeadRepository(this._transport);
 
@@ -26,6 +26,12 @@ mutation SubmitQuote(\$projectId: ID!, \$input: QuoteInput!) {
       '''
 query MyQuotes {
   myQuotes(page: {first: 50}) { items { $standaloneQuoteFields } }
+}''';
+
+  static const _purchaseMutation =
+      '''
+mutation PurchaseLead(\$quoteId: ID!) {
+  purchaseProjectLead(quoteId: \$quoteId) { $standaloneQuoteFields }
 }''';
 
   @override
@@ -58,4 +64,16 @@ query MyQuotes {
     final data = await _transport.run(_myQuotesQuery);
     return pageItems(data['myQuotes']).map(quoteFromJson).toList();
   }
+
+  @override
+  Future<Result<Quote, DataFailure>> purchaseLead(String quoteId) =>
+      guardGateway(() async {
+        final data = await _transport.run(
+          _purchaseMutation,
+          variables: {'quoteId': quoteId},
+        );
+        return quoteFromJson(
+          data['purchaseProjectLead'] as Map<String, dynamic>,
+        );
+      });
 }

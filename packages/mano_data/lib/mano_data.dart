@@ -53,4 +53,5 @@ export 'src/requests/mock_service_request_repository.dart';
 export 'src/reviews/mock_review_repository.dart';
 export 'src/scheduling/mock_availability_repository.dart';
 export 'src/support/mock_support_desk.dart';
+export 'src/wallet/gateway_wallet_repository.dart';
 export 'src/wallet/mock_wallet_repository.dart';

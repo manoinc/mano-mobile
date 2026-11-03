@@ -171,7 +171,6 @@ void main() {
         'https://example.com/a.jpg',
       ]);
       expect(rich.copyWith().neighborhood, 'Laureles');
-      expect(rich.leadCost, 3);
       expect(base.photoUrls, isEmpty);
     });
   });

@@ -162,8 +162,74 @@ void main() {
     expect(chosenCard.statusLabel, 'Elegida');
     expect(
       chosenCard.subtitle,
-      'El cliente te elegió. Pronto podrás contactarlo.',
+      startsWith('El cliente te elegió. Compra su contacto por'),
     );
+  });
+
+  testWidgets('a chosen quote buys its lead and unlocks the contact', (
+    tester,
+  ) async {
+    await _pump(tester, '/home', session: signedIn());
+    await _segment(tester, 'Mis cotizaciones');
+    final chosen = find.byKey(const Key('my-quote-quote-4'));
+    await _show(tester, chosen);
+
+    await tester.tap(chosen);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('lead-purchase-sheet')), findsOneWidget);
+    await tester.tap(find.textContaining('Comprar ·'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Contacto desbloqueado'), findsOneWidget);
+    await _show(tester, chosen);
+    expect(
+      tester.widget<ManoProjectSummaryCard>(chosen).subtitle,
+      'Contacto desbloqueado. Escríbele al cliente.',
+    );
+  });
+
+  testWidgets('without enough coins the lead leads to recharging', (
+    tester,
+  ) async {
+    final quote = Quote(
+      id: 'quote-x',
+      projectId: 'project-x',
+      projectTitle: 'Pintar la fachada',
+      worker: const Party(id: 'w', displayName: 'Ana', photoUrl: ''),
+      amountCop: 900000,
+      status: QuoteStatus.selected,
+      createdAt: DateTime(2026, 11, 3),
+      projectCategory: ServiceCategories.painting,
+    );
+    await _pump(
+      tester,
+      '/home',
+      session: signedIn(),
+      overrides: [
+        leadRepositoryProvider.overrideWithValue(
+          FakeLeads(
+            quotes: [quote],
+            purchaseRefusal: const DataRejected(
+              reason:
+                  'FailedPrecondition: the provider does not have enough coins',
+            ),
+          ),
+        ),
+      ],
+    );
+    await _segment(tester, 'Mis cotizaciones');
+    final card = find.byKey(const Key('my-quote-quote-x'));
+    await _show(tester, card);
+
+    await tester.tap(card);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Comprar · 4 coins'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('insufficient-coins-sheet')), findsOneWidget);
+    await tester.tap(find.text('Recargar'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('recharge-sheet')), findsOneWidget);
   });
 
   testWidgets('no quotes yet points at the open projects', (tester) async {

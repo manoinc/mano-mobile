@@ -90,5 +90,6 @@ export 'src/support/support_ticket_draft.dart';
 export 'src/wallet/coin_pack.dart';
 export 'src/wallet/coin_transaction.dart';
 export 'src/wallet/lead_pricing.dart';
+export 'src/wallet/pack_purchase.dart';
 export 'src/wallet/wallet.dart';
 export 'src/wallet/wallet_repository.dart';

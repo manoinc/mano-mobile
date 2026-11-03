@@ -22,8 +22,8 @@ ProviderContainer _offline() => ProviderContainer.test(
 );
 
 void main() {
-  group('respond (pay per lead)', () {
-    test('accepts the lead and spends its cost in coins', () async {
+  group('respond', () {
+    test('accepts the request and spends no coins', () async {
       final c = _offline();
       final lead = await _lead(c, 'request-2');
       final before = (await c.read(walletProvider.future)).balance;
@@ -33,48 +33,6 @@ void main() {
           .respond(lead);
 
       expect(result.valueOrNull?.status, ServiceRequestStatus.accepted);
-      expect(
-        (await c.read(walletProvider.future)).balance,
-        before - lead.leadCost,
-      );
-      final history = await c.read(walletHistoryProvider.future);
-      expect(history.first.requestId, 'request-2');
-      expect(history.first.kind, CoinTransactionKind.leadSpend);
-    });
-
-    test('with too few coins it fails and leaves the lead pending', () async {
-      final c = _offline();
-      final lead = await _lead(c, 'request-2');
-      final wallet = c.read(walletRepositoryProvider);
-      await wallet.spendForLead(
-        'x',
-        (await wallet.wallet()).balance,
-        label: 'x',
-      );
-
-      final result = await c
-          .read(requestActionsProvider.notifier)
-          .respond(lead);
-
-      expect(result.failureOrNull, isA<InsufficientCoins>());
-      expect(
-        await _idsIn(c, ServiceRequestStatus.pending),
-        contains('request-2'),
-      );
-    });
-
-    test('refunds the coins when the accept itself fails', () async {
-      final c = _offline();
-      final lead = await _lead(c, 'request-2');
-      await c.read(requestActionsProvider.notifier).accept('request-2');
-      final before = (await c.read(walletProvider.future)).balance;
-
-      // Already answered, so the repository refuses it.
-      final result = await c
-          .read(requestActionsProvider.notifier)
-          .respond(lead);
-
-      expect(result.isErr, isTrue);
       expect((await c.read(walletProvider.future)).balance, before);
     });
   });
@@ -85,7 +43,18 @@ void main() {
       final before = (await c.read(walletProvider.future)).balance;
       final pack = (await c.read(coinPacksProvider.future)).first;
 
-      await c.read(walletActionsProvider.notifier).buyPack(pack.id);
+      final purchase = await c
+          .read(walletActionsProvider.notifier)
+          .buyPack(
+            pack.id,
+            const NequiPayment(
+              phone: '3001234567',
+              payerEmail: 'ana@example.co',
+              acceptedTerms: true,
+            ),
+          );
+
+      expect(purchase.valueOrNull?.coins, pack.totalCoins);
 
       expect(
         (await c.read(walletProvider.future)).balance,
