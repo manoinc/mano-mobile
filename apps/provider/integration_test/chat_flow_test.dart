@@ -6,7 +6,7 @@ import 'package:mano_provider/main.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-import '../test/support/fake_media_picker.dart';
+import '../test/support/fake_media.dart';
 import '../test/support/fake_session_repository.dart';
 import '../test/support/pump_app.dart';
 
