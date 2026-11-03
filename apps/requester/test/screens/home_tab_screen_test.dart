@@ -219,13 +219,25 @@ void main() {
     expect(routerPath(container), '/home/search');
   });
 
-  testWidgets('tapping the address pill shows the stub notice', (tester) async {
-    await _host(tester);
+  testWidgets('the address pill opens the saved addresses', (tester) async {
+    final container = await _hostRouted(tester);
+    expect(find.text('Agrega tu dirección'), findsOneWidget);
 
     await tester.tap(find.byType(ManoAddressPill));
     await tester.pumpAndSettle();
 
-    expect(find.text('Muy pronto'), findsOneWidget);
+    expect(routerPath(container), '/home/addresses');
+    expect(find.text('Direcciones guardadas'), findsOneWidget);
+  });
+
+  testWidgets('the address pill shows the default address', (tester) async {
+    final container = await _hostRouted(tester);
+    await container
+        .read(addressBookActionsProvider.notifier)
+        .add(const SavedAddress(label: 'Casa', line: 'Calle 45 # 12-30'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Casa · Calle 45 # 12-30'), findsOneWidget);
   });
 
   testWidgets('tapping a listing card shows the stub notice', (tester) async {

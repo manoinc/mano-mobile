@@ -1,34 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-void _showStub(BuildContext context) {
-  ScaffoldMessenger.of(context)
-      .showSnackBar(const SnackBar(content: Text('Muy pronto')));
-}
+import '../features/projects/account_gate.dart';
 
-/// One row of the Profile menu that has no real destination yet -- tapping
-/// it just shows the stub notice. "Cerrar sesión" is the one exception, and
-/// is appended separately in the build method because it needs `ref`.
-typedef _StubMenuEntry = ({IconData icon, String label});
+/// One Perfil row: where it goes, and whether a guest must sign in first.
+typedef _MenuEntry = ({
+  IconData icon,
+  String label,
+  String path,
+  bool needsAccount,
+});
 
-const _stubMenuEntries = <_StubMenuEntry>[
-  (icon: Icons.person_outline, label: 'Información personal'),
-  (icon: Icons.location_on_outlined, label: 'Direcciones guardadas'),
-  (icon: Icons.payment_outlined, label: 'Métodos de pago'),
-  (icon: Icons.history, label: 'Historial de pedidos'),
-  (icon: Icons.support_agent_outlined, label: 'Atención al cliente'),
-  (icon: Icons.settings_outlined, label: 'Configuración'),
+const _menu = <_MenuEntry>[
+  (
+    icon: Icons.person_outline,
+    label: 'Información personal',
+    path: '/profile/personal',
+    needsAccount: true,
+  ),
+  (
+    icon: Icons.location_on_outlined,
+    label: 'Direcciones guardadas',
+    path: '/profile/addresses',
+    needsAccount: false,
+  ),
+  (
+    icon: Icons.payment_outlined,
+    label: 'Métodos de pago',
+    path: '/profile/payments',
+    needsAccount: true,
+  ),
+  (
+    icon: Icons.history,
+    label: 'Historial de pedidos',
+    path: '/profile/history',
+    needsAccount: true,
+  ),
+  (
+    icon: Icons.support_agent_outlined,
+    label: 'Atención al cliente',
+    path: '/profile/support',
+    needsAccount: false,
+  ),
+  (
+    icon: Icons.settings_outlined,
+    label: 'Configuración',
+    path: '/profile/settings',
+    needsAccount: false,
+  ),
 ];
 
-/// The Perfil tab: the signed-in user's header plus a grouped menu list.
-///
-/// Every row is a stub notice except the last one, which is the one real
-/// action here -- and which one it is depends on who is looking. A guest
-/// reaches this tab too (the nav shell is the [Guest] session's destination
-/// as much as a signed-in session's), and "Omitir" was never meant to be a
-/// one-way door: they get "Iniciar sesión" instead of "Cerrar sesión".
+const _accountMessage = 'Crea tu cuenta para guardar tus datos y tus pedidos.';
+
+/// The Perfil tab: the user's header, the account menu, and the way out (or in).
 class ProfileTabScreen extends ConsumerWidget {
   const ProfileTabScreen({super.key});
 
@@ -36,35 +63,40 @@ class ProfileTabScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
     final signedIn = ref.watch(hasAccountProvider);
-    final theme = Theme.of(context);
+    final profile = signedIn ? ref.watch(clientProfileProvider).value : null;
+    final name = (profile?.displayName.isNotEmpty ?? false)
+        ? profile!.displayName
+        : user?.displayName ?? 'Solicitante';
     final divider = Divider(
       height: 1,
       thickness: 1,
-      color: theme.colorScheme.outlineVariant,
+      color: Theme.of(context).colorScheme.outlineVariant,
     );
 
-    // AuthenticatedUser has no photo-URL field yet -- a real one belongs
-    // here once the backend provides it, added in its own task. Until then
-    // this passes no photo at all: inventing one (e.g. from `user.subject`)
-    // would leak the real signed-in user's identifier to a third party and
-    // show them a stranger's face as their own. `ManoProfileHeader` and
-    // `ManoAvatar` render their stone-circle fallback for `null`.
+    void open(_MenuEntry entry) {
+      if (entry.needsAccount &&
+          !requireAccount(context, ref, _accountMessage)) {
+        return;
+      }
+      context.push(entry.path);
+    }
+
     return Scaffold(
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(ManoSpacing.lg),
           children: [
             ManoProfileHeader(
-              name: user?.displayName ?? 'Solicitante',
-              photoUrl: null,
-              onEdit: () => _showStub(context),
+              name: name,
+              photoUrl: profile?.photoUrl,
+              onEdit: () => open(_menu.first),
             ),
             const SizedBox(height: ManoSpacing.lg),
-            for (final entry in _stubMenuEntries) ...[
+            for (final entry in _menu) ...[
               ManoOptionRow(
                 icon: entry.icon,
                 label: entry.label,
-                onPressed: () => _showStub(context),
+                onPressed: () => open(entry),
               ),
               divider,
             ],

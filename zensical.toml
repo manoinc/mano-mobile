@@ -54,6 +54,7 @@ nav = [
     "modules/REQ-04-activity.md",
     "modules/REQ-05-chat.md",
     "modules/REQ-06-projects.md",
+    "modules/REQ-07-perfil.md",
     "modules/PROV-01-onboarding.md",
     "modules/PROV-02-services.md",
     "modules/PROV-03-availability.md",

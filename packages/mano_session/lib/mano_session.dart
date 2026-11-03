@@ -25,6 +25,11 @@ export 'package:mano_data/mano_data.dart'
 // past.
 export 'package:mano_domain/mano_domain.dart';
 
+export 'src/account/address_book_providers.dart';
+export 'src/account/client_profile_providers.dart';
+export 'src/account/notification_preferences.dart';
+export 'src/account/order_history_provider.dart';
+export 'src/account/payment_method_providers.dart';
 export 'src/activity/activity_providers.dart';
 export 'src/activity/party_names.dart';
 export 'src/agenda/agenda_providers.dart';
@@ -69,4 +74,5 @@ export 'src/services/offer_editor_notifier.dart';
 export 'src/session_notifier.dart';
 export 'src/session_providers.dart';
 export 'src/session_state.dart';
+export 'src/support/support_desk_providers.dart';
 export 'src/wallet/wallet_providers.dart';

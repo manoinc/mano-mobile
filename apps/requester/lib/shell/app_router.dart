@@ -8,6 +8,12 @@ import '../features/chat/chat_screen.dart';
 import '../features/explore/search_screen.dart';
 import '../features/explore/service_detail_screen.dart';
 import '../features/offers/offers_screen.dart';
+import '../features/profile/addresses_screen.dart';
+import '../features/profile/order_history_screen.dart';
+import '../features/profile/payment_methods_screen.dart';
+import '../features/profile/personal_info_screen.dart';
+import '../features/profile/settings_screen.dart';
+import '../features/profile/support_screen.dart';
 import '../features/projects/project_detail_screen.dart';
 import '../features/projects/publish/publish_project_screen.dart';
 import '../features/projects/start_publishing.dart';
@@ -61,6 +67,11 @@ final requesterRouterProvider = Provider<GoRouter>((ref) {
                         ),
                       ),
                     ],
+                  ),
+                  // The pill's way in; the same screen as /profile/addresses.
+                  GoRoute(
+                    path: 'addresses',
+                    builder: (context, state) => const AddressesScreen(),
                   ),
                   GoRoute(
                     path: 'book/:offerId',
@@ -119,6 +130,39 @@ final requesterRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/profile',
                 builder: (context, state) => const ProfileTabScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'personal',
+                    builder: (context, state) => const PersonalInfoScreen(),
+                  ),
+                  GoRoute(
+                    path: 'addresses',
+                    builder: (context, state) => const AddressesScreen(),
+                  ),
+                  GoRoute(
+                    path: 'payments',
+                    builder: (context, state) => const PaymentMethodsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'history',
+                    builder: (context, state) => const OrderHistoryScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'job/:id',
+                        builder: (context, state) =>
+                            JobDetailScreen(jobId: state.pathParameters['id']!),
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'support',
+                    builder: (context, state) => const SupportScreen(),
+                  ),
+                  GoRoute(
+                    path: 'settings',
+                    builder: (context, state) => const SettingsScreen(),
+                  ),
+                ],
               ),
             ],
           ),

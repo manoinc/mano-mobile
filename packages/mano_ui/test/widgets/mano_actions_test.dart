@@ -188,6 +188,14 @@ void main() {
       expect(text.style?.color, theme.colorScheme.error);
     });
 
+    testWidgets('a tag marks the row, e.g. the default address', (tester) async {
+      await tester.pumpWidget(_host(
+        ManoOptionRow(label: 'Casa', tag: 'Predeterminada', onPressed: () {}),
+      ));
+
+      expect(find.text('Predeterminada'), findsOneWidget);
+    });
+
     testWidgets('a disabled row stays quiet even when destructive', (tester) async {
       await tester.pumpWidget(_host(
         const ManoOptionRow(

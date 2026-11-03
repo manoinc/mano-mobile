@@ -62,7 +62,9 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | `ManoPriceTag` | Amount plus rate ("$45.000 /hora"). |
 | `ManoNotice` | An inline message (info, warning, error). |
 | `ManoEmptyState` | Nothing to show yet, with one call to action, or none when the screen already has it. |
-| `ManoAvatar`, `ManoInitialsAvatar` | A photo (optional online dot) or initials. |
+| `ManoAvatar`, `ManoInitialsAvatar` | A photo (optional online dot, or a local `image`) or initials. |
+| `ManoAvatarEditor` | The user's own photo with a camera badge and an uploading spinner. |
+| `ManoSupportForm` | "Escribir a soporte": Asunto and Cuéntanos qué pasó, with Enviar. Both apps. |
 | `ManoPageIndicator` | Carousel dots. |
 
 ### Overlays
@@ -70,7 +72,7 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | Component | Use it for |
 |---|---|
 | `showManoSheet` + `ManoPromptSheet` | A bottom sheet with one decision. |
-| `showManoSheet` + `ManoActionSheet` / `ManoOptionRow` | A list of actions; rows can be destructive. |
+| `showManoSheet` + `ManoActionSheet` / `ManoOptionRow` | A list of actions; rows can be destructive or carry a `tag` ("Predeterminada"). |
 | `showManoDialog` + `ManoDialogCard` | A centred confirmation. |
 
 ### Navigation and layout

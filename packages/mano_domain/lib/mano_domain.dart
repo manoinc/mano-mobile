@@ -14,6 +14,13 @@
 /// binding, a command-line tool, a server, a future web client.
 library;
 
+export 'src/account/address_book.dart';
+export 'src/account/card_validation.dart';
+export 'src/account/client_profile.dart';
+export 'src/account/client_profile_repository.dart';
+export 'src/account/payment_method.dart';
+export 'src/account/payment_methods.dart';
+export 'src/account/saved_address.dart';
 export 'src/catalog/catalog_repository.dart';
 export 'src/catalog/job_service.dart';
 export 'src/catalog/offer_management.dart';
@@ -68,7 +75,10 @@ export 'src/session/credentials_validation.dart';
 export 'src/session/session.dart';
 export 'src/session/session_repository.dart';
 export 'src/shared/data_failure.dart';
+export 'src/shared/mobile_phone.dart';
 export 'src/shared/party.dart';
+export 'src/support/support_desk.dart';
+export 'src/support/support_ticket.dart';
 export 'src/wallet/coin_pack.dart';
 export 'src/wallet/coin_transaction.dart';
 export 'src/wallet/lead_pricing.dart';
