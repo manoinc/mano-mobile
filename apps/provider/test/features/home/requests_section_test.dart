@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_billing.dart';
 import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
 
@@ -64,33 +65,10 @@ final class _RefusingRequests implements ServiceRequestRepository {
 }
 
 // A wallet with no coins, to reach the recharge prompt.
-final class _BrokeWallet implements WalletRepository {
-  @override
-  Future<Wallet> wallet() async => const Wallet(balance: 0);
-
-  @override
-  Future<List<CoinTransaction>> history() async => const [];
-
-  @override
-  Future<List<CoinPack>> packs() async => const [
-    CoinPack(id: 'p', coins: 10, priceCop: 20000),
-  ];
-
-  @override
-  Future<Result<Wallet, DataFailure>> buyPack(String packId) async =>
-      const Ok(Wallet(balance: 10));
-
-  @override
-  Future<Result<CoinTransaction, DataFailure>> spendForLead(
-    String requestId,
-    int cost, {
-    required String label,
-  }) async => Err(InsufficientCoins(needed: cost, available: 0));
-
-  @override
-  Future<Result<Wallet, DataFailure>> refundLead(String requestId) async =>
-      const Err(DataNotFound());
-}
+ScriptedWallet _brokeWallet() => ScriptedWallet(
+  balance: 0,
+  reply: const Ok(AwaitingApproval(paymentId: 'p', coins: 10)),
+);
 
 Future<void> _pump(
   WidgetTester tester, {
@@ -369,7 +347,7 @@ void main() {
   ) async {
     await _pump(
       tester,
-      overrides: [walletRepositoryProvider.overrideWithValue(_BrokeWallet())],
+      overrides: [walletRepositoryProvider.overrideWithValue(_brokeWallet())],
     );
 
     await _tapInCard(tester, 'request-2', 'Aceptar · 3 coins');

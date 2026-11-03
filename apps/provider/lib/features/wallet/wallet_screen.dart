@@ -48,6 +48,15 @@ class WalletScreen extends ConsumerWidget {
                 ],
               ),
             ),
+            if (ref.watch(coinPurchaseProvider)
+                case PurchaseWaiting() || PurchaseTimedOut()) ...[
+              const SizedBox(height: ManoSpacing.md),
+              const ManoNotice(
+                message:
+                    'Tienes una recarga en proceso. Los coins llegan cuando '
+                    'se confirme el pago.',
+              ),
+            ],
             const SizedBox(height: ManoSpacing.md),
             Text('Actividad', style: Theme.of(context).textTheme.titleLarge),
             ..._activity(context, history),

@@ -59,6 +59,7 @@ export 'src/widgets/mano_notice.dart';
 export 'src/widgets/mano_offer_card.dart';
 export 'src/widgets/mano_outline_button.dart';
 export 'src/widgets/mano_pack_option.dart';
+export 'src/widgets/mano_payment_status.dart';
 export 'src/widgets/mano_page_indicator.dart';
 export 'src/widgets/mano_photo_gallery.dart';
 export 'src/widgets/mano_person_row.dart';

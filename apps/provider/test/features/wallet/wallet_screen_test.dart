@@ -39,22 +39,6 @@ void main() {
     expect(find.text('-3'), findsWidgets);
   });
 
-  testWidgets('recharging a pack adds its coins and logs the purchase', (
-    tester,
-  ) async {
-    await _pump(tester);
-    await tester.tap(find.text('Recargar'));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('25 coins'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Comprar · \$45.000'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('53'), findsOneWidget);
-    expect(find.text('Recarga de 28 coins'), findsOneWidget);
-  });
-
   testWidgets('Cómo funciona explains the cost per category', (tester) async {
     await _pump(tester);
     await tester.tap(find.text('Cómo funciona'));

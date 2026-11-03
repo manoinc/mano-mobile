@@ -45,6 +45,16 @@ Future<void> _tapVisible(WidgetTester tester, String text) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> _holder(WidgetTester tester) async {
+  await tester.enterText(_field('Nombre del titular'), 'Andrés Castro');
+  await tester.pumpAndSettle();
+  await tester.enterText(_field('Correo del titular'), 'andres@mano.test');
+  await tester.pumpAndSettle();
+  await tester.enterText(_field('Número de documento'), '1020304050');
+  await tester.pumpAndSettle();
+  await _tapVisible(tester, 'Guardar cuenta');
+}
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -118,13 +128,26 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
-    await tester.enterText(_field('Nombre del titular'), 'Andrés Castro');
-    await tester.pumpAndSettle();
-    await tester.enterText(_field('Número de documento'), '1020304050');
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Guardar cuenta'));
-    await tester.pumpAndSettle();
+    await _holder(tester);
 
     expect(find.text('•••• 4567'), findsOneWidget);
+  });
+
+  testWidgets('a provider registers a bank payout account', (tester) async {
+    await launch(tester);
+    await _openFromPerfil(tester, 'Cuenta para pagos');
+
+    await tester.tap(find.text('Cuenta bancaria'));
+    await tester.pumpAndSettle();
+    await _tapVisible(tester, 'Davivienda');
+    await _tapVisible(tester, 'Continuar');
+    await tester.tap(find.text('Ahorros'));
+    await tester.enterText(_field('Número de cuenta'), '0012345678');
+    await tester.pumpAndSettle();
+    await _tapVisible(tester, 'Continuar');
+    await _holder(tester);
+
+    expect(find.text('Davivienda'), findsOneWidget);
+    expect(find.text('Ahorros · •••• 5678'), findsOneWidget);
   });
 }
