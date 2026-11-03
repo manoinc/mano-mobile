@@ -1,5 +1,7 @@
 import 'package:mano_domain/mano_domain.dart';
 
+import '../mock/mock_banks.dart';
+
 /// In-memory [PayoutAccounts]: one account at most, nothing is paid out.
 final class MockPayoutAccounts implements PayoutAccounts {
   PayoutAccount? _current;
@@ -28,4 +30,7 @@ final class MockPayoutAccounts implements PayoutAccounts {
     _current = null;
     return const Ok(null);
   }
+
+  @override
+  Future<Result<List<Bank>, DataFailure>> banks() async => const Ok(mockBanks);
 }

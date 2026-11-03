@@ -1,5 +1,6 @@
+import '../session/credentials_validation.dart';
 import '../shared/colombian_mobile.dart';
-import 'colombian_banks.dart';
+import '../shared/legal_id.dart';
 import 'payout_account.dart';
 
 enum PayoutMethod { nequi, bank }
@@ -15,6 +16,7 @@ enum PayoutAccountProblem {
   noAccountType(PayoutAccountStep.destination),
   invalidAccountNumber(PayoutAccountStep.destination),
   emptyHolderName(PayoutAccountStep.holder),
+  invalidHolderEmail(PayoutAccountStep.holder),
   invalidLegalId(PayoutAccountStep.holder);
 
   const PayoutAccountProblem(this.step);
@@ -34,34 +36,38 @@ final class PayoutAccountDraft {
     this.accountType,
     this.accountNumber = '',
     this.holderName = '',
+    this.holderEmail = '',
     this.legalIdType = LegalIdType.cc,
     this.legalId = '',
   });
 
   final PayoutMethod? method;
   final String phone;
+  /// A payout bank code, from the server's list.
   final String bankCode;
   final BankAccountType? accountType;
   final String accountNumber;
   final String holderName;
+  final String holderEmail;
   final LegalIdType legalIdType;
   final String legalId;
 
   String get _accountDigits => accountNumber.replaceAll(_separators, '');
-  String get _legalIdClean => legalId.replaceAll(_separators, '').toUpperCase();
 
   Set<PayoutAccountProblem> get problems => {
     if (method == null) PayoutAccountProblem.noMethod,
     if (method == PayoutMethod.nequi && normalizeColombianMobile(phone) == null)
       PayoutAccountProblem.invalidPhone,
     if (method == PayoutMethod.bank) ...{
-      if (ColombianBanks.byCode(bankCode) == null) PayoutAccountProblem.noBank,
+      if (bankCode.isEmpty) PayoutAccountProblem.noBank,
       if (accountType == null) PayoutAccountProblem.noAccountType,
       if (!RegExp(r'^\d{6,20}$').hasMatch(_accountDigits))
         PayoutAccountProblem.invalidAccountNumber,
     },
     if (holderName.trim().isEmpty) PayoutAccountProblem.emptyHolderName,
-    if (!_legalIdPattern(legalIdType).hasMatch(_legalIdClean))
+    if (validateEmail(holderEmail) != null)
+      PayoutAccountProblem.invalidHolderEmail,
+    if (!isValidLegalId(legalIdType, legalId))
       PayoutAccountProblem.invalidLegalId,
   };
 
@@ -81,8 +87,9 @@ final class PayoutAccountDraft {
 
   AccountHolder get holder => AccountHolder(
     name: holderName.trim(),
+    email: holderEmail.trim(),
     legalIdType: legalIdType,
-    legalId: _legalIdClean,
+    legalId: normalizeLegalId(legalId),
   );
 
   PayoutAccountDraft copyWith({
@@ -92,6 +99,7 @@ final class PayoutAccountDraft {
     BankAccountType? accountType,
     String? accountNumber,
     String? holderName,
+    String? holderEmail,
     LegalIdType? legalIdType,
     String? legalId,
   }) => PayoutAccountDraft(
@@ -101,15 +109,8 @@ final class PayoutAccountDraft {
     accountType: accountType ?? this.accountType,
     accountNumber: accountNumber ?? this.accountNumber,
     holderName: holderName ?? this.holderName,
+    holderEmail: holderEmail ?? this.holderEmail,
     legalIdType: legalIdType ?? this.legalIdType,
     legalId: legalId ?? this.legalId,
   );
 }
-
-// CC 6-10 digits, CE 6-12 alphanumeric, NIT 9-10 digits (with check digit), PP 5-12.
-RegExp _legalIdPattern(LegalIdType type) => switch (type) {
-  LegalIdType.cc => RegExp(r'^\d{6,10}$'),
-  LegalIdType.ce => RegExp(r'^[A-Z0-9]{6,12}$'),
-  LegalIdType.nit => RegExp(r'^\d{9,10}$'),
-  LegalIdType.pp => RegExp(r'^[A-Z0-9]{5,12}$'),
-};

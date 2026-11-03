@@ -1,9 +1,8 @@
 // Shaped on mano-billing's RegisterPayoutAccount, ready for Wompi payouts.
 
-enum BankAccountType { savings, checking }
+import '../shared/legal_id.dart';
 
-/// Cédula de ciudadanía, cédula de extranjería, NIT, pasaporte.
-enum LegalIdType { cc, ce, nit, pp }
+enum BankAccountType { savings, checking }
 
 /// Where payouts land: a Nequi wallet or a bank account.
 sealed class PayoutDestination {
@@ -64,11 +63,15 @@ final class BankDestination extends PayoutDestination {
 final class AccountHolder {
   const AccountHolder({
     required this.name,
+    required this.email,
     required this.legalIdType,
     required this.legalId,
   });
 
   final String name;
+
+  /// Where the payout provider writes about the account.
+  final String email;
   final LegalIdType legalIdType;
   final String legalId;
 
@@ -76,11 +79,12 @@ final class AccountHolder {
   bool operator ==(Object other) =>
       other is AccountHolder &&
       other.name == name &&
+      other.email == email &&
       other.legalIdType == legalIdType &&
       other.legalId == legalId;
 
   @override
-  int get hashCode => Object.hash(name, legalIdType, legalId);
+  int get hashCode => Object.hash(name, email, legalIdType, legalId);
 }
 
 /// The registered account a provider's earnings are paid into.

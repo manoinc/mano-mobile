@@ -5,6 +5,7 @@ import 'package:mano_domain/mano_domain.dart';
 void main() {
   const holder = AccountHolder(
     name: 'Andrés Castro',
+    email: 'andres@mano.test',
     legalIdType: LegalIdType.cc,
     legalId: '1020304050',
   );
@@ -50,5 +51,11 @@ void main() {
     expect((await accounts.remove('nope')).failureOrNull, isA<DataNotFound>());
     expect((await accounts.remove(a.id)).isOk, isTrue);
     expect((await accounts.current()).valueOrNull, isNull);
+  });
+
+  test('lists payout banks with Bancolombia', () async {
+    final banks = (await accounts.banks()).valueOrNull!;
+    expect(banks.map((b) => b.code).toSet(), hasLength(banks.length));
+    expect(banks, contains(const Bank(code: '1007', name: 'Bancolombia')));
   });
 }

@@ -25,10 +25,12 @@ export 'src/messaging/gateway_chat_repository.dart';
 export 'src/messaging/gateway_conversation_repository.dart';
 export 'src/jobs/gateway_job_repository.dart';
 export 'src/requests/gateway_service_request_repository.dart';
+export 'src/payouts/gateway_payout_accounts.dart';
 export 'src/reviews/gateway_review_repository.dart';
 export 'src/session/in_memory_session_repository.dart';
 export 'src/session/supertokens_session_repository.dart';
 export 'src/session/token_store.dart';
+export 'src/wallet/gateway_wallet_repository.dart';
 
 // Mock implementations pending real gateway-backed adapters.
 export 'src/account/mock_address_book.dart';
