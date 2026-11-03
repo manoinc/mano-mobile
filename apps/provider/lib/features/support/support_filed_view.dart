@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-
 /// The confirmation once a PQRS is filed: its radicado and where it stands.
 class SupportFiledView extends StatelessWidget {
   const SupportFiledView({
@@ -21,63 +20,75 @@ class SupportFiledView extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(ManoSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Spacer(),
-              const Icon(
-                Icons.check_circle_outline,
-                size: 72,
-                color: ManoColors.clay,
+        // Scrolls only when it can't fit, e.g. while the keyboard is closing.
+        child: LayoutBuilder(
+          builder: (context, box) => SingleChildScrollView(
+            padding: const EdgeInsets.all(ManoSpacing.lg),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: box.maxHeight - 2 * ManoSpacing.lg,
               ),
-              const SizedBox(height: ManoSpacing.lg),
-              Text(
-                'Recibimos tu ${supportKindLabel(kind).toLowerCase()}',
-                textAlign: TextAlign.center,
-                style: text.headlineMedium,
-              ),
-              const SizedBox(height: ManoSpacing.sm),
-              Text(
-                'Te responderemos en máximo 15 días hábiles. '
-                'Guarda tu número de radicado.',
-                textAlign: TextAlign.center,
-                style: text.bodyLarge?.copyWith(color: ManoColors.muted),
-              ),
-              const SizedBox(height: ManoSpacing.lg),
-              Container(
-                padding: const EdgeInsets.all(ManoSpacing.md),
-                decoration: BoxDecoration(
-                  color: ManoColors.sand,
-                  borderRadius: BorderRadius.circular(ManoRadius.card),
-                ),
+              child: IntrinsicHeight(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    const Spacer(),
+                    const Icon(
+                      Icons.check_circle_outline,
+                      size: 72,
+                      color: ManoColors.clay,
+                    ),
+                    const SizedBox(height: ManoSpacing.lg),
                     Text(
-                      'Número de radicado',
-                      style: text.labelMedium?.copyWith(
-                        color: ManoColors.faint,
+                      'Recibimos tu ${supportKindLabel(kind).toLowerCase()}',
+                      textAlign: TextAlign.center,
+                      style: text.headlineMedium,
+                    ),
+                    const SizedBox(height: ManoSpacing.sm),
+                    Text(
+                      'Te responderemos en máximo 15 días hábiles. '
+                      'Guarda tu número de radicado.',
+                      textAlign: TextAlign.center,
+                      style: text.bodyLarge?.copyWith(color: ManoColors.muted),
+                    ),
+                    const SizedBox(height: ManoSpacing.lg),
+                    Container(
+                      padding: const EdgeInsets.all(ManoSpacing.md),
+                      decoration: BoxDecoration(
+                        color: ManoColors.sand,
+                        borderRadius: BorderRadius.circular(ManoRadius.card),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Número de radicado',
+                            style: text.labelMedium?.copyWith(
+                              color: ManoColors.faint,
+                            ),
+                          ),
+                          const SizedBox(height: ManoSpacing.xs),
+                          SelectableText(ticket.number, style: text.titleLarge),
+                          const SizedBox(height: ManoSpacing.sm),
+                          ManoStatusChip(
+                            label: supportStatusLabel(ticket.status),
+                            tone: ManoStatusTone.info,
+                          ),
+                          const SizedBox(height: ManoSpacing.sm),
+                          Text(
+                            'Enviada el ${ManoFormat.dateTime(ticket.createdAt)}',
+                            style: text.bodySmall?.copyWith(
+                              color: ManoColors.faint,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: ManoSpacing.xs),
-                    SelectableText(ticket.number, style: text.titleLarge),
-                    const SizedBox(height: ManoSpacing.sm),
-                    ManoStatusChip(
-                      label: supportStatusLabel(ticket.status),
-                      tone: ManoStatusTone.info,
-                    ),
-                    const SizedBox(height: ManoSpacing.sm),
-                    Text(
-                      'Enviada el ${ManoFormat.dateTime(ticket.createdAt)}',
-                      style: text.bodySmall?.copyWith(color: ManoColors.faint),
-                    ),
+                    const Spacer(),
+                    ManoPrimaryButton(label: 'Listo', onPressed: onDone),
                   ],
                 ),
               ),
-              const Spacer(),
-              ManoPrimaryButton(label: 'Listo', onPressed: onDone),
-            ],
+            ),
           ),
         ),
       ),

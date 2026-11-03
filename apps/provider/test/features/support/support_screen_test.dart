@@ -96,6 +96,22 @@ void main() {
     expect(routerPath(c), '/profile');
   });
 
+  testWidgets('the confirmation fits an A36 screen', (tester) async {
+    tester.view
+      ..physicalSize = const Size(1080, 2340)
+      ..devicePixelRatio = 2.8125
+      // The A36's status and gesture bars, about 84 dp together.
+      ..padding = const FakeViewPadding(top: 110, bottom: 126);
+    addTearDown(tester.view.reset);
+    await _pump(tester, _Desk(Ok(_ticket)));
+    await _fill(tester);
+    await tester.tap(find.text('Enviar'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Recibimos tu reclamo'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('a failure stays on the form and says so', (tester) async {
     await _pump(tester, _Desk(const Err(DataUnavailable())));
     await _fill(tester);

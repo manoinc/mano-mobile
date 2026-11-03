@@ -97,8 +97,7 @@ class _AgendaJobScreenState extends ConsumerState<AgendaJobScreen> {
     );
   }
 
-  Future<void> _start(Job job) =>
-      _run(() => _actions.start(job.id), done: 'Trabajo iniciado.');
+  Future<void> _start(Job job) => _run(() => _actions.start(job.id));
 
   Future<void> _finish(Job job) async {
     double? hours;
@@ -127,10 +126,7 @@ class _AgendaJobScreenState extends ConsumerState<AgendaJobScreen> {
       if (confirmed != true) return;
     }
     if (!mounted) return;
-    await _run(
-      () => _actions.finish(job.id, actualHours: hours),
-      done: 'Trabajo finalizado.',
-    );
+    await _run(() => _actions.finish(job.id, actualHours: hours));
   }
 
   Future<void> _cancel(Job job) async {
@@ -152,9 +148,10 @@ class _AgendaJobScreenState extends ConsumerState<AgendaJobScreen> {
     return showManoSheet<T>(context: context, builder: builder);
   }
 
+  // Start and finish need no message: the bar's next action is the feedback, and a snackbar would cover it.
   Future<void> _run(
     Future<Result<Job, DataFailure>> Function() action, {
-    required String done,
+    String? done,
   }) async {
     setState(() => _busy = true);
     final result = await action();
@@ -164,6 +161,7 @@ class _AgendaJobScreenState extends ConsumerState<AgendaJobScreen> {
       Ok() => done,
       Err(:final failure) => failure.message,
     };
+    if (message == null) return;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));

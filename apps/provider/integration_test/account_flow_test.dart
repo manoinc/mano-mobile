@@ -31,6 +31,14 @@ Future<void> _openFromPerfil(WidgetTester tester, String row) async {
 }
 
 Future<void> _tapVisible(WidgetTester tester, String text) async {
+  // The keyboard shrinks the form on a phone, and lazy lists build late.
+  FocusManager.instance.primaryFocus?.unfocus();
+  await tester.pumpAndSettle();
+  await tester.scrollUntilVisible(
+    find.text(text),
+    200,
+    scrollable: find.byType(Scrollable).first,
+  );
   await tester.ensureVisible(find.text(text));
   await tester.pumpAndSettle();
   await tester.tap(find.text(text));

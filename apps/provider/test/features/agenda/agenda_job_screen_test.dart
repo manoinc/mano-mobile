@@ -93,6 +93,23 @@ void main() {
     expect(job?.status, JobStatus.finished);
   });
 
+  testWidgets('no snackbar covers the next action after start or finish', (
+    tester,
+  ) async {
+    await pumpRouterAt(tester, '/agenda/job/job-1');
+
+    await tester.tap(find.text('Iniciar trabajo'));
+    await tester.pumpAndSettle();
+    expect(find.byType(SnackBar), findsNothing);
+
+    await tester.tap(find.text('Finalizar trabajo'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sí, finalizar'));
+    await tester.pumpAndSettle();
+    expect(find.byType(SnackBar), findsNothing);
+    expect(find.text('Calificar cliente').hitTestable(), findsOneWidget);
+  });
+
   testWidgets('an hourly job logs hours with a live total', (tester) async {
     final c = await pumpRouterAt(
       tester,

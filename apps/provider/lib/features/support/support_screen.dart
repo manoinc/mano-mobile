@@ -30,6 +30,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
   }
 
   Future<void> _send() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     setState(() {
       _busy = true;
       _failure = null;
