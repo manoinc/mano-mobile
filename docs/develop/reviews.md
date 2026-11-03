@@ -58,6 +58,9 @@ average shows on their cards and profile (HU-C1).
 | `ManoStarInput` | five large tappable stars with the word under them (Muy malo … Excelente), modelled on Thumbtack's rating step. |
 | `ManoRatingSummary` | big average + stars + count (Airbnb / Thumbtack), or "Aún sin reseñas". The screen formats the labels (`4,9`, `32 reseñas`). |
 | `ManoReviewTile` | one review, already used on the provider's Perfil. |
+| `ManoRatingBadge` | one-line "★ 4,9 · 32" or "Nuevo" for offer and quote cards. |
+
+The requester's view of a provider is [REQ-07](../modules/REQ-07-provider-profile.md).
 
 ## Running it locally
 

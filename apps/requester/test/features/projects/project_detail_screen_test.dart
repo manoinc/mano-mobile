@@ -171,4 +171,25 @@ void main() {
       lessThanOrEqualTo(640 - 48),
     );
   });
+
+  testWidgets('each quote shows its professional rating, or Nuevo', (
+    tester,
+  ) async {
+    await pumpRouterAt(tester, '/projects/project/project-1');
+
+    expect(_quote(tester, 'quote-1').ratingLabel, '4,8 · 4');
+    expect(_quote(tester, 'quote-1').rated, isTrue);
+    final jorge = tester
+        .widgetList<ManoQuoteCard>(find.byType(ManoQuoteCard))
+        .firstWhere((c) => c.name == 'Jorge Peña');
+    expect((jorge.ratingLabel, jorge.rated), ('Nuevo', false));
+  });
+
+  testWidgets('tapping a professional opens their profile', (tester) async {
+    final container = await pumpRouterAt(tester, '/projects/project/project-1');
+
+    await _tap(tester, find.text('Andrés Castro'));
+
+    expect(routerPath(container), '/provider/provider-1');
+  });
 }

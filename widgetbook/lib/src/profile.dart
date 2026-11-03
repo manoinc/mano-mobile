@@ -33,7 +33,12 @@ WidgetbookCategory profile() => WidgetbookCategory(
     }),
     component('ManoRatingSummary', {
       'With reviews': (context) {
-        final average = context.knobs.double.slider(label: 'Average', initialValue: 4.7, min: 1, max: 5);
+        final average = context.knobs.double.slider(
+          label: 'Average',
+          initialValue: 4.7,
+          min: 1,
+          max: 5,
+        );
         return Center(
           child: ManoRatingSummary(
             average: average,
@@ -43,8 +48,21 @@ WidgetbookCategory profile() => WidgetbookCategory(
         );
       },
       'No reviews yet': (context) => const Center(
-        child: ManoRatingSummary(average: null, averageLabel: '', countLabel: ''),
+        child: ManoRatingSummary(
+          average: null,
+          averageLabel: '',
+          countLabel: '',
+        ),
       ),
+    }),
+    component('ManoRatingBadge', {
+      'Rated': (context) => Center(
+        child: ManoRatingBadge(
+          label: context.knobs.string(label: 'Label', initialValue: '4,9 · 32'),
+        ),
+      ),
+      'New provider': (context) =>
+          const Center(child: ManoRatingBadge(label: 'Nuevo', rated: false)),
     }),
     component('ManoReviewTile', {
       'Default': (context) => _padded(

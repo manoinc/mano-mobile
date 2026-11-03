@@ -96,4 +96,53 @@ void main() {
     await tester.pumpAndSettle();
     expect(tapped, 1);
   });
+
+  testWidgets('shows the rating and opens the provider from its area', (
+    tester,
+  ) async {
+    var provider = 0;
+    var card = 0;
+    await tester.pumpWidget(
+      _host(
+        ManoOfferCard(
+          leading: const ManoInitialsAvatar(initials: 'P'),
+          title: 'Ana',
+          subtitle: 'Por hora',
+          amountLabel: '\$45.000',
+          rateLabel: '/hora',
+          zone: 'Zona: Chapinero',
+          ratingLabel: '4,9 · 32',
+          onProviderTap: () => provider++,
+          onTap: () => card++,
+        ),
+      ),
+    );
+
+    expect(find.byType(ManoRatingBadge), findsOneWidget);
+    expect(find.textContaining('4,9 · 32', findRichText: true), findsOneWidget);
+    await tester.tap(find.text('Ana'));
+    await tester.pumpAndSettle();
+    expect((provider, card), (1, 0));
+  });
+
+  testWidgets('an unrated provider shows the label without a star', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(
+        const ManoOfferCard(
+          title: 'Ana',
+          subtitle: 'Por hora',
+          amountLabel: '\$45.000',
+          rateLabel: '/hora',
+          zone: 'Zona: Chapinero',
+          ratingLabel: 'Nuevo',
+          rated: false,
+        ),
+      ),
+    );
+
+    expect(find.text('Nuevo', findRichText: true), findsOneWidget);
+    expect(find.byIcon(Icons.star_rounded), findsNothing);
+  });
 }

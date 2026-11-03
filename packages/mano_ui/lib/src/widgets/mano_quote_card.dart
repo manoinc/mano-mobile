@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/mano_theme.dart';
+import 'mano_rating_badge.dart';
 import 'mano_status_chip.dart';
 import 'mano_text_action.dart';
 
@@ -19,6 +20,9 @@ class ManoQuoteCard extends StatelessWidget {
     this.selected = false,
     this.selectLabel = 'Elegir',
     this.discardLabel = 'Descartar',
+    this.ratingLabel,
+    this.rated = true,
+    this.onProviderTap,
     super.key,
   });
 
@@ -45,6 +49,13 @@ class ManoQuoteCard extends StatelessWidget {
   final String selectLabel;
   final String discardLabel;
 
+  /// Shown under the name, e.g. "4,9 · 32"; null hides it.
+  final String? ratingLabel;
+  final bool rated;
+
+  /// Tapping the avatar and name, e.g. to open the professional's profile.
+  final VoidCallback? onProviderTap;
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -68,30 +79,16 @@ class ManoQuoteCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                avatar,
-                const SizedBox(width: ManoSpacing.sm),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: textTheme.titleSmall?.copyWith(
-                          color: ManoColors.ink,
-                        ),
-                      ),
-                      if (age != null)
-                        Text(
-                          age,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: textTheme.bodySmall?.copyWith(
-                            color: ManoColors.faint,
-                          ),
-                        ),
-                    ],
+                  child: _ProviderArea(
+                    onTap: onProviderTap,
+                    child: Row(
+                      children: [
+                        avatar,
+                        const SizedBox(width: ManoSpacing.sm),
+                        Expanded(child: _who(textTheme, age)),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(width: ManoSpacing.sm),
@@ -162,4 +159,55 @@ class ManoQuoteCard extends StatelessWidget {
       ),
     );
   }
+
+  Widget _who(TextTheme textTheme, String? age) {
+    final faint = textTheme.bodySmall?.copyWith(color: ManoColors.faint);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: textTheme.titleSmall?.copyWith(color: ManoColors.ink),
+        ),
+        if (ratingLabel != null || age != null)
+          Row(
+            children: [
+              if (ratingLabel case final rating?)
+                Flexible(
+                  child: ManoRatingBadge(label: rating, rated: rated),
+                ),
+              if (ratingLabel != null && age != null)
+                Text('  ·  ', style: faint),
+              if (age != null)
+                Flexible(
+                  child: Text(
+                    age,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: faint,
+                  ),
+                ),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+class _ProviderArea extends StatelessWidget {
+  const _ProviderArea({required this.onTap, required this.child});
+
+  final VoidCallback? onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => onTap == null
+      ? child
+      : InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(ManoRadius.card),
+          child: child,
+        );
 }

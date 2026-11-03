@@ -11,7 +11,8 @@ final class MockConversationRepository implements ConversationRepository {
     Conversation(
       id: 'conv-1',
       participant: Party(
-        id: 'party-1',
+        // Ana is mock provider-2, so her profile opens from the chat.
+        id: 'provider-2',
         displayName: 'Ana Gómez',
         photoUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
       ),

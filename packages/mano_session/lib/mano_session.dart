@@ -63,6 +63,8 @@ export 'src/provider_onboarding/provider_onboarding_notifier.dart';
 export 'src/provider_onboarding/provider_profile_validation.dart';
 export 'src/refresh/marketplace_refresh.dart';
 export 'src/requests/request_actions.dart';
+export 'src/reviews/provider_profile_view.dart';
+export 'src/reviews/provider_reviews_feed.dart';
 export 'src/reviews/review_providers.dart';
 export 'src/services/my_offers_provider.dart';
 export 'src/services/offer_editor_notifier.dart';

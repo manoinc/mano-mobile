@@ -302,7 +302,9 @@ idempotent: it truncates the catalog first.
 - Profiles: there is no `workerProfile(id)` / `clientProfile(id)`, and
   `JobServiceOffer` has only `offerantId`. So a requester cannot open a
   stranger's profile and offer cards cannot show stars. Reviews' `author` is a
-  bare participant (empty name, no photo).
+  bare participant (empty name, no photo). The requester's provider profile
+  (REQ-07) is built on `MockProviderDirectory`; live, it shows "No encontramos
+  a este profesional" and cards show "Nuevo" until these land.
 - Reviews: no "already reviewed" field on `Job` (the app keeps a session set),
   and `ReviewInput` has no `mediaIds`.
 - Media: `requestWorkImageUpload` and `requestReviewMediaUpload` are stubs, and

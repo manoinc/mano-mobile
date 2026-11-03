@@ -105,4 +105,41 @@ void main() {
 
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('shows the rating and opens the provider from its area', (
+    tester,
+  ) async {
+    var provider = 0;
+    await tester.pumpWidget(
+      _host(
+        ManoQuoteCard(
+          avatar: const ManoInitialsAvatar(initials: 'AC'),
+          name: 'Andrés Castro',
+          amountLabel: '\$1.650.000',
+          ratingLabel: 'Nuevo',
+          rated: false,
+          onProviderTap: () => provider++,
+        ),
+      ),
+    );
+
+    expect(find.byType(ManoRatingBadge), findsOneWidget);
+    expect(find.text('Nuevo', findRichText: true), findsOneWidget);
+    await tester.tap(find.text('Andrés Castro'));
+    await tester.pumpAndSettle();
+    expect(provider, 1);
+  });
+
+  testWidgets('no rating label shows no badge', (tester) async {
+    await tester.pumpWidget(
+      _host(
+        const ManoQuoteCard(
+          avatar: ManoInitialsAvatar(initials: 'AC'),
+          name: 'Andrés Castro',
+          amountLabel: '\$1.650.000',
+        ),
+      ),
+    );
+    expect(find.byType(ManoRatingBadge), findsNothing);
+  });
 }

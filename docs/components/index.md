@@ -42,12 +42,12 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | Component | Use it for |
 |---|---|
 | `ManoListingCard` | A photo-led service listing (Home). |
-| `ManoOfferCard` | An offer: price, pricing model, zone; optional status and trailing action. |
+| `ManoOfferCard` | An offer: price, pricing model, zone; optional status, trailing action, rating badge and provider tap. |
 | `ManoProjectCard` | A job in a list: person, title, date, price, status. |
 | `ManoRequestCard` | An incoming request with message and an `actions` slot. |
 | `ManoProjectSummaryCard` | A posted project: title, subtitle, status chip, optional trailing label. |
 | `ManoLeadCard` | An open project to quote on: title, category and age, budget, cost ("Gratis"). |
-| `ManoQuoteCard` | A quote: avatar slot, name, price, message box, status, Elegir and Descartar. |
+| `ManoQuoteCard` | A quote: avatar slot, name, price, message box, status, Elegir and Descartar; optional rating badge and provider tap. |
 | `ManoAmountPad` | A big centred amount over a numeric keypad with a "000" key. |
 | `ManoBookingCard` | A booking summary. |
 | `ManoConversationTile` | An inbox row with unread badge. |
@@ -60,6 +60,7 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 |---|---|
 | `ManoStatusChip` | A status pill in one of four tones. |
 | `ManoPriceTag` | Amount plus rate ("$45.000 /hora"). |
+| `ManoRatingBadge` | A provider's stars on one line ("★ 4,9 · 32"), or "Nuevo" without a star. |
 | `ManoNotice` | An inline message (info, warning, error). |
 | `ManoEmptyState` | Nothing to show yet, with one call to action, or none when the screen already has it. |
 | `ManoAvatar`, `ManoInitialsAvatar` | A photo (optional online dot) or initials. |

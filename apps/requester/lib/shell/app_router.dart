@@ -11,6 +11,8 @@ import '../features/offers/offers_screen.dart';
 import '../features/projects/project_detail_screen.dart';
 import '../features/projects/publish/publish_project_screen.dart';
 import '../features/projects/start_publishing.dart';
+import '../features/provider_profile/provider_profile_screen.dart';
+import '../features/provider_profile/provider_reviews_screen.dart';
 import '../screens/home_tab_screen.dart';
 import '../screens/inbox_tab_screen.dart';
 import '../screens/profile_tab_screen.dart';
@@ -121,6 +123,23 @@ final requesterRouterProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) => const ProfileTabScreen(),
               ),
             ],
+          ),
+        ],
+      ),
+      // Reached from offers, quotes and chat, so above the tabs.
+      GoRoute(
+        path: '/provider/:providerId',
+        parentNavigatorKey: rootKey,
+        builder: (context, state) => ProviderProfileScreen(
+          providerId: state.pathParameters['providerId']!,
+        ),
+        routes: [
+          GoRoute(
+            path: 'reviews',
+            parentNavigatorKey: rootKey,
+            builder: (context, state) => ProviderReviewsScreen(
+              providerId: state.pathParameters['providerId']!,
+            ),
           ),
         ],
       ),

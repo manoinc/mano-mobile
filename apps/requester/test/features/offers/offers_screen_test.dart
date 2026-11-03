@@ -123,4 +123,24 @@ void main() {
 
     expect(find.byType(ManoOfferCard), findsNWidgets(3));
   });
+
+  testWidgets('each card shows its provider rating, or Nuevo without one', (
+    tester,
+  ) async {
+    await _pump(tester, offers: [fakeOffer('1'), fakeOffer('none')]);
+    final labels = {
+      for (final card in tester.widgetList<ManoOfferCard>(
+        find.byType(ManoOfferCard),
+      ))
+        (card.ratingLabel, card.rated),
+    };
+    expect(labels, {('4,8 · 4', true), ('Nuevo', false)});
+  });
+
+  testWidgets('tapping the provider opens their profile', (tester) async {
+    final (_, container) = await _pump(tester, offers: [fakeOffer('1')]);
+    await tester.tap(find.text('Profesional'));
+    await tester.pumpAndSettle();
+    expect(routerPath(container), '/provider/provider-1');
+  });
 }

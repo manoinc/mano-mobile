@@ -76,21 +76,27 @@ WidgetbookCategory cards() => WidgetbookCategory(
       },
     }),
     component('ManoOfferCard', {
-      'Requester (offers list)': (context) => _padded(
-        ManoOfferCard(
-          leading: const ManoInitialsAvatar(initials: 'P', size: 48),
-          title: 'Profesional',
-          subtitle: 'Por hora',
-          zone: context.knobs.string(
-            label: 'Zone',
-            initialValue: 'Zona: Usaquén',
+      'Requester (offers list)': (context) {
+        final isNew = context.knobs.boolean(label: 'New provider');
+        return _padded(
+          ManoOfferCard(
+            leading: const ManoInitialsAvatar(initials: 'P', size: 48),
+            title: 'Andrés Castro',
+            subtitle: 'Por hora',
+            ratingLabel: isNew ? 'Nuevo' : '4,9 · 32',
+            rated: !isNew,
+            onProviderTap: noop,
+            zone: context.knobs.string(
+              label: 'Zone',
+              initialValue: 'Zona: Usaquén',
+            ),
+            amountLabel: ManoFormat.cop(28000),
+            rateLabel: '/hora',
+            trailing: ManoTextAction(label: 'Agendar', onPressed: noop),
+            onTap: noop,
           ),
-          amountLabel: ManoFormat.cop(28000),
-          rateLabel: '/hora',
-          trailing: ManoTextAction(label: 'Agendar', onPressed: noop),
-          onTap: noop,
-        ),
-      ),
+        );
+      },
       'Provider (my services)': (context) => _padded(
         ManoOfferCard(
           title: 'Limpieza profunda del hogar',
@@ -164,7 +170,8 @@ WidgetbookCategory cards() => WidgetbookCategory(
           ),
           categoryLabel: 'Pintura',
           ageLabel: 'hace 5h',
-          budgetLabel: context.knobs.boolean(label: 'Budget', initialValue: true)
+          budgetLabel:
+              context.knobs.boolean(label: 'Budget', initialValue: true)
               ? 'Presupuesto ${ManoFormat.cop(1800000)}'
               : 'Sin presupuesto',
           costLabel: 'Gratis',
@@ -179,10 +186,11 @@ WidgetbookCategory cards() => WidgetbookCategory(
           name: 'Andrés Castro',
           amountLabel: ManoFormat.cop(1650000),
           ageLabel: 'hace 4h',
+          ratingLabel: '4,9 · 32',
+          onProviderTap: noop,
           message: context.knobs.string(
             label: 'Message',
-            initialValue:
-                'Incluye resanar grietas, tratar la humedad y dos manos de pintura.',
+            initialValue: 'Incluye resanar grietas, tratar la humedad y dos manos de pintura.',
           ),
           onSelect: noop,
           onDiscard: noop,
@@ -194,6 +202,8 @@ WidgetbookCategory cards() => WidgetbookCategory(
           name: 'Profesional',
           amountLabel: ManoFormat.cop(580000),
           ageLabel: 'hace 3d',
+          ratingLabel: 'Nuevo',
+          rated: false,
           statusLabel: 'Elegida',
           statusTone: ManoStatusTone.success,
           selected: true,
