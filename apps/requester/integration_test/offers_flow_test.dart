@@ -103,6 +103,10 @@ void main() {
       300,
       scrollable: find.byType(Scrollable).first,
     );
+    // Built is not on screen: bring it clear of the pinned Escribir bar.
+    await tester.ensureVisible(find.textContaining('Ver las'));
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -200));
+    await tester.pumpAndSettle();
     await tester.tap(find.textContaining('Ver las'));
     await tester.pumpAndSettle();
     expect(router.state.uri.path, '/provider/provider-1/reviews');

@@ -96,12 +96,19 @@ void main() {
       _field('Cuéntanos qué pasó'),
       'Me cobraron dos veces la limpieza del sábado.',
     );
+    // The keyboard shrinks the list on a phone; close it before scrolling.
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Enviar'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.ensureVisible(find.text('Enviar'));
-    await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Enviar'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('PQR-'), findsOneWidget);
+    expect(find.textContaining('MANO-'), findsOneWidget);
     await tester.tap(find.text('Listo'));
     await tester.pumpAndSettle();
 
