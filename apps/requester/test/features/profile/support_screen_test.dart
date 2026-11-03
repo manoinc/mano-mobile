@@ -40,9 +40,16 @@ void main() {
   testWidgets('Enviar waits for a subject and a description', (tester) async {
     await _open(tester);
 
-    await tester.ensureVisible(find.text('Enviar'));
+    await tester.scrollUntilVisible(
+      find.text('Enviar'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     final enviar = tester.widget<ManoPrimaryButton>(
-      find.widgetWithText(ManoPrimaryButton, 'Enviar'),
+      find.ancestor(
+        of: find.text('Enviar'),
+        matching: find.byType(ManoPrimaryButton),
+      ),
     );
     expect(enviar.onPressed, isNull);
   });
