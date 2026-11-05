@@ -27,6 +27,13 @@ String myQuoteSubtitle(Quote quote, LeadPricing? prices) => switch (quote) {
   _ => 'Tu cotización ${ManoFormat.cop(quote.amountCop)}',
 };
 
+/// Under an awarded project's title: its category and the provider's price.
+String awardedQuoteLine(Quote quote) => [
+  if (quote.projectCategory.isNotEmpty)
+    ServiceCategories.labelOf(quote.projectCategory),
+  'Tu cotización ${ManoFormat.cop(quote.amountCop)}',
+].join(' · ');
+
 /// What the lead of a project in [category] costs.
 String leadCostLabel(LeadPricing prices, String category) =>
     coinsLabel(prices.costFor(category));

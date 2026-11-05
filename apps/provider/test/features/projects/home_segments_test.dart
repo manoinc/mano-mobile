@@ -187,6 +187,11 @@ void main() {
       tester.widget<ManoProjectSummaryCard>(chosen).subtitle,
       'Contacto desbloqueado. Escríbele al cliente.',
     );
+
+    await tester.tap(chosen);
+    await tester.pumpAndSettle();
+    expect(find.text('Contacto del cliente'), findsOneWidget);
+    expect(find.text('Llamar'), findsOneWidget);
   });
 
   testWidgets('a lead priced by billing leads to recharging when short', (
