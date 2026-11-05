@@ -4,6 +4,7 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../wallet/recharge_sheet.dart';
+import '../wallet/wallet_labels.dart';
 import 'insufficient_coins_sheet.dart';
 import 'lead_labels.dart';
 
@@ -81,10 +82,7 @@ class _LeadPurchaseState extends ConsumerState<_LeadPurchase> {
               value: leadCostLabel(widget.quote.projectCategory),
             ),
             if (balance != null)
-              ManoDetailRow(
-                label: 'Tu saldo',
-                value: balance == 1 ? '1 coin' : '$balance coins',
-              ),
+              ManoDetailRow(label: 'Tu saldo', value: coinsLabel(balance)),
             const SizedBox(height: ManoSpacing.lg),
             ManoPrimaryButton(
               label: 'Comprar · ${leadCostLabel(widget.quote.projectCategory)}',

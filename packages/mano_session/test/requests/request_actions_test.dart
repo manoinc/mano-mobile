@@ -12,25 +12,20 @@ Future<List<String>> _idsIn(
   ServiceRequestStatus status,
 ) async => _ids(await c.read(requestsByStatusProvider(status).future));
 
-Future<ServiceRequest> _lead(ProviderContainer c, String id) async =>
-    (await c.read(myServiceRequestsProvider.future))
-        .firstWhere((r) => r.id == id);
-
 // The coupled offline mocks, so accepting a request schedules a job.
 ProviderContainer _offline() => ProviderContainer.test(
   overrides: [offlineMarketplaceProvider.overrideWithValue(true)],
 );
 
 void main() {
-  group('respond', () {
+  group('accept', () {
     test('accepts the request and spends no coins', () async {
       final c = _offline();
-      final lead = await _lead(c, 'request-2');
       final before = (await c.read(walletProvider.future)).balance;
 
       final result = await c
           .read(requestActionsProvider.notifier)
-          .respond(lead);
+          .accept('request-2');
 
       expect(result.valueOrNull?.status, ServiceRequestStatus.accepted);
       expect((await c.read(walletProvider.future)).balance, before);

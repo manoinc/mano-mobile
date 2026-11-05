@@ -8,12 +8,9 @@ final class RequestActions extends Notifier<void> {
   @override
   void build() {}
 
+  /// Free: only project leads cost coins.
   Future<Result<ServiceRequest, DataFailure>> accept(String id) =>
       _refreshOnOk(ref.read(serviceRequestRepositoryProvider).accept(id));
-
-  /// Accepts a service request; it costs no coins (only project leads do).
-  Future<Result<ServiceRequest, DataFailure>> respond(ServiceRequest request) =>
-      accept(request.id);
 
   Future<Result<ServiceRequest, DataFailure>> reject(
     String id, {

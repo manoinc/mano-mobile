@@ -146,7 +146,7 @@ class _RequestsSectionState extends ConsumerState<RequestsSection> {
     setState(() => _busyId = request.id);
     final result = await ref
         .read(requestActionsProvider.notifier)
-        .respond(request);
+        .accept(request.id);
     if (!mounted) return;
     setState(() => _busyId = null);
     _announce(

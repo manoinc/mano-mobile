@@ -39,8 +39,6 @@ final class ServiceRequest {
   final String neighborhood;
   final List<String> photoUrls;
 
-  /// Coins the provider pays to answer this lead.
-
   bool get hasPhotos => photoUrls.isNotEmpty;
 
   bool get canRespond => status == ServiceRequestStatus.pending;

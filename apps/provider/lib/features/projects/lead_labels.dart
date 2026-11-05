@@ -1,6 +1,8 @@
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../wallet/wallet_labels.dart';
+
 // Domain → copy for the provider's Proyectos screens; mano_ui cannot see these types.
 
 /// Quoting is free this round; it sits where the coin cost sits on Solicitudes.
@@ -24,10 +26,8 @@ String myQuoteSubtitle(Quote quote) => switch (quote) {
 };
 
 /// What the lead of a project in [category] costs.
-String leadCostLabel(String category) {
-  final coins = LeadPricing.costFor(category);
-  return coins == 1 ? '1 coin' : '$coins coins';
-}
+String leadCostLabel(String category) =>
+    coinsLabel(LeadPricing.costFor(category));
 
 /// A selected quote whose lead is still to buy.
 bool canBuyLead(Quote quote) =>
