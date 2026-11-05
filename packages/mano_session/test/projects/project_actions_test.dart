@@ -135,6 +135,7 @@ void main() {
                   owned.contains(p.id) &&
                   !before.any((q) => q.projectId == p.id),
             );
+        final balance = (await c.read(walletProvider.future)).balance;
         final leads = c.read(leadActionsProvider.notifier);
         final quote = (await leads.submitQuote(
           fresh.id,
@@ -153,6 +154,12 @@ void main() {
         expect(bought.valueOrNull?.leadPurchased, isTrue);
         final mine = await c.read(myQuotesProvider.future);
         expect(mine.firstWhere((q) => q.id == quote.id).leadPurchased, isTrue);
+        final cost = LeadPricing.placeholder.costFor(fresh.category);
+        expect((await c.read(walletProvider.future)).balance, balance - cost);
+        expect(
+          (await c.read(walletHistoryProvider.future)).first.label,
+          'Contacto de proyecto',
+        );
       },
     );
   });

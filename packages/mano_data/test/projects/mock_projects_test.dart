@@ -228,5 +228,56 @@ void main() {
         expect(quotes[i - 1].createdAt.isAfter(quotes[i].createdAt), isTrue);
       }
     });
+
+    group('purchaseLead', () {
+      ({MockLeadRepository leads, MockWalletRepository wallet}) withWallet() {
+        final wallet = MockWalletRepository(now: () => _now);
+        final board = MockProjectBoard(now: () => _now);
+        return (
+          leads: MockLeadRepository(board, wallet: wallet),
+          wallet: wallet,
+        );
+      }
+
+      test('spends the lead\'s price and logs a project contact', () async {
+        final repos = withWallet();
+        final before = (await repos.wallet.wallet()).balance;
+
+        final bought = (await repos.leads.purchaseLead('quote-4')).valueOrNull!;
+
+        expect(bought.leadPurchased, isTrue);
+        final cost = LeadPricing.placeholder.costFor(
+          ServiceCategories.electrical,
+        );
+        expect((await repos.wallet.wallet()).balance, before - cost);
+        final spend = (await repos.wallet.history()).first;
+        expect(spend.kind, CoinTransactionKind.leadSpend);
+        expect(spend.label, 'Contacto de proyecto');
+      });
+
+      test('refuses a repeat purchase without spending again', () async {
+        final repos = withWallet();
+        await repos.leads.purchaseLead('quote-4');
+        final balance = (await repos.wallet.wallet()).balance;
+
+        final again = await repos.leads.purchaseLead('quote-4');
+
+        expect(again.failureOrNull, isA<DataRejected>());
+        expect((await repos.wallet.wallet()).balance, balance);
+      });
+
+      test('a short wallet is InsufficientCoins and buys nothing', () async {
+        final repos = withWallet();
+        repos.wallet.spendOnLead((await repos.wallet.wallet()).balance);
+
+        final result = await repos.leads.purchaseLead('quote-4');
+
+        expect(result.failureOrNull, const InsufficientCoins());
+        final quote = (await repos.leads.myQuotes()).firstWhere(
+          (q) => q.id == 'quote-4',
+        );
+        expect(quote.leadPurchased, isFalse);
+      });
+    });
   });
 }

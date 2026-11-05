@@ -13,41 +13,18 @@ final class MockWalletRepository implements WalletRepository {
       CoinTransactionKind kind,
       int amount,
       String label,
-      int daysAgo, {
-      String? requestId,
-    }) => CoinTransaction(
+      int daysAgo,
+    ) => CoinTransaction(
       id: id,
       kind: kind,
       amount: amount,
       label: label,
       at: today.subtract(Duration(days: daysAgo)),
-      requestId: requestId,
     );
     _history.addAll([
-      tx(
-        'tx-7',
-        CoinTransactionKind.refund,
-        2,
-        'Reembolso · Limpieza',
-        2,
-        requestId: 'request-4',
-      ),
-      tx(
-        'tx-6',
-        CoinTransactionKind.leadSpend,
-        -3,
-        'Solicitud de Plomería',
-        3,
-        requestId: 'request-3',
-      ),
-      tx(
-        'tx-5',
-        CoinTransactionKind.leadSpend,
-        -4,
-        'Solicitud de Pintura',
-        6,
-        requestId: 'request-0',
-      ),
+      tx('tx-7', CoinTransactionKind.refund, 2, 'Reembolso de contacto', 2),
+      tx('tx-6', CoinTransactionKind.leadSpend, -3, leadSpendLabel, 3),
+      tx('tx-5', CoinTransactionKind.leadSpend, -4, leadSpendLabel, 6),
       tx(
         'tx-4',
         CoinTransactionKind.referralBonus,
@@ -55,22 +32,8 @@ final class MockWalletRepository implements WalletRepository {
         'Bono por referir a Carlos',
         9,
       ),
-      tx(
-        'tx-3',
-        CoinTransactionKind.leadSpend,
-        -2,
-        'Solicitud de Limpieza',
-        12,
-        requestId: 'request-4',
-      ),
-      tx(
-        'tx-2',
-        CoinTransactionKind.leadSpend,
-        -3,
-        'Solicitud de Electricidad',
-        15,
-        requestId: 'request-00',
-      ),
+      tx('tx-3', CoinTransactionKind.leadSpend, -2, leadSpendLabel, 12),
+      tx('tx-2', CoinTransactionKind.leadSpend, -3, leadSpendLabel, 15),
       tx('tx-1', CoinTransactionKind.purchase, 30, purchaseLabel(30), 20),
     ]);
     _balance = _history.fold(0, (sum, t) => sum + t.amount);
@@ -159,4 +122,11 @@ final class MockWalletRepository implements WalletRepository {
 
   @override
   Future<LeadPricing> leadPrices() async => LeadPricing.placeholder;
+
+  /// Offline lead purchases pay here; [InsufficientCoins] when short.
+  Result<Wallet, DataFailure> spendOnLead(int coins) {
+    if (coins > _balance) return const Err(InsufficientCoins());
+    _record(CoinTransactionKind.leadSpend, -coins, leadSpendLabel);
+    return Ok(Wallet(balance: _balance));
+  }
 }

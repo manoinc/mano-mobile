@@ -7,6 +7,9 @@ import '../gateway/gateway_json.dart';
 /// The history line a coin purchase shows, shared with the mock.
 String purchaseLabel(int coins) => 'Recarga de $coins coins';
 
+/// The history line of a bought project lead, shared with the mock.
+const leadSpendLabel = 'Contacto de proyecto';
+
 CoinPack coinPackFromJson(Map<String, dynamic> json) => CoinPack(
   id: json['id'] as String,
   coins: json['coins'] as int,
@@ -18,7 +21,7 @@ CoinPack coinPackFromJson(Map<String, dynamic> json) => CoinPack(
 CoinTransaction coinMovementFromJson(Map<String, dynamic> json) {
   final coins = json['coins'] as int;
   final (kind, label) = switch (json['type']) {
-    'LEAD_SPEND' => (CoinTransactionKind.leadSpend, 'Contacto de proyecto'),
+    'LEAD_SPEND' => (CoinTransactionKind.leadSpend, leadSpendLabel),
     'LEAD_REFUND' => (CoinTransactionKind.refund, 'Reembolso de contacto'),
     _ => (CoinTransactionKind.purchase, purchaseLabel(coins)),
   };

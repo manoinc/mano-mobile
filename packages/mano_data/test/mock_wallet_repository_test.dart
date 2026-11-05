@@ -71,6 +71,19 @@ void main() {
     );
   });
 
+  test('seeded lead spends read as project contacts', () async {
+    final spends = (await wallet.history()).where(
+      (t) => t.kind == CoinTransactionKind.leadSpend,
+    );
+    expect(spends.map((t) => t.label).toSet(), {'Contacto de proyecto'});
+  });
+
+  test('a lead spend debits the balance, never below zero', () async {
+    expect(wallet.spendOnLead(3).valueOrNull, const Wallet(balance: 22));
+    expect(wallet.spendOnLead(23).failureOrNull, const InsufficientCoins());
+    expect((await wallet.wallet()).balance, 22);
+  });
+
   test('prices leads with the placeholder table', () async {
     expect(await wallet.leadPrices(), LeadPricing.placeholder);
   });

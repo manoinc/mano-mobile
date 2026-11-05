@@ -8,9 +8,12 @@ import '../session_providers.dart';
 // Live on D6 (billing).
 final walletRepositoryProvider = Provider<WalletRepository>(
   (ref) => ref.watch(offlineMarketplaceProvider)
-      ? MockWalletRepository()
+      ? ref.watch(mockWalletProvider)
       : GatewayWalletRepository(ref.watch(gatewayTransportProvider)),
 );
+
+/// The offline wallet, shared so a mock lead purchase pays from it.
+final mockWalletProvider = Provider((ref) => MockWalletRepository());
 
 final walletProvider = FutureProvider<Wallet>(
   (ref) => ref.watch(walletRepositoryProvider).wallet(),

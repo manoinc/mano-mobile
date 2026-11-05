@@ -50,7 +50,7 @@ WidgetbookCategory wallet() => WidgetbookCategory(
             ),
             ManoActivityTile(
               icon: Icons.bolt,
-              title: 'Solicitud de Plomería',
+              title: 'Contacto de proyecto',
               subtitle: '8 oct',
               amountLabel: '-3',
               positive: false,
