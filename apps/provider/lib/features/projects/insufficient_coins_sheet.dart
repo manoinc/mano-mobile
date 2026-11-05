@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../wallet/wallet_labels.dart';
 
 /// Tells the provider how many coins they lack; resolves `true` to recharge.
 Future<bool?> showInsufficientCoinsSheet(
-  BuildContext context,
-  InsufficientCoins failure,
-) => showManoSheet<bool>(
+  BuildContext context, {
+  required int needed,
+  required int available,
+}) => showManoSheet<bool>(
   context: context,
   builder: (sheetContext) {
     final textTheme = Theme.of(sheetContext).textTheme;
@@ -22,13 +22,13 @@ Future<bool?> showInsufficientCoinsSheet(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Te faltan ${coinsLabel(failure.missing)}',
+              'Te faltan ${coinsLabel(needed - available)}',
               style: textTheme.headlineSmall,
             ),
             const SizedBox(height: ManoSpacing.sm),
             Text(
-              'Este contacto cuesta ${coinsLabel(failure.needed)} y tienes '
-              '${coinsLabel(failure.available)}. Recarga para comprarlo.',
+              'Este contacto cuesta ${coinsLabel(needed)} y tienes '
+              '${coinsLabel(available)}. Recarga para comprarlo.',
               style: textTheme.bodyLarge?.copyWith(color: ManoColors.muted),
             ),
             const SizedBox(height: ManoSpacing.lg),

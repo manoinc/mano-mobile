@@ -42,12 +42,13 @@ class _LeadPurchaseState extends ConsumerState<_LeadPurchase> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Contacto desbloqueado')));
-      case Err(:final failure) when isShortOfCoins(failure):
+      case Err(failure: InsufficientCoins()):
         final balance = (await ref.read(walletProvider.future)).balance;
         if (!mounted) return;
         final recharge = await showInsufficientCoinsSheet(
           context,
-          InsufficientCoins(needed: _cost, available: balance),
+          needed: _cost,
+          available: balance,
         );
         if (recharge == true && mounted) await showRechargeSheet(context);
       case Err(:final failure):

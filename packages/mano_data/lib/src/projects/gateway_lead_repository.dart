@@ -66,14 +66,22 @@ mutation PurchaseLead(\$quoteId: ID!) {
   }
 
   @override
-  Future<Result<Quote, DataFailure>> purchaseLead(String quoteId) =>
-      guardGateway(() async {
-        final data = await _transport.run(
-          _purchaseMutation,
-          variables: {'quoteId': quoteId},
-        );
-        return quoteFromJson(
-          data['purchaseProjectLead'] as Map<String, dynamic>,
-        );
-      });
+  Future<Result<Quote, DataFailure>> purchaseLead(String quoteId) async {
+    final result = await guardGateway(() async {
+      final data = await _transport.run(
+        _purchaseMutation,
+        variables: {'quoteId': quoteId},
+      );
+      return quoteFromJson(data['purchaseProjectLead'] as Map<String, dynamic>);
+    });
+    return switch (result) {
+      Err(failure: DataRejected(:final reason?))
+          when reason.contains(_notEnoughCoins) =>
+        const Err(InsufficientCoins()),
+      _ => result,
+    };
+  }
+
+  // Billing's wording for a wallet that cannot pay the lead.
+  static const _notEnoughCoins = 'not have enough coins';
 }

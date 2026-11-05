@@ -374,11 +374,25 @@ void main() {
       expect(bought.id, 'q1');
     });
 
-    test('purchaseLead without enough coins is a refusal', () async {
+    test('purchaseLead without enough coins is InsufficientCoins', () async {
       final repo = GatewayLeadRepository(
         _transport(
           (_) async => _error(
             'FailedPrecondition: the provider does not have enough coins',
+          ),
+        ),
+      );
+      expect(
+        (await repo.purchaseLead('q1')).failureOrNull,
+        const InsufficientCoins(),
+      );
+    });
+
+    test('purchaseLead keeps any other refusal a refusal', () async {
+      final repo = GatewayLeadRepository(
+        _transport(
+          (_) async => _error(
+            'FailedPrecondition: only the selected worker can buy this lead',
           ),
         ),
       );

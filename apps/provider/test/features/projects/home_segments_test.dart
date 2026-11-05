@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_billing.dart';
 import '../../support/pump_app.dart';
 import '../services/services_fakes.dart';
 import 'projects_fakes.dart';
@@ -209,10 +210,13 @@ void main() {
         leadRepositoryProvider.overrideWithValue(
           FakeLeads(
             quotes: [quote],
-            purchaseRefusal: const DataRejected(
-              reason:
-                  'FailedPrecondition: the provider does not have enough coins',
-            ),
+            purchaseRefusal: const InsufficientCoins(),
+          ),
+        ),
+        walletRepositoryProvider.overrideWithValue(
+          ScriptedWallet(
+            balance: 1,
+            reply: const Ok(AwaitingApproval(paymentId: 'p', coins: 12)),
           ),
         ),
       ],
@@ -227,9 +231,49 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('insufficient-coins-sheet')), findsOneWidget);
+    expect(find.text('Te faltan 3 coins'), findsOneWidget);
     await tester.tap(find.text('Recargar'));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('recharge-sheet')), findsOneWidget);
+  });
+
+  testWidgets('a refused lead purchase says so in plain words', (tester) async {
+    final quote = Quote(
+      id: 'quote-y',
+      projectId: 'project-y',
+      projectTitle: 'Pintar la reja',
+      worker: const Party(id: 'w', displayName: 'Ana', photoUrl: ''),
+      amountCop: 300000,
+      status: QuoteStatus.selected,
+      createdAt: DateTime(2026, 11, 3),
+      projectCategory: ServiceCategories.painting,
+    );
+    await _pump(
+      tester,
+      '/home',
+      session: signedIn(),
+      overrides: [
+        leadRepositoryProvider.overrideWithValue(
+          FakeLeads(
+            quotes: [quote],
+            purchaseRefusal: const DataRejected(
+              reason: 'FailedPrecondition: only the selected worker can buy',
+            ),
+          ),
+        ),
+      ],
+    );
+    await _segment(tester, 'Mis cotizaciones');
+    final card = find.byKey(const Key('my-quote-quote-y'));
+    await _show(tester, card);
+
+    await tester.tap(card);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Comprar · 4 coins'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('insufficient-coins-sheet')), findsNothing);
+    expect(find.text(const DataRejected().message), findsOneWidget);
   });
 
   testWidgets('no quotes yet points at the open projects', (tester) async {

@@ -34,9 +34,9 @@ void main() {
     expect(spend, spend);
   });
 
-  test('insufficient coins say how many are missing', () {
-    const failure = InsufficientCoins(needed: 4, available: 1);
-    expect(failure.missing, 3);
+  test('insufficient coins compare by type and have a message', () {
+    const failure = InsufficientCoins();
+    expect(failure, const InsufficientCoins());
     expect(failure.message, isNotEmpty);
   });
 

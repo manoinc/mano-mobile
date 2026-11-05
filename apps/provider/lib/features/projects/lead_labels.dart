@@ -33,10 +33,6 @@ String leadCostLabel(String category) =>
 bool canBuyLead(Quote quote) =>
     quote.status == QuoteStatus.selected && !quote.leadPurchased;
 
-/// Billing refuses a lead the wallet cannot cover with this wording.
-bool isShortOfCoins(DataFailure failure) =>
-    failure is DataRejected && (failure.reason ?? '').contains('enough coins');
-
 /// The failure of a quote, in the provider's words.
 String quoteFailureMessage(DataFailure failure) {
   if (failure.isAlreadyQuoted) return 'Ya cotizaste este proyecto';
