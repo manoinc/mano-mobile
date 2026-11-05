@@ -17,6 +17,7 @@ class MyQuotesSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final prices = ref.watch(leadPricesProvider).value;
     return switch (ref.watch(myQuotesProvider)) {
       AsyncData(value: final quotes) when quotes.isEmpty => ManoEmptyState(
         icon: Icons.request_quote_outlined,
@@ -32,7 +33,7 @@ class MyQuotesSection extends ConsumerWidget {
               child: ManoProjectSummaryCard(
                 key: Key('my-quote-${quote.id}'),
                 title: quote.projectTitle,
-                subtitle: myQuoteSubtitle(quote),
+                subtitle: myQuoteSubtitle(quote, prices),
                 statusLabel: quote.statusLabel,
                 statusTone: quoteTone(quote),
                 trailingLabel: quote.status == QuoteStatus.selected

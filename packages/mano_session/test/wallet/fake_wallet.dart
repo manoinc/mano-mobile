@@ -58,4 +58,7 @@ final class FakeWallet implements WalletRepository {
 
   @override
   Future<Result<List<Bank>, DataFailure>> pseBanks() => _mock.pseBanks();
+
+  @override
+  Future<LeadPricing> leadPrices() => _mock.leadPrices();
 }

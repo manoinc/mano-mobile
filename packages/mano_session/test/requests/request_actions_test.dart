@@ -54,6 +54,13 @@ void main() {
       );
     });
 
+    test('lead prices are read from the port', () async {
+      expect(
+        await _offline().read(leadPricesProvider.future),
+        LeadPricing.placeholder,
+      );
+    });
+
     test('checkout terms and PSE banks are read from the port', () async {
       final c = _offline();
       expect(await c.read(checkoutTermsProvider.future), isNotEmpty);

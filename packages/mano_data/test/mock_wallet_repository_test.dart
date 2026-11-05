@@ -71,6 +71,10 @@ void main() {
     );
   });
 
+  test('prices leads with the placeholder table', () async {
+    expect(await wallet.leadPrices(), LeadPricing.placeholder);
+  });
+
   test('offers checkout terms and PSE banks', () async {
     expect((await wallet.checkoutTerms()).valueOrNull, isNotEmpty);
     expect((await wallet.pseBanks()).valueOrNull, isNotEmpty);

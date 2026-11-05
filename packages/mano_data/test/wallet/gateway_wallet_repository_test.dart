@@ -144,6 +144,25 @@ void main() {
     expect(history.last.amount, -3);
   });
 
+  test('lead prices map billing categories to canonical ids', () async {
+    final repo = _repo((r) async {
+      expect(_body(r)['query'], contains('leadPrices'));
+      return _data({
+        'leadPrices': {
+          'defaultCoins': 2,
+          'prices': [
+            {'category': 'plumbing', 'coins': 5},
+            {'category': 'pintura', 'coins': 6},
+          ],
+        },
+      });
+    });
+    final prices = await repo.leadPrices();
+    expect(prices.costFor(ServiceCategories.plumbing), 5);
+    expect(prices.costFor(ServiceCategories.painting), 6);
+    expect(prices.costFor('carpintería'), 2);
+  });
+
   test(
     'a Nequi purchase sends the wallet method and awaits approval',
     () async {

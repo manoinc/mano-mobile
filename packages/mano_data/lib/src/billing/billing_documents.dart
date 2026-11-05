@@ -25,6 +25,9 @@ const checkoutTermsQuery =
 
 const pseBanksQuery = 'query PseBanks { pseBanks { code name } }';
 
+const leadPricesQuery =
+    'query LeadPrices { leadPrices { defaultCoins prices { category coins } } }';
+
 const payoutBanksQuery = 'query PayoutBanks { payoutBanks { code name } }';
 
 const registerPayoutAccountMutation = r'''

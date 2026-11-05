@@ -6,7 +6,6 @@ import 'package:mano_ui/mano_ui.dart';
 import '../wallet/recharge_sheet.dart';
 import '../wallet/wallet_labels.dart';
 import 'insufficient_coins_sheet.dart';
-import 'lead_labels.dart';
 
 /// Buy the selected quote's lead with coins; unlocks the requester's contact.
 Future<void> showLeadPurchaseSheet(BuildContext context, Quote quote) =>
@@ -27,9 +26,7 @@ class _LeadPurchase extends ConsumerStatefulWidget {
 class _LeadPurchaseState extends ConsumerState<_LeadPurchase> {
   bool _busy = false;
 
-  int get _cost => LeadPricing.costFor(widget.quote.projectCategory);
-
-  Future<void> _buy() async {
+  Future<void> _buy(int cost) async {
     setState(() => _busy = true);
     final result = await ref
         .read(leadActionsProvider.notifier)
@@ -47,7 +44,7 @@ class _LeadPurchaseState extends ConsumerState<_LeadPurchase> {
         if (!mounted) return;
         final recharge = await showInsufficientCoinsSheet(
           context,
-          needed: _cost,
+          needed: cost,
           available: balance,
         );
         if (recharge == true && mounted) await showRechargeSheet(context);
@@ -61,6 +58,10 @@ class _LeadPurchaseState extends ConsumerState<_LeadPurchase> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final balance = ref.watch(walletProvider).value?.balance;
+    final cost = ref
+        .watch(leadPricesProvider)
+        .value
+        ?.costFor(widget.quote.projectCategory);
     return SafeArea(
       key: const Key('lead-purchase-sheet'),
       top: false,
@@ -78,17 +79,15 @@ class _LeadPurchaseState extends ConsumerState<_LeadPurchase> {
               style: textTheme.bodyLarge?.copyWith(color: ManoColors.muted),
             ),
             const SizedBox(height: ManoSpacing.md),
-            ManoDetailRow(
-              label: 'Costo',
-              value: leadCostLabel(widget.quote.projectCategory),
-            ),
+            if (cost != null)
+              ManoDetailRow(label: 'Costo', value: coinsLabel(cost)),
             if (balance != null)
               ManoDetailRow(label: 'Tu saldo', value: coinsLabel(balance)),
             const SizedBox(height: ManoSpacing.lg),
             ManoPrimaryButton(
-              label: 'Comprar · ${leadCostLabel(widget.quote.projectCategory)}',
+              label: cost == null ? 'Comprar' : 'Comprar · ${coinsLabel(cost)}',
               busy: _busy,
-              onPressed: _buy,
+              onPressed: cost == null ? null : () => _buy(cost),
             ),
           ],
         ),

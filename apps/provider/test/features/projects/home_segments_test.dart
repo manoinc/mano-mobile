@@ -163,7 +163,7 @@ void main() {
     expect(chosenCard.statusLabel, 'Elegida');
     expect(
       chosenCard.subtitle,
-      startsWith('El cliente te elegió. Compra su contacto por'),
+      startsWith('El cliente te eligió. Compra su contacto por'),
     );
   });
 
@@ -189,7 +189,7 @@ void main() {
     );
   });
 
-  testWidgets('without enough coins the lead leads to recharging', (
+  testWidgets('a lead priced by billing leads to recharging when short', (
     tester,
   ) async {
     final quote = Quote(
@@ -217,6 +217,10 @@ void main() {
           ScriptedWallet(
             balance: 1,
             reply: const Ok(AwaitingApproval(paymentId: 'p', coins: 12)),
+            pricing: const LeadPricing(
+              defaultCoins: 2,
+              prices: {ServiceCategories.painting: 6},
+            ),
           ),
         ),
       ],
@@ -227,11 +231,11 @@ void main() {
 
     await tester.tap(card);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Comprar · 4 coins'));
+    await tester.tap(find.text('Comprar · 6 coins'));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('insufficient-coins-sheet')), findsOneWidget);
-    expect(find.text('Te faltan 3 coins'), findsOneWidget);
+    expect(find.text('Te faltan 5 coins'), findsOneWidget);
     await tester.tap(find.text('Recargar'));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('recharge-sheet')), findsOneWidget);

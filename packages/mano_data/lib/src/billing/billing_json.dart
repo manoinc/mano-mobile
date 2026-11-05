@@ -31,6 +31,16 @@ CoinTransaction coinMovementFromJson(Map<String, dynamic> json) {
   );
 }
 
+LeadPricing leadPricingFromJson(Map<String, dynamic> json) => LeadPricing(
+  defaultCoins: json['defaultCoins'] as int,
+  prices: {
+    for (final price in json['prices'] as List<dynamic>)
+      ServiceCategories.normalize(
+        (price as Map<String, dynamic>)['category'] as String,
+      ): price['coins'] as int,
+  },
+);
+
 Bank bankFromJson(Map<String, dynamic> json) =>
     Bank(code: json['code'] as String, name: json['name'] as String);
 

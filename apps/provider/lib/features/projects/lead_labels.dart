@@ -16,18 +16,20 @@ ManoStatusTone quoteTone(Quote quote) => quote.status == QuoteStatus.selected
     ? ManoStatusTone.success
     : ManoStatusTone.neutral;
 
-/// What a quote's own card says under its title.
-String myQuoteSubtitle(Quote quote) => switch (quote) {
+/// What a quote's own card says under its title; [prices] null while loading.
+String myQuoteSubtitle(Quote quote, LeadPricing? prices) => switch (quote) {
   Quote(leadPurchased: true) => 'Contacto desbloqueado. Escríbele al cliente.',
+  Quote(status: QuoteStatus.selected) when prices != null =>
+    'El cliente te eligió. Compra su contacto por '
+        '${leadCostLabel(prices, quote.projectCategory)}.',
   Quote(status: QuoteStatus.selected) =>
-    'El cliente te elegió. Compra su contacto por '
-        '${leadCostLabel(quote.projectCategory)}.',
+    'El cliente te eligió. Compra su contacto.',
   _ => 'Tu cotización ${ManoFormat.cop(quote.amountCop)}',
 };
 
 /// What the lead of a project in [category] costs.
-String leadCostLabel(String category) =>
-    coinsLabel(LeadPricing.costFor(category));
+String leadCostLabel(LeadPricing prices, String category) =>
+    coinsLabel(prices.costFor(category));
 
 /// A selected quote whose lead is still to buy.
 bool canBuyLead(Quote quote) =>

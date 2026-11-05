@@ -76,4 +76,10 @@ final class GatewayWalletRepository implements WalletRepository {
         bankFromJson(json as Map<String, dynamic>),
     ];
   });
+
+  @override
+  Future<LeadPricing> leadPrices() async {
+    final data = await _transport.run(leadPricesQuery);
+    return leadPricingFromJson(data['leadPrices'] as Map<String, dynamic>);
+  }
 }

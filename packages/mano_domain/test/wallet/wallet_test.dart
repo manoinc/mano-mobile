@@ -2,17 +2,29 @@ import 'package:mano_domain/mano_domain.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('prices each canonical category', () {
-    expect(LeadPricing.costFor(ServiceCategories.cleaning), 2);
-    expect(LeadPricing.costFor(ServiceCategories.gardening), 2);
-    expect(LeadPricing.costFor(ServiceCategories.plumbing), 3);
-    expect(LeadPricing.costFor(ServiceCategories.electrical), 3);
-    expect(LeadPricing.costFor(ServiceCategories.painting), 4);
+  test('the placeholder prices each canonical category', () {
+    const prices = LeadPricing.placeholder;
+    expect(prices.costFor(ServiceCategories.cleaning), 2);
+    expect(prices.costFor(ServiceCategories.gardening), 2);
+    expect(prices.costFor(ServiceCategories.plumbing), 3);
+    expect(prices.costFor(ServiceCategories.electrical), 3);
+    expect(prices.costFor(ServiceCategories.painting), 4);
   });
 
   test('folds spellings and falls back to the default cost', () {
-    expect(LeadPricing.costFor('Plomería'), 3);
-    expect(LeadPricing.costFor('carpintería'), LeadPricing.defaultCost);
+    const prices = LeadPricing(
+      defaultCoins: 5,
+      prices: {ServiceCategories.plumbing: 7},
+    );
+    expect(prices.costFor('Plomería'), 7);
+    expect(prices.costFor('carpintería'), 5);
+  });
+
+  test('lead pricing compares by value', () {
+    expect(
+      const LeadPricing(defaultCoins: 2, prices: {'plumbing': 3}),
+      LeadPricing(defaultCoins: 2, prices: {'plumbing': 3}),
+    );
   });
 
   test('wallet affords a cost up to its balance', () {

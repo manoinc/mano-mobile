@@ -156,4 +156,7 @@ final class MockWalletRepository implements WalletRepository {
   @override
   Future<Result<List<Bank>, DataFailure>> pseBanks() async =>
       const Ok(mockBanks);
+
+  @override
+  Future<LeadPricing> leadPrices() async => LeadPricing.placeholder;
 }

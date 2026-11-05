@@ -6,6 +6,7 @@ import 'coin_pack.dart';
 import 'coin_purchase.dart';
 import 'coin_purchase_draft.dart';
 import 'coin_transaction.dart';
+import 'lead_pricing.dart';
 import 'wallet.dart';
 
 /// The provider's coins: balance, history and top-ups.
@@ -26,4 +27,7 @@ abstract interface class WalletRepository {
 
   /// The banks PSE can charge.
   Future<Result<List<Bank>, DataFailure>> pseBanks();
+
+  /// What a project lead costs, by category.
+  Future<LeadPricing> leadPrices();
 }

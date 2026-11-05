@@ -15,6 +15,7 @@ mocks.
 | Buying a pack | `buyCoinPack(packId, method, payerEmail, termsAccepted)` | **live**, Nequi and PSE | `coinPurchaseProvider` |
 | Checkout terms | `checkoutTerms { label url }` | **live** | `checkoutTermsProvider` |
 | PSE banks | `pseBanks { code name }` | **live** | `pseBanksProvider` |
+| Lead prices | `leadPrices { defaultCoins prices { category coins } }` | **live** | `leadPricesProvider` |
 | Payout banks | `payoutBanks { code name }` | **live** | `payoutBanksProvider` |
 | Payout account | `registerPayoutAccount(input)` | **live**, write only | `GatewayPayoutAccounts` |
 | Card payments | `card { token, installments }` | live on the gateway, **not offered**: needs the payment provider's client tokenizer | none (YAGNI) |
@@ -94,7 +95,8 @@ The selected worker buys the lead from Mis cotizaciones
 (`purchaseProjectLead`): the gateway checks the quote in mano-projects,
 billing spends the coins, and mano-projects unlocks the contact. Not enough
 coins comes back as `FailedPrecondition: ... enough coins`, which the app
-turns into the recharge prompt. After a purchase the Billetera refreshes, and
+turns into the recharge prompt. What a lead costs comes from `leadPrices`,
+keyed by category and folded to the app's canonical ids. After a purchase the Billetera refreshes, and
 the movement shows as "Contacto de proyecto" (`LEAD_SPEND`) or "Reembolso de
 contacto" (`LEAD_REFUND`).
 
