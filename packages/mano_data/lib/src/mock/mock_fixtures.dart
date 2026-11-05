@@ -7,6 +7,12 @@ const mockClient = Party(
   photoUrl: 'https://randomuser.me/api/portraits/women/68.jpg',
 );
 
+/// What a bought lead unlocks offline.
+const mockClientContact = ContactInfo(
+  phone: '300 123 4567',
+  email: 'laura.perez@mano.test',
+);
+
 const mockClients = [
   mockClient,
   Party(

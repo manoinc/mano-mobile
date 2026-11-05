@@ -246,6 +246,12 @@ void main() {
         final bought = (await repos.leads.purchaseLead('quote-4')).valueOrNull!;
 
         expect(bought.leadPurchased, isTrue);
+        expect(bought.clientContact?.isEmpty, isFalse);
+        final mine = await repos.leads.myQuotes();
+        expect(
+          mine.firstWhere((q) => q.id == 'quote-4').clientContact,
+          bought.clientContact,
+        );
         final cost = LeadPricing.placeholder.costFor(
           ServiceCategories.electrical,
         );

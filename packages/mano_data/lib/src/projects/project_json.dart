@@ -14,8 +14,9 @@ const quoteFields =
 const ownedProjectFields =
     '$projectFields quotes(page: {first: 50}) { items { $quoteFields } }';
 
-/// A quote read on its own, naming its project.
-const standaloneQuoteFields = '$quoteFields project { id title category }';
+/// A quote read on its own by its worker, naming its project.
+const standaloneQuoteFields =
+    '$quoteFields clientContact { phone email } project { id title category }';
 
 Iterable<Map<String, dynamic>> pageItems(Object? page) =>
     ((page as Map<String, dynamic>)['items'] as List<dynamic>)
@@ -77,6 +78,13 @@ Quote quoteFromJson(
     projectCategory: switch (project?['category']) {
       final String category => ServiceCategories.normalize(category),
       _ => '',
+    },
+    clientContact: switch (json['clientContact']) {
+      final Map<String, dynamic> contact => ContactInfo(
+        phone: contact['phone'] as String?,
+        email: contact['email'] as String?,
+      ),
+      _ => null,
     },
   );
 }

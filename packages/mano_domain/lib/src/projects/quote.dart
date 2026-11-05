@@ -1,4 +1,5 @@
 import '../shared/party.dart';
+import 'contact_info.dart';
 
 enum QuoteStatus { submitted, selected, discarded }
 
@@ -15,6 +16,7 @@ final class Quote {
     this.message,
     this.leadPurchased = false,
     this.projectCategory = '',
+    this.clientContact,
   });
 
   final String id;
@@ -32,10 +34,14 @@ final class Quote {
   /// The project's canonical category; empty when the reader did not ask for it.
   final String projectCategory;
 
+  /// The requester's contact; only the selected worker gets it, once the lead is bought.
+  final ContactInfo? clientContact;
+
   Quote copyWith({
     QuoteStatus? status,
     bool? leadPurchased,
     String? projectCategory,
+    ContactInfo? clientContact,
   }) => Quote(
     id: id,
     projectId: projectId,
@@ -47,6 +53,7 @@ final class Quote {
     createdAt: createdAt,
     leadPurchased: leadPurchased ?? this.leadPurchased,
     projectCategory: projectCategory ?? this.projectCategory,
+    clientContact: clientContact ?? this.clientContact,
   );
 
   @override
@@ -61,7 +68,8 @@ final class Quote {
       other.status == status &&
       other.createdAt == createdAt &&
       other.leadPurchased == leadPurchased &&
-      other.projectCategory == projectCategory;
+      other.projectCategory == projectCategory &&
+      other.clientContact == clientContact;
 
   @override
   int get hashCode => Object.hash(
@@ -75,6 +83,7 @@ final class Quote {
     createdAt,
     leadPurchased,
     projectCategory,
+    clientContact,
   );
 
   @override

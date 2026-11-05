@@ -72,7 +72,11 @@ final class MockLeadRepository implements LeadRepository {
   Future<List<Quote>> myQuotes() async => [
     for (final p in _board.projects)
       for (final q in p.quotes!)
-        if (q.worker.id == _worker.id) q.copyWith(projectCategory: p.category),
+        if (q.worker.id == _worker.id)
+          q.copyWith(
+            projectCategory: p.category,
+            clientContact: q.leadPurchased ? mockClientContact : null,
+          ),
   ]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
   @override
@@ -107,6 +111,6 @@ final class MockLeadRepository implements LeadRepository {
         quotes: [for (final q in project.quotes!) q.id == quoteId ? bought : q],
       ),
     );
-    return Ok(bought);
+    return Ok(bought.copyWith(clientContact: mockClientContact));
   }
 }

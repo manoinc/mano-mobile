@@ -333,13 +333,18 @@ void main() {
       final repo = GatewayLeadRepository(
         _transport((r) async {
           expect(_body(r)['query'], contains('myQuotes(page: {first: 50})'));
+          expect(_body(r)['query'], contains('project { id title category }'));
           return _data({
             'myQuotes': {
               'items': [
                 {
                   ..._quoteJson,
                   'status': 'SELECTED',
-                  'project': {'id': 'p1', 'title': 'Pintar sala'},
+                  'project': {
+                    'id': 'p1',
+                    'title': 'Pintar sala',
+                    'category': 'Pintura',
+                  },
                 },
               ],
             },
@@ -348,7 +353,10 @@ void main() {
       );
 
       expect(await repo.myQuotes(), [
-        _quote.copyWith(status: QuoteStatus.selected),
+        _quote.copyWith(
+          status: QuoteStatus.selected,
+          projectCategory: ServiceCategories.painting,
+        ),
       ]);
     });
 
@@ -372,6 +380,42 @@ void main() {
       expect(bought.status, QuoteStatus.selected);
       expect(bought.leadPurchased, isTrue);
       expect(bought.id, 'q1');
+    });
+
+    test('a bought quote maps the client contact it selects', () async {
+      final repo = GatewayLeadRepository(
+        _transport((r) async {
+          expect(_body(r)['query'], contains('clientContact { phone email }'));
+          return _data({
+            'myQuotes': {
+              'items': [
+                {
+                  ..._quoteJson,
+                  'status': 'SELECTED',
+                  'leadPurchased': true,
+                  'clientContact': {
+                    'phone': '+573001234567',
+                    'email': 'laura@mano.test',
+                  },
+                  'project': {'id': 'p1', 'title': 'Pintar sala'},
+                },
+                {
+                  ..._quoteJson,
+                  'id': 'q2',
+                  'clientContact': null,
+                  'project': {'id': 'p2', 'title': 'Pintar reja'},
+                },
+              ],
+            },
+          });
+        }),
+      );
+      final quotes = await repo.myQuotes();
+      expect(
+        quotes.first.clientContact,
+        const ContactInfo(phone: '+573001234567', email: 'laura@mano.test'),
+      );
+      expect(quotes.last.clientContact, isNull);
     });
 
     test('purchaseLead without enough coins is InsufficientCoins', () async {
