@@ -63,5 +63,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Plomería'), findsOneWidget);
     expect(find.text('9 coins'), findsOneWidget);
+    expect(
+      find.textContaining('solo al comprar el contacto de un proyecto'),
+      findsOneWidget,
+    );
   });
 }

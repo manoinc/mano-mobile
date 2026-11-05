@@ -26,8 +26,9 @@ class _HowItWorks extends ConsumerWidget {
             Text('Cómo funcionan los coins', style: textTheme.headlineSmall),
             const SizedBox(height: ManoSpacing.sm),
             Text(
-              'Ver solicitudes es gratis. Pagas coins solo cuando aceptas una; '
-              'si algo falla, te los devolvemos.',
+              'Aceptar solicitudes y cotizar es gratis: pagas coins solo al '
+              'comprar el contacto de un proyecto. Si algo falla, te los '
+              'devolvemos. Esto cuesta cada contacto:',
               style: textTheme.bodyLarge?.copyWith(color: ManoColors.muted),
             ),
             const SizedBox(height: ManoSpacing.md),
