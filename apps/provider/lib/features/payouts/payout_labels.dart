@@ -16,12 +16,13 @@ String legalIdTypeLabel(LegalIdType type) => switch (type) {
   LegalIdType.pp => 'PP',
 };
 
-/// "Nequi" or the bank's name.
-String destinationTitle(PayoutDestination destination) => switch (destination) {
-  NequiDestination() => 'Nequi',
-  BankDestination(:final bankCode) =>
-    ColombianBanks.byCode(bankCode)?.name ?? 'Banco',
-};
+/// "Nequi" or the bank's name, looked up in billing's [banks].
+String destinationTitle(PayoutDestination destination, List<Bank> banks) =>
+    switch (destination) {
+      NequiDestination() => 'Nequi',
+      BankDestination(:final bankCode) =>
+        banks.where((b) => b.code == bankCode).firstOrNull?.name ?? 'Banco',
+    };
 
 /// "•••• 4567" or "Ahorros · •••• 1234".
 String destinationDetail(PayoutDestination destination) =>
@@ -32,8 +33,8 @@ String destinationDetail(PayoutDestination destination) =>
     };
 
 /// One line for Perfil: "Bancolombia · •••• 1234".
-String destinationLine(PayoutDestination destination) =>
-    '${destinationTitle(destination)} · ${masked(destination.lastDigits)}';
+String destinationLine(PayoutDestination destination, List<Bank> banks) =>
+    '${destinationTitle(destination, banks)} · ${masked(destination.lastDigits)}';
 
 /// "Andrés Castro · CC •••• 4050".
 String holderLine(AccountHolder holder) {
@@ -53,6 +54,12 @@ String? accountNumberError(PayoutAccountDraft draft) =>
     draft.accountNumber.trim().isNotEmpty &&
         draft.problems.contains(PayoutAccountProblem.invalidAccountNumber)
     ? 'Solo números, entre 6 y 20.'
+    : null;
+
+String? holderEmailError(PayoutAccountDraft draft) =>
+    draft.holderEmail.trim().isNotEmpty &&
+        draft.problems.contains(PayoutAccountProblem.invalidHolderEmail)
+    ? 'Revisa el correo.'
     : null;
 
 String? legalIdError(PayoutAccountDraft draft) =>

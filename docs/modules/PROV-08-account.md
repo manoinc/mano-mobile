@@ -2,8 +2,8 @@
 
 The professional keeps their public profile up to date, files a PQRS and
 registers where earnings are paid. All three start from Perfil and open on the
-root navigator, over the bottom bar. Everything but the avatar upload is a
-mock until the gateway serves it (see [Backend contract](../develop/backend-contract.md)).
+root navigator, over the bottom bar. The avatar upload and the payout account
+are live; the rest is a mock until the gateway serves it (see [Backend contract](../develop/backend-contract.md)).
 
 ## Screens and routes
 
@@ -53,19 +53,23 @@ like the provider onboarding:
 
 1. **¿Dónde quieres recibir tus pagos?** Nequi or Cuenta bancaria (rows, a tap
    moves on).
-2. **¿En qué banco?** (bank only) from `ColombianBanks`.
+2. **¿En qué banco?** (bank only) from billing's `payoutBanks`
+   (`payoutBanksProvider`), with a retry when the list cannot load.
 3. **¿Cuál es tu Nequi?** a mobile, 10 digits starting with 3 (`+57` allowed);
    or **Tu cuenta**: Ahorros / Corriente and a 6–20 digit number (spaces,
    dots and dashes are dropped).
 4. **¿A nombre de quién está?** holder name (prefilled from the profile),
-   CC / CE / NIT / PP and the document (CC 6–10 digits, CE 6–12 alphanumeric,
+   "Correo del titular" (prefilled from the session), CC / CE / NIT / PP and the document (CC 6–10 digits, CE 6–12 alphanumeric,
    NIT 9–10 digits with the check digit, PP 5–12 alphanumeric). "Guardar
-   cuenta" registers it.
+   cuenta" sends `registerPayoutAccount`.
 
 With an account saved the route shows it masked ("Nequi" over "•••• 4567", or
 "Davivienda" over "Corriente · •••• 5678", and "Andrés Castro · CC •••• 4050"),
 with "Cambiar cuenta" (runs the questions again) and "Eliminar cuenta". Perfil's
-row reads "Bancolombia · •••• 1234". No money moves (YAGNI).
+row reads "Bancolombia · •••• 1234". The gateway cannot read the account back
+or remove it, so live the summary shows only an account registered in this
+session and "Eliminar cuenta" reports "No pudimos completar esta acción."
+No payout is requested from the app yet (YAGNI). See [Billing](../develop/billing.md).
 
 ## Domain and state
 
@@ -73,17 +77,15 @@ row reads "Bancolombia · •••• 1234". No money moves (YAGNI).
 |---|---|
 | `mano_domain/src/profile/` | `ProviderProfileDraft` (validation, `toggleSkill`, `addZone`), `ProviderProfileEditor` port; `ProviderProfile` gained `skills` and `portfolioUrls` |
 | `mano_domain/src/support/` | `SupportTicketDraft {kind, subject, description}`, `SupportTicket {number, status, createdAt}`, `SupportDesk` port |
-| `mano_domain/src/payouts/` | `PayoutDestination` (`NequiDestination` / `BankDestination`), `AccountHolder`, `PayoutAccount`, `PayoutAccountDraft` (problems carry their step), `PayoutAccounts` port, `ColombianBanks` |
+| `mano_domain/src/payouts/` | `PayoutDestination` (`NequiDestination` / `BankDestination`), `AccountHolder`, `PayoutAccount`, `PayoutAccountDraft` (problems carry their step), `PayoutAccounts` port (with `banks()`) |
 | `mano_domain/src/shared/colombian_mobile.dart` | `normalizeColombianMobile`, also used by onboarding |
-| `mano_data` | `MockProviderProfileRepository` (now also the editor), `MockSupportDesk`, `MockPayoutAccounts` |
-| `mano_session` | `providerProfileActionsProvider`, `supportDeskProvider`, `payoutAccountProvider`, `payoutActionsProvider` |
+| `mano_data` | `MockProviderProfileRepository` (now also the editor), `MockSupportDesk`, `GatewayPayoutAccounts`, `MockPayoutAccounts` |
+| `mano_session` | `providerProfileActionsProvider`, `supportDeskProvider`, `payoutAccountProvider`, `payoutActionsProvider`, `payoutBanksProvider`, `accountEmailProvider` |
 
-The payout model follows mano-billing's `RegisterPayoutAccount`: destination
-`WalletDestination{phone}` (Nequi) or `BankDestination{bank_code, account_type,
-account_number}`, plus `AccountHolder{name, legal_id_type, legal_id}`. Billing's
-holder also takes an `email`, which the app has no source for yet (SuperTokens
-tokens carry none). Bank codes are ACH Colombia's; confirm them against
-billing / Wompi before going live.
+The payout model follows `PayoutAccountInput`: exactly one of `wallet{phone}`
+(Nequi) or `bank{bankCode, accountType, accountNumber}`, plus
+`holder{name, email, legalIdType, legalId}`. Bank codes come from
+`payoutBanks`; offline, `mockBanks` stands in.
 
 ## Tests
 
@@ -99,4 +101,4 @@ billing / Wompi before going live.
   with `fakeMediaOverrides()` (`test/support/fake_media.dart`: a 1×1 PNG picker
   and an instant uploader).
 - `apps/provider/integration_test/account_flow_test.dart`: edit and save,
-  file a queja, register Nequi.
+  file a queja, register Nequi, register a bank account.

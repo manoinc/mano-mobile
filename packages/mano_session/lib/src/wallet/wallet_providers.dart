@@ -2,9 +2,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_data/mano_data.dart';
 import 'package:mano_domain/mano_domain.dart';
 
-// The gateway has no wallet yet, so the in-memory mock stands in.
+import '../offline_marketplace_provider.dart';
+import '../session_providers.dart';
+
+// Live on D6 (billing); lead spending stays local until billing has a coin spend.
 final walletRepositoryProvider = Provider<WalletRepository>(
-  (ref) => MockWalletRepository(),
+  (ref) => ref.watch(offlineMarketplaceProvider)
+      ? MockWalletRepository()
+      : GatewayWalletRepository(ref.watch(gatewayTransportProvider)),
 );
 
 final walletProvider = FutureProvider<Wallet>(
@@ -19,21 +24,21 @@ final coinPacksProvider = FutureProvider<List<CoinPack>>(
   (ref) => ref.watch(walletRepositoryProvider).packs(),
 );
 
-/// Top-ups; each success refreshes the balance and history.
-final class WalletActions extends Notifier<void> {
-  @override
-  void build() {}
-
-  Future<Result<Wallet, DataFailure>> buyPack(String packId) async {
-    final result = await ref.read(walletRepositoryProvider).buyPack(packId);
-    if (result.isOk) refreshWallet(ref);
-    return result;
-  }
-}
-
-final walletActionsProvider = NotifierProvider<WalletActions, void>(
-  WalletActions.new,
+/// What the payer accepts before buying; a failure is an error state.
+final checkoutTermsProvider = FutureProvider<List<CheckoutTerm>>(
+  (ref) async =>
+      _orThrow(await ref.watch(walletRepositoryProvider).checkoutTerms()),
 );
+
+/// The banks PSE can charge.
+final pseBanksProvider = FutureProvider<List<Bank>>(
+  (ref) async => _orThrow(await ref.watch(walletRepositoryProvider).pseBanks()),
+);
+
+T _orThrow<T>(Result<T, DataFailure> result) => switch (result) {
+  Ok(:final value) => value,
+  Err(:final failure) => throw failure,
+};
 
 /// Refetches balance and history after any coin movement.
 void refreshWallet(Ref ref) => ref

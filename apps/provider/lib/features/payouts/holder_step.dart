@@ -10,6 +10,7 @@ class HolderStep extends StatelessWidget {
     required this.draft,
     required this.progress,
     required this.name,
+    required this.email,
     required this.legalId,
     required this.busy,
     required this.onChanged,
@@ -21,6 +22,7 @@ class HolderStep extends StatelessWidget {
   final PayoutAccountDraft draft;
   final double progress;
   final TextEditingController name;
+  final TextEditingController email;
   final TextEditingController legalId;
   final bool busy;
   final ValueChanged<PayoutAccountDraft Function(PayoutAccountDraft)> onChanged;
@@ -44,6 +46,14 @@ class HolderStep extends StatelessWidget {
           controller: name,
           textCapitalization: TextCapitalization.words,
           onChanged: (v) => onChanged((d) => d.copyWith(holderName: v)),
+        ),
+        const SizedBox(height: ManoSpacing.lg),
+        ManoTextField(
+          label: 'Correo del titular',
+          controller: email,
+          keyboardType: TextInputType.emailAddress,
+          errorText: holderEmailError(draft),
+          onChanged: (v) => onChanged((d) => d.copyWith(holderEmail: v)),
         ),
         const SizedBox(height: ManoSpacing.lg),
         Text(

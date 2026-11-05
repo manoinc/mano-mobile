@@ -4,6 +4,7 @@ import 'package:test/test.dart';
 void main() {
   const holder = AccountHolder(
     name: 'Andrés Castro',
+    email: 'andres@mano.test',
     legalIdType: LegalIdType.cc,
     legalId: '1020304050',
   );
@@ -28,11 +29,11 @@ void main() {
     );
   });
 
-  test('Colombian banks have unique codes and names', () {
-    final codes = ColombianBanks.all.map((b) => b.code).toSet();
-    expect(codes, hasLength(ColombianBanks.all.length));
-    expect(ColombianBanks.byCode('1007')?.name, 'Bancolombia');
-    expect(ColombianBanks.byCode('nope'), isNull);
+  test('banks compare by code and name', () {
+    expect(
+      const Bank(code: '1007', name: 'Bancolombia'),
+      const Bank(code: '1007', name: 'Bancolombia'),
+    );
   });
 
   test('normalizes a Colombian mobile number', () {

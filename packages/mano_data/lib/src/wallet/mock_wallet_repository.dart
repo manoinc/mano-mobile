@@ -1,6 +1,9 @@
 import 'package:mano_domain/mano_domain.dart';
 
-/// In-memory [WalletRepository] with a believable history and three packs.
+import '../billing/billing_json.dart';
+import '../mock/mock_banks.dart';
+
+/// In-memory [WalletRepository]; a purchase stays pending until the next balance read, like a webhook landing.
 final class MockWalletRepository implements WalletRepository {
   MockWalletRepository({DateTime Function()? now})
     : _now = now ?? DateTime.now {
@@ -68,7 +71,7 @@ final class MockWalletRepository implements WalletRepository {
         15,
         requestId: 'request-00',
       ),
-      tx('tx-1', CoinTransactionKind.purchase, 30, 'Recarga de 30 coins', 20),
+      tx('tx-1', CoinTransactionKind.purchase, 30, purchaseLabel(30), 20),
     ]);
     _balance = _history.fold(0, (sum, t) => sum + t.amount);
   }
@@ -79,8 +82,16 @@ final class MockWalletRepository implements WalletRepository {
     CoinPack(id: 'pack-60', coins: 60, priceCop: 100000, bonus: 10),
   ];
 
+  static const _terms = [
+    CheckoutTerm(
+      label: 'Términos y condiciones de la pasarela',
+      url: 'https://mano.test/terminos',
+    ),
+  ];
+
   final DateTime Function() _now;
   final List<CoinTransaction> _history = [];
+  final List<CoinPack> _pending = [];
   late int _balance;
   int _nextId = 100;
 
@@ -105,7 +116,17 @@ final class MockWalletRepository implements WalletRepository {
   }
 
   @override
-  Future<Wallet> wallet() async => Wallet(balance: _balance);
+  Future<Wallet> wallet() async {
+    for (final pack in _pending) {
+      _record(
+        CoinTransactionKind.purchase,
+        pack.totalCoins,
+        purchaseLabel(pack.totalCoins),
+      );
+    }
+    _pending.clear();
+    return Wallet(balance: _balance);
+  }
 
   @override
   Future<List<CoinTransaction>> history() async => List.of(_history);
@@ -114,16 +135,33 @@ final class MockWalletRepository implements WalletRepository {
   Future<List<CoinPack>> packs() async => _packs;
 
   @override
-  Future<Result<Wallet, DataFailure>> buyPack(String packId) async {
-    final pack = _packs.where((p) => p.id == packId).firstOrNull;
+  Future<Result<CoinPurchase, DataFailure>> buyPack(
+    CoinPurchaseDraft draft,
+  ) async {
+    if (!draft.isValid) {
+      return Err(DataRejected(reason: 'invalid draft: ${draft.problems}'));
+    }
+    final pack = _packs.where((p) => p.id == draft.packId).firstOrNull;
     if (pack == null) return const Err(DataNotFound());
-    _record(
-      CoinTransactionKind.purchase,
-      pack.totalCoins,
-      'Recarga de ${pack.totalCoins} coins',
-    );
-    return Ok(Wallet(balance: _balance));
+    _pending.add(pack);
+    final id = 'payment-${_nextId++}';
+    return Ok(switch (draft.method) {
+      CoinPurchaseMethod.pse => BankRedirect(
+        paymentId: id,
+        coins: pack.totalCoins,
+        url: 'https://pse.mano.test/$id',
+      ),
+      _ => AwaitingApproval(paymentId: id, coins: pack.totalCoins),
+    });
   }
+
+  @override
+  Future<Result<List<CheckoutTerm>, DataFailure>> checkoutTerms() async =>
+      const Ok(_terms);
+
+  @override
+  Future<Result<List<Bank>, DataFailure>> pseBanks() async =>
+      const Ok(mockBanks);
 
   @override
   Future<Result<CoinTransaction, DataFailure>> spendForLead(

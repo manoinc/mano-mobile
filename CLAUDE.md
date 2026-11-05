@@ -31,13 +31,13 @@ See README.md for the rationale.
 
 ```bash
 dart analyze                                     # whole workspace, from root
-cd packages/mano_domain  && dart test            # 67 — no Flutter binding
-cd packages/mano_data    && flutter test         # 53
-cd packages/mano_session && flutter test         # 130
-cd packages/mano_ui      && flutter test         # 198
-cd apps/requester        && flutter test         # 119
-cd apps/provider         && flutter test         # 87
-cd widgetbook            && flutter test         # 71 — every use case renders, every widget covered
+cd packages/mano_domain  && dart test            # 195 — no Flutter binding
+cd packages/mano_data    && flutter test         # 317
+cd packages/mano_session && flutter test         # 325
+cd packages/mano_ui      && flutter test         # 354
+cd apps/requester        && flutter test         # 237
+cd apps/provider         && flutter test         # 221
+cd widgetbook            && flutter test         # 140 — every use case renders, every widget covered
 tools/docs.sh serve                              # the handbook at localhost:8000
 cd apps/<app> && flutter test integration_test -d RFGL20WAR9E  # on the A36, one at a time
 cd apps/<app> && flutter test integration_test -d "iPhone 17"  # iOS simulator

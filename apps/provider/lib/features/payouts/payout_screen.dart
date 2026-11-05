@@ -22,6 +22,7 @@ class _PayoutScreenState extends ConsumerState<PayoutScreen> {
   final _phone = TextEditingController();
   final _accountNumber = TextEditingController();
   final _holderName = TextEditingController();
+  final _holderEmail = TextEditingController();
   final _legalId = TextEditingController();
   var _draft = const PayoutAccountDraft();
 
@@ -34,6 +35,7 @@ class _PayoutScreenState extends ConsumerState<PayoutScreen> {
     _phone.dispose();
     _accountNumber.dispose();
     _holderName.dispose();
+    _holderEmail.dispose();
     _legalId.dispose();
     super.dispose();
   }
@@ -50,12 +52,14 @@ class _PayoutScreenState extends ConsumerState<PayoutScreen> {
 
   void _start() {
     final name = ref.read(providerProfileProvider).value?.party.displayName;
+    final email = ref.read(accountEmailProvider);
     _phone.clear();
     _accountNumber.clear();
     _legalId.clear();
     _holderName.text = name ?? '';
+    _holderEmail.text = email;
     setState(() {
-      _draft = PayoutAccountDraft(holderName: name ?? '');
+      _draft = PayoutAccountDraft(holderName: name ?? '', holderEmail: email);
       _step = PayoutAccountStep.method;
     });
   }
@@ -111,7 +115,14 @@ class _PayoutScreenState extends ConsumerState<PayoutScreen> {
       ),
     );
     if (confirmed != true) return;
-    await ref.read(payoutActionsProvider.notifier).remove(account.id);
+    final result = await ref
+        .read(payoutActionsProvider.notifier)
+        .remove(account.id);
+    if (!mounted) return;
+    if (result.failureOrNull case final failure?) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(failure.message)));
+    }
   }
 
   @override
@@ -134,6 +145,7 @@ class _PayoutScreenState extends ConsumerState<PayoutScreen> {
     if (_step == null && account != null) {
       return PayoutSummary(
         account: account,
+        banks: ref.watch(payoutBanksProvider).value ?? const [],
         onChange: _start,
         onRemove: () => _remove(account),
       );
@@ -169,6 +181,8 @@ class _PayoutScreenState extends ConsumerState<PayoutScreen> {
         },
       ),
       PayoutAccountStep.bank => BankStep(
+        banks: ref.watch(payoutBanksProvider),
+        onRetry: () => ref.invalidate(payoutBanksProvider),
         selectedCode: _draft.bankCode,
         progress: _progress(step),
         onPick: (code) => _update((d) => d.copyWith(bankCode: code)),
@@ -188,6 +202,7 @@ class _PayoutScreenState extends ConsumerState<PayoutScreen> {
         draft: _draft,
         progress: _progress(step),
         name: _holderName,
+        email: _holderEmail,
         legalId: _legalId,
         busy: _busy,
         onChanged: _update,

@@ -82,6 +82,35 @@ WidgetbookCategory wallet() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoPaymentStatus', {
+      'Awaiting Nequi': (context) => const Padding(
+        padding: EdgeInsets.all(ManoSpacing.lg),
+        child: ManoPaymentStatus(
+          icon: Icons.phone_iphone,
+          title: 'Aprueba el pago en Nequi',
+          message: 'Te enviamos una notificación a tu Nequi •••• 4567.',
+          waitingLabel: 'Esperando a Nequi…',
+        ),
+      ),
+      'Coins landed': (context) => const Padding(
+        padding: EdgeInsets.all(ManoSpacing.lg),
+        child: ManoPaymentStatus(
+          icon: Icons.check_rounded,
+          title: '¡Listo! +28 coins',
+          message: 'Ya tienes 53 Mano coins.',
+          tone: ManoPaymentTone.done,
+        ),
+      ),
+      'Refused': (context) => const Padding(
+        padding: EdgeInsets.all(ManoSpacing.lg),
+        child: ManoPaymentStatus(
+          icon: Icons.error_outline,
+          title: 'No pudimos cobrar la recarga',
+          message: 'Tu banco rechazó el pago. No te cobramos nada.',
+          tone: ManoPaymentTone.failed,
+        ),
+      ),
+    }),
     component('ManoPhotoGallery', {
       'Lead photos': (context) => const Padding(
         padding: EdgeInsets.all(ManoSpacing.md),

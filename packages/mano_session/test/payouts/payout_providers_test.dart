@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mano_data/mano_data.dart';
 import 'package:mano_session/mano_session.dart';
 
 void main() {
@@ -7,12 +8,17 @@ void main() {
     method: PayoutMethod.nequi,
     phone: '300 123 4567',
     holderName: 'Andrés Castro',
+    holderEmail: 'andres@mano.test',
     legalId: '1020304050',
   );
 
   late ProviderContainer container;
 
-  setUp(() => container = ProviderContainer.test());
+  setUp(
+    () => container = ProviderContainer.test(
+      overrides: [offlineMarketplaceProvider.overrideWithValue(true)],
+    ),
+  );
 
   PayoutActions actions() => container.read(payoutActionsProvider.notifier);
 
@@ -39,5 +45,21 @@ void main() {
 
     expect((await actions().remove(account.id)).isOk, isTrue);
     expect(await container.read(payoutAccountProvider.future), isNull);
+  });
+
+  test('payout banks come from the port', () async {
+    final banks = await container.read(payoutBanksProvider.future);
+    expect(banks, contains(const Bank(code: '1007', name: 'Bancolombia')));
+  });
+
+  test('live, the accounts go through the gateway', () {
+    final live = ProviderContainer.test(
+      overrides: [
+        manoConfigProvider.overrideWithValue(
+          const ManoConfig(gatewayGraphQlUrl: 'http://gw', appRole: 'provider'),
+        ),
+      ],
+    );
+    expect(live.read(payoutAccountsProvider), isA<GatewayPayoutAccounts>());
   });
 }

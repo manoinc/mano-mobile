@@ -21,7 +21,10 @@ class AccountRows extends ConsumerWidget {
           label: 'Cuenta para pagos',
           detail: account == null
               ? 'Agrega dónde recibir lo que ganas'
-              : destinationLine(account.destination),
+              : destinationLine(
+                  account.destination,
+                  ref.watch(payoutBanksProvider).value ?? const [],
+                ),
           onPressed: () => requireAccount(
             context,
             ref,

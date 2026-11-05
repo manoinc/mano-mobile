@@ -4,6 +4,7 @@ import 'package:test/test.dart';
 void main() {
   const holder = PayoutAccountDraft(
     holderName: 'Andrés Castro',
+    holderEmail: 'andres@mano.test',
     legalIdType: LegalIdType.cc,
     legalId: '1020304050',
   );
@@ -53,15 +54,12 @@ void main() {
       );
     });
 
-    test('the bank must be on the list', () {
+    test('a bank must be picked; the server list decides which', () {
       expect(
         bank.copyWith(bankCode: '').problems,
         contains(PayoutAccountProblem.noBank),
       );
-      expect(
-        bank.copyWith(bankCode: '9999').problems,
-        contains(PayoutAccountProblem.noBank),
-      );
+      expect(bank.copyWith(bankCode: '9999').isValid, isTrue);
     });
 
     test('an account type is required', () {
@@ -117,6 +115,17 @@ void main() {
       );
     });
 
+    test('an email is required for the payout provider', () {
+      expect(
+        nequi.copyWith(holderEmail: 'andres@').problems,
+        contains(PayoutAccountProblem.invalidHolderEmail),
+      );
+      expect(
+        PayoutAccountProblem.invalidHolderEmail.step,
+        PayoutAccountStep.holder,
+      );
+    });
+
     test('builds the holder with the document cleaned', () {
       expect(
         nequi
@@ -124,6 +133,7 @@ void main() {
             .holder,
         const AccountHolder(
           name: 'Andrés Castro',
+          email: 'andres@mano.test',
           legalIdType: LegalIdType.nit,
           legalId: '9001234567',
         ),

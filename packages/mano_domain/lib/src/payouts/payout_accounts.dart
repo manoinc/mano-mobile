@@ -1,4 +1,5 @@
 import '../result.dart';
+import '../shared/bank.dart';
 import '../shared/data_failure.dart';
 import 'payout_account.dart';
 
@@ -13,4 +14,7 @@ abstract interface class PayoutAccounts {
   });
 
   Future<Result<void, DataFailure>> remove(String accountId);
+
+  /// The banks a payout can go to, by name.
+  Future<Result<List<Bank>, DataFailure>> banks();
 }

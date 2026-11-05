@@ -8,12 +8,14 @@ import 'payout_labels.dart';
 class PayoutSummary extends StatelessWidget {
   const PayoutSummary({
     required this.account,
+    required this.banks,
     required this.onChange,
     required this.onRemove,
     super.key,
   });
 
   final PayoutAccount account;
+  final List<Bank> banks;
   final VoidCallback onChange;
   final VoidCallback onRemove;
 
@@ -49,7 +51,7 @@ class PayoutSummary extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            destinationTitle(destination),
+                            destinationTitle(destination, banks),
                             style: text.titleMedium,
                           ),
                           Text(

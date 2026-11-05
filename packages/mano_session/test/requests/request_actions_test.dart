@@ -79,22 +79,32 @@ void main() {
     });
   });
 
-  group('WalletActions', () {
-    test('buying a pack refreshes balance and history', () async {
+  group('wallet wiring', () {
+    test('offline runs on the mock, live on the gateway', () {
+      expect(
+        _offline().read(walletRepositoryProvider),
+        isA<MockWalletRepository>(),
+      );
+      final live = ProviderContainer.test(
+        overrides: [
+          manoConfigProvider.overrideWithValue(
+            const ManoConfig(
+              gatewayGraphQlUrl: 'http://gw',
+              appRole: 'provider',
+            ),
+          ),
+        ],
+      );
+      expect(
+        live.read(walletRepositoryProvider),
+        isA<GatewayWalletRepository>(),
+      );
+    });
+
+    test('checkout terms and PSE banks are read from the port', () async {
       final c = _offline();
-      final before = (await c.read(walletProvider.future)).balance;
-      final pack = (await c.read(coinPacksProvider.future)).first;
-
-      await c.read(walletActionsProvider.notifier).buyPack(pack.id);
-
-      expect(
-        (await c.read(walletProvider.future)).balance,
-        before + pack.totalCoins,
-      );
-      expect(
-        (await c.read(walletHistoryProvider.future)).first.kind,
-        CoinTransactionKind.purchase,
-      );
+      expect(await c.read(checkoutTermsProvider.future), isNotEmpty);
+      expect(await c.read(pseBanksProvider.future), isNotEmpty);
     });
   });
 

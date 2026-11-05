@@ -27,7 +27,8 @@ routes are already registered, so a module never edits the router.
 | PROV-05 | Jobs Agenda | `agenda/` | `/agenda`, `/agenda/job/:id` | `JobRepository` | [PROV-05](PROV-05-agenda.md) |
 | PROV-06 | Inbox & Chat | `chat/` | `/inbox`, `/inbox/:conversationId` | `ConversationRepository`, `ChatRepository` | [PROV-06](PROV-06-chat.md) |
 | PROV-07 | Open Projects & Quotes | `projects/` + `home/home_segments.dart` | `/home` (Proyectos, Mis cotizaciones), `/home/project/:id` | `LeadRepository` (live) | [PROV-07](PROV-07-projects.md) |
-| PROV-08 | Account & Profile | `profile/edit/`, `support/`, `payouts/` | `/profile/edit`, `/profile/support`, `/profile/payout` | `ProviderProfileEditor`, `SupportDesk`, `PayoutAccounts` (mock) | [PROV-08](PROV-08-account.md) |
+| PROV-08 | Account & Profile | `profile/edit/`, `support/`, `payouts/` | `/profile/edit`, `/profile/support`, `/profile/payout` | `ProviderProfileEditor`, `SupportDesk`, `PayoutAccounts` (live) | [PROV-08](PROV-08-account.md) |
+| PROV-09 | Billetera & Recargar | `wallet/` | `/wallet` + the Recargar sheet | `WalletRepository` (live) | [PROV-09](PROV-09-wallet.md) |
 
 ## Shared
 

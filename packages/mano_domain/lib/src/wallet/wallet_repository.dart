@@ -1,6 +1,10 @@
 import '../result.dart';
+import '../shared/bank.dart';
 import '../shared/data_failure.dart';
+import 'checkout_term.dart';
 import 'coin_pack.dart';
+import 'coin_purchase.dart';
+import 'coin_purchase_draft.dart';
 import 'coin_transaction.dart';
 import 'wallet.dart';
 
@@ -11,9 +15,17 @@ abstract interface class WalletRepository {
   /// Newest first.
   Future<List<CoinTransaction>> history();
 
+  /// Cheapest first.
   Future<List<CoinPack>> packs();
 
-  Future<Result<Wallet, DataFailure>> buyPack(String packId);
+  /// Starts paying for a pack; the coins land only once it completes.
+  Future<Result<CoinPurchase, DataFailure>> buyPack(CoinPurchaseDraft draft);
+
+  /// What the payer must accept before [buyPack].
+  Future<Result<List<CheckoutTerm>, DataFailure>> checkoutTerms();
+
+  /// The banks PSE can charge.
+  Future<Result<List<Bank>, DataFailure>> pseBanks();
 
   /// Pays [cost] coins to answer [requestId]; [InsufficientCoins] when short.
   Future<Result<CoinTransaction, DataFailure>> spendForLead(
