@@ -17,9 +17,9 @@ What exists today:
 - **Rules on the entities:** `Project.acceptsQuotes`, `canCancel`,
   `canSelect(quote)` and `canDiscard(quote)`, plus `ProjectDraft.problems`, and
   `failure.isAlreadyQuoted` for the one-quote-per-provider refusal.
-- **Quotes are free this round.** The backend's lead purchase is a stub, so no
-  Mano coins change hands. This is unlike the "Aceptar · N monedas" on
-  Solicitudes.
+- **Quotes are free.** Coins change hands only when the chosen worker buys the
+  lead to unlock the client's contact (see [PROV-07](../modules/PROV-07-projects.md)).
+  Accepting a service request is free too.
 
 ## Research (Mobbin)
 
@@ -249,9 +249,9 @@ daily work, not settings.
 ```
 
 `QuoteStatus` maps to these labels: submitted → Enviada (neutral), selected →
-Elegida (positive), discarded → No elegida (neutral). An "Elegida" quote can't
-show the client's contact yet (the backend gap); its row reads "El cliente te
-elegió. Pronto podrás contactarlo".
+Elegida (positive), discarded → No elegida (neutral). An "Elegida" quote
+reads "El cliente te eligió. Compra su contacto por N coins"; once bought, its
+detail shows the client's phone and email.
 
 ## Widgets (`mano_ui`)
 

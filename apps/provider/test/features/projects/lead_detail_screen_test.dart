@@ -4,6 +4,7 @@ import 'package:mano_provider/features/projects/lead_detail_screen.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_billing.dart';
 import '../../support/pump_app.dart';
 import 'projects_fakes.dart';
 
@@ -133,7 +134,12 @@ void main() {
   });
 
   testWidgets('a project no longer on the board says so', (tester) async {
-    await pumpRouterAt(tester, '/home/project/project-3', session: signedIn());
+    await pumpRouterAt(
+      tester,
+      '/home/project/project-3',
+      session: signedIn(),
+      overrides: [leadRepositoryProvider.overrideWithValue(FakeLeads())],
+    );
 
     expect(
       find.text('Este proyecto ya no recibe cotizaciones.'),
@@ -152,5 +158,70 @@ void main() {
     );
 
     expect(find.text('No pudimos cargar este proyecto.'), findsOneWidget);
+  });
+
+  group('a project already awarded', () {
+    final chosen = Quote(
+      id: 'quote-z',
+      projectId: 'project-z',
+      projectTitle: 'Cambiar la iluminación',
+      worker: const Party(id: 'w', displayName: 'Ana', photoUrl: ''),
+      amountCop: 580000,
+      status: QuoteStatus.selected,
+      createdAt: DateTime(2026, 11, 3),
+      projectCategory: ServiceCategories.electrical,
+    );
+
+    Future<FakeLinks> pumpWith(WidgetTester tester, Quote quote) async {
+      final links = FakeLinks();
+      await pumpRouterAt(
+        tester,
+        '/home/project/project-z',
+        session: signedIn(),
+        overrides: [
+          leadRepositoryProvider.overrideWithValue(FakeLeads(quotes: [quote])),
+          externalLinkOpenerProvider.overrideWithValue(links.open),
+        ],
+      );
+      return links;
+    }
+
+    testWidgets('a bought lead shows the contact and reaches the client', (
+      tester,
+    ) async {
+      final links = await pumpWith(
+        tester,
+        chosen.copyWith(
+          leadPurchased: true,
+          clientContact: const ContactInfo(
+            phone: '300 123 4567',
+            email: 'laura@mano.test',
+          ),
+        ),
+      );
+
+      expect(find.text('Cambiar la iluminación'), findsOneWidget);
+      expect(find.text('300 123 4567'), findsWidgets);
+      expect(find.text('laura@mano.test'), findsOneWidget);
+      await _tap(tester, find.text('Llamar'));
+      await _tap(tester, find.text('Abrir'));
+      await _tap(tester, find.text('Escribir'));
+      expect(links.opened, [
+        Uri.parse('tel:3001234567'),
+        Uri.parse('https://wa.me/573001234567'),
+        Uri.parse('mailto:laura@mano.test'),
+      ]);
+    });
+
+    testWidgets('a chosen lead not yet bought offers to buy it', (
+      tester,
+    ) async {
+      await pumpWith(tester, chosen);
+
+      expect(find.text('Cambiar la iluminación'), findsOneWidget);
+      expect(find.text('Llamar'), findsNothing);
+      await _tap(tester, find.text('Comprar contacto'));
+      expect(find.byKey(const Key('lead-purchase-sheet')), findsOneWidget);
+    });
   });
 }

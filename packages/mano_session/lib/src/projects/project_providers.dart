@@ -4,6 +4,7 @@ import 'package:mano_domain/mano_domain.dart';
 
 import '../offline_marketplace_provider.dart';
 import '../session_providers.dart';
+import '../wallet/wallet_providers.dart';
 
 // One board, so offline the provider's quotes reach the requester's projects.
 final _mockProjectBoardProvider = Provider((ref) => MockProjectBoard());
@@ -16,7 +17,10 @@ final projectRepositoryProvider = Provider<ProjectRepository>(
 
 final leadRepositoryProvider = Provider<LeadRepository>(
   (ref) => ref.watch(offlineMarketplaceProvider)
-      ? MockLeadRepository(ref.watch(_mockProjectBoardProvider))
+      ? MockLeadRepository(
+          ref.watch(_mockProjectBoardProvider),
+          wallet: ref.watch(mockWalletProvider),
+        )
       : GatewayLeadRepository(ref.watch(gatewayTransportProvider)),
 );
 

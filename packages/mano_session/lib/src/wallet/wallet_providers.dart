@@ -5,12 +5,15 @@ import 'package:mano_domain/mano_domain.dart';
 import '../offline_marketplace_provider.dart';
 import '../session_providers.dart';
 
-// Live on D6 (billing); lead spending stays local until billing has a coin spend.
+// Live on D6 (billing).
 final walletRepositoryProvider = Provider<WalletRepository>(
   (ref) => ref.watch(offlineMarketplaceProvider)
-      ? MockWalletRepository()
+      ? ref.watch(mockWalletProvider)
       : GatewayWalletRepository(ref.watch(gatewayTransportProvider)),
 );
+
+/// The offline wallet, shared so a mock lead purchase pays from it.
+final mockWalletProvider = Provider((ref) => MockWalletRepository());
 
 final walletProvider = FutureProvider<Wallet>(
   (ref) => ref.watch(walletRepositoryProvider).wallet(),
@@ -22,6 +25,11 @@ final walletHistoryProvider = FutureProvider<List<CoinTransaction>>(
 
 final coinPacksProvider = FutureProvider<List<CoinPack>>(
   (ref) => ref.watch(walletRepositoryProvider).packs(),
+);
+
+/// What a project lead costs, by category.
+final leadPricesProvider = FutureProvider<LeadPricing>(
+  (ref) => ref.watch(walletRepositoryProvider).leadPrices(),
 );
 
 /// What the payer accepts before buying; a failure is an error state.

@@ -7,6 +7,9 @@ import '../gateway/gateway_json.dart';
 /// The history line a coin purchase shows, shared with the mock.
 String purchaseLabel(int coins) => 'Recarga de $coins coins';
 
+/// The history line of a bought project lead, shared with the mock.
+const leadSpendLabel = 'Contacto de proyecto';
+
 CoinPack coinPackFromJson(Map<String, dynamic> json) => CoinPack(
   id: json['id'] as String,
   coins: json['coins'] as int,
@@ -14,17 +17,32 @@ CoinPack coinPackFromJson(Map<String, dynamic> json) => CoinPack(
   priceCop: ((json['price'] as Map<String, dynamic>)['amount'] as num).round(),
 );
 
-/// Only purchases exist on the gateway today (`CoinMovementType.PURCHASE`).
+/// A `CoinMovement`: a purchase, a lead spend or a lead refund.
 CoinTransaction coinMovementFromJson(Map<String, dynamic> json) {
   final coins = json['coins'] as int;
+  final (kind, label) = switch (json['type']) {
+    'LEAD_SPEND' => (CoinTransactionKind.leadSpend, leadSpendLabel),
+    'LEAD_REFUND' => (CoinTransactionKind.refund, 'Reembolso de contacto'),
+    _ => (CoinTransactionKind.purchase, purchaseLabel(coins)),
+  };
   return CoinTransaction(
     id: json['id'] as String,
-    kind: CoinTransactionKind.purchase,
+    kind: kind,
     amount: coins,
-    label: purchaseLabel(coins),
+    label: label,
     at: dateTimeFromJson(json['createdAt']),
   );
 }
+
+LeadPricing leadPricingFromJson(Map<String, dynamic> json) => LeadPricing(
+  defaultCoins: json['defaultCoins'] as int,
+  prices: {
+    for (final price in json['prices'] as List<dynamic>)
+      ServiceCategories.normalize(
+        (price as Map<String, dynamic>)['category'] as String,
+      ): price['coins'] as int,
+  },
+);
 
 Bank bankFromJson(Map<String, dynamic> json) =>
     Bank(code: json['code'] as String, name: json['name'] as String);

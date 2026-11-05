@@ -7,20 +7,18 @@ class RequestActionsRow extends StatelessWidget {
     required this.onAccept,
     required this.onReject,
     this.busy = false,
-    this.acceptLabel = 'Aceptar',
     super.key,
   });
 
   final VoidCallback onAccept;
   final VoidCallback onReject;
   final bool busy;
-  final String acceptLabel;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Narrower than Aceptar, so the coin cost fits one line.
+        // Narrower than Aceptar, the one primary action.
         Expanded(
           flex: 2,
           child: ManoQuietButton(
@@ -33,7 +31,7 @@ class RequestActionsRow extends StatelessWidget {
         Expanded(
           flex: 3,
           child: ManoOutlineButton(
-            label: acceptLabel,
+            label: 'Aceptar',
             onPressed: onAccept,
             busy: busy,
           ),

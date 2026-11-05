@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-import '../../support/fake_billing.dart';
 import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
 
@@ -64,12 +63,6 @@ final class _RefusingRequests implements ServiceRequestRepository {
   }) => throw UnimplementedError();
 }
 
-// A wallet with no coins, to reach the recharge prompt.
-ScriptedWallet _brokeWallet() => ScriptedWallet(
-  balance: 0,
-  reply: const Ok(AwaitingApproval(paymentId: 'p', coins: 10)),
-);
-
 Future<void> _pump(
   WidgetTester tester, {
   List<Override> overrides = const [],
@@ -121,7 +114,7 @@ void main() {
     expect(_card('request-2'), findsOneWidget);
     expect(_card('request-3'), findsNothing);
     expect(_inCard('request-1', 'Laura Pérez'), findsOneWidget);
-    expect(_inCard('request-1', 'Aceptar · 2 coins'), findsOneWidget);
+    expect(_inCard('request-1', 'Aceptar'), findsOneWidget);
     expect(_inCard('request-1', 'Rechazar'), findsOneWidget);
   });
 
@@ -134,7 +127,7 @@ void main() {
     expect(_inCard('request-3', 'Aceptada'), findsOneWidget);
     expect(_inCard('request-4', 'Rechazada'), findsOneWidget);
     expect(_inCard('request-5', 'Cancelada'), findsOneWidget);
-    expect(_inCard('request-3', 'Aceptar · 3 coins'), findsNothing);
+    expect(_inCard('request-3', 'Aceptar'), findsNothing);
   });
 
   testWidgets(
@@ -148,7 +141,7 @@ void main() {
         ),
       );
 
-      await _tapInCard(tester, 'request-1', 'Aceptar · 2 coins');
+      await _tapInCard(tester, 'request-1', 'Aceptar');
 
       expect(
         find.text('Solicitud aceptada · quedó en tu agenda'),
@@ -165,7 +158,7 @@ void main() {
     tester,
   ) async {
     await _pump(tester);
-    await _tapInCard(tester, 'request-1', 'Aceptar · 2 coins');
+    await _tapInCard(tester, 'request-1', 'Aceptar');
     await _openTab(tester, 'Respondidas');
     await _scrollTo(tester, _inCard('request-1', 'Aceptada'));
     expect(_inCard('request-1', 'Aceptada'), findsOneWidget);
@@ -207,7 +200,7 @@ void main() {
       findsOneWidget,
     );
     await tester.tap(
-      find.descendant(of: sheet, matching: find.text('Aceptar · 3 coins')),
+      find.descendant(of: sheet, matching: find.text('Aceptar')),
     );
     await tester.pumpAndSettle();
     expect(
@@ -241,7 +234,7 @@ void main() {
       ],
     );
 
-    await _tapInCard(tester, 'request-1', 'Aceptar · 2 coins');
+    await _tapInCard(tester, 'request-1', 'Aceptar');
 
     expect(find.text(const DataUnavailable().message), findsOneWidget);
     expect(_card('request-1'), findsOneWidget);
@@ -330,33 +323,14 @@ void main() {
     );
   });
 
-  testWidgets('accepting spends the lead cost from the wallet', (tester) async {
+  testWidgets('accepting a service request costs no coins', (tester) async {
     final c = await pumpRouterAt(
       tester,
       '/home',
       session: FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
     );
-    await _tapInCard(tester, 'request-2', 'Aceptar · 3 coins');
-    expect((await c.read(walletProvider.future)).balance, 22);
-    final history = await c.read(walletHistoryProvider.future);
-    expect(history.first.requestId, 'request-2');
-  });
-
-  testWidgets('without enough coins a sheet leads to recharging', (
-    tester,
-  ) async {
-    await _pump(
-      tester,
-      overrides: [walletRepositoryProvider.overrideWithValue(_brokeWallet())],
-    );
-
-    await _tapInCard(tester, 'request-2', 'Aceptar · 3 coins');
-
-    expect(find.byKey(const Key('insufficient-coins-sheet')), findsOneWidget);
-    expect(find.text('Te faltan 3 coins'), findsOneWidget);
-    expect(_card('request-2'), findsOneWidget);
-    await tester.tap(find.text('Recargar'));
-    await tester.pumpAndSettle();
-    expect(find.byKey(const Key('recharge-sheet')), findsOneWidget);
+    final before = (await c.read(walletProvider.future)).balance;
+    await _tapInCard(tester, 'request-2', 'Aceptar');
+    expect((await c.read(walletProvider.future)).balance, before);
   });
 }

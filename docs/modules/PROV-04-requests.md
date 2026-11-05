@@ -39,7 +39,8 @@ Supporting files in the same folder:
 - Tapping a card opens the **detail sheet**: client, title, full message,
   "Horario", "Precio" and any "Motivo" (`ManoDetailRow`). Pending requests add
   the same actions plus "Escribir a <cliente>", which goes to `/inbox`.
-- **Aceptar** calls `accept`; success shows the SnackBar "Solicitud aceptada ·
+- **Aceptar** calls `accept` and is free: Mano coins pay only for project
+  leads ([PROV-07](PROV-07-projects.md)). Success shows the SnackBar "Solicitud aceptada ·
   quedó en tu agenda" with the action "Ver agenda" → `context.go('/agenda')`.
 - **Rechazar** opens a `ManoPromptSheet` ("¿Rechazar esta solicitud?") with an
   optional multiline `ManoTextField` "Motivo (opcional)"; "Rechazar solicitud"

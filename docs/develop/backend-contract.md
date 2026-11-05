@@ -21,7 +21,7 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 | `AvailabilityRepository` | `workerAvailability`, `myAvailabilityRules`, `upsertAvailabilityRule`, `removeAvailabilityRule`, `myCalendarBlocks`, `blockCalendar`, `unblockCalendar`, `myCalendarFeed`, `regenerateCalendarFeed`, `revokeCalendarFeed` + `.ics` route | **live** (D4 scheduler over gRPC) | `GatewayAvailabilityRepository` |
 | `ConversationRepository`, `ChatRepository` | `myConversations`, `openConversation(reference: {withWorkerId \| jobId})`, `conversation`, `sendMessage`, `markConversationRead`, `messageAdded` | **live** (D7 chat over gRPC) | `GatewayConversationRepository`, `GatewayChatRepository` |
 | `ProjectRepository` (requester) | `myProjects` with `quotes(page)`, `publishProject`, `cancelProject`, `selectQuote`, `discardQuote` | **live** (D9 mano-projects over gRPC); client role | `GatewayProjectRepository` |
-| `LeadRepository` (provider) | `openProjects(category)`, `submitQuote`, `myQuotes` | **live** (D9); worker role. `purchaseProjectLead` is a D6 stub, so quotes are free | `GatewayLeadRepository` |
+| `LeadRepository` (provider) | `openProjects(category)`, `submitQuote`, `myQuotes`, `purchaseProjectLead(quoteId)` | **live** (D9, and D6 for the lead); worker role. Quotes are free; the selected worker buys the lead in coins, priced by category | `GatewayLeadRepository` |
 | `MediaUploader` | `requestChatMediaUpload`, `requestAvatarUpload`, `finalizeMediaUpload` + a PUT to Garage | **live** (mano-media, embedded); work-image and review-media uploads are stubs | `GatewayMediaUploader` (project and portfolio photos: `MockMediaUploader`). See [Media](media.md) |
 | `ChatRepository` media | `Message.media`, `sendMessage(mediaIds)` | **live** | `GatewayChatRepository` |
 | `ReviewRepository` | `reviewWorker`, `reviewClient`, `job { worker { averageRating ratingsCount reviews(page) } }` | **live** (D8 mano-reviews over gRPC) | `GatewayReviewRepository`. See [Reviews](reviews.md) |
@@ -29,7 +29,7 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 | `ProviderOnboardingRepository` | `updateWorkerProfile`, `submitVerificationRequest` | stub (D2, D10 `not implemented`) | `MockProviderOnboardingRepository` |
 | `ClientProfileRepository` | `updateClientProfile(displayName, photoUrl, phone, email)` | stub (D2 `not implemented`); no client-profile query | `MockClientProfileRepository`. See [REQ-08](../modules/REQ-08-perfil.md) |
 | `AddressBook` | none | missing | `MockAddressBook` |
-| `WalletRepository` (provider) | `myCoinWallet`, `myCoinMovements`, `coinPacks`, `buyCoinPack`, `checkoutTerms`, `pseBanks` | **live** (D6 mano-billing over gRPC); Nequi and PSE. `leadPrice` / `purchaseProjectLead` are stubs, so leads are gated on the balance but not charged | `GatewayWalletRepository` (offline: `MockWalletRepository`). See [Billing](billing.md) |
+| `WalletRepository` (provider) | `myCoinWallet`, `myCoinMovements`, `coinPacks`, `buyCoinPack`, `checkoutTerms`, `pseBanks`, `leadPrices` | **live** (D6 mano-billing over gRPC); Nequi and PSE. Accepting a service request is free | `GatewayWalletRepository` (offline: `MockWalletRepository`). See [Billing](billing.md) |
 | `PaymentMethods` | `myPaymentMethods`, `addPaymentMethod`, … | stub (no saved-method vault in billing) | `MockPaymentMethods` (display data only) |
 | `SupportDesk` (both apps) | `createSupportTicket(subject, description)` → `ticketNumber` | stub (D11) | `MockSupportDesk` |
 | `ProviderProfileEditor` | `updateWorkerProfile` | stub, and has no bio, skills or portfolio | `MockProviderProfileRepository` (the same instance Perfil reads) |
@@ -330,5 +330,18 @@ idempotent: it truncates the catalog first.
 - Billing (D6): payouts have no read (`myPayoutAccount`) or remove, so the app
   only knows the account registered in this session. `buyCoinPack` has no
   read-back of a coin payment (`jobPayment` is for jobs); asking again returns
-  the live purchase. Coin movements have no spend type, so leads are free on
-  the server. Details in [Billing](billing.md).
+  the live purchase. Details in [Billing](billing.md).
+
+## Coins and leads
+
+- Coins are spent only on **project leads**: accepting a service request is
+  free. The selected worker buys the lead from Mis cotizaciones
+  (`purchaseProjectLead`); the gateway checks the quote in mano-projects,
+  billing spends the coins, and mano-projects unlocks the contact. Not enough
+  coins comes back as `FailedPrecondition: ... enough coins`, which the app
+  turns into the recharge prompt.
+- The cost shown before buying comes from billing's `leadPrices`
+  (`leadPricesProvider`), read into a `LeadPricing`. Offline, the mock serves
+  `LeadPricing.placeholder`, the prices billing is seeded with.
+- `CoinTransaction.requestId` is null for gateway movements: billing's
+  history names a payment or a lead, not a service request.

@@ -12,6 +12,7 @@ final class ScriptedWallet implements WalletRepository {
       CoinPack(id: 'pack-b', coins: 30, priceCop: 54000, bonus: 5),
     ],
     this.banks = const [Bank(code: '1022', name: 'Banco Unión')],
+    this.pricing = LeadPricing.placeholder,
   });
 
   Result<CoinPurchase, DataFailure> reply;
@@ -21,6 +22,7 @@ final class ScriptedWallet implements WalletRepository {
   final int? landsOnRead;
   final List<CoinPack> packList;
   final List<Bank> banks;
+  final LeadPricing pricing;
 
   final drafts = <CoinPurchaseDraft>[];
   var _reads = 0;
@@ -61,25 +63,7 @@ final class ScriptedWallet implements WalletRepository {
   Future<Result<List<Bank>, DataFailure>> pseBanks() async => Ok(banks);
 
   @override
-  Future<Result<CoinTransaction, DataFailure>> spendForLead(
-    String requestId,
-    int cost, {
-    required String label,
-  }) async => cost > balance
-      ? Err(InsufficientCoins(needed: cost, available: balance))
-      : Ok(
-          CoinTransaction(
-            id: 'lead-$requestId',
-            kind: CoinTransactionKind.leadSpend,
-            amount: -cost,
-            label: label,
-            at: DateTime(2026, 11, 3),
-          ),
-        );
-
-  @override
-  Future<Result<Wallet, DataFailure>> refundLead(String requestId) async =>
-      const Err(DataNotFound());
+  Future<LeadPricing> leadPrices() async => pricing;
 }
 
 /// Records the links the app asked to open.

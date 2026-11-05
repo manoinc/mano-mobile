@@ -1,6 +1,7 @@
 # PROV-09 Billetera & Recargar (provider)
 
-Providers pay for leads with Mano coins. Billetera shows the balance and its
+Providers pay for project leads with Mano coins; accepting a service request
+is free. Billetera shows the balance and its
 history; Recargar buys a pack by Nequi or PSE. Live on billing (D6), see
 [Billing](../develop/billing.md).
 

@@ -71,34 +71,25 @@ void main() {
     );
   });
 
+  test('seeded lead spends read as project contacts', () async {
+    final spends = (await wallet.history()).where(
+      (t) => t.kind == CoinTransactionKind.leadSpend,
+    );
+    expect(spends.map((t) => t.label).toSet(), {'Contacto de proyecto'});
+  });
+
+  test('a lead spend debits the balance, never below zero', () async {
+    expect(wallet.spendOnLead(3).valueOrNull, const Wallet(balance: 22));
+    expect(wallet.spendOnLead(23).failureOrNull, const InsufficientCoins());
+    expect((await wallet.wallet()).balance, 22);
+  });
+
+  test('prices leads with the placeholder table', () async {
+    expect(await wallet.leadPrices(), LeadPricing.placeholder);
+  });
+
   test('offers checkout terms and PSE banks', () async {
     expect((await wallet.checkoutTerms()).valueOrNull, isNotEmpty);
     expect((await wallet.pseBanks()).valueOrNull, isNotEmpty);
-  });
-
-  test('spending debits and logs against the request', () async {
-    final result = await wallet.spendForLead('request-1', 3, label: 'Limpieza');
-    expect(result.valueOrNull!.amount, -3);
-    expect((await wallet.wallet()).balance, 22);
-    expect((await wallet.history()).first.requestId, 'request-1');
-  });
-
-  test('spending more than the balance fails and changes nothing', () async {
-    final result = await wallet.spendForLead('r', 26, label: 'x');
-    expect(
-      result.failureOrNull,
-      const InsufficientCoins(needed: 26, available: 25),
-    );
-    expect((await wallet.wallet()).balance, 25);
-  });
-
-  test('refunding gives back the spend once', () async {
-    await wallet.spendForLead('request-1', 3, label: 'x');
-    expect((await wallet.refundLead('request-1')).valueOrNull!.balance, 25);
-    expect((await wallet.history()).first.kind, CoinTransactionKind.refund);
-    expect(
-      (await wallet.refundLead('request-1')).failureOrNull,
-      isA<DataNotFound>(),
-    );
   });
 }

@@ -151,7 +151,8 @@ class _Header extends ConsumerWidget {
             ),
             ManoTextAction(
               label: 'Ver perfil público',
-              onPressed: () => showPublicProfile(context, profile, stats, rating),
+              onPressed: () =>
+                  showPublicProfile(context, profile, stats, rating),
             ),
           ],
         ),

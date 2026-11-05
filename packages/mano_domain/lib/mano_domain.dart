@@ -53,6 +53,7 @@ export 'src/profile/provider_profile_editor.dart';
 export 'src/profile/provider_profile_repository.dart';
 export 'src/profile/public_provider_profile.dart';
 export 'src/projects/already_quoted.dart';
+export 'src/projects/contact_info.dart';
 export 'src/projects/lead_repository.dart';
 export 'src/projects/project.dart';
 export 'src/projects/project_draft.dart';

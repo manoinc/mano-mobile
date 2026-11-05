@@ -8,7 +8,7 @@ const coinPacksQuery =
 const coinMovementsQuery = '''
 query CoinMovements {
   myCoinMovements(page: {first: 50}) {
-    items { id type coins paymentId createdAt }
+    items { id type coins paymentId leadId createdAt }
   }
 }''';
 
@@ -24,6 +24,9 @@ const checkoutTermsQuery =
     'query CheckoutTerms { checkoutTerms { label url } }';
 
 const pseBanksQuery = 'query PseBanks { pseBanks { code name } }';
+
+const leadPricesQuery =
+    'query LeadPrices { leadPrices { defaultCoins prices { category coins } } }';
 
 const payoutBanksQuery = 'query PayoutBanks { payoutBanks { code name } }';
 

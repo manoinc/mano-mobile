@@ -18,4 +18,7 @@ abstract interface class LeadRepository {
 
   /// The signed-in provider's quotes, newest first.
   Future<List<Quote>> myQuotes();
+
+  /// The selected worker pays the lead in coins and unlocks the requester's contact.
+  Future<Result<Quote, DataFailure>> purchaseLead(String quoteId);
 }

@@ -1,6 +1,5 @@
 import '../catalog/service_offer.dart';
 import '../shared/party.dart';
-import '../wallet/lead_pricing.dart';
 
 enum ServiceRequestStatus { pending, accepted, rejected, cancelled }
 
@@ -39,9 +38,6 @@ final class ServiceRequest {
   /// Where the job is, as the client names it; empty when not given.
   final String neighborhood;
   final List<String> photoUrls;
-
-  /// Coins the provider pays to answer this lead.
-  int get leadCost => LeadPricing.costFor(category);
 
   bool get hasPhotos => photoUrls.isNotEmpty;
 

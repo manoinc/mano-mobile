@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-import '../wallet/wallet_labels.dart';
 import 'request_actions_row.dart';
 import 'request_labels.dart';
 
@@ -83,17 +82,11 @@ class _RequestDetail extends StatelessWidget {
                   '${ManoFormat.cop(request.offer.amountCop)} '
                   '${rateLabel(request.offer.rateType)}',
             ),
-            if (request.canRespond)
-              ManoDetailRow(
-                label: 'Costo por responder',
-                value: coinsLabel(request.leadCost),
-              ),
             if (reason != null && reason.isNotEmpty)
               ManoDetailRow(label: 'Motivo', value: reason),
             if (request.canRespond) ...[
               const SizedBox(height: ManoSpacing.lg),
               RequestActionsRow(
-                acceptLabel: 'Aceptar · ${coinsLabel(request.leadCost)}',
                 onAccept: () => onDecision(RequestDecision.accept),
                 onReject: () => onDecision(RequestDecision.reject),
               ),

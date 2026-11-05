@@ -110,6 +110,59 @@ void main() {
     expect(history.single.at, DateTime.utc(2026, 11, 2, 15).toLocal());
   });
 
+  test('history maps lead spends and refunds and asks for the lead', () async {
+    final repo = _repo((r) async {
+      expect(_body(r)['query'], contains('leadId'));
+      return _data({
+        'myCoinMovements': {
+          'items': [
+            {
+              'id': 'm2',
+              'type': 'LEAD_REFUND',
+              'coins': 3,
+              'leadId': 'lead-1',
+              'createdAt': '2026-11-03T15:00:00Z',
+            },
+            {
+              'id': 'm1',
+              'type': 'LEAD_SPEND',
+              'coins': -3,
+              'leadId': 'lead-1',
+              'createdAt': '2026-11-02T15:00:00Z',
+            },
+          ],
+          'pageInfo': {'hasNextPage': false, 'nextCursor': null},
+        },
+      });
+    });
+    final history = await repo.history();
+    expect(history.first.kind, CoinTransactionKind.refund);
+    expect(history.first.label, 'Reembolso de contacto');
+    expect(history.first.amount, 3);
+    expect(history.last.kind, CoinTransactionKind.leadSpend);
+    expect(history.last.label, 'Contacto de proyecto');
+    expect(history.last.amount, -3);
+  });
+
+  test('lead prices map billing categories to canonical ids', () async {
+    final repo = _repo((r) async {
+      expect(_body(r)['query'], contains('leadPrices'));
+      return _data({
+        'leadPrices': {
+          'defaultCoins': 2,
+          'prices': [
+            {'category': 'plumbing', 'coins': 5},
+            {'category': 'pintura', 'coins': 6},
+          ],
+        },
+      });
+    });
+    final prices = await repo.leadPrices();
+    expect(prices.costFor(ServiceCategories.plumbing), 5);
+    expect(prices.costFor(ServiceCategories.painting), 6);
+    expect(prices.costFor('carpintería'), 2);
+  });
+
   test(
     'a Nequi purchase sends the wallet method and awaits approval',
     () async {
@@ -235,32 +288,5 @@ void main() {
   test('billing being down is unavailable', () async {
     final repo = _repo((r) async => _error('Unavailable: billing is down'));
     expect((await repo.pseBanks()).failureOrNull, isA<DataUnavailable>());
-  });
-
-  group('leads, while billing has no coin spend', () {
-    test('a lead is gated on the live balance', () async {
-      final repo = _repo(
-        (r) async => _data({
-          'myCoinWallet': {'balance': 2},
-        }),
-      );
-      expect(
-        (await repo.spendForLead('r1', 3, label: 'x')).failureOrNull,
-        const InsufficientCoins(needed: 3, available: 2),
-      );
-      expect((await repo.spendForLead('r1', 2, label: 'x')).isOk, isTrue);
-    });
-
-    test('a refund leaves the balance as billing has it', () async {
-      final repo = _repo(
-        (r) async => _data({
-          'myCoinWallet': {'balance': 5},
-        }),
-      );
-      expect(
-        (await repo.refundLead('r1')).valueOrNull,
-        const Wallet(balance: 5),
-      );
-    });
   });
 }

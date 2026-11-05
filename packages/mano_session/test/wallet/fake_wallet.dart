@@ -60,13 +60,5 @@ final class FakeWallet implements WalletRepository {
   Future<Result<List<Bank>, DataFailure>> pseBanks() => _mock.pseBanks();
 
   @override
-  Future<Result<CoinTransaction, DataFailure>> spendForLead(
-    String requestId,
-    int cost, {
-    required String label,
-  }) => _mock.spendForLead(requestId, cost, label: label);
-
-  @override
-  Future<Result<Wallet, DataFailure>> refundLead(String requestId) =>
-      _mock.refundLead(requestId);
+  Future<LeadPricing> leadPrices() => _mock.leadPrices();
 }

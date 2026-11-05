@@ -5,11 +5,13 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../account/account_gate.dart';
+import 'client_contact_section.dart';
 import 'lead_labels.dart';
+import 'lead_purchase_sheet.dart';
 import 'load_error.dart';
 import 'quote_sheet.dart';
 
-/// An open project, and the provider's one quote on it (docs/modules/PROV-07-projects.md).
+/// A project and the provider's one quote on it; once awarded, read from the quote (docs/modules/PROV-07-projects.md).
 class LeadDetailScreen extends ConsumerStatefulWidget {
   const LeadDetailScreen({required this.projectId, super.key});
 
@@ -28,9 +30,8 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     final project = board.value
         ?.where((p) => p.id == widget.projectId)
         .firstOrNull;
-    final mine = ref
-        .watch(myQuotesProvider)
-        .value
+    final quotes = ref.watch(myQuotesProvider);
+    final mine = quotes.value
         ?.where((q) => q.projectId == widget.projectId)
         .firstOrNull;
 
@@ -38,6 +39,11 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
       appBar: AppBar(),
       body: switch (board) {
         AsyncData() when project != null => _Body(project: project),
+        // Awarded projects leave the open board; the quote still names them.
+        AsyncData() when mine != null => _QuoteBody(quote: mine),
+        AsyncData() when quotes.isLoading => const Center(
+          child: CircularProgressIndicator(),
+        ),
         AsyncData() => ManoEmptyState(
           icon: Icons.lock_clock_outlined,
           message: 'Este proyecto ya no recibe cotizaciones.',
@@ -51,7 +57,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
         _ => const Center(child: CircularProgressIndicator()),
       },
       bottomNavigationBar: project == null
-          ? null
+          ? _buyBar(mine)
           : SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(ManoSpacing.md),
@@ -68,6 +74,18 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
             ),
     );
   }
+
+  Widget? _buyBar(Quote? quote) => quote == null || !canBuyLead(quote)
+      ? null
+      : SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(ManoSpacing.md),
+            child: ManoPrimaryButton(
+              label: 'Comprar contacto',
+              onPressed: () => showLeadPurchaseSheet(context, quote),
+            ),
+          ),
+        );
 
   Future<void> _quote(Project project) => requireAccount(
     context,
@@ -126,6 +144,38 @@ class _Quoted extends StatelessWidget {
           style: Theme.of(context).textTheme.titleSmall,
         ),
       ),
+    );
+  }
+}
+
+class _QuoteBody extends StatelessWidget {
+  const _QuoteBody({required this.quote});
+
+  final Quote quote;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final contact = quote.clientContact;
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        ManoSpacing.lg,
+        0,
+        ManoSpacing.lg,
+        ManoSpacing.xl,
+      ),
+      children: [
+        Text(quote.projectTitle, style: textTheme.headlineSmall),
+        const SizedBox(height: ManoSpacing.xs),
+        Text(
+          awardedQuoteLine(quote),
+          style: textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
+        ),
+        if (contact != null && !contact.isEmpty) ...[
+          const SizedBox(height: ManoSpacing.lg),
+          ClientContactSection(contact: contact),
+        ],
+      ],
     );
   }
 }

@@ -11,14 +11,15 @@ mocks.
 |---|---|---|---|
 | Coin packs | `coinPacks` (cheapest first, `Money` in whole COP) | **live** | `GatewayWalletRepository.packs` |
 | Balance | `myCoinWallet { balance }` | **live** | `walletProvider` |
-| History | `myCoinMovements(page: {first: 50})`, newest first | **live**, purchases only (`CoinMovementType.PURCHASE`) | `walletHistoryProvider` |
+| History | `myCoinMovements(page: {first: 50})`, newest first | **live**: purchases, lead spends and lead refunds | `walletHistoryProvider` |
 | Buying a pack | `buyCoinPack(packId, method, payerEmail, termsAccepted)` | **live**, Nequi and PSE | `coinPurchaseProvider` |
 | Checkout terms | `checkoutTerms { label url }` | **live** | `checkoutTermsProvider` |
 | PSE banks | `pseBanks { code name }` | **live** | `pseBanksProvider` |
+| Lead prices | `leadPrices { defaultCoins prices { category coins } }` | **live** | `leadPricesProvider` |
 | Payout banks | `payoutBanks { code name }` | **live** | `payoutBanksProvider` |
 | Payout account | `registerPayoutAccount(input)` | **live**, write only | `GatewayPayoutAccounts` |
 | Card payments | `card { token, installments }` | live on the gateway, **not offered**: needs the payment provider's client tokenizer | none (YAGNI) |
-| Spending coins on a lead | `leadPrice`, `purchaseProjectLead` | **stub** | gated on the live balance, not charged (see below) |
+| Buying a project lead | `purchaseProjectLead(quoteId)` | **live** | `LeadActions.purchaseLead` (see below) |
 | Saved payment methods | `myPaymentMethods` and friends | **stub** (no vault in billing) | `MockPaymentMethods` |
 | Earnings | `earningsSummary` | **stub** | `MockEarningsRepository` |
 | `myPayouts`, `requestPayout` | | live on the gateway | not used yet |
@@ -87,15 +88,17 @@ Tests override it with short values. A PSE URL can take billing
 `RECONCILE_AFTER` plus `RECONCILE_INTERVAL` (10 to 15 minutes by default) to
 appear, which is longer than the timeout; "Revisar de nuevo" picks it up.
 
-## Leads while billing has no coin spend
+## Coins and leads
 
-`purchaseProjectLead` and `leadPrice` are stubs, and coin movements have no
-spend type yet. Live, `GatewayWalletRepository.spendForLead` checks the live
-balance against `LeadPricing` (`InsufficientCoins` when short) but charges
-nothing, and `refundLead` returns the balance unchanged. The provider still
-needs enough coins to answer a request, but answering costs nothing on the
-server until billing adds a spend movement. Offline, the mock keeps charging
-and refunding.
+Coins are spent only on project leads; accepting a service request is free.
+The selected worker buys the lead from Mis cotizaciones
+(`purchaseProjectLead`): the gateway checks the quote in mano-projects,
+billing spends the coins, and mano-projects unlocks the contact. Not enough
+coins comes back as `FailedPrecondition: ... enough coins`, which the app
+turns into the recharge prompt. What a lead costs comes from `leadPrices`,
+keyed by category and folded to the app's canonical ids. After a purchase the Billetera refreshes, and
+the movement shows as "Contacto de proyecto" (`LEAD_SPEND`) or "Reembolso de
+contacto" (`LEAD_REFUND`).
 
 ## Payout account
 

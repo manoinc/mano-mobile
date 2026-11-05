@@ -1,15 +1,17 @@
 import 'package:mano_domain/mano_domain.dart';
 
 import '../mock/mock_fixtures.dart';
+import '../wallet/mock_wallet_repository.dart';
 import 'mock_project_board.dart';
 
-/// In-memory [LeadRepository], signed in as the mock provider. Quotes are free.
+/// In-memory [LeadRepository], signed in as the mock provider; a lead is paid from [wallet] when given.
 final class MockLeadRepository implements LeadRepository {
-  MockLeadRepository(this._board, {Party? worker})
+  MockLeadRepository(this._board, {Party? worker, this._wallet})
     : _worker = worker ?? mockProviders.first;
 
   final MockProjectBoard _board;
   final Party _worker;
+  final MockWalletRepository? _wallet;
 
   @override
   Future<List<Project>> openProjects({String? category}) async => [
@@ -69,6 +71,46 @@ final class MockLeadRepository implements LeadRepository {
   @override
   Future<List<Quote>> myQuotes() async => [
     for (final p in _board.projects)
-      ...p.quotes!.where((q) => q.worker.id == _worker.id),
+      for (final q in p.quotes!)
+        if (q.worker.id == _worker.id)
+          q.copyWith(
+            projectCategory: p.category,
+            clientContact: q.leadPurchased ? mockClientContact : null,
+          ),
   ]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+  @override
+  Future<Result<Quote, DataFailure>> purchaseLead(String quoteId) async {
+    final project = _board.holding(quoteId);
+    final quote = project?.quotes!.firstWhere((q) => q.id == quoteId);
+    if (project == null || quote == null || quote.worker.id != _worker.id) {
+      return const Err(DataNotFound());
+    }
+    if (quote.status != QuoteStatus.selected) {
+      return const Err(
+        DataRejected(reason: 'FailedPrecondition: the quote is not selected'),
+      );
+    }
+    if (quote.leadPurchased) {
+      return const Err(
+        DataRejected(reason: 'FailedPrecondition: lead already purchased'),
+      );
+    }
+    if (_wallet case final wallet?) {
+      final cost = (await wallet.leadPrices()).costFor(project.category);
+      if (wallet.spendOnLead(cost) case Err(:final failure)) {
+        return Err(failure);
+      }
+    }
+    final bought = quote.copyWith(
+      leadPurchased: true,
+      projectCategory: project.category,
+    );
+    _board.replace(
+      project.copyWith(
+        quotes: [for (final q in project.quotes!) q.id == quoteId ? bought : q],
+      ),
+    );
+    return Ok(bought.copyWith(clientContact: mockClientContact));
+  }
 }
