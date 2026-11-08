@@ -91,7 +91,7 @@ void main() {
     await tester.enterText(_field('Correo para el recibo'), 'andres@mano.test');
     await tester.pumpAndSettle();
     await _tapVisible(tester, 'Acepto los términos de pago');
-    await _pay(tester, 'Pagar · \$45.000');
+    await _pay(tester, 'Pagar · \$50.000');
   }
 
   testWidgets('a provider recharges by Nequi and the coins land', (
@@ -101,11 +101,11 @@ void main() {
     expect(find.text('Recargar coins'), findsOneWidget);
     await payWithNequi(tester);
 
-    await _waitFor(tester, '¡Listo! +28 coins');
-    expect(find.text('¡Listo! +28 coins'), findsOneWidget);
+    await _waitFor(tester, '¡Listo! +55 coins');
+    expect(find.text('¡Listo! +55 coins'), findsOneWidget);
     await tester.tap(find.text('Listo'));
     await tester.pumpAndSettle();
-    expect(find.text('53'), findsOneWidget);
+    expect(find.text('80'), findsOneWidget);
   });
 
   testWidgets('a provider pays by PSE and is sent to the bank', (tester) async {

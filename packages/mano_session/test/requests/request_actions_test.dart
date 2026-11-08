@@ -57,7 +57,7 @@ void main() {
     test('lead prices are read from the port', () async {
       expect(
         await _offline().read(leadPricesProvider.future),
-        LeadPricing.placeholder,
+        LeadPricing.launch,
       );
     });
 

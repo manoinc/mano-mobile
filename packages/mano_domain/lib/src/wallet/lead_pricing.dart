@@ -10,15 +10,15 @@ final class LeadPricing {
   /// Keyed by canonical category id.
   final Map<String, int> prices;
 
-  /// The prices billing is seeded with; offline and tests use them.
-  static const placeholder = LeadPricing(
-    defaultCoins: 2,
+  /// Billing's launch prices, mirrored for offline mode and tests.
+  static const launch = LeadPricing(
+    defaultCoins: 5,
     prices: {
-      ServiceCategories.cleaning: 2,
-      ServiceCategories.gardening: 2,
-      ServiceCategories.plumbing: 3,
-      ServiceCategories.electrical: 3,
-      ServiceCategories.painting: 4,
+      ServiceCategories.cleaning: 4,
+      ServiceCategories.gardening: 4,
+      ServiceCategories.plumbing: 5,
+      ServiceCategories.electrical: 5,
+      ServiceCategories.painting: 6,
     },
   );
 

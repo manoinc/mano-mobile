@@ -154,7 +154,7 @@ void main() {
         expect(bought.valueOrNull?.leadPurchased, isTrue);
         final mine = await c.read(myQuotesProvider.future);
         expect(mine.firstWhere((q) => q.id == quote.id).leadPurchased, isTrue);
-        final cost = LeadPricing.placeholder.costFor(fresh.category);
+        final cost = LeadPricing.launch.costFor(fresh.category);
         expect((await c.read(walletProvider.future)).balance, balance - cost);
         expect(
           (await c.read(walletHistoryProvider.future)).first.label,

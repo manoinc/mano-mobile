@@ -22,7 +22,7 @@ void main() {
   );
 
   const draft = CoinPurchaseDraft(
-    packId: 'pack-25',
+    packId: 'pack-50',
     method: CoinPurchaseMethod.nequi,
     phone: '3001234567',
     payerEmail: 'andres@mano.test',
@@ -34,8 +34,8 @@ void main() {
     () async {
       final result = await wallet.buyPack(draft);
       expect(result.valueOrNull, isA<AwaitingApproval>());
-      expect(result.valueOrNull!.coins, 28);
-      expect((await wallet.wallet()).balance, 25 + 28);
+      expect(result.valueOrNull!.coins, 55);
+      expect((await wallet.wallet()).balance, 25 + 55);
       expect((await wallet.history()).first.kind, CoinTransactionKind.purchase);
     },
   );
@@ -84,8 +84,16 @@ void main() {
     expect((await wallet.wallet()).balance, 22);
   });
 
-  test('prices leads with the placeholder table', () async {
-    expect(await wallet.leadPrices(), LeadPricing.placeholder);
+  test('offers the launch packs, cheapest first', () async {
+    expect(await wallet.packs(), const [
+      CoinPack(id: 'pack-20', coins: 20, priceCop: 20000),
+      CoinPack(id: 'pack-50', coins: 50, priceCop: 50000, bonus: 5),
+      CoinPack(id: 'pack-100', coins: 100, priceCop: 100000, bonus: 20),
+    ]);
+  });
+
+  test('prices leads with the launch table', () async {
+    expect(await wallet.leadPrices(), LeadPricing.launch);
   });
 
   test('offers checkout terms and PSE banks', () async {

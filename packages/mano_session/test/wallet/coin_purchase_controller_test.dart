@@ -6,7 +6,7 @@ import 'package:mano_session/mano_session.dart';
 import 'fake_wallet.dart';
 
 const _draft = CoinPurchaseDraft(
-  packId: 'pack-25',
+  packId: 'pack-50',
   method: CoinPurchaseMethod.nequi,
   phone: '3001234567',
   payerEmail: 'andres@mano.test',
@@ -19,7 +19,7 @@ const _config = BillingConfig(
 );
 
 const _awaiting = Ok<CoinPurchase, DataFailure>(
-  AwaitingApproval(paymentId: 'p1', coins: 28),
+  AwaitingApproval(paymentId: 'p1', coins: 55),
 );
 
 ProviderContainer _container(FakeWallet wallet) => ProviderContainer.test(
@@ -50,8 +50,8 @@ void main() {
 
       async.elapse(const Duration(seconds: 1));
       final credited = _flow(c) as PurchaseCredited;
-      expect(credited.coins, 28);
-      expect(credited.balance, 38);
+      expect(credited.coins, 55);
+      expect(credited.balance, 65);
     });
   });
 
@@ -77,12 +77,12 @@ void main() {
     fakeAsync((async) {
       final c = _container(
         FakeWallet(
-          replies: [const Ok(PurchaseCompleted(paymentId: 'p1', coins: 28))],
+          replies: [const Ok(PurchaseCompleted(paymentId: 'p1', coins: 55))],
         ),
       );
       _controller(c).buy(_draft);
       async.flushMicrotasks();
-      expect((_flow(c) as PurchaseCredited).balance, 38);
+      expect((_flow(c) as PurchaseCredited).balance, 65);
     });
   });
 
@@ -92,11 +92,11 @@ void main() {
       fakeAsync((async) {
         final wallet = FakeWallet(
           replies: [
-            const Ok(PurchasePending(paymentId: 'p1', coins: 28)),
+            const Ok(PurchasePending(paymentId: 'p1', coins: 55)),
             const Ok(
               BankRedirect(
                 paymentId: 'p1',
-                coins: 28,
+                coins: 55,
                 url: 'https://bank.test',
               ),
             ),

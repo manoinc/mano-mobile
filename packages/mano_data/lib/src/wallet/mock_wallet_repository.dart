@@ -40,9 +40,9 @@ final class MockWalletRepository implements WalletRepository {
   }
 
   static const _packs = [
-    CoinPack(id: 'pack-10', coins: 10, priceCop: 20000),
-    CoinPack(id: 'pack-25', coins: 25, priceCop: 45000, bonus: 3),
-    CoinPack(id: 'pack-60', coins: 60, priceCop: 100000, bonus: 10),
+    CoinPack(id: 'pack-20', coins: 20, priceCop: 20000),
+    CoinPack(id: 'pack-50', coins: 50, priceCop: 50000, bonus: 5),
+    CoinPack(id: 'pack-100', coins: 100, priceCop: 100000, bonus: 20),
   ];
 
   static const _terms = [
@@ -121,7 +121,7 @@ final class MockWalletRepository implements WalletRepository {
       const Ok(mockBanks);
 
   @override
-  Future<LeadPricing> leadPrices() async => LeadPricing.placeholder;
+  Future<LeadPricing> leadPrices() async => LeadPricing.launch;
 
   /// Offline lead purchases pay here; [InsufficientCoins] when short.
   Result<Wallet, DataFailure> spendOnLead(int coins) {
