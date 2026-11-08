@@ -342,6 +342,6 @@ idempotent: it truncates the catalog first.
   turns into the recharge prompt.
 - The cost shown before buying comes from billing's `leadPrices`
   (`leadPricesProvider`), read into a `LeadPricing`. Offline, the mock serves
-  `LeadPricing.placeholder`, the prices billing is seeded with.
+  `LeadPricing.launch`, a mirror of billing's launch prices.
 - `CoinTransaction.requestId` is null for gateway movements: billing's
   history names a payment or a lead, not a service request.

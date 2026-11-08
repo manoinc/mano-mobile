@@ -12,7 +12,7 @@ final class ScriptedWallet implements WalletRepository {
       CoinPack(id: 'pack-b', coins: 30, priceCop: 54000, bonus: 5),
     ],
     this.banks = const [Bank(code: '1022', name: 'Banco Unión')],
-    this.pricing = LeadPricing.placeholder,
+    this.pricing = LeadPricing.launch,
   });
 
   Result<CoinPurchase, DataFailure> reply;

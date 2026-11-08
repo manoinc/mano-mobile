@@ -278,7 +278,7 @@ void main() {
 
     await tester.tap(card);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Comprar · 4 coins'));
+    await tester.tap(find.text('Comprar · 6 coins'));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('insufficient-coins-sheet')), findsNothing);

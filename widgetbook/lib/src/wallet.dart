@@ -18,7 +18,7 @@ WidgetbookCategory wallet() => WidgetbookCategory(
         child: ManoBalanceHero(
           amount: context.knobs.string(label: 'Amount', initialValue: '25'),
           unit: 'Mano coins',
-          note: '≈ ${ManoFormat.cop(50000)}',
+          note: '≈ ${ManoFormat.cop(25000)}',
           actions: Row(
             children: [
               Expanded(
@@ -65,15 +65,15 @@ WidgetbookCategory wallet() => WidgetbookCategory(
         child: Column(
           children: [
             ManoPackOption(
-              coinsLabel: '25 coins',
-              priceLabel: ManoFormat.cop(45000),
-              bonusLabel: '+3 gratis',
+              coinsLabel: '50 coins',
+              priceLabel: ManoFormat.cop(50000),
+              bonusLabel: '+5 gratis',
               selected: true,
               onTap: noop,
             ),
             const SizedBox(height: ManoSpacing.sm),
             ManoPackOption(
-              coinsLabel: '10 coins',
+              coinsLabel: '20 coins',
               priceLabel: ManoFormat.cop(20000),
               selected: false,
               onTap: noop,

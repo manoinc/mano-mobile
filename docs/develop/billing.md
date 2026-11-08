@@ -24,6 +24,29 @@ mocks.
 | Earnings | `earningsSummary` | **stub** | `MockEarningsRepository` |
 | `myPayouts`, `requestPayout` | | live on the gateway | not used yet |
 
+## Prices
+
+Billing serves the real launch prices through `coinPacks` and `leadPrices`.
+The offline mock mirrors them (`MockWalletRepository`, `LeadPricing.launch`),
+so change both together.
+
+| Pack | Coins | Bonus | Price |
+|---|---|---|---|
+| `pack-20` | 20 | 0 | $20.000 |
+| `pack-50` | 50 | 5 | $50.000 |
+| `pack-100` | 100 | 20 | $100.000 |
+
+| Lead category | Coins |
+|---|---|
+| Cleaning | 4 |
+| Gardening | 4 |
+| Plumbing | 5 |
+| Electrical | 5 |
+| Painting | 6 |
+| Any other (default) | 5 |
+
+The platform fee is 5% of a job payment (`PLATFORM_FEE_BPS=500`), netted out of the provider's payout.
+
 ## Buying coins
 
 1. The Recargar sheet reads `coinPacks`, `checkoutTerms` and `pseBanks`.
@@ -135,7 +158,7 @@ Run mano-billing in memory with its fake payment provider and point the
 gateway at it (`mano-gateway/docs/local-stack.md`):
 
 ```bash
-(cd ../mano-billing && PLATFORM_FEE_BPS=1500 BIND_ADDR=127.0.0.1:50057 \
+(cd ../mano-billing && PLATFORM_FEE_BPS=500 BIND_ADDR=127.0.0.1:50057 \
   METRICS_ADDR=127.0.0.1:9097 ./target/debug/manobilling)
 # gateway: the usual env plus BILLING_URL=http://127.0.0.1:50057
 ```

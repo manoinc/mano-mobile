@@ -2,13 +2,14 @@ import 'package:mano_domain/mano_domain.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('the placeholder prices each canonical category', () {
-    const prices = LeadPricing.placeholder;
-    expect(prices.costFor(ServiceCategories.cleaning), 2);
-    expect(prices.costFor(ServiceCategories.gardening), 2);
-    expect(prices.costFor(ServiceCategories.plumbing), 3);
-    expect(prices.costFor(ServiceCategories.electrical), 3);
-    expect(prices.costFor(ServiceCategories.painting), 4);
+  test('the launch prices each canonical category', () {
+    const prices = LeadPricing.launch;
+    expect(prices.defaultCoins, 5);
+    expect(prices.costFor(ServiceCategories.cleaning), 4);
+    expect(prices.costFor(ServiceCategories.gardening), 4);
+    expect(prices.costFor(ServiceCategories.plumbing), 5);
+    expect(prices.costFor(ServiceCategories.electrical), 5);
+    expect(prices.costFor(ServiceCategories.painting), 6);
   });
 
   test('folds spellings and falls back to the default cost', () {

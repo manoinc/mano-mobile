@@ -252,7 +252,7 @@ void main() {
           mine.firstWhere((q) => q.id == 'quote-4').clientContact,
           bought.clientContact,
         );
-        final cost = LeadPricing.placeholder.costFor(
+        final cost = LeadPricing.launch.costFor(
           ServiceCategories.electrical,
         );
         expect((await repos.wallet.wallet()).balance, before - cost);

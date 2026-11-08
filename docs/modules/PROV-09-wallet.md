@@ -5,6 +5,28 @@ is free. Billetera shows the balance and its
 history; Recargar buys a pack by Nequi or PSE. Live on billing (D6), see
 [Billing](../develop/billing.md).
 
+## Prices
+
+Billing serves the real values; the offline mock mirrors them. Details in
+[Billing](../develop/billing.md#prices).
+
+| Pack | Coins | Bonus | Price |
+|---|---|---|---|
+| `pack-20` | 20 | 0 | $20.000 |
+| `pack-50` | 50 | 5 | $50.000 |
+| `pack-100` | 100 | 20 | $100.000 |
+
+| Lead category | Coins |
+|---|---|
+| Cleaning | 4 |
+| Gardening | 4 |
+| Plumbing | 5 |
+| Electrical | 5 |
+| Painting | 6 |
+| Any other (default) | 5 |
+
+The platform fee is 5% of a job payment (`PLATFORM_FEE_BPS=500`), netted out of the provider's payout.
+
 ## Screens and routes
 
 | Route | Class | File | Entry |
@@ -34,12 +56,12 @@ headline, what happens next, and a live waiting line.
      "Número de documento".
    - "Correo para el recibo", only when the session has no email.
    - `ManoToggleRow` "Acepto los términos de pago", with the terms as links.
-   - "Pagar · $45.000", disabled until the draft is valid.
+   - "Pagar · $50.000", disabled until the draft is valid.
 2. **Status** (`PurchaseStatusView` over `ManoPaymentStatus`):
    - "Aprueba el pago en Nequi" / "Esperando a Nequi…".
    - "Termina el pago en tu banco" with "Ir a mi banco" (system browser).
    - "Estamos preparando tu pago" while the PSE link is not ready.
-   - "¡Listo! +28 coins" / "Ya tienes 53 Mano coins." with "Listo".
+   - "¡Listo! +55 coins" / "Ya tienes 80 Mano coins." with "Listo".
    - "Tu pago sigue en proceso" with "Revisar de nuevo".
    - "No pudimos hacer la recarga" / "El pago fue rechazado. No te cobramos
      nada." with "Intentar de nuevo", which goes back to the filled form.
