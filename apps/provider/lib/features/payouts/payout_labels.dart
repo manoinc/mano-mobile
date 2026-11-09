@@ -9,13 +9,6 @@ String accountTypeLabel(BankAccountType type) => switch (type) {
   BankAccountType.checking => 'Corriente',
 };
 
-String legalIdTypeLabel(LegalIdType type) => switch (type) {
-  LegalIdType.cc => 'CC',
-  LegalIdType.ce => 'CE',
-  LegalIdType.nit => 'NIT',
-  LegalIdType.pp => 'PP',
-};
-
 /// "Nequi" or the bank's name, looked up in billing's [banks].
 String destinationTitle(PayoutDestination destination, List<Bank> banks) =>
     switch (destination) {

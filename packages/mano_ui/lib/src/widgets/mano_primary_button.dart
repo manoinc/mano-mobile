@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'mano_press_scale.dart';
 import '../brand/mano_loader.dart';
 
+/// Which fill the main action takes.
+enum ManoPrimaryTone { flame, ink }
+
 /// The main action on a screen.
 ///
 /// Takes a label, a callback and a flag — nothing else. It has no idea what
@@ -16,6 +19,7 @@ class ManoPrimaryButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.busy = false,
+    this.tone = ManoPrimaryTone.flame,
     super.key,
   });
 
@@ -28,15 +32,26 @@ class ManoPrimaryButton extends StatelessWidget {
   /// screen can distinguish "working" from "not available".
   final bool busy;
 
+  /// [ManoPrimaryTone.ink] for a main action that is not the screen's hot one, e.g. adding a method.
+  final ManoPrimaryTone tone;
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final ink = tone == ManoPrimaryTone.ink;
+    final foreground = ink ? scheme.surface : scheme.onPrimary;
 
     return ManoPressScale(
       enabled: !busy && onPressed != null,
       child: FilledButton(
         onPressed: busy ? null : onPressed,
-        child: busy ? ManoLoader.small(color: scheme.onPrimary) : Text(label),
+        style: ink
+            ? FilledButton.styleFrom(
+                backgroundColor: scheme.onSurface,
+                foregroundColor: foreground,
+              )
+            : null,
+        child: busy ? ManoLoader.small(color: foreground) : Text(label),
       ),
     );
   }

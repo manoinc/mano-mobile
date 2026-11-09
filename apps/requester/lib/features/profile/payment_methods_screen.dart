@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
@@ -16,7 +17,13 @@ IconData _iconFor(PaymentKind kind) => switch (kind) {
   PaymentKind.pse => Icons.account_balance_outlined,
 };
 
-/// Métodos de pago: saved cards and Nequi, display data only.
+String _detailFor(PaymentKind kind) => switch (kind) {
+  PaymentKind.card => 'Tarjeta',
+  PaymentKind.nequi => 'Billetera Nequi',
+  PaymentKind.pse => 'Débito desde tu banco',
+};
+
+/// Métodos de pago, Airbnb-style: title, saved methods with Editar, an ink add pill and the Mano promise.
 class PaymentMethodsScreen extends ConsumerWidget {
   const PaymentMethodsScreen({super.key});
 
@@ -25,50 +32,64 @@ class PaymentMethodsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     final methods = ref.watch(savedPaymentMethodsProvider);
     final divider = Divider(
       height: 1,
       thickness: 1,
-      color: Theme.of(context).colorScheme.outlineVariant,
-    );
-    const notice = ManoNotice(
-      message:
-          'Aún no cobramos desde la app. Guarda tus métodos y te avisaremos '
-          'cuando los pagos estén activos.',
+      color: theme.colorScheme.outlineVariant,
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Métodos de pago')),
+      appBar: AppBar(),
       body: switch (methods) {
         AsyncData(value: final list) => ListView(
-          padding: const EdgeInsets.all(ManoSpacing.lg),
+          padding: const EdgeInsets.fromLTRB(
+            ManoSpacing.lg,
+            0,
+            ManoSpacing.lg,
+            ManoSpacing.lg,
+          ),
           children: [
-            notice,
-            const SizedBox(height: ManoSpacing.md),
-            if (list.isEmpty)
-              ManoEmptyState(
-                icon: Icons.credit_card,
-                message: 'Agrega una tarjeta o tu Nequi para pagar más rápido.',
-                ctaLabel: 'Agregar método de pago',
-                onCta: () => _add(context, ref),
-              )
-            else ...[
-              for (final method in list) ...[
-                ManoOptionRow(
-                  key: Key('payment-${method.id}'),
-                  icon: _iconFor(method.kind),
-                  label: paymentMethodTitle(method),
-                  tag: method.isDefault ? 'Predeterminado' : null,
-                  onPressed: () => _open(context, ref, method),
-                ),
-                divider,
-              ],
-              const SizedBox(height: ManoSpacing.lg),
-              ManoOutlineButton(
-                label: 'Agregar método de pago',
-                onPressed: () => _add(context, ref),
+            Text('Métodos de pago', style: theme.textTheme.headlineMedium),
+            const SizedBox(height: ManoSpacing.xs),
+            Text(
+              'Guarda tus métodos para pagar más rápido cuando termine un '
+              'trabajo.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
               ),
+            ),
+            const SizedBox(height: ManoSpacing.lg),
+            for (final method in list) ...[
+              ManoMethodRow(
+                key: Key('payment-${method.id}'),
+                leading: Icon(_iconFor(method.kind)),
+                title: paymentMethodTitle(method),
+                detail: _detailFor(method.kind),
+                tag: method.isDefault ? 'Predeterminado' : null,
+                actionLabel: 'Editar',
+                onAction: () => _open(context, ref, method),
+              ),
+              divider,
             ],
+            if (list.isNotEmpty) const SizedBox(height: ManoSpacing.lg),
+            ManoPrimaryButton(
+              label: 'Agregar método de pago',
+              tone: ManoPrimaryTone.ink,
+              onPressed: () => _add(context, ref),
+            ),
+            const SizedBox(height: ManoSpacing.xl),
+            ManoInfoCard(
+              icon: Icons.verified_user_outlined,
+              title: 'Paga siempre a través de Mano',
+              message:
+                  'Si pagas por fuera de la app, no podemos ayudarte con '
+                  'reclamos ni reembolsos. Pagando en Mano tu dinero queda '
+                  'protegido.',
+              linkLabel: 'Más información',
+              onLink: () => context.push('/profile/support'),
+            ),
           ],
         ),
         AsyncError() => ActivityLoadError(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/mano_motion.dart';
 import '../theme/mano_theme.dart';
+import 'tag_pill.dart';
 
 /// One choice in a [ManoActionSheet].
 ///
@@ -63,8 +64,8 @@ class ManoOptionRow extends StatelessWidget {
     final ink = !enabled
         ? ManoColors.faint
         : destructive
-            ? theme.colorScheme.error
-            : theme.colorScheme.onSurface;
+        ? theme.colorScheme.error
+        : theme.colorScheme.onSurface;
 
     return InkWell(
       onTap: onPressed,
@@ -86,16 +87,20 @@ class ManoOptionRow extends StatelessWidget {
                     runSpacing: ManoSpacing.xs,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      Text(label, style: theme.textTheme.titleSmall?.copyWith(color: ink)),
-                      if (tag case final tag?) _Tag(tag),
+                      Text(
+                        label,
+                        style: theme.textTheme.titleSmall?.copyWith(color: ink),
+                      ),
+                      if (tag case final tag?) TagPill(tag),
                     ],
                   ),
                   if (detail != null) ...[
                     const SizedBox(height: 2),
                     Text(
                       detail!,
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: ManoColors.faint),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: ManoColors.faint,
+                      ),
                     ),
                   ],
                 ],
@@ -109,37 +114,11 @@ class ManoOptionRow extends StatelessWidget {
               // on a dark ground it is very nearly white -- which drew the eye
               // to exactly the rows that cannot be tapped. `outlineVariant`
               // carries the same intent through both themes.
-              color:
-                  enabled ? ManoColors.faint : theme.colorScheme.outlineVariant,
+              color: enabled
+                  ? ManoColors.faint
+                  : theme.colorScheme.outlineVariant,
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Tag extends StatelessWidget {
-  const _Tag(this.label);
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(ManoRadius.pill),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: ManoSpacing.sm,
-          vertical: 2,
-        ),
-        child: Text(
-          label,
-          style: theme.textTheme.labelSmall?.copyWith(color: ManoColors.muted),
         ),
       ),
     );
@@ -205,7 +184,11 @@ class ManoActionSheet extends StatelessWidget {
             const SizedBox(height: ManoSpacing.md),
             for (final (index, action) in actions.indexed) ...[
               if (index > 0)
-                Divider(height: 1, thickness: 1, color: theme.colorScheme.outlineVariant),
+                Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: theme.colorScheme.outlineVariant,
+                ),
               ManoOptionRow(
                 label: action.label,
                 icon: action.icon,
@@ -217,7 +200,9 @@ class ManoActionSheet extends StatelessWidget {
               const SizedBox(height: ManoSpacing.md),
               Text(
                 footnote!,
-                style: theme.textTheme.bodySmall?.copyWith(color: ManoColors.faint),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: ManoColors.faint,
+                ),
               ),
             ],
           ],

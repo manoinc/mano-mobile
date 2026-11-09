@@ -52,6 +52,7 @@ export 'src/projects/mock_project_repository.dart';
 export 'src/messaging/mock_chat_repository.dart';
 export 'src/messaging/mock_conversation_repository.dart';
 export 'src/onboarding/mock_provider_onboarding_repository.dart';
+export 'src/payments/gateway_job_payment_repository.dart';
 export 'src/payments/mock_job_payment_repository.dart';
 export 'src/payouts/mock_payout_accounts.dart';
 export 'src/requests/mock_service_request_repository.dart';

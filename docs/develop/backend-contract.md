@@ -34,7 +34,7 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 | `SupportDesk` (both apps) | `createSupportTicket(subject, description)` → `ticketNumber` | stub (D11) | `MockSupportDesk` |
 | `ProviderProfileEditor` | `updateWorkerProfile` | **live** for name, phone, email, photo, work zone; no bio, skills or portfolio | `MockProviderProfileRepository` (the same instance Perfil reads) |
 | `ReferralLinker` | `linkWorkerByReferralCode(code)` | **live** (D2) | `MockReferralLinker` until STREAM-05 |
-| `JobPaymentRepository` | `payJob`, `jobPayment`, `checkoutTerms`, `pseBanks` | **live** (D6); finished jobs only | `MockJobPaymentRepository` until STREAM-03. See [Paying for a job](job-payments.md) |
+| `JobPaymentRepository` | `payJob`, `jobPayment`, `checkoutTerms`, `pseBanks` | **live** (D6); finished jobs only. Nequi and PSE; card waits on a tokenizer | `GatewayJobPaymentRepository` (offline: `MockJobPaymentRepository`). See [Paying for a job](job-payments.md) |
 | `IdentityVerificationPort` | D10 `submitVerificationRequest`, `addVerificationDocuments` | stub | `MockIdentityVerification`. See [Identity verification](identity-verification.md) |
 | `PasswordlessAuth`, `SocialAuth` | mano-auth Passwordless and ThirdParty recipes | not in mano-auth yet | `InMemoryPasswordlessAuth`, `InMemorySocialAuth`. See [Signing in](auth.md) |
 | `SupportDesk` | `createSupportTicket(subject, description)` → `ticketNumber`, `status` FILED | stub; no PQRS kind | `MockSupportDesk` |
@@ -335,6 +335,10 @@ idempotent: it truncates the catalog first.
   only knows the account registered in this session. `buyCoinPack` has no
   read-back of a coin payment (`jobPayment` is for jobs); asking again returns
   the live purchase. Details in [Billing](billing.md).
+- Job payments (D6): billing only accepts `payJob` for a job it heard finish
+  (`JobFinished` over RabbitMQ). `Job.payment` is always null; the app reads
+  `jobPayment(jobId)`. The amount shown before paying is the job's
+  `finalAmount` (hourly: rate × hours). Details in [Paying for a job](job-payments.md).
 
 ## Coins and leads
 

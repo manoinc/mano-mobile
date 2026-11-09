@@ -22,3 +22,16 @@ List<Override> failingActivity() => [
     (ref) async => throw StateError('offline'),
   ),
 ];
+
+/// Every job reads as paid, settled through billing.
+List<Override> paidJobs() => [
+  jobPaymentProvider.overrideWith(
+    (ref, jobId) async => JobPayment(
+      paymentId: 'pay-$jobId',
+      jobId: jobId,
+      amount: 120000,
+      feeAmount: 6000,
+      status: JobPaymentStatus.completed,
+    ),
+  ),
+];

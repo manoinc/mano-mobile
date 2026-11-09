@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/activity/job_detail_screen.dart';
+import '../features/checkout/job_checkout_screen.dart';
 import '../features/booking/booking_screen.dart';
 import '../features/chat/chat_screen.dart';
 import '../features/explore/search_screen.dart';
@@ -105,6 +106,7 @@ final requesterRouterProvider = Provider<GoRouter>((ref) {
                     path: 'job/:id',
                     builder: (context, state) =>
                         JobDetailScreen(jobId: state.pathParameters['id']!),
+                    routes: [_payRoute(rootKey)],
                   ),
                 ],
               ),
@@ -153,6 +155,7 @@ final requesterRouterProvider = Provider<GoRouter>((ref) {
                         path: 'job/:id',
                         builder: (context, state) =>
                             JobDetailScreen(jobId: state.pathParameters['id']!),
+                        routes: [_payRoute(rootKey)],
                       ),
                     ],
                   ),
@@ -200,3 +203,11 @@ final requesterRouterProvider = Provider<GoRouter>((ref) {
   ref.onDispose(router.dispose);
   return router;
 });
+
+/// Checkout for a finished job, full screen over the tabs.
+GoRoute _payRoute(GlobalKey<NavigatorState> rootKey) => GoRoute(
+  path: 'pay',
+  parentNavigatorKey: rootKey,
+  builder: (context, state) =>
+      JobCheckoutScreen(jobId: state.pathParameters['id']!),
+);

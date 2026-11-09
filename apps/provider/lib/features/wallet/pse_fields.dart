@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-import '../payouts/payout_labels.dart';
 import 'bank_picker_sheet.dart';
 import 'purchase_labels.dart';
 

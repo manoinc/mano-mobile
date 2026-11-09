@@ -17,6 +17,9 @@ final class BillingConfig {
 
   int get maxPolls =>
       settleTimeout.inMilliseconds ~/ pollInterval.inMilliseconds;
+
+  /// The wait before poll [attempt]: doubling from [pollInterval], capped at four times it.
+  Duration backoff(int attempt) => pollInterval * (1 << attempt.clamp(0, 2));
 }
 
 /// Overridden in tests to keep waits short.

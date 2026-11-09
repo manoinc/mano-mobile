@@ -15,6 +15,13 @@ WidgetbookCategory actions() => WidgetbookCategory(
           onPressed: context.knobs.boolean(label: 'Enabled', initialValue: true) ? noop : null,
         ),
       ),
+      'Ink': (context) => _padded(
+        const ManoPrimaryButton(
+          label: 'Agregar método de pago',
+          tone: ManoPrimaryTone.ink,
+          onPressed: noop,
+        ),
+      ),
     }),
     component('ManoOutlineButton', {
       'Default': (context) => _padded(

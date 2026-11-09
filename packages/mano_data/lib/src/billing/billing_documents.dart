@@ -20,6 +20,24 @@ mutation BuyCoinPack($packId: ID!, $method: PaymentMethodInput!, $payerEmail: St
   }
 }''';
 
+const _jobPaymentResult = '''
+    payment { id purpose jobId amount { amount currency } feeAmount { amount currency } netToWorker { amount currency } method status failureReason }
+    nextAction { type redirectUrl }''';
+
+const payJobMutation =
+    '''
+mutation PayJob(\$jobId: ID!, \$method: PaymentMethodInput!, \$payerEmail: String!, \$termsAccepted: Boolean!) {
+  payJob(jobId: \$jobId, method: \$method, payerEmail: \$payerEmail, termsAccepted: \$termsAccepted) {$_jobPaymentResult
+  }
+}''';
+
+const jobPaymentQuery =
+    '''
+query JobPayment(\$jobId: ID!) {
+  jobPayment(jobId: \$jobId) {$_jobPaymentResult
+  }
+}''';
+
 const checkoutTermsQuery =
     'query CheckoutTerms { checkoutTerms { label url } }';
 

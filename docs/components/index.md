@@ -16,7 +16,7 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 
 | Component | Use it for |
 |---|---|
-| `ManoPrimaryButton` | The one flame action on a screen. Full width, supports `busy`. |
+| `ManoPrimaryButton` | The one flame action on a screen. Full width, supports `busy`. `tone: ink` fills it with ink for a main action that is not the hot one, as "Agregar método de pago". |
 | `ManoOutlineButton` | A strong secondary action (ink outline). `tone: flame` pairs it with a flame primary, as "Iniciar sesión" beside "Registrarse". |
 | `ManoQuietButton` | A low-emphasis action in clay text. |
 | `ManoTextAction` | An inline link-like action ("Iniciar sesión", "Agendar"). |
@@ -57,6 +57,10 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | `ManoBookingCard` | A booking summary. |
 | `ManoConversationTile` | An inbox row with unread badge. |
 | `ManoPersonRow`, `ManoDetailRow`, `ManoTagList` | People with rating, label/value rows, tag chips. |
+| `ManoPriceBreakdown` | Airbnb-style price details: labelled lines, a rule, the total. Used by the job checkout. |
+| `ManoMethodOption` | One way to pay, picked like a radio; a null `onTap` shows it disabled with a `tag` such as "Próximamente". |
+| `ManoMethodRow` | A saved payment method: mark, name, detail, optional tag, and a small outlined action ("Editar"). |
+| `ManoInfoCard` | An outlined reassurance card: icon, title, message and an optional link ("Paga siempre a través de Mano"). |
 | `ManoProfileHeader`, `ManoGreetingHeader` | Profile top, "Hola, …" header. |
 
 ### Status and feedback

@@ -7,11 +7,6 @@ String methodLabel(CoinPurchaseMethod method) => switch (method) {
   CoinPurchaseMethod.pse => 'PSE',
 };
 
-String personTypeLabel(PsePersonType type) => switch (type) {
-  PsePersonType.natural => 'Persona natural',
-  PsePersonType.juridical => 'Persona jurídica',
-};
-
 String? purchasePhoneError(CoinPurchaseDraft draft) =>
     draft.phone.trim().isNotEmpty &&
         draft.problems.contains(CoinPurchaseProblem.invalidPhone)

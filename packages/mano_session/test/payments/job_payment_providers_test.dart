@@ -1,23 +1,42 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mano_data/mano_data.dart';
 import 'package:mano_session/mano_session.dart';
 
+// The identity mock reads the config for its debug approval switch.
+ProviderContainer _offline() => ProviderContainer.test(
+  overrides: [
+    offlineMarketplaceProvider.overrideWithValue(true),
+    manoConfigProvider.overrideWithValue(
+      const ManoConfig(gatewayGraphQlUrl: 'http://gw', appRole: 'provider'),
+    ),
+  ],
+);
+
 void main() {
-  test('the new ports have offline adapters until their streams wire them', () {
-    // The identity mock reads the config for its debug approval switch.
-    final container = ProviderContainer(
+  test('job payments run on the mock offline, on the gateway live', () {
+    expect(
+      _offline().read(jobPaymentRepositoryProvider),
+      isA<MockJobPaymentRepository>(),
+    );
+    final live = ProviderContainer.test(
       overrides: [
         manoConfigProvider.overrideWithValue(
-          const ManoConfig(gatewayGraphQlUrl: 'http://gw', appRole: 'provider'),
+          const ManoConfig(
+            gatewayGraphQlUrl: 'http://gw',
+            appRole: 'requester',
+          ),
         ),
       ],
     );
-    addTearDown(container.dispose);
-
     expect(
-      container.read(jobPaymentRepositoryProvider),
-      isA<JobPaymentRepository>(),
+      live.read(jobPaymentRepositoryProvider),
+      isA<GatewayJobPaymentRepository>(),
     );
+  });
+
+  test('the other new ports have offline adapters', () {
+    final container = _offline();
     expect(
       container.read(identityVerificationProvider),
       isA<IdentityVerificationPort>(),
@@ -26,9 +45,12 @@ void main() {
   });
 
   test('an unpaid job reads as no payment', () async {
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
+    expect(await _offline().read(jobPaymentProvider('job-1').future), isNull);
+  });
 
-    expect(await container.read(jobPaymentProvider('job-1').future), isNull);
+  test('checkout terms and PSE banks come from the job payment port', () async {
+    final c = _offline();
+    expect(await c.read(jobCheckoutTermsProvider.future), isNotEmpty);
+    expect(await c.read(jobPseBanksProvider.future), isNotEmpty);
   });
 }
