@@ -10,6 +10,7 @@
 library;
 
 export 'src/config/mano_config.dart';
+export 'src/account/gateway_client_profile_repository.dart';
 export 'src/catalog/gateway_offer_management.dart';
 export 'src/catalog/gateway_service_catalog.dart';
 export 'src/gateway/gateway_client.dart';
@@ -26,6 +27,8 @@ export 'src/messaging/gateway_conversation_repository.dart';
 export 'src/jobs/gateway_job_repository.dart';
 export 'src/requests/gateway_service_request_repository.dart';
 export 'src/payouts/gateway_payout_accounts.dart';
+export 'src/profile/gateway_provider_profile_repository.dart';
+export 'src/profile/gateway_referral_linker.dart';
 export 'src/reviews/gateway_review_repository.dart';
 export 'src/session/in_memory_passwordless_auth.dart';
 export 'src/session/in_memory_session_repository.dart';

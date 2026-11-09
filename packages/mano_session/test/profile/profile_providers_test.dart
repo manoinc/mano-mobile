@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mano_data/mano_data.dart';
 import 'package:mano_session/mano_session.dart';
 
 void main() {
@@ -14,6 +15,7 @@ void main() {
             appRole: ManoRole.requester,
           ),
         ),
+        offlineMarketplaceProvider.overrideWithValue(true),
       ],
     );
   });
@@ -27,7 +29,28 @@ void main() {
       (await container.read(providerStatsProvider.future)).rating,
       greaterThan(0),
     );
-    expect((await container.read(referralProvider.future)).rewardCoins, 10);
+    expect((await container.read(referralProvider.future)).reward?.coins, 10);
+  });
+
+  test('online, profiles, editing and referral codes go to the gateway', () {
+    final live = ProviderContainer.test(
+      overrides: [
+        manoConfigProvider.overrideWithValue(
+          const ManoConfig(
+            gatewayGraphQlUrl: 'http://localhost/graphql',
+            appRole: ManoRole.provider,
+          ),
+        ),
+      ],
+    );
+    final repo = live.read(providerProfileRepositoryProvider);
+    expect(repo, isA<GatewayProviderProfileRepository>());
+    expect(live.read(providerProfileEditorProvider), same(repo));
+    expect(live.read(referralLinkerProvider), isA<GatewayReferralLinker>());
+    expect(
+      live.read(clientProfileRepositoryProvider),
+      isA<GatewayClientProfileRepository>(),
+    );
   });
 
   test('earnings are read per period', () async {

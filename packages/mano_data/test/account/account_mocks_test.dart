@@ -24,7 +24,9 @@ void main() {
 
     test('a new photo is kept without validating the rest', () async {
       final repo = MockClientProfileRepository();
-      final result = await repo.updatePhoto('https://cdn/avatar.png');
+      final result = await repo.updatePhoto(
+        const MediaAttachment(id: 'm1', url: 'https://cdn/avatar.png'),
+      );
       expect(result.valueOrNull!.photoUrl, 'https://cdn/avatar.png');
       expect((await repo.profile()).photoUrl, 'https://cdn/avatar.png');
     });

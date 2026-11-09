@@ -45,8 +45,14 @@ String reviewsCountText(int count) =>
   count: reviewsCountText(summary.count),
 );
 
-String referralProgressText(ReferralProgram program) =>
-    '${program.invited} de ${program.goal} invitados';
+String referralProgressText(ReferralReward reward) =>
+    '${reward.invited} de ${reward.goal} invitados';
+
+/// "luisa@mano.co · 3001112233", or null when neither is known.
+String? contactText(String email, String phone) {
+  final parts = [email.trim(), phone.trim()].where((p) => p.isNotEmpty);
+  return parts.isEmpty ? null : parts.join(' · ');
+}
 
 String referralMessage(String code) =>
     'Únete a Mano Profesionales y consigue trabajos en tu zona. '

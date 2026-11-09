@@ -1,3 +1,4 @@
+import '../media/media_attachment.dart';
 import '../result.dart';
 import '../shared/data_failure.dart';
 import 'client_profile.dart';
@@ -10,5 +11,5 @@ abstract interface class ClientProfileRepository {
   Future<Result<ClientProfile, DataFailure>> update(ClientProfile profile);
 
   /// Saves only the photo, from a finished avatar upload.
-  Future<Result<ClientProfile, DataFailure>> updatePhoto(String photoUrl);
+  Future<Result<ClientProfile, DataFailure>> updatePhoto(MediaAttachment photo);
 }

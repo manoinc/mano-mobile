@@ -54,8 +54,20 @@ void main() {
     test('referral offers coins and a code', () async {
       final referral = await repo.referral();
       expect(referral.code, isNotEmpty);
-      expect(referral.rewardCoins, 10);
-      expect(referral.invited, lessThan(referral.goal));
+      expect(referral.reward!.coins, 10);
+      expect(referral.reward!.invited, lessThan(referral.reward!.goal));
+    });
+
+    test('a seeded profile replaces the fixture', () async {
+      const blank = ProviderProfile(
+        party: Party(id: '', displayName: '', photoUrl: ''),
+        bio: '',
+        zones: [],
+        yearsExperience: 0,
+        verified: false,
+      );
+      final seeded = MockProviderProfileRepository(initial: blank);
+      expect((await seeded.profile()).party.displayName, isEmpty);
     });
   });
 }

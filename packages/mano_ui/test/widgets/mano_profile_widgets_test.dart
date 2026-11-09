@@ -89,4 +89,21 @@ void main() {
     await tester.tap(find.byType(ManoReferralCard));
     expect(taps, 1);
   });
+
+  testWidgets('ManoReferralCard without a reward shows no coin or bar', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(
+        ManoReferralCard(
+          title: 'Invita a un colega',
+          subtitle: 'Comparte tu código RP-1a2b3c4d',
+          onTap: () {},
+        ),
+      ),
+    );
+    expect(find.text('Comparte tu código RP-1a2b3c4d'), findsOneWidget);
+    expect(find.byType(LinearProgressIndicator), findsNothing);
+    expect(find.text('10'), findsNothing);
+  });
 }

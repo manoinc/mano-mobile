@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../features/profile/profile_copy.dart';
+import '../features/profile/referral_code_sheet.dart';
 import '../features/projects/account_gate.dart';
 
 /// One Perfil row: where it goes, and whether a guest must sign in first.
@@ -88,6 +90,7 @@ class ProfileTabScreen extends ConsumerWidget {
           children: [
             ManoProfileHeader(
               name: name,
+              subtitle: profile == null ? null : contactLine(profile),
               photoUrl: profile?.photoUrl,
               onEdit: () => open(_menu.first),
             ),
@@ -100,6 +103,16 @@ class ProfileTabScreen extends ConsumerWidget {
               ),
               divider,
             ],
+            ManoOptionRow(
+              icon: Icons.redeem_outlined,
+              label: '¿Tienes un código?',
+              onPressed: () {
+                if (requireAccount(context, ref, _accountMessage)) {
+                  showReferralCodeSheet(context);
+                }
+              },
+            ),
+            divider,
             ManoOptionRow(
               icon: signedIn ? Icons.logout : Icons.login,
               label: signedIn ? 'Cerrar sesión' : 'Iniciar sesión',

@@ -23,3 +23,22 @@ String paymentMethodTitle(PaymentMethod method) => switch (method.kind) {
   PaymentKind.pse => 'PSE',
   _ => '${method.label} •••• ${method.last4}',
 };
+
+/// What the snackbar says once a referral code saved a professional.
+String savedProfessionalCopy(String name) => name.trim().isEmpty
+    ? 'Guardamos a tu profesional.'
+    : 'Guardamos a ${name.trim()} en tus profesionales.';
+
+String referralFailureCopy(DataFailure failure) => switch (failure) {
+  DataNotFound() => 'Ese código no existe. Revísalo e intenta de nuevo.',
+  _ => 'No pudimos guardar el código. Intenta de nuevo.',
+};
+
+/// "ana@mano.co · 3001234567", or null when neither is known.
+String? contactLine(ClientProfile profile) {
+  final parts = [
+    profile.email.trim(),
+    profile.phone.trim(),
+  ].where((p) => p.isNotEmpty);
+  return parts.isEmpty ? null : parts.join(' · ');
+}

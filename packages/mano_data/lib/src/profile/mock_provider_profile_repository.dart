@@ -2,15 +2,20 @@ import 'package:mano_domain/mano_domain.dart';
 
 import '../mock/mock_fixtures.dart';
 
-/// In-memory profile of the first mock professional; edits are kept in memory.
+/// In-memory profile, the first mock professional unless seeded; edits are kept in memory.
 final class MockProviderProfileRepository
     implements ProviderProfileRepository, ProviderProfileEditor {
-  MockProviderProfileRepository({DateTime Function()? now})
-    : _now = now ?? DateTime.now;
+  MockProviderProfileRepository({
+    ProviderProfile? initial,
+    DateTime Function()? now,
+  }) : _profile = initial ?? _fixture(),
+       _now = now ?? DateTime.now;
 
   final DateTime Function() _now;
 
-  ProviderProfile _profile = ProviderProfile(
+  ProviderProfile _profile;
+
+  static ProviderProfile _fixture() => ProviderProfile(
     party: mockProviders.first,
     bio:
         'Más de ocho años cuidando casas en Bogotá. Puntual, ordenado y '
@@ -119,8 +124,6 @@ final class MockProviderProfileRepository
   @override
   Future<ReferralProgram> referral() async => const ReferralProgram(
     code: 'ANDRES-M4N0',
-    invited: 2,
-    goal: 5,
-    rewardCoins: 10,
+    reward: ReferralReward(invited: 2, goal: 5, coins: 10),
   );
 }

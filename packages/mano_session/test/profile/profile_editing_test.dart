@@ -5,7 +5,11 @@ import 'package:mano_session/mano_session.dart';
 void main() {
   late ProviderContainer container;
 
-  setUp(() => container = ProviderContainer.test());
+  setUp(
+    () => container = ProviderContainer.test(
+      overrides: [offlineMarketplaceProvider.overrideWithValue(true)],
+    ),
+  );
 
   test('a saved profile is what Perfil reads next', () async {
     final before = await container.read(providerProfileProvider.future);

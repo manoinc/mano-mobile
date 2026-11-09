@@ -5,7 +5,7 @@ import 'package:mano_ui/mano_ui.dart';
 
 import 'profile_labels.dart';
 
-/// Past performance as four calm tiles; the rating is live, the rest mock.
+/// Past performance as calm tiles; only what the backend serves is shown.
 class StatsGrid extends ConsumerWidget {
   const StatsGrid({super.key});
 
@@ -14,45 +14,40 @@ class StatsGrid extends ConsumerWidget {
     final stats = ref.watch(providerStatsProvider).value;
     if (stats == null) return const SizedBox.shrink();
     final rating = ref.watch(myRatingProvider).value ?? RatingSummary.none;
+    final tiles = [
+      ManoStatTile(
+        value: ratingLabels(rating).average,
+        label: 'Calificación',
+        icon: Icons.star_rounded,
+      ),
+      if (stats.jobsCompleted case final jobs?)
+        ManoStatTile(value: '$jobs', label: 'Trabajos completados'),
+      if (stats.responseRatePct case final pct?)
+        ManoStatTile(value: percentText(pct), label: 'Tasa de respuesta'),
+      if (stats.completionRatePct case final pct?)
+        ManoStatTile(value: percentText(pct), label: 'Trabajos cumplidos'),
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Tu desempeño', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: ManoSpacing.md),
-        _row(
-          ManoStatTile(
-            value: ratingLabels(rating).average,
-            label: 'Calificación',
-            icon: Icons.star_rounded,
-          ),
-          ManoStatTile(
-            value: '${stats.jobsCompleted}',
-            label: 'Trabajos completados',
-          ),
-        ),
-        const SizedBox(height: ManoSpacing.sm),
-        _row(
-          ManoStatTile(
-            value: percentText(stats.responseRatePct),
-            label: 'Tasa de respuesta',
-          ),
-          ManoStatTile(
-            value: percentText(stats.completionRatePct),
-            label: 'Trabajos cumplidos',
-          ),
-        ),
+        for (var i = 0; i < tiles.length; i += 2) ...[
+          if (i > 0) const SizedBox(height: ManoSpacing.sm),
+          _row(tiles[i], i + 1 < tiles.length ? tiles[i + 1] : null),
+        ],
       ],
     );
   }
 
-  Widget _row(Widget a, Widget b) => IntrinsicHeight(
+  Widget _row(Widget a, Widget? b) => IntrinsicHeight(
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(child: a),
         const SizedBox(width: ManoSpacing.sm),
-        Expanded(child: b),
+        Expanded(child: b ?? const SizedBox.shrink()),
       ],
     ),
   );

@@ -10,6 +10,8 @@ final class ProviderProfile {
     required this.verified,
     this.skills = const [],
     this.portfolioUrls = const [],
+    this.phone = '',
+    this.email = '',
   });
 
   final Party party;
@@ -24,39 +26,52 @@ final class ProviderProfile {
   /// Photos of past work, in order.
   final List<String> portfolioUrls;
 
+  final String phone;
+  final String email;
+
   String get firstName => party.displayName.trim().split(' ').first;
 }
 
-/// How the professional has performed so far.
+/// How the professional has performed so far; null means not served yet.
 final class ProviderStats {
   const ProviderStats({
-    required this.rating,
-    required this.reviewCount,
-    required this.jobsCompleted,
-    required this.responseRatePct,
-    required this.completionRatePct,
+    this.rating,
+    this.reviewCount = 0,
+    this.jobsCompleted,
+    this.responseRatePct,
+    this.completionRatePct,
   });
 
-  final double rating;
+  final double? rating;
   final int reviewCount;
-  final int jobsCompleted;
-  final int responseRatePct;
-  final int completionRatePct;
+  final int? jobsCompleted;
+  final int? responseRatePct;
+  final int? completionRatePct;
+
+  /// A 0..1 rate as a whole percent.
+  static int? percentOf(double? rate) =>
+      rate == null ? null : (rate * 100).round();
 }
 
-/// Invite-a-colleague progress and the code to share.
+/// The code to share and, where a reward program runs, its progress.
 final class ReferralProgram {
-  const ReferralProgram({
-    required this.code,
-    required this.invited,
-    required this.goal,
-    required this.rewardCoins,
-  });
+  const ReferralProgram({required this.code, this.reward});
 
   final String code;
+  final ReferralReward? reward;
+}
+
+/// Invite-a-colleague progress towards a coin reward.
+final class ReferralReward {
+  const ReferralReward({
+    required this.invited,
+    required this.goal,
+    required this.coins,
+  });
+
   final int invited;
   final int goal;
-  final int rewardCoins;
+  final int coins;
 
   double get progress => goal <= 0 ? 1 : (invited / goal).clamp(0.0, 1.0);
   bool get completed => invited >= goal;

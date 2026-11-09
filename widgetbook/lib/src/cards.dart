@@ -322,6 +322,14 @@ WidgetbookCategory cards() => WidgetbookCategory(
           onEdit: noop,
         ),
       ),
+      'With contact': (context) => _padded(
+        const ManoProfileHeader(
+          name: 'Laura Pérez',
+          subtitle: 'laura@mano.co · 300 123 4567',
+          photoUrl: samplePhoto,
+          onEdit: noop,
+        ),
+      ),
     }),
     component('ManoGreetingHeader', {
       'Default': (context) => _padded(

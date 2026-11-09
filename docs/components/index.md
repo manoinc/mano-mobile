@@ -56,7 +56,8 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | `ManoBookingCard` | A booking summary. |
 | `ManoConversationTile` | An inbox row with unread badge. |
 | `ManoPersonRow`, `ManoDetailRow`, `ManoTagList` | People with rating, label/value rows, tag chips. |
-| `ManoProfileHeader`, `ManoGreetingHeader` | Profile top, "Hola, …" header. |
+| `ManoProfileHeader`, `ManoGreetingHeader` | Profile top with an optional contact line, "Hola, …" header. |
+| `ManoStatTile`, `ManoReferralCard` | One standing figure; the invite-a-colleague card, with coin and progress only when a reward runs. |
 
 ### Status and feedback
 

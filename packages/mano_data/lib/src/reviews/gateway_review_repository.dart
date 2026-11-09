@@ -3,10 +3,7 @@ import 'package:mano_domain/mano_domain.dart';
 import '../gateway/gateway_failure.dart';
 import '../gateway/gateway_json.dart';
 import '../gateway/gateway_transport.dart';
-import '../messaging/gateway_chat_json.dart';
-
-const _reviewFields =
-    'id rating comment createdAt author { $participantFields }';
+import 'review_json.dart';
 
 /// [ReviewRepository] over D8; a provider is read through a job shared with them (no `workerProfile(id)`).
 final class GatewayReviewRepository implements ReviewRepository {
@@ -18,13 +15,13 @@ final class GatewayReviewRepository implements ReviewRepository {
   static const _reviewWorker =
       '''
 mutation ReviewWorker(\$jobId: ID!, \$input: ReviewInput!) {
-  reviewWorker(jobId: \$jobId, input: \$input) { $_reviewFields }
+  reviewWorker(jobId: \$jobId, input: \$input) { $reviewFields }
 }''';
 
   static const _reviewClient =
       '''
 mutation ReviewClient(\$jobId: ID!, \$input: ReviewInput!) {
-  reviewClient(jobId: \$jobId, input: \$input) { $_reviewFields }
+  reviewClient(jobId: \$jobId, input: \$input) { $reviewFields }
 }''';
 
   static const _myJobWorkers = '''
@@ -41,7 +38,7 @@ query WorkerReviews(\$id: ID!, \$after: String) {
   job(id: \$id) {
     worker {
       reviews(page: {first: 20, after: \$after}) {
-        items { $_reviewFields }
+        items { $reviewFields }
         pageInfo { hasNextPage nextCursor }
       }
     }
@@ -89,7 +86,7 @@ query WorkerReviews(\$id: ID!, \$after: String) {
     if (page == null) return const ReviewPage(items: []);
     final info = page['pageInfo'] as Map<String, dynamic>?;
     return ReviewPage(
-      items: [for (final json in pageItems(page)) _toReview(json)],
+      items: [for (final json in pageItems(page)) reviewFromJson(json)],
       nextCursor: info?['hasNextPage'] == true
           ? info!['nextCursor'] as String?
           : null,
@@ -117,7 +114,7 @@ query WorkerReviews(\$id: ID!, \$after: String) {
           },
         },
       );
-      return _toReview(data[field] as Map<String, dynamic>);
+      return reviewFromJson(data[field] as Map<String, dynamic>);
     });
   }
 
@@ -134,12 +131,4 @@ query WorkerReviews(\$id: ID!, \$after: String) {
 
   static Map<String, dynamic> _worker(Map<String, dynamic> data) =>
       (data['job'] as Map<String, dynamic>)['worker'] as Map<String, dynamic>;
-
-  static Review _toReview(Map<String, dynamic> json) => Review(
-    id: json['id'] as String,
-    reviewer: toParty(json['author'] as Map<String, dynamic>),
-    stars: json['rating'] as int,
-    date: dateTimeFromJson(json['createdAt']),
-    text: json['comment'] as String? ?? '',
-  );
 }

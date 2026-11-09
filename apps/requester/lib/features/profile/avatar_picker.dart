@@ -39,9 +39,12 @@ class AvatarPicker extends ConsumerWidget {
       ..clear();
     await photos.pick(source);
     if (!context.mounted) return;
-    final url = photos.urls.lastOrNull;
-    if (url != null) {
-      await ref.read(clientProfileActionsProvider.notifier).setPhoto(url);
+    final uploaded = ref
+        .read(photoAttachmentsProvider(_target))
+        .lastOrNull
+        ?.uploaded;
+    if (uploaded != null) {
+      await ref.read(clientProfileActionsProvider.notifier).setPhoto(uploaded);
     } else if (ref.read(photoAttachmentsProvider(_target)).isNotEmpty) {
       photos.clear();
       showProfileMessage(
