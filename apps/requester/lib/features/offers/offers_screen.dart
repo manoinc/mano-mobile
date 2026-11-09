@@ -85,7 +85,7 @@ class _OffersScreenState extends ConsumerState<OffersScreen> {
                 ctaLabel: 'Reintentar',
                 onCta: _retry,
               ),
-              _ => const Center(child: CircularProgressIndicator()),
+              _ => const Center(child: ManoLoader()),
             },
           ),
         ],

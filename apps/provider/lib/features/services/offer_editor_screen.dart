@@ -97,7 +97,7 @@ class _OfferEditorScreenState extends ConsumerState<OfferEditorScreen> {
             ctaLabel: 'Reintentar',
             onCta: () => ref.invalidate(provider),
           ),
-          _ => const Center(child: CircularProgressIndicator()),
+          _ => const Center(child: ManoLoader()),
         },
       ),
     );
@@ -209,7 +209,7 @@ class _OfferEditorScreenState extends ConsumerState<OfferEditorScreen> {
         loading: () => const [
           Padding(
             padding: EdgeInsets.all(ManoSpacing.md),
-            child: Center(child: CircularProgressIndicator()),
+            child: Center(child: ManoLoader()),
           ),
         ],
         error: (_, _) => [

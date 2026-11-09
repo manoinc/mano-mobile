@@ -77,7 +77,7 @@ class _OpenProjectsSectionState extends ConsumerState<OpenProjectsSection> {
         message: 'No pudimos cargar los proyectos.',
         onRetry: () => ref.invalidate(openProjectsProvider),
       ),
-      _ => const Center(child: CircularProgressIndicator()),
+      _ => const Center(child: ManoLoader()),
     };
   }
 }

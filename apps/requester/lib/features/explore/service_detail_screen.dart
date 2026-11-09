@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-
 class ServiceDetailScreen extends ConsumerWidget {
   const ServiceDetailScreen({required this.serviceId, super.key});
 
@@ -18,7 +17,7 @@ class ServiceDetailScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(),
       body: service.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: ManoLoader()),
         error: (_, _) => ManoEmptyState(
           icon: Icons.wifi_off_outlined,
           message: 'No pudimos cargar este servicio.',

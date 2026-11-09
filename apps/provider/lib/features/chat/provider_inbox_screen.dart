@@ -58,7 +58,7 @@ class ProviderInboxScreen extends ConsumerWidget {
                   ctaLabel: 'Reintentar',
                   onCta: () => ref.invalidate(conversationsProvider),
                 ),
-                _ => const Center(child: CircularProgressIndicator()),
+                _ => const Center(child: ManoLoader()),
               },
             ),
           ],

@@ -19,7 +19,7 @@ class EarningsBreakdownScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(periodNames[period.index])),
       body: summary == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: ManoLoader())
           : ListView(
               padding: const EdgeInsets.all(ManoSpacing.md),
               children: [

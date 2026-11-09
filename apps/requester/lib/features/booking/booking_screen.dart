@@ -36,7 +36,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
         ctaLabel: 'Reintentar',
         onCta: () => ref.invalidate(serviceOfferProvider(widget.offerId)),
       ),
-      _ => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      _ => const Scaffold(body: Center(child: ManoLoader())),
     };
   }
 

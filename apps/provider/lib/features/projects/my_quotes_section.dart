@@ -50,7 +50,7 @@ class MyQuotesSection extends ConsumerWidget {
         message: 'No pudimos cargar tus cotizaciones.',
         onRetry: () => ref.invalidate(myQuotesProvider),
       ),
-      _ => const Center(child: CircularProgressIndicator()),
+      _ => const Center(child: ManoLoader()),
     };
   }
 }

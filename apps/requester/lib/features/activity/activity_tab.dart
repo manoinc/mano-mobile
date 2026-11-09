@@ -114,7 +114,7 @@ class _ActivityList extends ConsumerWidget {
       );
     }
     if (all.any((a) => !a.hasValue)) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: ManoLoader());
     }
 
     final jobItems = jobs.requireValue;
