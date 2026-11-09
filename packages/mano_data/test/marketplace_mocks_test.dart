@@ -412,14 +412,25 @@ void main() {
       },
     );
 
-    test('a submit without documents is rejected', () async {
+    test(
+      'documents are optional; the identity check covers the cédula',
+      () async {
+        final onboarding = MockProviderOnboardingRepository();
+        final result = await onboarding.submit(
+          const WorkerProfileDraft(
+            displayName: 'Andrés',
+            phone: '300',
+            workZone: 'Chapinero',
+          ),
+        );
+        expect(result.valueOrNull, VerificationStatus.pending);
+      },
+    );
+
+    test('a submit without a name is rejected', () async {
       final onboarding = MockProviderOnboardingRepository();
       final result = await onboarding.submit(
-        const WorkerProfileDraft(
-          displayName: 'Andrés',
-          phone: '300',
-          workZone: 'Chapinero',
-        ),
+        const WorkerProfileDraft(displayName: ' ', phone: '300', workZone: 'x'),
       );
       expect(result.failureOrNull, isA<DataRejected>());
     });

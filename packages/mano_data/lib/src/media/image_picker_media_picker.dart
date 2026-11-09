@@ -6,6 +6,7 @@ typedef PickImage = Future<XFile?> Function(
   ImageSource source, {
   double? maxWidth,
   int? imageQuality,
+  required CameraDevice preferredCameraDevice,
 });
 
 // Big enough to read on a phone, small enough for the 2 MiB avatar cap.
@@ -31,19 +32,27 @@ final class ImagePickerMediaPicker implements MediaPicker {
     ImageSource source, {
     double? maxWidth,
     int? imageQuality,
+    required CameraDevice preferredCameraDevice,
   }) => ImagePicker().pickImage(
     source: source,
     maxWidth: maxWidth,
     imageQuality: imageQuality,
+    preferredCameraDevice: preferredCameraDevice,
     requestFullMetadata: false,
   );
 
   @override
-  Future<PickedImage?> pick(PhotoSource source) async {
+  Future<PickedImage?> pick(
+    PhotoSource source, {
+    CameraFacing facing = CameraFacing.rear,
+  }) async {
     final file = await _pick(
       source == PhotoSource.camera ? ImageSource.camera : ImageSource.gallery,
       maxWidth: _maxWidth,
       imageQuality: _quality,
+      preferredCameraDevice: facing == CameraFacing.front
+          ? CameraDevice.front
+          : CameraDevice.rear,
     );
     if (file == null) return null;
     return PickedImage(

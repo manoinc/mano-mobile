@@ -12,8 +12,8 @@ final class MockProviderOnboardingRepository
   Future<Result<VerificationStatus, DataFailure>> submit(
     WorkerProfileDraft draft,
   ) async {
-    if (draft.displayName.trim().isEmpty || draft.documentPaths.isEmpty) {
-      return const Err(DataRejected(reason: 'name and documents are required'));
+    if (draft.displayName.trim().isEmpty) {
+      return const Err(DataRejected(reason: 'a name is required'));
     }
     return Ok(_status = VerificationStatus.pending);
   }

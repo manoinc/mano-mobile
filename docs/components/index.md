@@ -77,7 +77,7 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 
 | Component | Use it for |
 |---|---|
-| `showManoSheet` + `ManoPromptSheet` | A bottom sheet with one decision. |
+| `showManoSheet` + `ManoPromptSheet` | A bottom sheet with one decision; `secondaryLabel` adds a quiet way to decline ("Ahora no"). |
 | `showManoSheet` + `ManoActionSheet` / `ManoOptionRow` | A list of actions; rows can be destructive or carry a `tag` ("Predeterminada"). |
 | `showManoDialog` + `ManoDialogCard` | A centred confirmation. |
 
@@ -87,7 +87,11 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 |---|---|
 | `ManoBottomNavBar` | Four tabs around a raised centre action. |
 | `ManoHeroScaffold` | Full-bleed brand screens with up to two actions. |
-| `ManoStepScaffold` + `ManoStepTransition` | Multi-step forms that slide between steps. |
+| `ManoStepScaffold` + `ManoStepTransition` | Multi-step forms that slide between steps; `headlineEmphasis` paints part of the headline in flame. |
+| `ManoEmphasisText` | One sentence with one fragment set apart (flame by default). |
+| `ManoTipList` | Bulleted advice in quiet text, each with a bold fragment (`ManoTip`). |
+| `ManoCaptureFrame` | A camera-style guide on the ink ground: instruction, card or face outline, optional photo inside, "Ayuda" pill. |
+| `ManoCaptureReviewRow` | A photo just taken, its name and "Repetir". |
 | `ManoRefreshList` | A pull-to-refresh list with dividers and an empty message. |
 | `ManoPullToRefresh` | Makes any screen body pullable: a list inside it, or a still empty state. |
 

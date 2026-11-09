@@ -14,7 +14,10 @@ final class _Picker implements MediaPicker {
   final sources = <PhotoSource>[];
 
   @override
-  Future<PickedImage?> pick(PhotoSource source) async {
+  Future<PickedImage?> pick(
+    PhotoSource source, {
+    CameraFacing facing = CameraFacing.rear,
+  }) async {
     sources.add(source);
     return next;
   }

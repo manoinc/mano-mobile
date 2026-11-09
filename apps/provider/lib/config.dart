@@ -14,6 +14,12 @@ import 'package:mano_session/mano_session.dart';
 /// ```bash
 /// flutter run --dart-define=SUPERTOKENS_API_DOMAIN=http://localhost:3001
 /// ```
+///
+/// The mock identity check approves on send only when asked, to walk the gates:
+///
+/// ```bash
+/// flutter run --dart-define=MANO_APPROVE_IDENTITY=true
+/// ```
 const ManoConfig providerConfig = ManoConfig(
   gatewayGraphQlUrl: String.fromEnvironment(
     'MANO_GATEWAY',
@@ -23,4 +29,5 @@ const ManoConfig providerConfig = ManoConfig(
   authApiDomain: bool.hasEnvironment('SUPERTOKENS_API_DOMAIN')
       ? String.fromEnvironment('SUPERTOKENS_API_DOMAIN')
       : null,
+  approveIdentityChecks: bool.fromEnvironment('MANO_APPROVE_IDENTITY'),
 );

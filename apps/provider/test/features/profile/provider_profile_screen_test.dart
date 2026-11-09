@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_identity.dart';
 import '../../support/fake_reviews.dart';
 import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
@@ -30,6 +31,7 @@ Future<ProviderContainer> _pump(
   SessionRepository? session,
   ReviewRepository? reviews,
   String? subject = 'w1',
+  IdentityVerificationPort? identity,
 }) async {
   final overrides = [
     serviceCatalogProvider.overrideWithValue(FakeServiceCatalog()),
@@ -47,6 +49,7 @@ Future<ProviderContainer> _pump(
     path,
     overrides: overrides,
     session: session,
+    identity: identity ?? FakeIdentityVerification(),
   );
   return container;
 }
@@ -237,5 +240,35 @@ void main() {
     await tester.tap(find.text('Ver mi Billetera'));
     await tester.pumpAndSettle();
     expect(routerPath(c), '/wallet');
+  });
+
+  group('identity', () {
+    testWidgets('an unverified pro is asked to verify, opening the photos', (
+      tester,
+    ) async {
+      final session = FakeSessionRepository(
+        onRestore: () async => Ok(fakeSession()),
+      );
+      final c = await _pump(tester, session: session);
+      await c.read(sessionProvider.future);
+      await tester.pumpAndSettle();
+
+      await _scrollTo(tester, 'Verifica tu identidad');
+      await tester.tap(find.text('Verifica tu identidad'));
+      await tester.pumpAndSettle();
+
+      expect(routerPath(c), '/profile/identity');
+      expect(find.byType(ManoTipList), findsOneWidget);
+    });
+
+    testWidgets('an approved check shows Identidad verificada', (tester) async {
+      await _pump(
+        tester,
+        identity: FakeIdentityVerification(const IdentityCheckApproved()),
+      );
+
+      await _scrollTo(tester, 'Identidad verificada');
+      expect(find.text('Identidad verificada'), findsOneWidget);
+    });
   });
 }

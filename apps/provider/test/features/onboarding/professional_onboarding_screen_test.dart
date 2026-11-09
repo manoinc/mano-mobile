@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mano_provider/features/identity/identity_flow_view.dart';
 import 'package:mano_provider/features/onboarding/professional_onboarding_screen.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_media.dart';
 import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
 
@@ -30,6 +32,7 @@ Future<void> _pump(
   WidgetTester tester, {
   ProviderOnboardingRepository? onboarding,
   SessionRepository? session,
+  MediaPicker? picker,
   VoidCallback? onFinished,
 }) async {
   await tester.pumpWidget(
@@ -44,6 +47,7 @@ Future<void> _pump(
         providerOnboardingRepositoryProvider.overrideWithValue(
           onboarding ?? _FakeOnboarding(),
         ),
+        if (picker != null) mediaPickerProvider.overrideWithValue(picker),
       ],
       child: MaterialApp(
         theme: ManoTheme.light(),
@@ -80,9 +84,15 @@ Future<void> _createAccount(WidgetTester tester) async {
   await _tapText(tester, 'Crear cuenta');
 }
 
+/// Creates the account and puts the identity check off.
+Future<void> _toName(WidgetTester tester) async {
+  await _createAccount(tester);
+  await _tapText(tester, 'Ahora no');
+}
+
 /// Answers every question up to the bio, leaving the bio on screen.
 Future<void> _answerUpToBio(WidgetTester tester) async {
-  await _createAccount(tester);
+  await _toName(tester);
   await _answer(tester, 'Nombre completo', 'Ana Gómez');
   await _answer(tester, 'Celular', '300 123 4567');
   await _answer(tester, 'Zona de cobertura', 'Chapinero');
@@ -106,9 +116,6 @@ Future<void> _attach(WidgetTester tester, int index) async {
 
 Future<void> _reachReview(WidgetTester tester) async {
   await _answerAll(tester);
-  await _attach(tester, 0);
-  // The first row is now attached, so the remaining first is the back side.
-  await _attach(tester, 0);
   await _tapText(tester, 'Continuar');
 }
 
@@ -203,8 +210,36 @@ void main() {
 
       expect(session.lastCredentials?.email, 'pro@mano.co');
       expect(session.lastSignUpRole, ManoRole.provider);
-      expect(find.text('¿Cuál es tu nombre?'), findsOneWidget);
+      expect(find.byType(IdentityFlowView), findsOneWidget);
       expect(find.byTooltip('Atrás'), findsNothing);
+    });
+
+    testWidgets('the identity photos lead on to the name', (tester) async {
+      await _pump(tester, picker: FakeMediaPicker());
+      await _createAccount(tester);
+
+      await _tapText(tester, 'Continuar');
+      for (var i = 0; i < 3; i++) {
+        await _tapText(tester, 'Tomar foto');
+      }
+      await _tapText(tester, 'Enviar');
+      expect(find.text('Estamos revisando tus documentos'), findsOneWidget);
+      await _tapText(tester, 'Continuar');
+
+      expect(find.text('¿Cuál es tu nombre?'), findsOneWidget);
+    });
+
+    testWidgets('system back inside the identity photos steps back', (
+      tester,
+    ) async {
+      await _pump(tester, picker: FakeMediaPicker());
+      await _createAccount(tester);
+      await _tapText(tester, 'Continuar');
+
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ManoTipList), findsOneWidget);
     });
 
     testWidgets('a weak password keeps Crear cuenta shut', (tester) async {
@@ -283,7 +318,7 @@ void main() {
     tester,
   ) async {
     await _pump(tester);
-    await _createAccount(tester);
+    await _toName(tester);
     expect(find.text('¿Cuál es tu nombre?'), findsOneWidget);
     expect(find.byType(TextField), findsOneWidget);
     expect(find.byType(LinearProgressIndicator), findsOneWidget);
@@ -311,7 +346,7 @@ void main() {
     tester,
   ) async {
     await _pump(tester);
-    await _createAccount(tester);
+    await _toName(tester);
     await _answer(tester, 'Nombre completo', 'Ana Gómez');
 
     final phone = find.descendant(
@@ -323,7 +358,7 @@ void main() {
 
   testWidgets('services need at least one chip', (tester) async {
     await _pump(tester);
-    await _createAccount(tester);
+    await _toName(tester);
     await _answer(tester, 'Nombre completo', 'Ana Gómez');
     await _answer(tester, 'Celular', '3001234567');
     await _answer(tester, 'Zona de cobertura', 'Chapinero');
@@ -343,23 +378,21 @@ void main() {
     expect(find.text('Cuéntales algo sobre ti'), findsOneWidget);
     expect(_primaryEnabled(tester), isTrue);
     await _tapText(tester, 'Omitir');
-    expect(find.text('Documento de identidad (frente)'), findsOneWidget);
+    expect(find.text('Certificados o soportes (opcional)'), findsOneWidget);
   });
 
-  testWidgets('documents Continuar waits for both ID sides', (tester) async {
+  testWidgets('documents are optional certificates; no cédula rows', (
+    tester,
+  ) async {
     await _pump(tester);
     await _answerAll(tester);
 
-    expect(find.text('Documento de identidad (frente)'), findsOneWidget);
-    expect(find.text('Documento de identidad (reverso)'), findsOneWidget);
     expect(find.text('Certificados o soportes (opcional)'), findsOneWidget);
-    expect(_primaryEnabled(tester), isFalse);
+    expect(find.textContaining('Documento de identidad'), findsNothing);
+    expect(_primaryEnabled(tester), isTrue);
 
     await _attach(tester, 0);
-    expect(_primaryEnabled(tester), isFalse);
     expect(find.text('Adjuntado'), findsOneWidget);
-    await _attach(tester, 0);
-    expect(_primaryEnabled(tester), isTrue);
   });
 
   testWidgets('back returns to the previous step with the data kept', (
@@ -391,7 +424,7 @@ void main() {
     await _tapText(tester, 'Enviar a revisión');
 
     final draft = onboarding.submitted.single;
-    expect(draft.documentPaths, hasLength(2));
+    expect(draft.documentPaths, isEmpty);
     expect(draft.categories, ['plumbing', 'electrical']);
     expect(draft.yearsExperience, 5);
     expect(draft.bio, 'Plomera con 5 años.');

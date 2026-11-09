@@ -18,7 +18,10 @@ final class FakeMediaPicker implements MediaPicker {
   final sources = <PhotoSource>[];
 
   @override
-  Future<PickedImage?> pick(PhotoSource source) async {
+  Future<PickedImage?> pick(
+    PhotoSource source, {
+    CameraFacing facing = CameraFacing.rear,
+  }) async {
     sources.add(source);
     return PickedImage(bytes: tinyPng, mimeType: 'image/png', name: 'a.png');
   }

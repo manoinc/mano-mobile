@@ -1,7 +1,9 @@
 # PROV-01 Professional Onboarding (Provider)
 
-A signed-out professional creates an account: a profile (name, phone, coverage
-zone), identity documents, then a submission for staff review. The account then
+A signed-out professional creates an account, takes the identity photos
+(cédula and selfie, see `docs/develop/identity-verification.md`; can be put
+off), then a profile (name, phone, coverage zone), optional certificates and a
+submission for staff review. The account then
 sits pending verification (flow T-1 in `flujos_usuario_mano.pdf`).
 
 ## Screens and routes
@@ -21,7 +23,8 @@ All files live in `apps/provider/lib/features/onboarding/`.
 | `sign_in_sheet.dart` | `showSignInSheet`: the **Ya tengo cuenta** `ManoCredentialsSheet`, failures shown in it with `authFailureCopy`. |
 | `steps/welcome_step.dart` | `ManoHeroScaffold`: headline, footnote explaining Mano Profesionales, primary **Crear cuenta profesional** (`start()`), secondary **Ya tengo cuenta** (`sessionProvider.notifier.signIn()`). A `SignedOut.lastFailure` is shown as a `ManoNotice` and dismissed with `acknowledgeFailure()`. While the sign-in call runs, a local `_busy` flag makes the buttons spin. |
 | `steps/profile_step.dart` | `ManoStepScaffold`: **Nombre para mostrar**, **Celular** (phone keyboard), **Zona de cobertura** (helper "Por ejemplo, Chapinero."). Errors appear inline after the first refused **Continuar**, then update as you type. |
-| `steps/documents_step.dart` | Rows "Documento de identidad (frente)" and "(reverso)" (required), and "Certificados o soportes (opcional)". Each row has **Adjuntar**, which flips to "Adjuntado". **Continuar** stays disabled until both ID sides are attached. |
+| `../identity/identity_flow_view.dart` | The `identity` step, right after **Crear cuenta**: the cédula and selfie photos. **Ahora no** or finishing calls `leaveIdentity()`. |
+| `steps/documents_step.dart` | "Tus certificados": one optional row, "Certificados o soportes (opcional)", with **Adjuntar**, which flips to "Adjuntado". The cédula is no longer asked here; the identity check covers it. |
 | `steps/review_step.dart` | A summary of name, normalised phone, zone and attached documents. Primary **Enviar a revisión** spins while submitting. A failure shows `ManoNotice(failure.message)` above the summary, and the data is kept. |
 | `steps/pending_step.dart` | "Tu cuenta está en revisión", a `ManoStatusChip('En revisión', warning)`, and an explanation (you can complete your profile, but you can't publish services or receive requests until approved). Primary **Explorar la app** → `onFinished()`. |
 | `onboarding_copy.dart` | Spanish copy for `ProfileProblem`s, document labels, and `AuthFailure` messages and tones (the same wording as the requester's sign-in). |
@@ -40,9 +43,9 @@ All of it is in `packages/mano_session/lib/src/provider_onboarding/`.
   - `normalizePhone(String) → String?`: returns the 10 digits.
 - `provider_onboarding_notifier.dart`:
   - `providerOnboardingProvider`: `NotifierProvider<ProviderOnboardingNotifier, ProviderOnboardingState>`. Not auto-dispose, so the draft survives the root rebuilding on a failed sign-in.
-  - `ProviderOnboardingStep { welcome, email, password, name, phone, zone, services, experience, bio, documents, review, pending }`. The account exists from `name` on, so `back()` stops there.
+  - `ProviderOnboardingStep { welcome, email, password, identity, name, phone, zone, services, experience, bio, documents, review, pending }`. The account exists from `identity` on, so `back()` stops at `identity` and `name`; `leaveIdentity()` moves on to `name`.
   - `ProviderAccountRejected(AuthFailure)` joins the status cases; `createAccount()`, `browseAsGuest()` and `finish()` are the account-side methods.
-  - `ProviderDocument { idFront, idBack, certificates }`, each with `slug` and `required`.
+  - `ProviderDocument { certificates }`, with `slug` and `required` (false).
   - `ProviderOnboardingStatus` (sealed): `Idle`, `Submitting`, `Failed(DataFailure)`.
   - `ProviderOnboardingState`:
     - Fields: `step`, `displayName`, `phone`, `workZone`, `attached` (`Map<ProviderDocument, String>`), `showProblems`, `status`.
@@ -62,7 +65,7 @@ Nothing is invalidated: no other provider reads verification state yet.
 
 | Port | Provider | Adapter today |
 |---|---|---|
-| `ProviderOnboardingRepository.submit` | `providerOnboardingRepositoryProvider` | `MockProviderOnboardingRepository` (in memory; rejects an empty name or no documents) |
+| `ProviderOnboardingRepository.submit` | `providerOnboardingRepositoryProvider` | `MockProviderOnboardingRepository` (in memory; rejects an empty name; documents are optional) |
 | `SessionRepository.signIn` | `sessionRepositoryProvider` via `sessionProvider` | `_NoAuthProviderChosen` → `AuthUnavailable` ("No pudimos conectar…") |
 
 ## Shared widgets
@@ -78,7 +81,7 @@ document row and summary row are private to the feature.
   - the initial state;
   - `start`;
   - a refused profile shows problems, a valid one advances;
-  - documents need both ID sides;
+  - documents are optional;
   - placeholder paths;
   - `back` keeps the draft;
   - submit success sends the exact `WorkerProfileDraft` and lands on pending;
@@ -88,7 +91,7 @@ document row and summary row are private to the feature.
   - the welcome entries;
   - **Ya tengo cuenta** shows the sign-in failure notice;
   - inline profile errors, including a live phone error;
-  - documents **Continuar** stays disabled until both ID sides are attached;
+  - documents are optional certificates, with no cédula rows;
   - back keeps the data;
   - submit → pending → **Explorar la app** calls `onFinished`;
   - a failed submit shows the notice and keeps the review.
@@ -96,13 +99,13 @@ document row and summary row are private to the feature.
 - `apps/provider/integration_test/onboarding_flow_test.dart` (device):
   - start signed out;
   - **Crear cuenta profesional**, fill the profile, **Continuar**;
-  - attach both ID sides, **Continuar**;
+  - put the identity photos off, then **Continuar** past the certificates;
   - **Enviar a revisión** → pending;
   - **Explorar la app** → `ProviderNavShell`.
 
 ## Gaps and follow-ups
 
-- **No file or image picker.** **Adjuntar** records `placeholder://id-front`, `placeholder://id-back` and `placeholder://certificates`. Going live needs a picker plugin (camera and gallery for ID photos, files for certificates), permissions on Android and later iOS, and real local paths in `WorkerProfileDraft.documentPaths`. Certificates are one row with one placeholder; multiple certificates would need a list.
+- **No file picker for certificates.** **Adjuntar** records `placeholder://certificates`. Going live needs a picker plugin (camera and gallery for ID photos, files for certificates), permissions on Android and later iOS, and real local paths in `WorkerProfileDraft.documentPaths`. Certificates are one row with one placeholder; multiple certificates would need a list.
 - **No photo.** T-1 lists a profile photo; the domain draft has no field for it.
 - **Email and password only.** "Crear cuenta profesional" creates a real `provider` account through `mano-auth` (build with `SUPERTOKENS_API_DOMAIN`; without it sign-up reports `AuthUnavailable` and **Ahora no** still lets you in as a guest). Phone or Google sign-up (T-1 step 1) is not built.
 - **Role mismatch is not blocked.** A requester account can sign in through **Ya tengo cuenta**; its `st-role` claim is not checked yet.

@@ -16,10 +16,16 @@ void main() {
   test('asks the plugin for the matching source, shrunk for upload', () async {
     final asked = <(ImageSource, double?, int?)>[];
     final picker = ImagePickerMediaPicker(
-      pick: (source, {maxWidth, imageQuality}) async {
-        asked.add((source, maxWidth, imageQuality));
-        return file('a.jpg');
-      },
+      pick:
+          (
+            source, {
+            maxWidth,
+            imageQuality,
+            required preferredCameraDevice,
+          }) async {
+            asked.add((source, maxWidth, imageQuality));
+            return file('a.jpg');
+          },
     );
 
     await picker.pick(PhotoSource.camera);
@@ -31,6 +37,22 @@ void main() {
     ]);
   });
 
+  test('uses the rear camera unless the front one is asked for', () async {
+    final cameras = <CameraDevice>[];
+    final picker = ImagePickerMediaPicker(
+      pick:
+          (_, {maxWidth, imageQuality, required preferredCameraDevice}) async {
+            cameras.add(preferredCameraDevice);
+            return file('a.jpg');
+          },
+    );
+
+    await picker.pick(PhotoSource.camera);
+    await picker.pick(PhotoSource.camera, facing: CameraFacing.front);
+
+    expect(cameras, [CameraDevice.rear, CameraDevice.front]);
+  });
+
   test('reads the bytes and names the type from the extension', () async {
     for (final (name, mime) in [
       ('a.JPG', 'image/jpeg'),
@@ -40,7 +62,12 @@ void main() {
       ('d.heic', 'image/heic'),
     ]) {
       final picker = ImagePickerMediaPicker(
-        pick: (_, {maxWidth, imageQuality}) async => file(name),
+        pick: (
+          _, {
+          maxWidth,
+          imageQuality,
+          required preferredCameraDevice,
+        }) async => file(name),
       );
       final image = (await picker.pick(PhotoSource.gallery))!;
       expect(image.mimeType, mime, reason: name);
@@ -51,15 +78,24 @@ void main() {
 
   test('prefers the type the plugin reports', () async {
     final picker = ImagePickerMediaPicker(
-      pick: (_, {maxWidth, imageQuality}) async =>
-          file('x', mimeType: 'image/png'),
+      pick: (
+        _, {
+        maxWidth,
+        imageQuality,
+        required preferredCameraDevice,
+      }) async => file('x', mimeType: 'image/png'),
     );
     expect((await picker.pick(PhotoSource.gallery))!.mimeType, 'image/png');
   });
 
   test('backing out is null', () async {
     final picker = ImagePickerMediaPicker(
-      pick: (_, {maxWidth, imageQuality}) async => null,
+      pick: (
+        _, {
+        maxWidth,
+        imageQuality,
+        required preferredCameraDevice,
+      }) async => null,
     );
     expect(await picker.pick(PhotoSource.gallery), isNull);
   });

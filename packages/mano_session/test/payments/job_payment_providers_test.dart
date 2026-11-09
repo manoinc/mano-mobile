@@ -4,7 +4,14 @@ import 'package:mano_session/mano_session.dart';
 
 void main() {
   test('the new ports have offline adapters until their streams wire them', () {
-    final container = ProviderContainer();
+    // The identity mock reads the config for its debug approval switch.
+    final container = ProviderContainer(
+      overrides: [
+        manoConfigProvider.overrideWithValue(
+          const ManoConfig(gatewayGraphQlUrl: 'http://gw', appRole: 'provider'),
+        ),
+      ],
+    );
     addTearDown(container.dispose);
 
     expect(

@@ -21,8 +21,6 @@ const experienceProblemCopy = 'Escribe un número de años entre 0 y 60.';
 const bioProblemCopy = 'Usa máximo 280 caracteres.';
 
 String documentLabel(ProviderDocument document) => switch (document) {
-  ProviderDocument.idFront => 'Documento de identidad (frente)',
-  ProviderDocument.idBack => 'Documento de identidad (reverso)',
   ProviderDocument.certificates => 'Certificados o soportes (opcional)',
 };
 

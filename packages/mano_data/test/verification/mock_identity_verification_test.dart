@@ -36,4 +36,14 @@ void main() {
     expect((await port.finish()).valueOrNull, isA<IdentityCheckPending>());
     expect((await port.status()).valueOrNull, isA<IdentityCheckPending>());
   });
+
+  test('set to approve, a finished check comes back approved', () async {
+    final port = MockIdentityVerification(approveOnFinish: true);
+    for (final kind in IdentityDocumentKind.values) {
+      await port.submit(kind, _photo);
+    }
+
+    expect((await port.finish()).valueOrNull, isA<IdentityCheckApproved>());
+    expect((await port.status()).valueOrNull, isA<IdentityCheckApproved>());
+  });
 }

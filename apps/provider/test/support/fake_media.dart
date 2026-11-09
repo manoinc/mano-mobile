@@ -11,10 +11,15 @@ final tinyPng = base64Decode(
 /// Always hands back [tinyPng], from either source.
 final class FakeMediaPicker implements MediaPicker {
   final sources = <PhotoSource>[];
+  final facings = <CameraFacing>[];
 
   @override
-  Future<PickedImage?> pick(PhotoSource source) async {
+  Future<PickedImage?> pick(
+    PhotoSource source, {
+    CameraFacing facing = CameraFacing.rear,
+  }) async {
     sources.add(source);
+    facings.add(facing);
     return PickedImage(bytes: tinyPng, mimeType: 'image/png', name: 'a.png');
   }
 }

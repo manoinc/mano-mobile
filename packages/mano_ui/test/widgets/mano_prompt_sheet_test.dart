@@ -123,7 +123,8 @@ void main() {
                 primaryLabel: 'Sí, notifícame',
                 onPrimary: () => taps++,
                 child: ManoToggleRow(
-                  label: 'Recibir ofertas de mantenimiento, recomendados y más.',
+                  label:
+                      'Recibir ofertas de mantenimiento, recomendados y más.',
                   value: true,
                   onChanged: (_) {},
                 ),
@@ -140,5 +141,28 @@ void main() {
     await tester.pump();
 
     expect(taps, 1, reason: 'the action scrolled out of reach');
+  });
+
+  testWidgets('offers a quiet second way out under the action', (tester) async {
+    var later = 0;
+    await tester.pumpWidget(
+      _host(
+        ManoPromptSheet(
+          title: 'Verifica tu identidad para continuar',
+          message: 'Toma un minuto.',
+          primaryLabel: 'Verificar ahora',
+          onPrimary: () {},
+          secondaryLabel: 'Ahora no',
+          onSecondary: () => later++,
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Ahora no'));
+    expect(later, 1);
+    expect(
+      tester.getTopLeft(find.text('Ahora no')).dy,
+      greaterThan(tester.getTopLeft(find.text('Verificar ahora')).dy),
+    );
   });
 }

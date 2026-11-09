@@ -7,6 +7,7 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../test/features/services/services_fakes.dart';
+import '../test/support/fake_identity.dart';
 import '../test/support/fake_session_repository.dart';
 import '../test/support/pump_app.dart';
 
@@ -19,6 +20,7 @@ void main() {
         overrides: [
           offlineMarketplaceProvider.overrideWithValue(true),
           manoConfigProvider.overrideWithValue(testConfig),
+          verifiedIdentity(),
           sessionRepositoryProvider.overrideWithValue(
             FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
           ),
