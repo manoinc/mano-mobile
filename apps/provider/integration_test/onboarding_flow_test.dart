@@ -51,6 +51,7 @@ void main() {
     await tester.enterText(_field('Contraseña'), 'mano2026');
     await tester.pump();
     await _tapText(tester, 'Crear cuenta');
+    await _tapText(tester, 'Ahora no');
 
     await _answer(tester, 'Nombre completo', 'Ana Gómez');
     await _answer(tester, 'Celular', '300 123 4567');
@@ -60,8 +61,6 @@ void main() {
     await _answer(tester, 'Años de experiencia', '5');
     await _tapText(tester, 'Omitir');
 
-    await _tapText(tester, 'Adjuntar');
-    await _tapText(tester, 'Adjuntar');
     await _tapText(tester, 'Continuar');
 
     await _tapText(tester, 'Enviar a revisión');

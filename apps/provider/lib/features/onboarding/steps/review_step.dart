@@ -48,13 +48,14 @@ class ReviewStep extends ConsumerWidget {
         ),
         if (draft.bio.isNotEmpty)
           _SummaryRow(label: 'Descripción', value: draft.bio),
-        _SummaryRow(
-          label: 'Documentos',
-          value: [
-            for (final d in ProviderDocument.values)
-              if (state.attached.containsKey(d)) documentLabel(d),
-          ].join('\n'),
-        ),
+        if (state.attached.isNotEmpty)
+          _SummaryRow(
+            label: 'Documentos',
+            value: [
+              for (final d in ProviderDocument.values)
+                if (state.attached.containsKey(d)) documentLabel(d),
+            ].join('\n'),
+          ),
       ],
     );
   }

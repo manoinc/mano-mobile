@@ -22,9 +22,8 @@ enum ProviderOnboardingStep {
   pending,
 }
 
+/// Supporting papers; the cédula goes through the identity check instead.
 enum ProviderDocument {
-  idFront('id-front', required: true),
-  idBack('id-back', required: true),
   certificates('certificates', required: false);
 
   const ProviderDocument(this.slug, {required this.required});

@@ -96,10 +96,6 @@ Future<void> _answerAll(ProviderOnboardingNotifier n) async {
     ..next();
 }
 
-void _attachIds(ProviderOnboardingNotifier n) => n
-  ..attach(ProviderDocument.idFront)
-  ..attach(ProviderDocument.idBack);
-
 ProviderOnboardingStep _step(ProviderContainer c) =>
     c.read(providerOnboardingProvider).step;
 
@@ -470,20 +466,19 @@ void main() {
     expect(first, greaterThan(0));
   });
 
-  test('documents need both ID sides before moving on', () async {
-    final (:c, :n) = _setUp();
-    await _answerAll(n);
-    n
-      ..attach(ProviderDocument.idFront)
-      ..next();
-    expect(c.read(providerOnboardingProvider).documentsComplete, isFalse);
-    expect(_step(c), ProviderOnboardingStep.documents);
+  test(
+    'documents are optional; the cédula goes through the identity check',
+    () async {
+      final (:c, :n) = _setUp();
+      await _answerAll(n);
+      expect(ProviderDocument.values, [ProviderDocument.certificates]);
+      expect(c.read(providerOnboardingProvider).documentsComplete, isTrue);
 
-    n
-      ..attach(ProviderDocument.idBack)
-      ..next();
-    expect(_step(c), ProviderOnboardingStep.review);
-  });
+      n.next();
+
+      expect(_step(c), ProviderOnboardingStep.review);
+    },
+  );
 
   test('attach records a placeholder path per document', () {
     final (:c, :n) = _setUp();
@@ -496,8 +491,8 @@ void main() {
   test('back walks every question and keeps the answers', () async {
     final (:c, :n) = _setUp();
     await _answerAll(n);
-    _attachIds(n);
     n
+      ..attach(ProviderDocument.certificates)
       ..next()
       ..back();
     expect(_step(c), ProviderOnboardingStep.documents);
@@ -508,7 +503,7 @@ void main() {
     final s = c.read(providerOnboardingProvider);
     expect(s.displayName, 'Ana Gómez');
     expect(s.categories, hasLength(2));
-    expect(s.attached, hasLength(2));
+    expect(s.attached, hasLength(1));
     n.back();
     expect(
       _step(c),
@@ -522,7 +517,6 @@ void main() {
     final repo = _RecordingOnboarding(const Ok(VerificationStatus.pending));
     final (:c, :n) = _setUp(repo);
     await _answerAll(n);
-    _attachIds(n);
     n.next();
 
     await n.submit();
@@ -536,7 +530,6 @@ void main() {
         categories: ['plumbing', 'electrical'],
         yearsExperience: 5,
         bio: 'Plomera con 5 años.',
-        documentPaths: ['placeholder://id-front', 'placeholder://id-back'],
       ),
     );
     expect(_step(c), ProviderOnboardingStep.pending);
@@ -547,7 +540,6 @@ void main() {
       _RecordingOnboarding(const Ok(VerificationStatus.pending)),
     );
     await _answerAll(n);
-    _attachIds(n);
     n.next();
     await n.submit();
 
@@ -561,7 +553,6 @@ void main() {
     final repo = _RecordingOnboarding(const Err(DataUnavailable()));
     final (:c, :n) = _setUp(repo);
     await _answerAll(n);
-    _attachIds(n);
     n.next();
 
     await n.submit();

@@ -116,9 +116,6 @@ Future<void> _attach(WidgetTester tester, int index) async {
 
 Future<void> _reachReview(WidgetTester tester) async {
   await _answerAll(tester);
-  await _attach(tester, 0);
-  // The first row is now attached, so the remaining first is the back side.
-  await _attach(tester, 0);
   await _tapText(tester, 'Continuar');
 }
 
@@ -381,23 +378,21 @@ void main() {
     expect(find.text('Cuéntales algo sobre ti'), findsOneWidget);
     expect(_primaryEnabled(tester), isTrue);
     await _tapText(tester, 'Omitir');
-    expect(find.text('Documento de identidad (frente)'), findsOneWidget);
+    expect(find.text('Certificados o soportes (opcional)'), findsOneWidget);
   });
 
-  testWidgets('documents Continuar waits for both ID sides', (tester) async {
+  testWidgets('documents are optional certificates; no cédula rows', (
+    tester,
+  ) async {
     await _pump(tester);
     await _answerAll(tester);
 
-    expect(find.text('Documento de identidad (frente)'), findsOneWidget);
-    expect(find.text('Documento de identidad (reverso)'), findsOneWidget);
     expect(find.text('Certificados o soportes (opcional)'), findsOneWidget);
-    expect(_primaryEnabled(tester), isFalse);
+    expect(find.textContaining('Documento de identidad'), findsNothing);
+    expect(_primaryEnabled(tester), isTrue);
 
     await _attach(tester, 0);
-    expect(_primaryEnabled(tester), isFalse);
     expect(find.text('Adjuntado'), findsOneWidget);
-    await _attach(tester, 0);
-    expect(_primaryEnabled(tester), isTrue);
   });
 
   testWidgets('back returns to the previous step with the data kept', (
@@ -429,7 +424,7 @@ void main() {
     await _tapText(tester, 'Enviar a revisión');
 
     final draft = onboarding.submitted.single;
-    expect(draft.documentPaths, hasLength(2));
+    expect(draft.documentPaths, isEmpty);
     expect(draft.categories, ['plumbing', 'electrical']);
     expect(draft.yearsExperience, 5);
     expect(draft.bio, 'Plomera con 5 años.');

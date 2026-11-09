@@ -5,7 +5,7 @@ import 'package:mano_ui/mano_ui.dart';
 
 import '../onboarding_copy.dart';
 
-/// Identity documents for staff review, plus optional certificates.
+/// Optional certificates; the cédula went through the identity check.
 class DocumentsStep extends ConsumerWidget {
   const DocumentsStep({required this.state, super.key});
 
@@ -17,8 +17,8 @@ class DocumentsStep extends ConsumerWidget {
 
     return ManoStepScaffold(
       onBack: notifier.back,
-      headline: 'Tus documentos',
-      subhead: 'Nuestro equipo los revisa para verificar tu identidad.',
+      headline: 'Tus certificados',
+      subhead: 'Cursos, licencias o cartas que respalden tu trabajo.',
       progress: state.progress,
       primaryLabel: 'Continuar',
       onPrimary: state.documentsComplete ? notifier.next : null,
