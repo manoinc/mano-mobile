@@ -5,7 +5,7 @@ import 'session.dart';
 
 /// Sign in or up with a code texted to a phone; new accounts get [role].
 abstract interface class PasswordlessAuth {
-  /// [phone] in E.164; see `colombianE164`.
+  /// [phone] in E.164; see `phoneE164`.
   Future<Result<OtpChallenge, AuthFailure>> sendCode(
     String phone, {
     required String role,

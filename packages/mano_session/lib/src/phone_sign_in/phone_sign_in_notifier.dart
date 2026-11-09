@@ -6,6 +6,7 @@ import '../session_providers.dart';
 /// Where a phone sign-in stands: a number being typed, or a code once one is sent.
 final class PhoneSignInState {
   const PhoneSignInState({
+    this.country = Country.colombia,
     this.phone = '',
     this.code = '',
     this.challenge,
@@ -13,6 +14,9 @@ final class PhoneSignInState {
     this.showPhoneProblem = false,
     this.failure,
   });
+
+  /// Whose dial code the number takes; Colombia by default.
+  final Country country;
 
   /// As typed, e.g. `300 123 4567`.
   final String phone;
@@ -26,13 +30,14 @@ final class PhoneSignInState {
   final bool showPhoneProblem;
   final AuthFailure? failure;
 
-  String? get e164 => colombianE164(phone);
+  String? get e164 => phoneE164(phone, country);
 
   bool get canSend => !busy && e164 != null;
 
   bool get canVerify => !busy && challenge != null && isWellFormedOtp(code);
 
   PhoneSignInState copyWith({
+    Country? country,
     String? phone,
     String? code,
     OtpChallenge? Function()? challenge,
@@ -40,6 +45,7 @@ final class PhoneSignInState {
     bool? showPhoneProblem,
     AuthFailure? Function()? failure,
   }) => PhoneSignInState(
+    country: country ?? this.country,
     phone: phone ?? this.phone,
     code: code ?? this.code,
     challenge: challenge == null ? this.challenge : challenge(),
@@ -58,6 +64,12 @@ final class PhoneSignInNotifier extends Notifier<PhoneSignInState> {
 
   void editPhone(String value) => state = state.copyWith(
     phone: value,
+    showPhoneProblem: false,
+    failure: () => null,
+  );
+
+  void selectCountry(Country country) => state = state.copyWith(
+    country: country,
     showPhoneProblem: false,
     failure: () => null,
   );

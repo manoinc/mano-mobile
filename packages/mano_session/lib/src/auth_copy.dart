@@ -27,6 +27,7 @@ String credentialProblemCopy(CredentialProblem problem) => switch (problem) {
   CredentialProblem.needsLetterAndNumber => 'Usa letras y números.',
 };
 
-/// The inline error under a phone number that `colombianE164` refuses.
-const phoneNumberProblemCopy =
-    'Escribe un celular colombiano: 10 dígitos que empiezan por 3.';
+/// The inline error under a phone number that `phoneE164` refuses in [country].
+String phoneNumberProblemCopy(Country country) => country == Country.colombia
+    ? 'Escribe un celular colombiano: 10 dígitos que empiezan por 3.'
+    : 'Revisa el número: entre 6 y 12 dígitos, sin el +${country.dialCode}.';

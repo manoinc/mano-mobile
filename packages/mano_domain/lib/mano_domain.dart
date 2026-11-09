@@ -89,6 +89,7 @@ export 'src/session/session_repository.dart';
 export 'src/session/social_auth.dart';
 export 'src/shared/bank.dart';
 export 'src/shared/colombian_mobile.dart';
+export 'src/shared/country.dart';
 export 'src/shared/data_failure.dart';
 export 'src/shared/legal_id.dart';
 export 'src/shared/mobile_phone.dart';
