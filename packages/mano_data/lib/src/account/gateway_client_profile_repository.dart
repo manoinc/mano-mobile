@@ -27,11 +27,7 @@ mutation UpdateClientProfile(\$input: UpdateClientProfileInput!) {
   Future<ClientProfile> profile() async {
     final data = await _transport.run(_query);
     final viewer = data['viewer'] as Map<String, dynamic>;
-    final served = viewer['clientProfile'] as Map<String, dynamic>?;
-    if (served != null) return _fromJson(served);
-    // mano-profiles has no row until the first write, so the seed creates it.
-    final created = await _write(_contact(seed));
-    return created.valueOrNull ?? seed;
+    return _fromJson(viewer['clientProfile'] as Map<String, dynamic>?);
   }
 
   @override

@@ -329,8 +329,8 @@ idempotent: it truncates the catalog first.
 - `docs/schema.graphql` is stale: it misses `requestChatMediaUpload`,
   `Message.media` and `sendMessage(mediaIds)`. Read the resolvers.
 - `updateWorkerProfile` has no bio, skills or portfolio fields, and
-  mano-profiles keeps no row until a profile's first write (the apps create it
-  from the sign-up name on first read); `createSupportTicket` has no PQRS kind (petición, queja, reclamo,
+  mano-profiles keeps no row until a profile's first write (the provider app
+  creates it from the sign-up name on first read); `createSupportTicket` has no PQRS kind (petición, queja, reclamo,
   sugerencia).
 - Billing (D6): payouts have no read (`myPayoutAccount`) or remove, so the app
   only knows the account registered in this session. `buyCoinPack` has no

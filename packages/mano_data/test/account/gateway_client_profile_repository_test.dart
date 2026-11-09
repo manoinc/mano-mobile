@@ -61,29 +61,18 @@ void main() {
     );
   });
 
-  test('a fresh account gets its profile created from the seed', () async {
-    final sent = <Map<String, dynamic>>[];
+  test('a fresh account reads as the seed without writing anything', () async {
+    var calls = 0;
     final repo = _repo((r) async {
-      final body = _body(r);
-      sent.add(body);
-      return (body['query'] as String).contains('updateClientProfile')
-          ? _data({
-              'updateClientProfile': {
-                'displayName': 'Ana',
-                'photoUrl': null,
-                'phone': '',
-                'email': 'ana@mano.co',
-              },
-            })
-          : _data({
-              'viewer': {'clientProfile': null},
-            });
+      calls++;
+      expect(_body(r)['query'], isNot(contains('updateClientProfile')));
+      return _data({
+        'viewer': {'clientProfile': null},
+      });
     });
 
     expect(await repo.profile(), _seed);
-    expect(sent.last['variables'], {
-      'input': {'displayName': 'Ana', 'phone': '', 'email': 'ana@mano.co'},
-    });
+    expect(calls, 1);
   });
 
   test('blank served fields fall back to the seed', () async {

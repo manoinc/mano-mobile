@@ -93,7 +93,7 @@ mutation UpdateWorkerProfile(\$input: UpdateWorkerProfileInput!) {
     };
   }
 
-  // mano-profiles has no row until the first write, so the sign-up name creates it.
+  // No row means no referral code or stats, so the sign-up name creates it.
   Future<Map<String, dynamic>> _worker() async {
     final data = await _transport.run(_query);
     final viewer = data['viewer'] as Map<String, dynamic>;
@@ -111,15 +111,13 @@ mutation UpdateWorkerProfile(\$input: UpdateWorkerProfileInput!) {
     return data['updateWorkerProfile'] as Map<String, dynamic>;
   }
 
-  static ProviderProfile _compose(
-    Map<String, dynamic> json,
-    ProviderProfile local,
-  ) {
+  ProviderProfile _compose(Map<String, dynamic> json, ProviderProfile local) {
     final verification = json['verification'] as Map<String, dynamic>?;
+    final name = json['displayName'] as String? ?? '';
     return ProviderProfile(
       party: Party(
         id: json['id'] as String,
-        displayName: json['displayName'] as String? ?? '',
+        displayName: name.trim().isEmpty ? seedName.trim() : name,
         photoUrl: json['photoUrl'] as String? ?? '',
       ),
       bio: local.bio,

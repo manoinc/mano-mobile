@@ -46,13 +46,17 @@ read them on any `WorkerProfile`).
 A screen hides what is not served rather than showing a mock number next to
 live ones.
 
-## First read creates the profile
+## Missing or blank profiles
 
-mano-profiles has no row for an account until its first write, and fills
-placeholders ("Worker", "Unknown", "Profile") when a write omits a field. So
-when `viewer.clientProfile` or `viewer.workerProfile` is null, the gateway
-adapter writes the sign-up seed (name and email for a requester, name and an
-empty zone for a professional) and uses the answer.
+mano-profiles has no row for an account until its first write, and leaves a
+field it was never given empty.
+
+- Requester: a missing profile, or a blank name, email or phone, reads as the
+  sign-up seed. Nothing is written until the person saves.
+- Professional: without a row there is no `referralCode` and no
+  `WorkerProfile` to carry stats, so when `viewer.workerProfile` is null the
+  adapter creates it with the sign-up name (and an empty zone). A blank served
+  name also reads as the sign-up name.
 
 ## Referral codes
 

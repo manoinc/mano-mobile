@@ -102,6 +102,18 @@ void main() {
     expect(profile.party.displayName, 'Luisa Pérez');
   });
 
+  test('a blank served name reads as the sign-up name', () async {
+    final (:repo, local: _) = _setUp(
+      (_) async => _data({
+        'viewer': {
+          'workerProfile': {..._worker(), 'displayName': ''},
+        },
+      }),
+    );
+
+    expect((await repo.profile()).party.displayName, 'Luisa');
+  });
+
   test('stats carry what the gateway serves and nothing invented', () async {
     final (:repo, local: _) = _setUp(
       (_) async => _data({
