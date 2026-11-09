@@ -23,4 +23,8 @@ const ManoConfig providerConfig = ManoConfig(
   authApiDomain: bool.hasEnvironment('SUPERTOKENS_API_DOMAIN')
       ? String.fromEnvironment('SUPERTOKENS_API_DOMAIN')
       : null,
+  // mano-auth's Google web client ID; absent, Google reports it cannot connect.
+  googleServerClientId: bool.hasEnvironment('GOOGLE_SERVER_CLIENT_ID')
+      ? String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID')
+      : null,
 );

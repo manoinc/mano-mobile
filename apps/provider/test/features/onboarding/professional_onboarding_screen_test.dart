@@ -31,6 +31,8 @@ Future<void> _pump(
   ProviderOnboardingRepository? onboarding,
   SessionRepository? session,
   VoidCallback? onFinished,
+  PasswordlessAuth? phone,
+  SocialAuth? social,
 }) async {
   await tester.pumpWidget(
     ProviderScope(
@@ -44,6 +46,8 @@ Future<void> _pump(
         providerOnboardingRepositoryProvider.overrideWithValue(
           onboarding ?? _FakeOnboarding(),
         ),
+        if (phone != null) passwordlessAuthProvider.overrideWithValue(phone),
+        if (social != null) socialAuthProvider.overrideWithValue(social),
       ],
       child: MaterialApp(
         theme: ManoTheme.light(),
@@ -135,6 +139,7 @@ void main() {
       ),
     );
     await _tapText(tester, 'Ya tengo cuenta');
+    await _tapText(tester, 'Continuar con correo');
     await tester.enterText(
       find.byKey(const Key('mano-credentials-email')),
       'pro@mano.co',
@@ -159,6 +164,7 @@ void main() {
     );
     await _pump(tester, session: repository);
     await _tapText(tester, 'Ya tengo cuenta');
+    await _tapText(tester, 'Continuar con correo');
     await tester.enterText(
       find.byKey(const Key('mano-credentials-email')),
       'pro@mano.co',
@@ -265,6 +271,7 @@ void main() {
       ),
     );
     await _tapText(tester, 'Ya tengo cuenta');
+    await _tapText(tester, 'Continuar con correo');
     await tester.enterText(
       find.byKey(const Key('mano-credentials-email')),
       'pro@mano.co',
@@ -414,5 +421,90 @@ void main() {
     expect(find.text(const DataUnavailable().message), findsOneWidget);
     expect(find.text('Ana Gómez'), findsOneWidget);
     expect(find.text('Tu cuenta está en revisión'), findsNothing);
+  });
+
+  group('phone sign-in', () {
+    Session phoneSession({required bool isNew}) => Session(
+      user: fakeSession().user,
+      accessToken: 'access-1',
+      expiresAt: fakeSession().expiresAt,
+      isNewAccount: isNew,
+    );
+
+    Future<void> sendCode(WidgetTester tester) async {
+      await tester.enterText(find.byType(TextField).first, '3001234567');
+      await tester.pump();
+      await _tapText(tester, 'Continuar');
+    }
+
+    testWidgets('Ya tengo cuenta opens the phone screen', (tester) async {
+      await _pump(tester);
+      await _tapText(tester, 'Ya tengo cuenta');
+
+      expect(find.text('Inicia sesión o regístrate'), findsOneWidget);
+      expect(find.text('Colombia (+57)'), findsOneWidget);
+      expect(find.text('Continuar con correo'), findsOneWidget);
+      expect(find.text('Continuar con Google'), findsOneWidget);
+    });
+
+    testWidgets('a new account continues at the name, phone kept', (
+      tester,
+    ) async {
+      final phone = InMemoryPasswordlessAuth(
+        onVerified: () => phoneSession(isNew: true),
+      );
+      await _pump(tester, phone: phone);
+      await _tapText(tester, 'Ya tengo cuenta');
+      await sendCode(tester);
+
+      expect(find.text('Confirma tu número'), findsOneWidget);
+      expect(phone.lastRole, ManoRole.provider);
+      await tester.enterText(find.byType(TextField).first, '123456');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Nombre completo'), findsOneWidget);
+    });
+
+    testWidgets('a wrong code says so', (tester) async {
+      await _pump(
+        tester,
+        phone: InMemoryPasswordlessAuth(onVerified: fakeSession),
+      );
+      await _tapText(tester, 'Ya tengo cuenta');
+      await sendCode(tester);
+
+      await tester.enterText(find.byType(TextField).first, '000000');
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Ese código no es correcto. Te quedan 2 intentos.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('Google failing says it cannot connect', (tester) async {
+      await _pump(
+        tester,
+        social: InMemorySocialAuth(
+          onSignIn: () => const Err(AuthUnavailable(detail: 'no client')),
+        ),
+      );
+      await _tapText(tester, 'Ya tengo cuenta');
+      await _tapText(tester, 'Continuar con Google');
+
+      expect(
+        find.text('No pudimos conectarnos. Intenta de nuevo.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('email sign-up stays one tap away', (tester) async {
+      await _pump(tester);
+      await _tapText(tester, 'Ya tengo cuenta');
+      await _tapText(tester, 'Continuar con correo');
+      await _tapText(tester, 'Crear cuenta con correo');
+
+      expect(find.text('¿Cuál es tu correo?'), findsOneWidget);
+    });
   });
 }

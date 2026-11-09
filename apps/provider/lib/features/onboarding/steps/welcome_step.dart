@@ -4,7 +4,6 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../onboarding_copy.dart';
-import '../sign_in_sheet.dart';
 
 /// The front door: create a professional account or sign in to one.
 class WelcomeStep extends ConsumerStatefulWidget {
@@ -27,7 +26,7 @@ class _WelcomeStepState extends ConsumerState<WelcomeStep> {
       primaryLabel: 'Crear cuenta profesional',
       onPrimary: ref.read(providerOnboardingProvider.notifier).start,
       secondaryLabel: 'Ya tengo cuenta',
-      onSecondary: () => showSignInSheet(context, ref),
+      onSecondary: ref.read(providerOnboardingProvider.notifier).startWithPhone,
       footnote:
           'Con Mano Profesionales recibes solicitudes de hogares en tu zona. '
           'Verificamos tu identidad antes de que publiques servicios.',

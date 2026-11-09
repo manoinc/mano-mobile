@@ -17,11 +17,15 @@ class SignInScreen extends ConsumerStatefulWidget {
 }
 
 class _SignInScreenState extends ConsumerState<SignInScreen> {
-  late final _phone = TextEditingController(
-    text: ref.read(phoneSignInProvider).phone,
-  );
+  late final TextEditingController _phone;
 
   PhoneSignInNotifier get _notifier => ref.read(phoneSignInProvider.notifier);
+
+  @override
+  void initState() {
+    super.initState();
+    _phone = TextEditingController(text: ref.read(phoneSignInProvider).phone);
+  }
 
   @override
   void dispose() {
@@ -31,8 +35,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
   // Routed by the onboarding flow: a new account is asked its name first.
   void _enter(Session? session) {
-    if (session != null)
-      ref.read(onboardingFlowProvider.notifier).enter(session);
+    if (session == null) return;
+    ref.read(onboardingFlowProvider.notifier).enter(session);
   }
 
   Future<void> _verify() async => _enter(await _notifier.verify());

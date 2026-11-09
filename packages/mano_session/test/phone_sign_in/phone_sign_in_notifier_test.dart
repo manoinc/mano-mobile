@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mano_data/mano_data.dart';
 import 'package:mano_session/mano_session.dart';
 
 final _session = Session(

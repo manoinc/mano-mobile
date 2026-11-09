@@ -36,7 +36,7 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 | `ReferralLinker` | `linkWorkerByReferralCode(code)` | **live** (D2) | `MockReferralLinker` until STREAM-05 |
 | `JobPaymentRepository` | `payJob`, `jobPayment`, `checkoutTerms`, `pseBanks` | **live** (D6); finished jobs only | `MockJobPaymentRepository` until STREAM-03. See [Paying for a job](job-payments.md) |
 | `IdentityVerificationPort` | D10 `submitVerificationRequest`, `addVerificationDocuments` | stub | `MockIdentityVerification`. See [Identity verification](identity-verification.md) |
-| `PasswordlessAuth`, `SocialAuth` | mano-auth Passwordless and ThirdParty recipes | not in mano-auth yet | `InMemoryPasswordlessAuth`, `InMemorySocialAuth`. See [Signing in](auth.md) |
+| `PasswordlessAuth`, `SocialAuth` | mano-auth Passwordless (`/auth/signinup/code`, `/code/resend`, `/code/consume`) and ThirdParty (`/auth/signinup`) recipes | **live** in mano-auth branch `feat/passwordless-thirdparty` (not merged or deployed); SMS is logged, not sent; Google/Apple need OAuth credentials | `SupertokensPasswordlessAuth`, `SupertokensSocialAuth` when configured; `InMemoryPasswordlessAuth`, `InMemorySocialAuth` in tests. See [Signing in](auth.md) |
 | `SupportDesk` | `createSupportTicket(subject, description)` → `ticketNumber`, `status` FILED | stub; no PQRS kind | `MockSupportDesk` |
 | `PayoutAccounts` | `registerPayoutAccount`, `payoutBanks` (no read or remove) | **live** (D6), write only | `GatewayPayoutAccounts` (offline: `MockPayoutAccounts`). See [Billing](billing.md) |
 | `SessionRepository` | SuperTokens FDI: `/auth/signin`, `/auth/signup` (with `role`), `/auth/session/refresh`, `/auth/signout` | **live** in `mano-auth` (`:3001`); the gateway *verifies* tokens | `SuperTokensSessionRepository` when configured |
@@ -205,8 +205,9 @@ backend repo seeds it. The app's canonical ids live once, in
 ## Auth
 
 **Keycloak is dropped**: its sign-in opens a browser tab inside the app, which
-breaks the native feel. Mano uses **SuperTokens**, email and password, with
-native screens.
+breaks the native feel. Mano uses **SuperTokens** with native screens: phone
+and SMS code first, Google (Android) / Apple (iOS), and email and password as
+the fallback. The phone and social flows are in [Signing in](auth.md).
 
 - The gateway (master) verifies SuperTokens access tokens against the core's
   JWKS when `SUPERTOKENS_CORE_URL` is set; with nothing set it runs anonymously.
@@ -228,7 +229,9 @@ native screens.
 
 **Served by `mano-auth`** (TypeScript, SuperTokens backend SDK, `:3001`).
 The old gap — nothing serving the FDI routes — is closed. Every call sends
-`rid: emailpassword` and `st-auth-mode: header`.
+`st-auth-mode: header` and the recipe's `rid` (`emailpassword`, `passwordless`,
+`thirdparty`). All three share one `SuperTokensFdi` client in `mano_data`, so
+any session refreshes and signs out the same way.
 
 - **Sign-up sends the role.** `SessionRepository.signUp(credentials, role:)`
   posts `formFields` `[email, password, {id: role, value: requester|provider}]`.
@@ -249,9 +252,14 @@ The old gap — nothing serving the FDI routes — is closed. Every call sends
 - The apps check the email shape and the password (8+ characters, a letter
   and a number, SuperTokens' default rules) before sending, so a password
   `FIELD_ERROR` should be rare.
-- **Where accounts are made.** Requester: name → email → password (signs up)
-  → address → notifications, ending signed in. Provider: welcome → email →
-  password (signs up) → the profile questions → pending. "Ahora no" on either
+- **Where accounts are made.** Phone or social, both apps: "Iniciar sesión" /
+  "Ya tengo cuenta" opens "Inicia sesión o regístrate"; a new account
+  (`createdNewRecipeUser`) continues at the name step, a returning one goes in.
+  Email, requester: name → email → password (signs up) → address →
+  notifications, ending signed in. Email, provider: welcome → email →
+  password (signs up) → the profile questions → pending. Email sign-up is
+  reached from "Continuar con correo" → "Crear cuenta con correo" (and still
+  from "Registrarse" / "Crear cuenta profesional"). "Ahora no" on either
   flow still browses as a guest; guests are asked to sign in at account-only
   actions (`ManoAccountNeededSheet`).
 - **Greetings** ("Hola, Ana") use the first name typed while signing up: the
