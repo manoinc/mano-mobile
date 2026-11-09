@@ -113,7 +113,7 @@ void main() {
       ),
     );
 
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(ManoLoader), findsOneWidget);
     await tester.tap(find.bySemanticsLabel('Quitar foto 1'));
     expect(removed, ['a']);
   });

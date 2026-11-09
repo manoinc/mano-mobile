@@ -24,6 +24,14 @@ WidgetbookCategory actions() => WidgetbookCategory(
           onPressed: noop,
         ),
       ),
+      'Flame': (context) => _padded(
+        ManoOutlineButton(
+          label: 'Iniciar sesión',
+          tone: ManoOutlineTone.flame,
+          busy: context.knobs.boolean(label: 'Busy'),
+          onPressed: noop,
+        ),
+      ),
     }),
     component('ManoQuietButton', {
       'Default': (context) => _padded(
@@ -51,6 +59,10 @@ WidgetbookCategory actions() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoPlatformSignInButton', {
+      'Android': (context) => _platform(TargetPlatform.android),
+      'iOS': (context) => _platform(TargetPlatform.iOS),
+    }),
     component('ManoPressScale', {
       'Press me': (context) => Center(
         child: ManoPressScale(
@@ -71,3 +83,17 @@ WidgetbookCategory actions() => WidgetbookCategory(
 
 Widget _padded(Widget child) =>
     Center(child: Padding(padding: const EdgeInsets.all(ManoSpacing.lg), child: child));
+
+Widget _platform(TargetPlatform platform) => Builder(
+  builder: (context) => Theme(
+    data: Theme.of(context).copyWith(platform: platform),
+    child: _padded(
+      const ManoPlatformSignInButton(
+        googleMark: Icon(Icons.g_mobiledata, size: 28),
+        appleMark: Icon(Icons.apple, size: 22),
+        onGoogle: noop,
+        onApple: noop,
+      ),
+    ),
+  ),
+);

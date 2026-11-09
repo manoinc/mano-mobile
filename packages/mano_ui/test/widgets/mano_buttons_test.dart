@@ -9,6 +9,27 @@ Widget _host(Widget child, {ThemeData? theme}) => MaterialApp(
 
 void main() {
   group('the outline action', () {
+    testWidgets('the flame tone draws border and label in the primary', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(
+          ManoOutlineButton(
+            label: 'Iniciar sesión',
+            tone: ManoOutlineTone.flame,
+            onPressed: () {},
+          ),
+        ),
+      );
+
+      final style = tester
+          .widget<OutlinedButton>(find.byType(OutlinedButton))
+          .style!;
+      final states = <WidgetState>{};
+      expect(style.side!.resolve(states)!.color, ManoColors.flame);
+      expect(style.foregroundColor!.resolve(states), ManoColors.flame);
+    });
+
     testWidgets('carries its label and calls back', (tester) async {
       var taps = 0;
       await tester.pumpWidget(
@@ -40,7 +61,7 @@ void main() {
       );
 
       expect(find.text('Iniciar sesión'), findsNothing);
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(ManoLoader), findsOneWidget);
 
       await tester.tap(find.byType(ManoOutlineButton));
       await tester.pump();
@@ -52,11 +73,13 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        _host(const ManoOutlineButton(label: 'Iniciar sesión', onPressed: null)),
+        _host(
+          const ManoOutlineButton(label: 'Iniciar sesión', onPressed: null),
+        ),
       );
 
       expect(find.text('Iniciar sesión'), findsOneWidget);
-      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byType(ManoLoader), findsNothing);
       expect(
         tester.widget<OutlinedButton>(find.byType(OutlinedButton)).enabled,
         isFalse,
@@ -128,10 +151,7 @@ void main() {
       );
 
       expect(tester.takeException(), isNull);
-      expect(
-        tester.getSize(find.byType(ManoTextAction)).width,
-        lessThan(200),
-      );
+      expect(tester.getSize(find.byType(ManoTextAction)).width, lessThan(200));
     });
 
     testWidgets('calls back, and keeps a thumb-sized target', (tester) async {
@@ -178,9 +198,8 @@ void main() {
         _host(const ManoPressScale(enabled: true, child: Text('x'))),
       );
 
-      double scale() => tester
-          .widget<AnimatedScale>(find.byType(AnimatedScale))
-          .scale;
+      double scale() =>
+          tester.widget<AnimatedScale>(find.byType(AnimatedScale)).scale;
 
       expect(scale(), 1);
 
@@ -205,10 +224,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(
-        tester.widget<AnimatedScale>(find.byType(AnimatedScale)).scale,
-        1,
-      );
+      expect(tester.widget<AnimatedScale>(find.byType(AnimatedScale)).scale, 1);
       await gesture.up();
     });
   });

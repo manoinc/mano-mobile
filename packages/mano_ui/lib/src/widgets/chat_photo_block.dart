@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/mano_motion.dart';
 import '../theme/mano_theme.dart';
 import 'mano_photo_picker_grid.dart';
+import '../brand/mano_loader.dart';
 
 /// A message's photos: one wide, or several in two columns; internal to mano_ui.
 class ChatPhotoBlock extends StatelessWidget {
@@ -81,12 +82,9 @@ class ChatPhotoBlock extends StatelessWidget {
                   color: ManoColors.ink.withValues(alpha: 0.45),
                   child: Center(
                     child: switch (status) {
-                      ManoPhotoStatus.uploading => const SizedBox.square(
-                        dimension: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          color: Colors.white,
-                        ),
+                      ManoPhotoStatus.uploading => const ManoLoader(
+                        height: 18,
+                        color: Colors.white,
                       ),
                       ManoPhotoStatus.failed => const Icon(
                         Icons.error_outline_rounded,

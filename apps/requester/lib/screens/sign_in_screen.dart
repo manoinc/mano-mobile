@@ -69,8 +69,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     SignInCancelled() => ManoNoticeTone.info,
     SessionExpired() => ManoNoticeTone.warning,
     AuthUnavailable() => ManoNoticeTone.warning,
+    TooManyAttempts() => ManoNoticeTone.warning,
     SignInRejected() ||
     WrongCredentials() ||
-    EmailAlreadyRegistered() => ManoNoticeTone.error,
+    EmailAlreadyRegistered() ||
+    InvalidCode() ||
+    CodeExpired() => ManoNoticeTone.error,
   };
 }

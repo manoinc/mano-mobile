@@ -16,7 +16,7 @@ void main() {
       ));
 
       expect(find.text('Ingresar'), findsNothing);
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(ManoLoader), findsOneWidget);
 
       await tester.tap(find.byType(ManoPrimaryButton));
       await tester.pump();
@@ -31,7 +31,7 @@ void main() {
       ));
 
       expect(find.text('Ingresar'), findsOneWidget);
-      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byType(ManoLoader), findsNothing);
       expect(tester.widget<FilledButton>(find.byType(FilledButton)).enabled, isFalse);
     });
 

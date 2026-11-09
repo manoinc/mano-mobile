@@ -29,8 +29,12 @@ String documentLabel(ProviderDocument document) => switch (document) {
 // The copy is shared through mano_session; the tone is this app's choice.
 ManoNoticeTone authFailureTone(AuthFailure failure) => switch (failure) {
   SignInCancelled() => ManoNoticeTone.info,
-  SessionExpired() || AuthUnavailable() => ManoNoticeTone.warning,
+  SessionExpired() ||
+  AuthUnavailable() ||
+  TooManyAttempts() => ManoNoticeTone.warning,
   SignInRejected() ||
   WrongCredentials() ||
-  EmailAlreadyRegistered() => ManoNoticeTone.error,
+  EmailAlreadyRegistered() ||
+  InvalidCode() ||
+  CodeExpired() => ManoNoticeTone.error,
 };

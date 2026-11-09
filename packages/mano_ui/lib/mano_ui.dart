@@ -13,6 +13,7 @@
 library;
 
 export 'src/brand/mano_arch_motif.dart';
+export 'src/brand/mano_loader.dart';
 export 'src/brand/mano_logo_paths.g.dart';
 export 'src/brand/mano_monogram.dart';
 export 'src/brand/mano_opening.dart';
@@ -62,6 +63,7 @@ export 'src/widgets/mano_pack_option.dart';
 export 'src/widgets/mano_payment_status.dart';
 export 'src/widgets/mano_page_indicator.dart';
 export 'src/widgets/mano_photo_gallery.dart';
+export 'src/widgets/mano_platform_sign_in_button.dart';
 export 'src/widgets/mano_person_row.dart';
 export 'src/widgets/mano_press_scale.dart';
 export 'src/widgets/mano_question_step.dart';

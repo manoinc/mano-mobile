@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../brand/mano_loader.dart';
 import 'mano_press_scale.dart';
 
-/// A second action of equal weight to the primary, without the flame.
+/// Which ink an outline action takes.
+enum ManoOutlineTone { ink, flame }
+
+/// A second action of equal weight to the primary, without the flame fill.
 ///
 /// One hot surface per screen is the rule, so a screen offering two real
 /// choices draws the other one as an outline rather than a second fill.
@@ -11,6 +15,7 @@ class ManoOutlineButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.busy = false,
+    this.tone = ManoOutlineTone.ink,
     super.key,
   });
 
@@ -21,10 +26,17 @@ class ManoOutlineButton extends StatelessWidget {
 
   final bool busy;
 
+  /// [ManoOutlineTone.flame] pairs with a flame primary, e.g. sign in beside sign up.
+  final ManoOutlineTone tone;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final foreground = switch (tone) {
+      ManoOutlineTone.ink => scheme.onSurface,
+      ManoOutlineTone.flame => scheme.primary,
+    };
 
     return ManoPressScale(
       enabled: !busy && onPressed != null,
@@ -33,20 +45,11 @@ class ManoOutlineButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           minimumSize: const Size.fromHeight(52),
           shape: const StadiumBorder(),
-          foregroundColor: scheme.onSurface,
+          foregroundColor: foreground,
           textStyle: theme.textTheme.labelLarge,
-          side: BorderSide(color: scheme.onSurface, width: 1.5),
+          side: BorderSide(color: foreground, width: 1.5),
         ),
-        child: busy
-            ? SizedBox(
-                height: 18,
-                width: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: scheme.onSurface,
-                ),
-              )
-            : Text(label),
+        child: busy ? ManoLoader.small(color: foreground) : Text(label),
       ),
     );
   }

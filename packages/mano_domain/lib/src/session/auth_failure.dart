@@ -95,3 +95,38 @@ final class AuthUnavailable extends AuthFailure {
   @override
   String toString() => 'AuthUnavailable(detail: $detail)';
 }
+
+/// The one-time code did not match.
+final class InvalidCode extends AuthFailure {
+  const InvalidCode({this.attemptsLeft});
+
+  final int? attemptsLeft;
+
+  @override
+  String get message => 'That code is not right.';
+
+  @override
+  String toString() => 'InvalidCode(attemptsLeft: $attemptsLeft)';
+}
+
+/// The one-time code is too old; a new one has to be sent.
+final class CodeExpired extends AuthFailure {
+  const CodeExpired();
+
+  @override
+  String get message => 'That code has expired. Ask for a new one.';
+
+  @override
+  String toString() => 'CodeExpired()';
+}
+
+/// Too many wrong codes or resends; wait before trying again.
+final class TooManyAttempts extends AuthFailure {
+  const TooManyAttempts();
+
+  @override
+  String get message => 'Too many attempts. Wait a moment and try again.';
+
+  @override
+  String toString() => 'TooManyAttempts()';
+}

@@ -45,6 +45,10 @@ nav = [
     "develop/media.md",
     "develop/reviews.md",
     "develop/billing.md",
+    "develop/job-payments.md",
+    "develop/auth.md",
+    "develop/profiles.md",
+    "develop/identity-verification.md",
     "develop/documentation.md",
   ] },
   { "Modules" = [

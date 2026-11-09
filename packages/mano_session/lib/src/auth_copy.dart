@@ -11,6 +11,12 @@ String authFailureCopy(AuthFailure failure) => switch (failure) {
   SignInCancelled() => 'Cancelaste el inicio de sesión.',
   SessionExpired() => 'Tu sesión venció. Vuelve a iniciar sesión.',
   SignInRejected() => 'No pudimos aceptar esos datos. Revísalos.',
+  InvalidCode(:final attemptsLeft) =>
+    attemptsLeft == null
+        ? 'Ese código no es correcto.'
+        : 'Ese código no es correcto. Te quedan $attemptsLeft intentos.',
+  CodeExpired() => 'Ese código venció. Pide uno nuevo.',
+  TooManyAttempts() => 'Demasiados intentos. Espera un momento.',
 };
 
 /// The inline error under an email or password field.

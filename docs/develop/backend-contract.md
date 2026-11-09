@@ -26,13 +26,17 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 | `ChatRepository` media | `Message.media`, `sendMessage(mediaIds)` | **live** | `GatewayChatRepository` |
 | `ReviewRepository` | `reviewWorker`, `reviewClient`, `job { worker { averageRating ratingsCount reviews(page) } }` | **live** (D8 mano-reviews over gRPC) | `GatewayReviewRepository`. See [Reviews](reviews.md) |
 | `ProviderDirectory` | none: there is no `workerProfile(id)` | missing | `MockProviderDirectory` |
-| `ProviderOnboardingRepository` | `updateWorkerProfile`, `submitVerificationRequest` | stub (D2, D10 `not implemented`) | `MockProviderOnboardingRepository` |
-| `ClientProfileRepository` | `updateClientProfile(displayName, photoUrl, phone, email)` | stub (D2 `not implemented`); no client-profile query | `MockClientProfileRepository`. See [REQ-08](../modules/REQ-08-perfil.md) |
+| `ProviderOnboardingRepository` | `updateWorkerProfile`, `submitVerificationRequest` | `updateWorkerProfile` **live** (D2 mano-profiles); D10 verification still a stub | `MockProviderOnboardingRepository` |
+| `ClientProfileRepository` | `viewer { clientProfile }`, `updateClientProfile(displayName, photoMediaId, phone, email)` | **live** (D2 mano-profiles over gRPC) | `MockClientProfileRepository` until STREAM-05. See [Profiles](profiles.md) |
 | `AddressBook` | none | missing | `MockAddressBook` |
 | `WalletRepository` (provider) | `myCoinWallet`, `myCoinMovements`, `coinPacks`, `buyCoinPack`, `checkoutTerms`, `pseBanks`, `leadPrices` | **live** (D6 mano-billing over gRPC); Nequi and PSE. Accepting a service request is free | `GatewayWalletRepository` (offline: `MockWalletRepository`). See [Billing](billing.md) |
 | `PaymentMethods` | `myPaymentMethods`, `addPaymentMethod`, … | stub (no saved-method vault in billing) | `MockPaymentMethods` (display data only) |
 | `SupportDesk` (both apps) | `createSupportTicket(subject, description)` → `ticketNumber` | stub (D11) | `MockSupportDesk` |
-| `ProviderProfileEditor` | `updateWorkerProfile` | stub, and has no bio, skills or portfolio | `MockProviderProfileRepository` (the same instance Perfil reads) |
+| `ProviderProfileEditor` | `updateWorkerProfile` | **live** for name, phone, email, photo, work zone; no bio, skills or portfolio | `MockProviderProfileRepository` (the same instance Perfil reads) |
+| `ReferralLinker` | `linkWorkerByReferralCode(code)` | **live** (D2) | `MockReferralLinker` until STREAM-05 |
+| `JobPaymentRepository` | `payJob`, `jobPayment`, `checkoutTerms`, `pseBanks` | **live** (D6); finished jobs only | `MockJobPaymentRepository` until STREAM-03. See [Paying for a job](job-payments.md) |
+| `IdentityVerificationPort` | D10 `submitVerificationRequest`, `addVerificationDocuments` | stub | `MockIdentityVerification`. See [Identity verification](identity-verification.md) |
+| `PasswordlessAuth`, `SocialAuth` | mano-auth Passwordless and ThirdParty recipes | not in mano-auth yet | `InMemoryPasswordlessAuth`, `InMemorySocialAuth`. See [Signing in](auth.md) |
 | `SupportDesk` | `createSupportTicket(subject, description)` → `ticketNumber`, `status` FILED | stub; no PQRS kind | `MockSupportDesk` |
 | `PayoutAccounts` | `registerPayoutAccount`, `payoutBanks` (no read or remove) | **live** (D6), write only | `GatewayPayoutAccounts` (offline: `MockPayoutAccounts`). See [Billing](billing.md) |
 | `SessionRepository` | SuperTokens FDI: `/auth/signin`, `/auth/signup` (with `role`), `/auth/session/refresh`, `/auth/signout` | **live** in `mano-auth` (`:3001`); the gateway *verifies* tokens | `SuperTokensSessionRepository` when configured |

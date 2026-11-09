@@ -97,12 +97,12 @@ void main() {
       ),
     );
     expect(shown.image, isA<MemoryImage>());
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(ManoLoader), findsOneWidget);
 
     uploader.succeed('https://cdn.mano.co/avatar.png');
     await tester.pumpAndSettle();
 
-    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.byType(ManoLoader), findsNothing);
     expect(
       (await container.read(clientProfileProvider.future)).photoUrl,
       'https://cdn.mano.co/avatar.png',

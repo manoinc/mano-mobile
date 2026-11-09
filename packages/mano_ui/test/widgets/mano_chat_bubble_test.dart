@@ -202,7 +202,7 @@ void main() {
           photoStatus: ManoPhotoStatus.uploading,
         ),
       );
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(ManoLoader), findsOneWidget);
 
       await _pump(
         tester,

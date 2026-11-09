@@ -214,7 +214,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(ManoLoader), findsOneWidget);
       expect(find.text('Enviando…'), findsOneWidget);
     });
 

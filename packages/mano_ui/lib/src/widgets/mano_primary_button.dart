@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'mano_press_scale.dart';
+import '../brand/mano_loader.dart';
 
 /// The main action on a screen.
 ///
@@ -35,17 +36,7 @@ class ManoPrimaryButton extends StatelessWidget {
       enabled: !busy && onPressed != null,
       child: FilledButton(
         onPressed: busy ? null : onPressed,
-        child: busy
-            ? SizedBox(
-                height: 18,
-                width: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  // On a flame fill the default indicator is nearly invisible.
-                  color: scheme.onPrimary,
-                ),
-              )
-            : Text(label),
+        child: busy ? ManoLoader.small(color: scheme.onPrimary) : Text(label),
       ),
     );
   }

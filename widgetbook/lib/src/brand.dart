@@ -30,6 +30,21 @@ WidgetbookCategory brand() => WidgetbookCategory(
         child: const Center(child: Text('Inicio')),
       ),
     }),
+    component('ManoLoader', {
+      'Regular': (context) => Center(
+        child: ManoLoader(
+          height: context.knobs.double.slider(label: 'Height', initialValue: 48, min: 18, max: 120),
+        ),
+      ),
+      'Small, on flame': (context) => const ColoredBox(
+        color: ManoColors.flame,
+        child: Center(child: ManoLoader.small(color: Colors.white)),
+      ),
+      'Reduced motion': (context) => const MediaQuery(
+        data: MediaQueryData(disableAnimations: true),
+        child: Center(child: ManoLoader()),
+      ),
+    }),
     component('ManoArchMotif', {
       'On flame': (context) => const ColoredBox(
         color: ManoColors.flame,

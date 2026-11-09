@@ -17,10 +17,11 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | Component | Use it for |
 |---|---|
 | `ManoPrimaryButton` | The one flame action on a screen. Full width, supports `busy`. |
-| `ManoOutlineButton` | A strong secondary action (ink outline). |
+| `ManoOutlineButton` | A strong secondary action (ink outline). `tone: flame` pairs it with a flame primary, as "Iniciar sesión" beside "Registrarse". |
 | `ManoQuietButton` | A low-emphasis action in clay text. |
 | `ManoTextAction` | An inline link-like action ("Iniciar sesión", "Agendar"). |
 | `ManoBrandButton` | Third-party sign-in; takes the brand mark as `leading`. |
+| `ManoPlatformSignInButton` | "Continuar con Apple" on iOS, "Continuar con Google" elsewhere. White pill with the official mark: Google and Apple forbid recolouring them. |
 | `ManoPressScale` | Wraps anything tappable with the press-down feel. |
 
 ### Inputs
@@ -102,5 +103,10 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 
 `ManoWordmark`, `ManoMonogram`, `ManoArchMotif`, `ManoOpening`. See
 [Logo](../brand/logo.md).
+
+`ManoLoader` is the loading state for both apps: the `m` wipes in, holds and
+fades, on a loop. Use `ManoLoader()` (48) for a screen or section and
+`ManoLoader.small()` (18) inside a button. Prefer it to
+`CircularProgressIndicator`.
 
 Missing something? See [Adding a component](../develop/adding-a-component.md).

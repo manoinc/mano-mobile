@@ -117,6 +117,9 @@ void main() {
         AuthUnavailable(),
         WrongCredentials(),
         EmailAlreadyRegistered(),
+        InvalidCode(),
+        CodeExpired(),
+        TooManyAttempts(),
       ];
 
       for (final failure in failures) {
@@ -141,7 +144,10 @@ void main() {
         SessionExpired() ||
         AuthUnavailable() ||
         WrongCredentials() ||
-        EmailAlreadyRegistered() => false,
+        EmailAlreadyRegistered() ||
+        InvalidCode() ||
+        CodeExpired() ||
+        TooManyAttempts() => false,
       };
 
       expect(isCancellation, isTrue);

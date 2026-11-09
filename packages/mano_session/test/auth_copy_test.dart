@@ -26,6 +26,16 @@ void main() {
     expect(authFailureCopy(const SignInRejected()), isNotEmpty);
   });
 
+  test('a wrong code says how many tries are left, when known', () {
+    expect(
+      authFailureCopy(const InvalidCode(attemptsLeft: 2)),
+      'Ese código no es correcto. Te quedan 2 intentos.',
+    );
+    expect(authFailureCopy(const InvalidCode()), 'Ese código no es correcto.');
+    expect(authFailureCopy(const CodeExpired()), isNotEmpty);
+    expect(authFailureCopy(const TooManyAttempts()), isNotEmpty);
+  });
+
   test('credential problems are worded for the field they are on', () {
     expect(credentialProblemCopy(CredentialProblem.empty), isNotEmpty);
     expect(
