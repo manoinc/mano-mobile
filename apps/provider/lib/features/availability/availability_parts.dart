@@ -91,6 +91,6 @@ class AvailabilityLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const Padding(
     padding: EdgeInsets.all(ManoSpacing.md),
-    child: Center(child: CircularProgressIndicator()),
+    child: Center(child: ManoLoader()),
   );
 }

@@ -63,7 +63,10 @@ class _Local extends StatelessWidget {
             ),
             child: Center(
               child: photo.state == PhotoUploadState.uploading
-                  ? const CircularProgressIndicator(color: Colors.white)
+                  ? ManoLoader(
+                      height: _size * 0.2,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    )
                   : IconButton(
                       onPressed: onRetry,
                       tooltip: 'Reintentar foto',

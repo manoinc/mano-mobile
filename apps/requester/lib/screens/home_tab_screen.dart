@@ -8,10 +8,13 @@ import '../features/explore/category_icons.dart';
 import '../features/projects/publish_project_row.dart';
 import '../features/projects/start_publishing.dart';
 
-void _showStub(BuildContext context) {
-  ScaffoldMessenger.of(context)
-      .showSnackBar(const SnackBar(content: Text('Muy pronto')));
-}
+// Opens search, filtered to [categoryId] when there is one.
+void _openSearch(BuildContext context, [String? categoryId]) => context.push(
+  Uri(
+    path: '/home/search',
+    queryParameters: {'category': ?categoryId},
+  ).toString(),
+);
 
 /// Height of a carousel card: 16:9 photo, avatar row and a two-line title.
 double _listingCardHeight(BuildContext context, double railWidth) {
@@ -32,7 +35,7 @@ double _listingCardHeight(BuildContext context, double railWidth) {
 /// The Inicio tab: a greeting (or a neutral headline for guests), an address
 /// and a search pill, a category rail, and horizontal rails of listings.
 ///
-/// Search and categories open Explore, the pill opens addresses; listing taps are still a stub.
+/// Search, categories and listing cards open search; the pill opens addresses.
 class HomeTabScreen extends ConsumerWidget {
   const HomeTabScreen({super.key});
 
@@ -77,7 +80,7 @@ class HomeTabScreen extends ConsumerWidget {
               onTap: () => context.push('/home/addresses'),
             ),
             const SizedBox(height: ManoSpacing.md),
-            ManoSearchPill(onTap: () => context.push('/home/search')),
+            ManoSearchPill(onTap: () => _openSearch(context)),
             PublishProjectRow(onTap: () => startPublishing(context, ref)),
             const SizedBox(height: ManoSpacing.md),
             Row(
@@ -96,7 +99,7 @@ class HomeTabScreen extends ConsumerWidget {
                 // (clay foreground, labelLarge) with a plain TextButton
                 // instead of reusing it verbatim.
                 TextButton(
-                  onPressed: () => context.push('/home/search'),
+                  onPressed: () => _openSearch(context),
                   style: TextButton.styleFrom(
                     foregroundColor: ManoColors.clay,
                     textStyle: textTheme.labelLarge,
@@ -108,14 +111,9 @@ class HomeTabScreen extends ConsumerWidget {
             categories.when(
               data: (items) => ManoCategoryRail(
                 items: categoryRailItems(items),
-                onSelected: (id) => context.push(
-                  Uri(
-                    path: '/home/search',
-                    queryParameters: {'category': id},
-                  ).toString(),
-                ),
+                onSelected: (id) => _openSearch(context, id),
               ),
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: ManoLoader()),
               error: (error, stackTrace) => const Text('No se pudo cargar.'),
             ),
             const SizedBox(height: ManoSpacing.lg),
@@ -126,7 +124,7 @@ class HomeTabScreen extends ConsumerWidget {
                   for (final section in items) _Rail(section: section),
                 ],
               ),
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: ManoLoader()),
               error: (error, stackTrace) => const Text('No se pudo cargar.'),
             ),
           ],
@@ -151,15 +149,7 @@ class _Rail extends StatelessWidget {
         children: [
           ManoSectionHeader(
             title: section.title,
-            onTap: () => context.push(
-              Uri(
-                path: '/home/search',
-                queryParameters: {
-                  if (section.categoryId != null)
-                    'category': section.categoryId!,
-                },
-              ).toString(),
-            ),
+            onTap: () => _openSearch(context, section.categoryId),
           ),
           const SizedBox(height: ManoSpacing.sm),
           LayoutBuilder(
@@ -175,7 +165,8 @@ class _Rail extends StatelessWidget {
                     priceLabel:
                         'Desde ${ManoFormat.cop(listing.priceFromCents ~/ 100)} COP',
                     rating: listing.rating,
-                    onTap: () => _showStub(context),
+                    // Mock listings have no detail route yet; their category's results stand in.
+                    onTap: () => _openSearch(context, listing.categoryId),
                   ),
               ],
             ),

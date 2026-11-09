@@ -45,7 +45,7 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
           message: 'No pudimos cargar este trabajo.',
           onRetry: () => ref.invalidate(jobProvider(widget.jobId)),
         ),
-        _ => const Center(child: CircularProgressIndicator()),
+        _ => const Center(child: ManoLoader()),
       },
       bottomNavigationBar: switch (job.value) {
         final job? when job.canCancel || job.canRebook => SafeArea(

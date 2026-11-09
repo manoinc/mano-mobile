@@ -117,7 +117,7 @@ class _CalendarViewState extends ConsumerState<_CalendarView> {
         message: 'No pudimos cargar tu agenda.',
         onRetry: () => ref.invalidate(myJobsProvider),
       ),
-      _ => const Center(child: CircularProgressIndicator()),
+      _ => const Center(child: ManoLoader()),
     };
   }
 
@@ -247,7 +247,7 @@ class _StatusList extends ConsumerWidget {
         message: 'No pudimos cargar tu agenda.',
         onRetry: () => ref.invalidate(myJobsProvider),
       ),
-      _ => const Center(child: CircularProgressIndicator()),
+      _ => const Center(child: ManoLoader()),
     };
   }
 }

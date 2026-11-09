@@ -106,7 +106,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 ctaLabel: 'Reintentar',
                 onCta: () => ref.invalidate(providerProfileProvider),
               )
-            : const Center(child: CircularProgressIndicator()),
+            : const Center(child: ManoLoader()),
       );
     }
 

@@ -240,15 +240,20 @@ void main() {
     expect(find.text('Casa · Calle 45 # 12-30'), findsOneWidget);
   });
 
-  testWidgets('tapping a listing card shows the stub notice', (tester) async {
-    await _host(tester);
+  testWidgets('tapping a popular card opens search filtered to its category', (
+    tester,
+  ) async {
+    final container = await _hostRouted(tester);
 
-    final card = find.text('Limpieza 1').first;
+    final card = find.text('Plomería 1').first;
     await tester.ensureVisible(card);
     await tester.pumpAndSettle();
     await tester.tap(card);
     await tester.pumpAndSettle();
 
-    expect(find.text('Muy pronto'), findsOneWidget);
+    expect(find.text('Muy pronto'), findsNothing);
+    expect(routerPath(container), '/home/search');
+    expect(_query(container)['category'], 'plumbing');
+    expect(find.text('Reparación de fugas'), findsOneWidget);
   });
 }

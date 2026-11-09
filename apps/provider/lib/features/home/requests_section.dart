@@ -66,7 +66,7 @@ class _RequestsSectionState extends ConsumerState<RequestsSection> {
       );
     }
     if (lists.any((l) => !l.hasValue)) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: ManoLoader());
     }
     final requests = [for (final l in lists) ...l.requireValue];
     if (requests.isEmpty) {

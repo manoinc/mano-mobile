@@ -51,7 +51,7 @@ class ProjectDetailScreen extends ConsumerWidget {
           message: 'No pudimos cargar este proyecto.',
           onRetry: () => ref.invalidate(myProjectsProvider),
         ),
-        _ => const Center(child: CircularProgressIndicator()),
+        _ => const Center(child: ManoLoader()),
       },
     );
   }

@@ -46,7 +46,7 @@ class MyProjectsList extends ConsumerWidget {
           message: 'No pudimos cargar tus proyectos.',
           onRetry: () => ref.invalidate(myProjectsProvider),
         ),
-        _ => const Center(child: CircularProgressIndicator()),
+        _ => const Center(child: ManoLoader()),
       },
     );
   }

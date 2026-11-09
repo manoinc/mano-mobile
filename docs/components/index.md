@@ -33,6 +33,7 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | `ManoAddressPill` | The address selector on Home. |
 | `ManoToggleRow` | An on/off setting. |
 | `ManoCategoryChip` / `ManoCategoryRail` | Category icons, alone or as a scrolling rail. |
+| `ManoCategoryTile` | A category in a browse grid: square photo (an app asset passed as `image`) beside a bold label of up to three lines. Search uses two columns of them. |
 | `ManoProjectFilterTabs` | A row of filter pills (statuses, pricing model). |
 | `ManoWeekdayPicker` | L M X J V S D toggles. |
 | `ManoDateStrip` / `ManoSlotGrid` | Pick a day / pick a time slot (taken slots struck through). |

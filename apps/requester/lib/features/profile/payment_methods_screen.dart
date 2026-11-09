@@ -75,7 +75,7 @@ class PaymentMethodsScreen extends ConsumerWidget {
           message: 'No pudimos cargar tus métodos de pago.',
           onRetry: () => ref.invalidate(savedPaymentMethodsProvider),
         ),
-        _ => const Center(child: CircularProgressIndicator()),
+        _ => const Center(child: ManoLoader()),
       },
     );
   }

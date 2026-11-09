@@ -42,6 +42,7 @@ nav = [
     "develop/testing.md",
     "develop/ios.md",
     "develop/backend-contract.md",
+    "develop/search.md",
     "develop/media.md",
     "develop/reviews.md",
     "develop/billing.md",
