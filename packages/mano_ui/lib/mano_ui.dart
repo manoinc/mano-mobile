@@ -53,6 +53,7 @@ export 'src/widgets/mano_empty_state.dart';
 export 'src/widgets/mano_greeting_header.dart';
 export 'src/widgets/mano_image_viewer.dart';
 export 'src/widgets/mano_hero_scaffold.dart';
+export 'src/widgets/mano_illustrated_step.dart';
 export 'src/widgets/mano_initials_avatar.dart';
 export 'src/widgets/mano_info_card.dart';
 export 'src/widgets/mano_integration_row.dart';

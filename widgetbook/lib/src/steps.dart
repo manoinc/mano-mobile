@@ -91,6 +91,26 @@ WidgetbookCategory steps() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoIllustratedStep', {
+      'Cédula': (context) => ManoIllustratedStep(
+        illustration: const ColoredBox(color: ManoColors.clay),
+        onBack: noop,
+        headline: 'Toma la foto del frente de tu cédula',
+        headlineEmphasis: 'foto del frente',
+        primaryLabel: 'Tomar foto',
+        onPrimary: noop,
+        secondaryLabel: 'Ayuda',
+        onSecondary: noop,
+        busy: context.knobs.boolean(label: 'Busy'),
+      ),
+      'Selfie': (context) => ManoIllustratedStep(
+        illustration: const ColoredBox(color: ManoColors.clay),
+        onBack: noop,
+        headline: '¿Tomamos tu selfie?',
+        primaryLabel: 'Tomar foto',
+        onPrimary: noop,
+      ),
+    }),
     component('ManoCaptureReviewRow', {
       'Default': (context) => Padding(
         padding: const EdgeInsets.all(ManoSpacing.lg),

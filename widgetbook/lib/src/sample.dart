@@ -25,8 +25,8 @@ WidgetbookComponent component(
 const sampleCaptureTips = [
   ManoTip('Limpia el lente de tu cámara', emphasis: 'Limpia el lente'),
   ManoTip(
-    'Pon la cédula sobre una superficie plana y oscura',
-    emphasis: 'superficie plana y oscura',
+    'Toma la foto sobre una superficie plana y opaca',
+    emphasis: 'superficie plana y opaca',
   ),
   ManoTip(
     'Evita reflejos y sombras sobre los datos',
