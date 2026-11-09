@@ -307,6 +307,8 @@ void main() {
       await _pump(tester, profile: LiveShapedProfile());
       await _centre(tester, find.byType(ManoReferralCard));
       expect(find.textContaining('Mano coins'), findsNothing);
+      // The code sits on its own line so it never splits at the hyphen.
+      expect(find.text('Comparte tu código\nRP-1a2b3c4d'), findsOneWidget);
 
       await tester.tap(find.byType(ManoReferralCard));
       await tester.pumpAndSettle();

@@ -103,7 +103,7 @@ WidgetbookCategory profile() => WidgetbookCategory(
       'Code only': (context) => _padded(
         const ManoReferralCard(
           title: 'Invita a un colega',
-          subtitle: 'Comparte tu código RP-1a2b3c4d',
+          subtitle: 'Comparte tu código\nRP-1a2b3c4d',
           onTap: noop,
         ),
       ),

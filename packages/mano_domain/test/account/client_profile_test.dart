@@ -17,7 +17,6 @@ void main() {
     expect(blank.problems, {
       ClientProfileField.displayName: FieldProblem.empty,
       ClientProfileField.phone: FieldProblem.empty,
-      ClientProfileField.email: FieldProblem.empty,
     });
     expect(valid.copyWith(email: 'ana@').problems, {
       ClientProfileField.email: FieldProblem.malformed,
@@ -25,6 +24,10 @@ void main() {
     expect(valid.copyWith(displayName: 'A1').problems, {
       ClientProfileField.displayName: FieldProblem.invalidCharacters,
     });
+  });
+
+  test('a phone account saves without an email', () {
+    expect(valid.copyWith(email: '').problems, isEmpty);
   });
 
   test('a full name may run longer than a given name', () {

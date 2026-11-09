@@ -65,7 +65,7 @@ class _ReferralCard extends StatelessWidget {
     return ManoReferralCard(
       title: 'Invita a un colega',
       subtitle: reward == null
-          ? 'Comparte tu código ${program.code}'
+          ? 'Comparte tu código\n${program.code}'
           : 'y gana ${reward.coins} Mano coins',
       coinLabel: reward == null ? null : '${reward.coins}',
       progressLabel: reward == null ? null : referralProgressText(reward),

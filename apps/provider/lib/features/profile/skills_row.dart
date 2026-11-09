@@ -10,7 +10,11 @@ class SkillsRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final offers = ref.watch(myOffersProvider).value ?? const [];
+    // One chip per service, however many offers it has.
+    final services = {
+      for (final offer in ref.watch(myOffersProvider).value ?? const [])
+        offer.jobServiceId,
+    };
     final text = Theme.of(context).textTheme;
 
     return Material(
@@ -35,13 +39,13 @@ class SkillsRow extends ConsumerWidget {
                   const Icon(Icons.chevron_right, color: ManoColors.faint),
                 ],
               ),
-              if (offers.isNotEmpty) ...[
+              if (services.isNotEmpty) ...[
                 const SizedBox(height: ManoSpacing.sm),
                 Wrap(
                   spacing: ManoSpacing.sm,
                   runSpacing: ManoSpacing.sm,
                   children: [
-                    for (final offer in offers) _SkillChip(offer: offer),
+                    for (final id in services) _SkillChip(jobServiceId: id),
                   ],
                 ),
               ],
@@ -54,16 +58,13 @@ class SkillsRow extends ConsumerWidget {
 }
 
 class _SkillChip extends ConsumerWidget {
-  const _SkillChip({required this.offer});
+  const _SkillChip({required this.jobServiceId});
 
-  final ServiceOffer offer;
+  final String jobServiceId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final title = ref
-        .watch(jobServiceProvider(offer.jobServiceId))
-        .value
-        ?.title;
+    final title = ref.watch(jobServiceProvider(jobServiceId)).value?.title;
     if (title == null) return const SizedBox.shrink();
     return Container(
       padding: const EdgeInsets.symmetric(

@@ -50,8 +50,8 @@ final class ClientProfile {
   int get hashCode => Object.hash(displayName, phone, email, photoUrl);
 }
 
+// Optional, since a phone account has none; only a malformed one is refused.
 FieldProblem? _emailProblem(String email) => switch (validateEmail(email)) {
-  null => null,
-  CredentialProblem.empty => FieldProblem.empty,
+  null || CredentialProblem.empty => null,
   _ => FieldProblem.malformed,
 };

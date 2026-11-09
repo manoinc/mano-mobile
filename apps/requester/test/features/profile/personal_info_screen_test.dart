@@ -48,7 +48,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Escribe tu celular.'), findsOneWidget);
-    expect(find.text('Escribe tu correo.'), findsOneWidget);
+    // The email is optional: a phone account has none.
+    expect(find.text('Escribe tu correo.'), findsNothing);
     expect((await container.read(clientProfileProvider.future)).phone, isEmpty);
   });
 
