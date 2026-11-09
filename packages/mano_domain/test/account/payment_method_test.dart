@@ -37,6 +37,12 @@ void main() {
       expect(validateCardExpiry('13/27', now: now), FieldProblem.malformed);
       expect(validateCardExpiry('1227', now: now), FieldProblem.malformed);
     });
+
+    test('parses MM/AA into a month and a four-digit year', () {
+      expect(parseCardExpiry('05/33'), (month: 5, year: 2033));
+      expect(parseCardExpiry('13/33'), isNull);
+      expect(parseCardExpiry('0533'), isNull);
+    });
   });
 
   group('new methods', () {
@@ -47,6 +53,7 @@ void main() {
       expect(stored.kind, PaymentKind.card);
       expect(stored.label, 'Visa');
       expect(stored.last4, '4242');
+      expect(stored.expiry, (month: 12, year: 2028));
       expect(stored.isDefault, isFalse);
     });
 
@@ -65,6 +72,7 @@ void main() {
       expect(stored.kind, PaymentKind.nequi);
       expect(stored.label, 'Nequi');
       expect(stored.last4, '4567');
+      expect(stored.expiry, isNull);
       expect(const NewNequi(phone: '601').problems(now), {
         PaymentField.phone: FieldProblem.malformed,
       });

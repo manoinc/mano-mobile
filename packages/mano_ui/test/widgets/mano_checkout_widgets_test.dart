@@ -138,7 +138,62 @@ void main() {
           ),
         ),
       );
-      expect(find.byType(ManoTextAction), findsNothing);
+      expect(find.byType(TextButton), findsNothing);
+    });
+
+    testWidgets('underlines the links inside its message', (tester) async {
+      var terms = 0;
+      await tester.pumpWidget(
+        _host(
+          ManoInfoCard(
+            icon: Icons.verified_user_outlined,
+            title: 'Paga siempre a través de Mano',
+            message: 'Lee los Términos de pago antes de pagar.',
+            messageLinks: {'Términos de pago': () => terms++},
+          ),
+        ),
+      );
+
+      expect(
+        find.text(
+          'Lee los Términos de pago antes de pagar.',
+          findRichText: true,
+        ),
+        findsOneWidget,
+      );
+      final span = _spanWith(tester, 'Términos de pago');
+      expect(span.style!.decoration, TextDecoration.underline);
+      await tester.tapOnText(find.textRange.ofSubstring('Términos de pago'));
+      expect(terms, 1);
+    });
+
+    testWidgets('its more link is underlined too', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          ManoInfoCard(
+            icon: Icons.verified_user_outlined,
+            title: 'Título',
+            message: 'Mensaje',
+            linkLabel: 'Más información',
+            onLink: () {},
+          ),
+        ),
+      );
+
+      final label = tester.widget<Text>(find.text('Más información'));
+      expect(label.style!.decoration, TextDecoration.underline);
     });
   });
+}
+
+TextSpan _spanWith(WidgetTester tester, String text) {
+  for (final rich in tester.widgetList<RichText>(find.byType(RichText))) {
+    TextSpan? found;
+    rich.text.visitChildren((span) {
+      if (span is TextSpan && span.text == text) found = span;
+      return found == null;
+    });
+    if (found != null) return found!;
+  }
+  throw StateError('No span "$text"');
 }

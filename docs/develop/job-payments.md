@@ -84,7 +84,9 @@ four times it, until `settleTimeout` (2 min). A missed read keeps waiting.
   (prefilled from the account), terms toggle with links, one flame
   "Pagar $X". After Pagar the body becomes the status (`ManoPaymentStatus`);
   PSE's "Ir a mi banco" opens `redirectUrl` through `externalLinkOpenerProvider`.
-- Métodos de pago (Perfil) follows Airbnb's "Payment methods": large title,
-  `ManoMethodRow` with Editar, an ink "Agregar método de pago" and a
-  `ManoInfoCard` ("Paga siempre a través de Mano"). Saved methods are still a
-  backend stub (`MockPaymentMethods`).
+- Métodos de pago (Perfil) follows Airbnb's "Payment methods": large title and
+  grey subtitle, a `ManoMethodRow` per method (`PaymentBrandMark`, "Mastercard
+  8341", "Vence: 05/2033", Editar), a compact ink "Agregar método de pago" and a
+  `ManoInfoCard` ("Paga siempre a través de Mano") whose "Términos de pago" and
+  "Más información" are underlined links. Saved methods are still a backend
+  stub: `MockPaymentMethods` seeded with `demoPaymentMethods`.

@@ -25,6 +25,30 @@ void main() {
     expect(style.foregroundColor!.resolve({}), scheme.surface);
   });
 
+  testWidgets('a compact primary hugs its label at the start', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ManoTheme.light(),
+        home: Scaffold(
+          body: SizedBox(
+            width: 400,
+            child: ManoPrimaryButton(
+              label: 'Agregar',
+              tone: ManoPrimaryTone.ink,
+              compact: true,
+              onPressed: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final button = tester.getRect(find.byType(FilledButton));
+    expect(button.width, lessThan(200));
+    expect(button.left, 0);
+    expect(button.height, greaterThanOrEqualTo(48));
+  });
+
   group('the outline action', () {
     testWidgets('the flame tone draws border and label in the primary', (
       tester,

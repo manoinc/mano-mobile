@@ -13,6 +13,7 @@ final class PaymentMethod {
     required this.kind,
     required this.label,
     required this.last4,
+    this.expiry,
     this.isDefault = false,
   });
 
@@ -22,6 +23,9 @@ final class PaymentMethod {
   /// The brand or wallet, e.g. Visa or Nequi.
   final String label;
   final String last4;
+
+  /// Cards only.
+  final CardExpiry? expiry;
   final bool isDefault;
 
   PaymentMethod copyWith({bool? isDefault}) => PaymentMethod(
@@ -29,6 +33,7 @@ final class PaymentMethod {
     kind: kind,
     label: label,
     last4: last4,
+    expiry: expiry,
     isDefault: isDefault ?? this.isDefault,
   );
 
@@ -39,10 +44,11 @@ final class PaymentMethod {
       other.kind == kind &&
       other.label == label &&
       other.last4 == last4 &&
+      other.expiry == expiry &&
       other.isDefault == isDefault;
 
   @override
-  int get hashCode => Object.hash(id, kind, label, last4, isDefault);
+  int get hashCode => Object.hash(id, kind, label, last4, expiry, isDefault);
 }
 
 /// What the Solicitante typed to add a method; only [storedAs] is ever kept.
@@ -76,6 +82,7 @@ final class NewCard extends NewPaymentMethod {
       kind: PaymentKind.card,
       label: cardBrandOf(digits),
       last4: digits.substring(digits.length - 4),
+      expiry: parseCardExpiry(expiry),
     );
   }
 }

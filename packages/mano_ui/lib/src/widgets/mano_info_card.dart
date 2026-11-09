@@ -1,14 +1,15 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/mano_theme.dart';
-import 'mano_text_action.dart';
 
-/// An outlined card with one reassurance: icon, title, message, and an optional link.
+/// An outlined card with one reassurance: icon, title, message, and optional links.
 class ManoInfoCard extends StatelessWidget {
   const ManoInfoCard({
     required this.icon,
     required this.title,
     required this.message,
+    this.messageLinks = const {},
     this.linkLabel,
     this.onLink,
     super.key,
@@ -17,6 +18,9 @@ class ManoInfoCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String message;
+
+  /// Phrases of [message] underlined and tappable, e.g. the terms.
+  final Map<String, VoidCallback> messageLinks;
 
   /// Shown only with [onLink].
   final String? linkLabel;
@@ -27,6 +31,9 @@ class ManoInfoCard extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final link = linkLabel;
+    final body = theme.textTheme.bodySmall?.copyWith(
+      color: scheme.onSurfaceVariant,
+    );
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -46,17 +53,19 @@ class ManoInfoCard extends StatelessWidget {
                 children: [
                   Text(title, style: theme.textTheme.titleSmall),
                   const SizedBox(height: ManoSpacing.xs),
-                  Text(
-                    message,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
+                  _LinkedText(message, links: messageLinks, style: body),
                   if (link != null && onLink != null)
-                    ManoTextAction(
-                      label: link,
+                    TextButton(
                       onPressed: onLink,
-                      padding: EdgeInsets.zero,
+                      style: TextButton.styleFrom(
+                        minimumSize: const Size(0, 44),
+                        padding: EdgeInsets.zero,
+                        foregroundColor: ManoColors.clay,
+                      ),
+                      child: Text(
+                        link,
+                        style: _linkStyle(theme.textTheme.labelLarge),
+                      ),
                     ),
                 ],
               ),
@@ -65,5 +74,68 @@ class ManoInfoCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+TextStyle? _linkStyle(TextStyle? base) => base?.copyWith(
+  color: ManoColors.clay,
+  fontWeight: FontWeight.w600,
+  decoration: TextDecoration.underline,
+  decorationColor: ManoColors.clay,
+);
+
+/// [text] with each phrase in [links] underlined and tappable.
+class _LinkedText extends StatefulWidget {
+  const _LinkedText(this.text, {required this.links, this.style});
+
+  final String text;
+  final Map<String, VoidCallback> links;
+  final TextStyle? style;
+
+  @override
+  State<_LinkedText> createState() => _LinkedTextState();
+}
+
+class _LinkedTextState extends State<_LinkedText> {
+  final _recognizers = <TapGestureRecognizer>[];
+
+  @override
+  void dispose() {
+    _disposeRecognizers();
+    super.dispose();
+  }
+
+  void _disposeRecognizers() {
+    for (final r in _recognizers) {
+      r.dispose();
+    }
+    _recognizers.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final links = widget.links;
+    if (links.isEmpty) return Text(widget.text, style: widget.style);
+    _disposeRecognizers();
+    final pattern = RegExp(links.keys.map(RegExp.escape).join('|'));
+    final spans = <InlineSpan>[];
+    var start = 0;
+    for (final match in pattern.allMatches(widget.text)) {
+      final phrase = match.group(0)!;
+      final recognizer = TapGestureRecognizer()..onTap = links[phrase];
+      _recognizers.add(recognizer);
+      spans
+        ..add(TextSpan(text: widget.text.substring(start, match.start)))
+        ..add(
+          TextSpan(
+            text: phrase,
+            style: _linkStyle(widget.style),
+            recognizer: recognizer,
+          ),
+        );
+      start = match.end;
+    }
+    spans.add(TextSpan(text: widget.text.substring(start)));
+    return Text.rich(TextSpan(style: widget.style, children: spans));
   }
 }

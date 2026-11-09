@@ -108,6 +108,14 @@ void main() {
   });
 
   group('payment methods', () {
+    test('start with the demo methods while billing is mocked', () async {
+      final container = ProviderContainer.test();
+      expect(
+        await container.read(savedPaymentMethodsProvider.future),
+        demoPaymentMethods,
+      );
+    });
+
     test('actions refresh the list', () async {
       final container = ProviderContainer.test(
         overrides: [

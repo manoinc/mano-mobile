@@ -5,23 +5,12 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../activity/load_error.dart';
+import 'payment_brand_mark.dart';
 import 'payment_method_form_sheet.dart';
 import 'profile_copy.dart';
 import 'profile_sheets.dart';
 
 enum _MethodAction { makeDefault, remove }
-
-IconData _iconFor(PaymentKind kind) => switch (kind) {
-  PaymentKind.card => Icons.credit_card,
-  PaymentKind.nequi => Icons.account_balance_wallet_outlined,
-  PaymentKind.pse => Icons.account_balance_outlined,
-};
-
-String _detailFor(PaymentKind kind) => switch (kind) {
-  PaymentKind.card => 'Tarjeta',
-  PaymentKind.nequi => 'Billetera Nequi',
-  PaymentKind.pse => 'Débito desde tu banco',
-};
 
 /// Métodos de pago, Airbnb-style: title, saved methods with Editar, an ink add pill and the Mano promise.
 class PaymentMethodsScreen extends ConsumerWidget {
@@ -54,8 +43,8 @@ class PaymentMethodsScreen extends ConsumerWidget {
             Text('Métodos de pago', style: theme.textTheme.headlineMedium),
             const SizedBox(height: ManoSpacing.xs),
             Text(
-              'Guarda tus métodos para pagar más rápido cuando termine un '
-              'trabajo.',
+              'Agrega y administra tus métodos de pago con nuestro sistema '
+              'de pago seguro.',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -64,9 +53,9 @@ class PaymentMethodsScreen extends ConsumerWidget {
             for (final method in list) ...[
               ManoMethodRow(
                 key: Key('payment-${method.id}'),
-                leading: Icon(_iconFor(method.kind)),
+                leading: PaymentBrandMark(method),
                 title: paymentMethodTitle(method),
-                detail: _detailFor(method.kind),
+                detail: paymentMethodDetail(method),
                 tag: method.isDefault ? 'Predeterminado' : null,
                 actionLabel: 'Editar',
                 onAction: () => _open(context, ref, method),
@@ -77,18 +66,20 @@ class PaymentMethodsScreen extends ConsumerWidget {
             ManoPrimaryButton(
               label: 'Agregar método de pago',
               tone: ManoPrimaryTone.ink,
+              compact: true,
               onPressed: () => _add(context, ref),
             ),
             const SizedBox(height: ManoSpacing.xl),
             ManoInfoCard(
-              icon: Icons.verified_user_outlined,
+              icon: Icons.shield_outlined,
               title: 'Paga siempre a través de Mano',
               message:
                   'Si pagas por fuera de la app, no podemos ayudarte con '
                   'reclamos ni reembolsos. Pagando en Mano tu dinero queda '
-                  'protegido.',
+                  'protegido según los Términos de pago.',
+              messageLinks: {'Términos de pago': () => _support(context)},
               linkLabel: 'Más información',
-              onLink: () => context.push('/profile/support'),
+              onLink: () => _support(context),
             ),
           ],
         ),
@@ -100,6 +91,8 @@ class PaymentMethodsScreen extends ConsumerWidget {
       },
     );
   }
+
+  void _support(BuildContext context) => context.push('/profile/support');
 
   Future<void> _add(BuildContext context, WidgetRef ref) async {
     final kind = await chooseAction<PaymentKind>(
