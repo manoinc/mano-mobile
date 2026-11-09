@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 
 import '../account/account_gate.dart';
+import '../identity/verification_gate.dart';
 
 /// Escribir: opens the chat about [jobId] and goes to it.
 class JobChatButton extends ConsumerStatefulWidget {
@@ -24,7 +25,7 @@ class _JobChatButtonState extends ConsumerState<JobChatButton> {
     icon: const Icon(Icons.chat_bubble_outline_rounded),
     onPressed: _busy
         ? null
-        : () => requireAccount(
+        : () => requireVerified(
             context,
             ref,
             reason: AccountReason.chat,

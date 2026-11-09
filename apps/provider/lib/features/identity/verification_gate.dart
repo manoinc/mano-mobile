@@ -27,8 +27,8 @@ Future<void> requireVerified(
       builder: (sheet) => ManoPromptSheet(
         title: 'Verifica tu identidad para continuar',
         message:
-            'Antes de comprometerte con un cliente, confirma quién eres con '
-            'tu cédula y una selfie.',
+            'Antes de escribirle o comprometerte con un cliente, confirma '
+            'quién eres con tu cédula y una selfie.',
         primaryLabel: 'Verificar ahora',
         onPrimary: () {
           Navigator.pop(sheet);
