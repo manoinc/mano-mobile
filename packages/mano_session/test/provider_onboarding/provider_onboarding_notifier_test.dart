@@ -71,10 +71,11 @@ void _toPassword(ProviderOnboardingNotifier n) => n
   ..next()
   ..editPassword('mano2026');
 
-/// The account is created, so the first question is on screen.
+/// Tries to create the account; on success leaves the identity check for the name.
 Future<void> _toName(ProviderOnboardingNotifier n) async {
   _toPassword(n);
   await n.createAccount();
+  n.leaveIdentity();
 }
 
 Future<void> _answerAll(ProviderOnboardingNotifier n) async {
@@ -203,22 +204,52 @@ void main() {
     });
 
     test(
-      'creating the account signs up as a provider, then asks the name',
+      'creating the account signs up as a provider, then checks identity',
       () async {
         final session = InMemorySessionRepository(
           onSignUp: () async => Ok(_session),
         );
         final (:c, :n) = _setUp(null, session);
+        _toPassword(n);
 
-        await _toName(n);
+        await n.createAccount();
 
         expect(session.lastCredentials?.email, 'pro@mano.co');
         expect(session.lastSignUpRole, ManoRole.provider);
         expect(c.read(sessionProvider).value, isA<SignedIn>());
-        expect(_step(c), ProviderOnboardingStep.name);
+        expect(_step(c), ProviderOnboardingStep.identity);
         expect(c.read(providerOnboardingProvider).inProgress, isTrue);
       },
     );
+
+    test('leaving the identity check asks the name', () async {
+      final (:c, :n) = _setUp();
+      _toPassword(n);
+      await n.createAccount();
+
+      n.leaveIdentity();
+
+      expect(_step(c), ProviderOnboardingStep.name);
+    });
+
+    test('leaving the identity check is ignored on any other step', () {
+      final (:c, :n) = _setUp();
+      _toPassword(n);
+
+      n.leaveIdentity();
+
+      expect(_step(c), ProviderOnboardingStep.password);
+    });
+
+    test('the identity check does not go back to the password', () async {
+      final (:c, :n) = _setUp();
+      _toPassword(n);
+      await n.createAccount();
+
+      n.back();
+
+      expect(_step(c), ProviderOnboardingStep.identity);
+    });
 
     test('creating the account is observable while in flight', () async {
       final gate = Completer<Result<Session, AuthFailure>>();

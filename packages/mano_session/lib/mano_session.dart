@@ -88,6 +88,7 @@ export 'src/session_providers.dart';
 export 'src/session_state.dart';
 export 'src/support/support_copy.dart';
 export 'src/support/support_desk_provider.dart';
+export 'src/verification/identity_flow.dart';
 export 'src/verification/identity_verification_providers.dart';
 export 'src/wallet/billing_config.dart';
 export 'src/wallet/coin_purchase_controller.dart';

@@ -5,11 +5,12 @@ import '../marketplace_providers.dart';
 import '../session_notifier.dart';
 import 'provider_profile_validation.dart';
 
-/// The account is created on leaving [password], so [name] onward is signed in.
+/// The account is created on leaving [password], so [identity] onward is signed in.
 enum ProviderOnboardingStep {
   welcome,
   email,
   password,
+  identity,
   name,
   phone,
   zone,
@@ -188,12 +189,7 @@ final class ProviderOnboardingState {
 }
 
 /// A professional's sign-up: one question at a time, then review.
-const _flow = [
-  ProviderOnboardingStep.welcome,
-  ..._questions,
-  ProviderOnboardingStep.review,
-  ProviderOnboardingStep.pending,
-];
+const _flow = ProviderOnboardingStep.values;
 
 final class ProviderOnboardingNotifier
     extends Notifier<ProviderOnboardingState> {
@@ -223,7 +219,7 @@ final class ProviderOnboardingNotifier
     );
     if (!ref.mounted) return;
     if (failure == null) {
-      _goTo(ProviderOnboardingStep.name);
+      _goTo(ProviderOnboardingStep.identity);
       return;
     }
     // Shown on the step itself; the welcome must not repeat it.
@@ -289,6 +285,13 @@ final class ProviderOnboardingNotifier
     if (i >= 0 && i < _flow.length - 1) _goTo(_flow[i + 1]);
   }
 
+  /// Leaves the identity check, done or put off, for the first question.
+  void leaveIdentity() {
+    if (state.step == ProviderOnboardingStep.identity) {
+      _goTo(ProviderOnboardingStep.name);
+    }
+  }
+
   /// Passes over the optional bio without answering it.
   void skip() {
     if (state.step != ProviderOnboardingStep.bio) return;
@@ -298,7 +301,10 @@ final class ProviderOnboardingNotifier
 
   void back() {
     // The account already exists; there is no going back to create it.
-    if (state.step == ProviderOnboardingStep.name) return;
+    if (state.step == ProviderOnboardingStep.identity ||
+        state.step == ProviderOnboardingStep.name) {
+      return;
+    }
     final i = _flow.indexOf(state.step);
     if (i > 0 && state.step != ProviderOnboardingStep.pending) {
       _goTo(_flow[i - 1]);
