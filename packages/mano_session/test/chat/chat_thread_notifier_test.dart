@@ -77,7 +77,10 @@ Message _message(
 
 final class _Picker implements MediaPicker {
   @override
-  Future<PickedImage?> pick(PhotoSource source) async => PickedImage(
+  Future<PickedImage?> pick(
+    PhotoSource source, {
+    CameraFacing facing = CameraFacing.rear,
+  }) async => PickedImage(
     bytes: Uint8List.fromList([7, 7]),
     mimeType: 'image/png',
     name: 'a.png',
