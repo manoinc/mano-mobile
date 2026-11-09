@@ -96,6 +96,15 @@ void main() {
     expect(field.focusNode.hasFocus, isTrue);
   });
 
+  testWidgets('arriving with a category keeps the keyboard down', (
+    tester,
+  ) async {
+    await _open(tester, location: '/home/search?category=plumbing');
+
+    final field = tester.widget<EditableText>(find.byType(EditableText));
+    expect(field.focusNode.hasFocus, isFalse);
+  });
+
   testWidgets('typing searches only once the user pauses', (tester) async {
     final catalog = await _open(tester);
 

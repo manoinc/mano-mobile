@@ -65,7 +65,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           padding: const EdgeInsets.only(right: ManoSpacing.md),
           child: ManoSearchField(
             controller: _controller,
-            autofocus: true,
+            autofocus: widget.category == null,
             hintText: '¿Con qué necesitas ayuda?',
             onChanged: _onTextChanged,
           ),
