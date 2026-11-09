@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'mano_brand_button.dart';
 
+/// Whether [platform] signs in with Apple rather than Google.
+bool manoSignsInWithApple(TargetPlatform platform) => switch (platform) {
+  TargetPlatform.iOS || TargetPlatform.macOS => true,
+  _ => false,
+};
+
 /// Sign in with the platform's own identity: Apple on iOS, Google elsewhere.
 class ManoPlatformSignInButton extends StatelessWidget {
   const ManoPlatformSignInButton({
@@ -19,10 +25,7 @@ class ManoPlatformSignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final apple = switch (Theme.of(context).platform) {
-      TargetPlatform.iOS || TargetPlatform.macOS => true,
-      _ => false,
-    };
+    final apple = manoSignsInWithApple(Theme.of(context).platform);
 
     return apple
         ? ManoBrandButton(

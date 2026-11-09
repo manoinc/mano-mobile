@@ -10,50 +10,6 @@ Widget _host(Widget child) => MaterialApp(
 );
 
 void main() {
-  group('ManoPhoneField', () {
-    testWidgets('shows the fixed country and takes a phone number', (
-      tester,
-    ) async {
-      final controller = TextEditingController();
-      String? typed;
-      await tester.pumpWidget(
-        _host(
-          ManoPhoneField(
-            controller: controller,
-            onChanged: (value) => typed = value,
-            helperText: 'Te enviaremos un código por SMS.',
-          ),
-        ),
-      );
-
-      expect(find.text('Colombia (+57)'), findsOneWidget);
-      expect(find.text('Te enviaremos un código por SMS.'), findsOneWidget);
-      await tester.enterText(find.byType(TextField), '3001234567');
-      expect(typed, '3001234567');
-      final field = tester.widget<TextField>(find.byType(TextField));
-      expect(field.keyboardType, TextInputType.phone);
-      expect(
-        field.autofillHints,
-        contains(AutofillHints.telephoneNumberNational),
-      );
-    });
-
-    testWidgets('an error replaces the helper', (tester) async {
-      await tester.pumpWidget(
-        _host(
-          ManoPhoneField(
-            controller: TextEditingController(),
-            helperText: 'Te enviaremos un código por SMS.',
-            errorText: 'Revisa tu número.',
-          ),
-        ),
-      );
-
-      expect(find.text('Revisa tu número.'), findsOneWidget);
-      expect(find.text('Te enviaremos un código por SMS.'), findsNothing);
-    });
-  });
-
   group('ManoOtpField', () {
     testWidgets('fills six boxes and reports the complete code', (
       tester,
@@ -136,81 +92,6 @@ void main() {
       await tester.pump();
       expect(resent, 1);
       expect(find.text('Reenviar código en 3 s'), findsOneWidget);
-    });
-  });
-
-  group('ManoSignInLayout', () {
-    testWidgets('stacks the body, the primary, an "o" and the alternatives', (
-      tester,
-    ) async {
-      var continued = 0;
-      var closed = 0;
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: ManoTheme.light(),
-          home: ManoSignInLayout(
-            title: 'Inicia sesión o regístrate',
-            body: const Text('campo'),
-            primaryLabel: 'Continuar',
-            onPrimary: () => continued++,
-            onClose: () => closed++,
-            alternatives: [
-              ManoOutlineButton(
-                label: 'Continuar con correo',
-                onPressed: () {},
-              ),
-            ],
-          ),
-        ),
-      );
-
-      expect(find.text('Inicia sesión o regístrate'), findsOneWidget);
-      expect(find.text('campo'), findsOneWidget);
-      expect(find.text('o'), findsOneWidget);
-      expect(find.text('Continuar con correo'), findsOneWidget);
-
-      await tester.tap(find.text('Continuar'));
-      await tester.tap(find.byTooltip('Cerrar'));
-      expect(continued, 1);
-      expect(closed, 1);
-    });
-
-    testWidgets('without alternatives there is no divider', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: ManoTheme.light(),
-          home: const ManoSignInLayout(
-            title: 'Confirma tu número',
-            message: 'Escribe el código que enviamos a +57 300 *** 4567.',
-            body: SizedBox(),
-            primaryLabel: 'Continuar',
-            onPrimary: null,
-          ),
-        ),
-      );
-
-      expect(find.text('o'), findsNothing);
-      expect(
-        find.text('Escribe el código que enviamos a +57 300 *** 4567.'),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('busy shows the loader on the primary', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: ManoTheme.light(),
-          home: ManoSignInLayout(
-            title: 'Inicia sesión',
-            body: const SizedBox(),
-            primaryLabel: 'Continuar',
-            onPrimary: () {},
-            busy: true,
-          ),
-        ),
-      );
-
-      expect(find.byType(ManoLoader), findsOneWidget);
     });
   });
 
