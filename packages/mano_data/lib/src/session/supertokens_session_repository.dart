@@ -1,9 +1,7 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:http/http.dart' as http;
 import 'package:mano_domain/mano_domain.dart';
 
+import 'supertokens_fdi.dart';
 import 'token_store.dart';
 
 /// [SessionRepository] over the SuperTokens frontend driver interface, header mode.
@@ -13,18 +11,17 @@ final class SuperTokensSessionRepository implements SessionRepository {
     required TokenStore tokens,
     String apiBasePath = '/auth',
     http.Client? httpClient,
-  }) : _base = apiDomain.resolve(apiBasePath),
-       _tokens = tokens, // ignore: prefer_initializing_formals
-       _http = httpClient ?? http.Client();
+  }) : _fdi = SuperTokensFdi(
+         apiDomain: apiDomain,
+         tokens: tokens,
+         apiBasePath: apiBasePath,
+         httpClient: httpClient,
+       );
 
-  final Uri _base;
-  final TokenStore _tokens;
-  final http.Client _http;
+  /// Shares [fdi] with the phone and social adapters, so any session refreshes and signs out here.
+  SuperTokensSessionRepository.over(SuperTokensFdi fdi) : _fdi = fdi;
 
-  // The current session, kept for sign-out and to remember the email across refreshes.
-  Session? _current;
-
-  static const _headerMode = {'st-auth-mode': 'header'};
+  final SuperTokensFdi _fdi;
 
   @override
   Future<Result<Session, AuthFailure>> signIn(Credentials credentials) =>
@@ -38,7 +35,7 @@ final class SuperTokensSessionRepository implements SessionRepository {
 
   @override
   Future<Result<Session?, AuthFailure>> restore() async {
-    if (await _tokens.read() == null) return const Ok(null);
+    if (await _fdi.tokens.read() == null) return const Ok(null);
     return switch (await refresh()) {
       Ok(:final value) => Ok(value),
       Err(:final failure) => Err(failure),
@@ -47,22 +44,19 @@ final class SuperTokensSessionRepository implements SessionRepository {
 
   @override
   Future<Result<Session, AuthFailure>> refresh() async {
-    final refreshToken = await _tokens.read();
+    final refreshToken = await _fdi.tokens.read();
     if (refreshToken == null) return const Err(SessionExpired());
 
     final http.Response response;
     try {
-      response = await _http.post(
-        _route('session/refresh'),
-        headers: {..._headerMode, 'Authorization': 'Bearer $refreshToken'},
-      );
+      response = await _fdi.post('session/refresh', bearer: refreshToken);
     } on Object catch (error) {
-      return Err(_unreachable(error));
+      return Err(SuperTokensFdi.unreachable(error));
     }
 
     if (response.statusCode == 401) {
-      await _tokens.clear();
-      _current = null;
+      await _fdi.tokens.clear();
+      _fdi.current = null;
       return const Err(SessionExpired());
     }
     if (response.statusCode != 200) {
@@ -70,20 +64,17 @@ final class SuperTokensSessionRepository implements SessionRepository {
         AuthUnavailable(detail: 'refresh returned ${response.statusCode}'),
       );
     }
-    return Ok(await _adopt(response, email: _current?.user.email));
+    return Ok(await _fdi.adopt(response, email: _fdi.current?.user.email));
   }
 
   @override
   Future<void> signOut() async {
-    final accessToken = _current?.accessToken;
-    _current = null;
-    await _tokens.clear();
+    final accessToken = _fdi.current?.accessToken;
+    _fdi.current = null;
+    await _fdi.tokens.clear();
     if (accessToken == null) return;
     try {
-      await _http.post(
-        _route('signout'),
-        headers: {..._headerMode, 'Authorization': 'Bearer $accessToken'},
-      );
+      await _fdi.post('signout', bearer: accessToken);
     } on Object {
       // Local credentials are gone; the server session expires on its own.
     }
@@ -96,33 +87,30 @@ final class SuperTokensSessionRepository implements SessionRepository {
   }) async {
     final http.Response response;
     try {
-      response = await _http.post(
-        _route(route),
-        headers: {
-          ..._headerMode,
-          'rid': 'emailpassword',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
+      response = await _fdi.post(
+        route,
+        rid: 'emailpassword',
+        body: {
           'formFields': [
             {'id': 'email', 'value': credentials.email},
             {'id': 'password', 'value': credentials.password},
             if (role != null) {'id': 'role', 'value': role},
           ],
-        }),
+        },
       );
     } on Object catch (error) {
-      return Err(_unreachable(error));
+      return Err(SuperTokensFdi.unreachable(error));
     }
 
-    if (response.statusCode != 200) {
-      return Err(
-        AuthUnavailable(detail: '$route returned ${response.statusCode}'),
-      );
+    final Map<String, dynamic> body;
+    switch (SuperTokensFdi.okBody(response, route)) {
+      case Ok(:final value):
+        body = value;
+      case Err(:final failure):
+        return Err(failure);
     }
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
     return switch (body['status']) {
-      'OK' => Ok(await _adopt(response, email: credentials.email)),
+      'OK' => Ok(await _fdi.adopt(response, email: credentials.email)),
       'WRONG_CREDENTIALS_ERROR' => const Err(WrongCredentials()),
       'FIELD_ERROR' when route == 'signup' && _failsOn(body, 'email') =>
         const Err(EmailAlreadyRegistered()),
@@ -130,39 +118,6 @@ final class SuperTokensSessionRepository implements SessionRepository {
       final status => Err(SignInRejected(reason: '$status')),
     };
   }
-
-  // Turns the token headers into a session and persists the refresh token.
-  Future<Session> _adopt(http.Response response, {String? email}) async {
-    final headers = response.headers;
-    final accessToken = headers['st-access-token'];
-    final frontToken = headers['front-token'];
-    if (accessToken == null || frontToken == null) {
-      throw StateError('SuperTokens answered without session tokens');
-    }
-    final refreshToken = headers['st-refresh-token'];
-    if (refreshToken != null) await _tokens.write(refreshToken);
-
-    final front = jsonDecode(
-      utf8.decode(base64.decode(base64.normalize(frontToken))),
-    ) as Map<String, dynamic>;
-    final payload = (front['up'] as Map<String, dynamic>?) ?? const {};
-    final roleClaim = payload['st-role'] as Map<String, dynamic>?;
-
-    return _current = Session(
-      user: AuthenticatedUser(
-        subject: front['uid'] as String,
-        email: email ?? payload['email'] as String?,
-        roles: {...?(roleClaim?['v'] as List?)?.cast<String>()},
-      ),
-      accessToken: accessToken,
-      expiresAt: DateTime.fromMillisecondsSinceEpoch(
-        front['ate'] as int,
-        isUtc: true,
-      ),
-    );
-  }
-
-  Uri _route(String path) => _base.replace(path: '${_base.path}/$path');
 
   // Whether the field errors name [id]; mano-auth only flags email when it is taken.
   static bool _failsOn(Map<String, dynamic> body, String id) =>
@@ -174,11 +129,4 @@ final class SuperTokensSessionRepository implements SessionRepository {
       ((body['formFields'] as List?) ?? const [])
           .map((field) => '${field['id']}: ${field['error']}')
           .join('; ');
-
-  static AuthFailure _unreachable(Object error) => switch (error) {
-    SocketException() || http.ClientException() => AuthUnavailable(
-      detail: 'cannot reach SuperTokens: $error',
-    ),
-    _ => throw error,
-  };
 }

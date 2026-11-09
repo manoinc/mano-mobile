@@ -198,6 +198,8 @@ class _Credentials extends StatelessWidget {
     message: 'Con el correo de tu cuenta Mano.',
     submitLabel: 'Entrar',
     onSubmit: (_, _) async => 'Correo o contraseña incorrectos',
+    secondaryLabel: 'Crear cuenta con correo',
+    onSecondary: noop,
   );
 }
 

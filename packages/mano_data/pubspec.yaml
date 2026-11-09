@@ -36,6 +36,8 @@ dependencies:
   # graphql-transport-ws subscriptions (chat's messageAdded).
   stream_channel: ^2.1.0
   web_socket_channel: ^3.0.3
+  google_sign_in: ^7.2.0
+  sign_in_with_apple: ^8.2.0
 
 dev_dependencies:
   flutter_test:

@@ -575,4 +575,59 @@ void main() {
     await n.submit();
     expect(repo.submitted, isEmpty);
   });
+
+  group('phone and social sign-in', () {
+    Session signedIn({required bool isNew}) => Session(
+      user: _session.user,
+      accessToken: _session.accessToken,
+      expiresAt: _session.expiresAt,
+      isNewAccount: isNew,
+    );
+
+    test('the welcome opens the phone sign-in, and back returns', () {
+      final (:c, :n) = _setUp();
+
+      n.startWithPhone();
+      expect(_step(c), ProviderOnboardingStep.signIn);
+      expect(c.read(providerOnboardingProvider).inProgress, isTrue);
+
+      n.back();
+      expect(_step(c), ProviderOnboardingStep.welcome);
+    });
+
+    test('a new account goes to the identity check, its phone kept', () async {
+      final (:c, :n) = _setUp();
+      await c.read(sessionProvider.future);
+      n.startWithPhone();
+
+      n.enter(signedIn(isNew: true), phone: '+573001234567');
+
+      expect(c.read(sessionProvider).value, isA<SignedIn>());
+      expect(_step(c), ProviderOnboardingStep.identity);
+      expect(c.read(providerOnboardingProvider).phone, '3001234567');
+      expect(c.read(providerOnboardingProvider).inProgress, isTrue);
+    });
+
+    test('a returning account leaves the onboarding for the shell', () async {
+      final (:c, :n) = _setUp();
+      await c.read(sessionProvider.future);
+      n.startWithPhone();
+
+      n.enter(signedIn(isNew: false));
+
+      expect(c.read(sessionProvider).value, isA<SignedIn>());
+      expect(c.read(providerOnboardingProvider).inProgress, isFalse);
+    });
+
+    test('email sign-up stays one step past the phone screen', () {
+      final (:c, :n) = _setUp();
+      n
+        ..startWithPhone()
+        ..start();
+
+      expect(_step(c), ProviderOnboardingStep.email);
+      n.back();
+      expect(_step(c), ProviderOnboardingStep.signIn);
+    });
+  });
 }

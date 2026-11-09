@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/mano_theme.dart';
 import 'mano_primary_button.dart';
+import 'mano_text_action.dart';
 import 'mano_text_field.dart';
 
 /// Email and password in a sheet; the caller signs in and closes it on success.
@@ -11,6 +12,8 @@ class ManoCredentialsSheet extends StatefulWidget {
     required this.submitLabel,
     required this.onSubmit,
     this.message,
+    this.secondaryLabel,
+    this.onSecondary,
     super.key,
   });
 
@@ -20,6 +23,10 @@ class ManoCredentialsSheet extends StatefulWidget {
 
   /// Resolves to an error to show, or `null` once it went through.
   final Future<String?> Function(String email, String password) onSubmit;
+
+  /// A quieter way out under the button, e.g. creating an account instead.
+  final String? secondaryLabel;
+  final VoidCallback? onSecondary;
 
   @override
   State<ManoCredentialsSheet> createState() => _ManoCredentialsSheetState();
@@ -118,6 +125,15 @@ class _ManoCredentialsSheetState extends State<ManoCredentialsSheet> {
                 busy: _busy,
                 onPressed: _complete ? _submit : null,
               ),
+              if (widget.secondaryLabel case final label?) ...[
+                const SizedBox(height: ManoSpacing.sm),
+                Center(
+                  child: ManoTextAction(
+                    label: label,
+                    onPressed: _busy ? null : widget.onSecondary,
+                  ),
+                ),
+              ],
             ],
           ),
         ),

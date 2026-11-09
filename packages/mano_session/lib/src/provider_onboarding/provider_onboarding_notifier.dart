@@ -8,6 +8,7 @@ import 'provider_profile_validation.dart';
 /// The account is created on leaving [password], so [identity] onward is signed in.
 enum ProviderOnboardingStep {
   welcome,
+  signIn,
   email,
   password,
   identity,
@@ -188,6 +189,7 @@ final class ProviderOnboardingState {
 }
 
 /// A professional's sign-up: one question at a time, then review.
+// The enum lists the steps in flow order.
 const _flow = ProviderOnboardingStep.values;
 
 final class ProviderOnboardingNotifier
@@ -195,7 +197,22 @@ final class ProviderOnboardingNotifier
   @override
   ProviderOnboardingState build() => const ProviderOnboardingState();
 
+  /// Email sign-up, the fallback below the phone screen.
   void start() => _goTo(ProviderOnboardingStep.email);
+
+  /// The phone screen: sign in, or sign up, with a code.
+  void startWithPhone() => _goTo(ProviderOnboardingStep.signIn);
+
+  /// Takes a phone or social session; a new account goes to the identity check, a returning one leaves.
+  void enter(Session session, {String? phone}) {
+    state = session.isNewAccount
+        ? const ProviderOnboardingState().copyWith(
+            step: ProviderOnboardingStep.identity,
+            phone: phone == null ? '' : normalizeColombianMobile(phone) ?? '',
+          )
+        : const ProviderOnboardingState();
+    ref.read(sessionProvider.notifier).adopt(session);
+  }
 
   void editEmail(String value) => _editAccount(email: value);
 

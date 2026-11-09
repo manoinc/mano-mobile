@@ -15,7 +15,11 @@ library;
 // on `mano_data` directly. An app that could import the adapters could also
 // construct one, and the composition seam would stop being a seam.
 export 'package:mano_data/mano_data.dart'
-    show InMemorySessionRepository, ManoConfig;
+    show
+        InMemoryPasswordlessAuth,
+        InMemorySessionRepository,
+        InMemorySocialAuth,
+        ManoConfig;
 
 // The domain's vocabulary -- Session, AuthFailure and its cases,
 // AuthenticatedUser, ManoRole -- re-exported in full, unlike mano_data above.
@@ -63,6 +67,7 @@ export 'src/payments/job_checkout_controller.dart';
 export 'src/payments/job_checkout_flow.dart';
 export 'src/payments/job_payment_providers.dart';
 export 'src/payments/payment_copy.dart';
+export 'src/phone_sign_in/phone_sign_in_notifier.dart';
 export 'src/payouts/payout_providers.dart';
 export 'src/profile/profile_editing.dart';
 export 'src/profile/profile_providers.dart';

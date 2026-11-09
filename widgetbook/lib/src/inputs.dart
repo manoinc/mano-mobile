@@ -14,6 +14,42 @@ const _categories = [
 WidgetbookCategory inputs() => WidgetbookCategory(
   name: 'Inputs',
   children: [
+    component('ManoPhoneField', {
+      'Empty': (context) => _padded(
+        ManoPhoneField(
+          controller: TextEditingController(),
+          helperText: 'Te enviaremos un código por SMS.',
+          enabled: context.knobs.boolean(label: 'Enabled', initialValue: true),
+        ),
+      ),
+      'Error': (context) => _padded(
+        ManoPhoneField(
+          controller: TextEditingController(text: '300 12'),
+          helperText: 'Te enviaremos un código por SMS.',
+          errorText: context.knobs.string(
+            label: 'Error',
+            initialValue: 'Escribe un celular colombiano: 10 dígitos que empiezan por 3.',
+          ),
+        ),
+      ),
+    }),
+    component('ManoOtpField', {
+      'Empty': (context) => _padded(const ManoOtpField(value: '')),
+      'Typing': (context) => _padded(
+        ManoOtpField(value: context.knobs.string(label: 'Code', initialValue: '1234')),
+      ),
+      'Error': (context) => _padded(
+        const ManoOtpField(
+          value: '',
+          errorText: 'Ese código no es correcto. Te quedan 4 intentos.',
+        ),
+      ),
+      'Busy': (context) => _padded(const ManoOtpField(value: '123456', enabled: false)),
+    }),
+    component('ManoResendTimer', {
+      'Counting down': (context) => _padded(ManoResendTimer(onResend: noop)),
+      'Ready': (context) => _padded(ManoResendTimer(onResend: noop, wait: Duration.zero)),
+    }),
     component('ManoTextField', {
       'Default': (context) => _padded(
         ManoTextField(

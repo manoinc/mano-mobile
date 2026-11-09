@@ -14,7 +14,11 @@ import 'package:mano_ui/mano_ui.dart';
 /// Off is not only for speed: `ManoRoot._opened` is a static, so the first
 /// test would otherwise play 1150ms of opening and the rest would not, making
 /// the suite order-dependent.
-Widget _app({SessionRepository? session}) => ProviderScope(
+Widget _app({
+  SessionRepository? session,
+  PasswordlessAuth? phone,
+  SocialAuth? social,
+}) => ProviderScope(
   overrides: [
     offlineMarketplaceProvider.overrideWithValue(true),
     manoConfigProvider.overrideWithValue(
@@ -24,6 +28,8 @@ Widget _app({SessionRepository? session}) => ProviderScope(
       ),
     ),
     if (session != null) sessionRepositoryProvider.overrideWithValue(session),
+    if (phone != null) passwordlessAuthProvider.overrideWithValue(phone),
+    if (social != null) socialAuthProvider.overrideWithValue(social),
   ],
   child: MaterialApp(
     theme: ManoTheme.light(),
@@ -57,8 +63,13 @@ InMemorySessionRepository _signInRejectedRepository() =>
       onSignIn: () async => const Err(WrongCredentials()),
     );
 
-Future<void> _boot(WidgetTester tester, {SessionRepository? session}) async {
-  await tester.pumpWidget(_app(session: session));
+Future<void> _boot(
+  WidgetTester tester, {
+  SessionRepository? session,
+  PasswordlessAuth? phone,
+  SocialAuth? social,
+}) async {
+  await tester.pumpWidget(_app(session: session, phone: phone, social: social));
   await tester.pumpAndSettle();
 }
 
@@ -193,6 +204,10 @@ void main() {
       expect(find.text('Continuar con Google'), findsOneWidget);
       // One flame surface: Registrarse is filled, the other two are not.
       expect(find.byType(ManoPrimaryButton), findsOneWidget);
+      final signIn = tester.widget<ManoOutlineButton>(
+        find.widgetWithText(ManoOutlineButton, 'Iniciar sesión'),
+      );
+      expect(signIn.tone, ManoOutlineTone.flame);
     });
 
     testWidgets('"Omitir" reaches the guest home from any slide', (
@@ -227,10 +242,10 @@ void main() {
         await _boot(tester, session: _signInRejectedRepository());
         await _toLastSlide(tester);
 
-        // First tap leaves the carousel; the second opens the credentials sheet.
+        // First tap leaves the carousel; email is the fallback under the phone.
         await tester.tap(find.text('Iniciar sesión'));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Iniciar sesión'));
+        await tester.tap(find.text('Continuar con correo'));
         await tester.pumpAndSettle();
         await tester.enterText(
           find.byKey(const Key('mano-credentials-email')),
@@ -260,7 +275,7 @@ void main() {
 
       await tester.tap(find.text('Iniciar sesión'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Iniciar sesión'));
+      await tester.tap(find.text('Continuar con correo'));
       await tester.pumpAndSettle();
       await tester.enterText(
         find.byKey(const Key('mano-credentials-email')),
@@ -596,6 +611,193 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(SignInScreen), findsOneWidget);
+    });
+  });
+
+  group('phone sign-in', () {
+    Session phoneSession({required bool isNew}) => Session(
+      user: _signedInSession.user,
+      accessToken: 'access-1',
+      expiresAt: _signedInSession.expiresAt,
+      isNewAccount: isNew,
+    );
+
+    Future<void> toPhone(
+      WidgetTester tester, {
+      PasswordlessAuth? phone,
+      SocialAuth? social,
+    }) async {
+      await _boot(tester, phone: phone, social: social);
+      await _toLastSlide(tester);
+      await tester.tap(find.text('Iniciar sesión'));
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> sendCode(WidgetTester tester) async {
+      await tester.enterText(find.byType(TextField).first, '300 123 4567');
+      await tester.pump();
+      await tester.tap(find.text('Continuar'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('asks for a Colombian number, Airbnb style', (tester) async {
+      await toPhone(tester);
+
+      expect(find.text('Inicia sesión o regístrate'), findsOneWidget);
+      expect(find.text('Colombia (+57)'), findsOneWidget);
+      expect(find.text('Te enviaremos un código por SMS.'), findsOneWidget);
+      expect(find.text('Continuar con correo'), findsOneWidget);
+      expect(find.text('Continuar con Google'), findsOneWidget);
+    });
+
+    testWidgets('a number that is not a mobile is refused, in Spanish', (
+      tester,
+    ) async {
+      final phone = InMemoryPasswordlessAuth(
+        onVerified: () => _signedInSession,
+      );
+      await toPhone(tester, phone: phone);
+
+      await tester.enterText(find.byType(TextField).first, '12345');
+      await tester.pump();
+      await tester.tap(find.text('Continuar'));
+      await tester.pumpAndSettle();
+
+      expect(phone.sends, 0);
+      expect(find.textContaining('10 dígitos'), findsOneWidget);
+    });
+
+    testWidgets('a returning account goes home after the code', (tester) async {
+      final phone = InMemoryPasswordlessAuth(
+        onVerified: () => phoneSession(isNew: false),
+      );
+      await toPhone(tester, phone: phone);
+      await sendCode(tester);
+
+      expect(find.text('Confirma tu número'), findsOneWidget);
+      expect(find.textContaining('+57 300 *** 4567'), findsOneWidget);
+      expect(phone.lastRole, ManoRole.requester);
+
+      await tester.enterText(find.byType(TextField).first, '123456');
+      await tester.pumpAndSettle();
+
+      expect(find.byType(RequesterShell), findsOneWidget);
+    });
+
+    testWidgets('a wrong code says how many tries are left', (tester) async {
+      await toPhone(
+        tester,
+        phone: InMemoryPasswordlessAuth(onVerified: () => _signedInSession),
+      );
+      await sendCode(tester);
+
+      await tester.enterText(find.byType(TextField).first, '000000');
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Ese código no es correcto. Te quedan 2 intentos.'),
+        findsOneWidget,
+      );
+      expect(find.byType(RequesterShell), findsNothing);
+    });
+
+    testWidgets('a new account is asked its name, then its address', (
+      tester,
+    ) async {
+      await toPhone(
+        tester,
+        phone: InMemoryPasswordlessAuth(
+          onVerified: () => phoneSession(isNew: true),
+        ),
+      );
+      await sendCode(tester);
+      await tester.enterText(find.byType(TextField).first, '123456');
+      await tester.pumpAndSettle();
+
+      expect(find.text('¿Cómo te llamas?'), findsOneWidget);
+      await _fillName(tester);
+
+      expect(find.textContaining('¿Dónde vives?'), findsOneWidget);
+    });
+
+    testWidgets('Google without a client says it cannot connect', (
+      tester,
+    ) async {
+      await toPhone(
+        tester,
+        social: InMemorySocialAuth(
+          onSignIn: () => const Err(AuthUnavailable(detail: 'no client')),
+        ),
+      );
+
+      await tester.tap(find.text('Continuar con Google'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('No pudimos conectarnos. Intenta de nuevo.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('Google signs a returning account straight in', (tester) async {
+      await toPhone(
+        tester,
+        social: InMemorySocialAuth(
+          onSignIn: () => Ok(phoneSession(isNew: false)),
+        ),
+      );
+
+      await tester.tap(find.text('Continuar con Google'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(RequesterShell), findsOneWidget);
+    });
+
+    testWidgets('email sign-up stays one tap away', (tester) async {
+      await toPhone(tester);
+      await tester.tap(find.text('Continuar con correo'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Crear cuenta con correo'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(RegistrationFlowScreen), findsOneWidget);
+    });
+  });
+
+  group('Google on the last slide', () {
+    testWidgets('signs a returning account straight in', (tester) async {
+      await _boot(
+        tester,
+        social: InMemorySocialAuth(onSignIn: () => Ok(_signedInSession)),
+      );
+      await _toLastSlide(tester);
+
+      await tester.tap(find.text('Continuar con Google'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(RequesterShell), findsOneWidget);
+    });
+
+    testWidgets('a failure opens the sign-in screen and says why', (
+      tester,
+    ) async {
+      await _boot(
+        tester,
+        social: InMemorySocialAuth(
+          onSignIn: () => const Err(AuthUnavailable(detail: 'no client')),
+        ),
+      );
+      await _toLastSlide(tester);
+
+      await tester.tap(find.text('Continuar con Google'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SignInScreen), findsOneWidget);
+      expect(
+        find.text('No pudimos conectarnos. Intenta de nuevo.'),
+        findsOneWidget,
+      );
     });
   });
 }

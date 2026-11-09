@@ -106,6 +106,20 @@ void main() {
 
       expect(session.toString(), isNot(contains('token')));
     });
+
+    test('is an existing account unless the sign-in created it', () {
+      final session = sessionExpiringAt(issued);
+      final created = Session(
+        user: session.user,
+        accessToken: session.accessToken,
+        expiresAt: session.expiresAt,
+        isNewAccount: true,
+      );
+
+      expect(session.isNewAccount, isFalse);
+      expect(created.isNewAccount, isTrue);
+      expect(created, isNot(session));
+    });
   });
 
   group('AuthFailure', () {

@@ -42,6 +42,17 @@ final class OnboardingFlowNotifier extends Notifier<OnboardingFlow> {
 
   void skipRegistration() => _browse();
 
+  /// Takes a phone or social session; a new account is asked its name before the shell.
+  void enter(Session session) {
+    if (session.isNewAccount) {
+      state = const OnboardingRegistration(
+        draft: RegistrationDraft(),
+        hasAccount: true,
+      );
+    }
+    _session.adopt(session);
+  }
+
   void acknowledgeWelcome() => state = OnboardingBrowsing(
     name: switch (state) {
       OnboardingBrowsing(:final name) => name,
@@ -133,6 +144,8 @@ final class OnboardingFlowNotifier extends Notifier<OnboardingFlow> {
   void back() {
     if (state case final OnboardingRegistration flow) {
       state = switch (flow.step) {
+        // The account already exists; there is no going back to create it.
+        RegistrationStep.name when flow.hasAccount => flow,
         RegistrationStep.name => const OnboardingTour(index: lastSlide),
         RegistrationStep.email => _stepBack(flow, RegistrationStep.name),
         RegistrationStep.password => _stepBack(flow, RegistrationStep.email),
@@ -187,7 +200,9 @@ final class OnboardingFlowNotifier extends Notifier<OnboardingFlow> {
         RegistrationStep.name =>
           validateGivenName(flow.draft.givenName) == null &&
                   validateFamilyName(flow.draft.familyName) == null
-              ? RegistrationStep.email
+              ? (flow.hasAccount
+                    ? RegistrationStep.address
+                    : RegistrationStep.email)
               : null,
         RegistrationStep.email =>
           validateEmail(flow.email) == null ? RegistrationStep.password : null,

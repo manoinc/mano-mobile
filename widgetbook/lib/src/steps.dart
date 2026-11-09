@@ -114,6 +114,26 @@ WidgetbookCategory steps() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoSignInLayout', {
+      'Phone': (context) => _phone(context, busy: false),
+      'Phone, error': (context) => _phone(context, busy: false, error: true),
+      'Phone, busy': (context) => _phone(context, busy: true),
+      'Code': (context) => ManoSignInLayout(
+        title: 'Confirma tu número',
+        message: 'Escribe el código que enviamos a +57 300 *** 4567.',
+        onClose: noop,
+        body: const Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ManoOtpField(value: '12'),
+            SizedBox(height: ManoSpacing.md),
+            ManoResendTimer(onResend: noop),
+          ],
+        ),
+        primaryLabel: 'Continuar',
+        onPrimary: null,
+      ),
+    }),
   ],
 );
 
@@ -129,3 +149,29 @@ class _OnInk extends StatelessWidget {
     child: Padding(padding: const EdgeInsets.all(ManoSpacing.lg), child: child),
   );
 }
+
+Widget _phone(BuildContext context, {required bool busy, bool error = false}) =>
+    ManoSignInLayout(
+      title: 'Inicia sesión o regístrate',
+      onClose: noop,
+      busy: busy,
+      body: ManoPhoneField(
+        controller: TextEditingController(text: error ? '300 12' : ''),
+        helperText: 'Te enviaremos un código por SMS.',
+        errorText: error
+            ? 'Escribe un celular colombiano: 10 dígitos que empiezan por 3.'
+            : null,
+        enabled: !busy,
+      ),
+      primaryLabel: 'Continuar',
+      onPrimary: noop,
+      alternatives: [
+        ManoOutlineButton(label: 'Continuar con correo', onPressed: busy ? null : noop),
+        ManoPlatformSignInButton(
+          googleMark: const Icon(Icons.g_mobiledata, size: 28),
+          appleMark: const Icon(Icons.apple, size: 22),
+          onGoogle: busy ? null : noop,
+          onApple: busy ? null : noop,
+        ),
+      ],
+    );

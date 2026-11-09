@@ -29,6 +29,9 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | Component | Use it for |
 |---|---|
 | `ManoTextField` | Labelled text input; single or multi-line, helper and error text. |
+| `ManoPhoneField` | A fixed "Colombia (+57)" pill above a phone-number pill, with helper or error text. |
+| `ManoOtpField` | Six code boxes over one hidden field: SMS autofill (`oneTimeCode`), paste, error text. |
+| `ManoResendTimer` | "Reenviar código" held back by a countdown, restarted on each resend. |
 | `ManoSearchField` / `ManoSearchPill` | A real search input / a tappable pill that opens search. |
 | `ManoAddressPill` | The address selector on Home. |
 | `ManoToggleRow` | An on/off setting. |
@@ -92,6 +95,7 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 |---|---|
 | `ManoBottomNavBar` | Four tabs around a raised centre action. |
 | `ManoHeroScaffold` | Full-bleed brand screens with up to two actions. |
+| `ManoSignInLayout` | The way in: title, one field, the flame "Continuar", then "o" and outlined alternatives (email, Google/Apple). Phone and code screens in both apps. |
 | `ManoStepScaffold` + `ManoStepTransition` | Multi-step forms that slide between steps; `headlineEmphasis` paints part of the headline in flame. |
 | `ManoEmphasisText` | One sentence with one fragment set apart (flame by default). |
 | `ManoTipList` | Bulleted advice in quiet text, each with a bold fragment (`ManoTip`). |

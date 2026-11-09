@@ -5,6 +5,7 @@ final class ManoConfig {
     required this.appRole,
     this.authApiDomain,
     this.approveIdentityChecks = false,
+    this.googleServerClientId,
   });
 
   /// The GraphQL endpoint of `mano-gateway`.
@@ -18,6 +19,8 @@ final class ManoConfig {
 
   /// Debug only: the mock identity check approves on send, so the gate can be walked.
   final bool approveIdentityChecks;
+  /// mano-auth's Google web client ID, the audience of Google id tokens; `null` turns Google off.
+  final String? googleServerClientId;
 
   /// The gateway's `graphql-transport-ws` socket, beside the GraphQL endpoint.
   String get gatewaySubscriptionUrl {

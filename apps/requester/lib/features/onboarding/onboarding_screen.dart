@@ -93,8 +93,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
   OnboardingFlowNotifier get _flow => ref.read(onboardingFlowProvider.notifier);
 
+  // A failure is shown on the sign-in screen, which keeps the same phone sign-in state.
+  Future<void> _platform(SocialProvider provider) async {
+    final phone = ref.read(phoneSignInProvider.notifier);
+    final session = await phone.signInWith(provider);
+    if (!mounted) return;
+    if (session != null) return _flow.enter(session);
+    if (ref.read(phoneSignInProvider).failure != null) _flow.startSignIn();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final busy = ref.watch(phoneSignInProvider.select((s) => s.busy));
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -137,6 +147,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
               ),
               onRegister: _flow.startRegistration,
               onSignIn: _flow.startSignIn,
+              onPlatform: busy ? null : _platform,
             ),
           ],
         ),
@@ -226,12 +237,16 @@ class _BottomBar extends StatelessWidget {
     required this.onNext,
     required this.onRegister,
     required this.onSignIn,
+    required this.onPlatform,
   });
 
   final int index;
   final VoidCallback onNext;
   final VoidCallback onRegister;
   final VoidCallback onSignIn;
+
+  /// Google or Apple; `null` while one is in flight.
+  final void Function(SocialProvider)? onPlatform;
 
   @override
   Widget build(BuildContext context) {
@@ -255,6 +270,7 @@ class _BottomBar extends StatelessWidget {
                     Expanded(
                       child: ManoOutlineButton(
                         label: 'Iniciar sesión',
+                        tone: ManoOutlineTone.flame,
                         onPressed: onSignIn,
                       ),
                     ),
@@ -268,10 +284,15 @@ class _BottomBar extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: ManoSpacing.sm),
-                ManoBrandButton(
-                  label: 'Continuar con Google',
-                  leading: const GoogleMark(),
-                  onPressed: onSignIn,
+                ManoPlatformSignInButton(
+                  googleMark: const GoogleMark(),
+                  appleMark: const Icon(Icons.apple, size: 22),
+                  onGoogle: onPlatform == null
+                      ? null
+                      : () => onPlatform!(SocialProvider.google),
+                  onApple: onPlatform == null
+                      ? null
+                      : () => onPlatform!(SocialProvider.apple),
                 ),
               ],
             ),

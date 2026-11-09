@@ -9,6 +9,7 @@ import 'steps/documents_step.dart';
 import 'steps/pending_step.dart';
 import 'steps/question_step.dart';
 import 'steps/review_step.dart';
+import 'steps/sign_in_step.dart';
 import 'steps/welcome_step.dart';
 
 /// A professional's sign-up, one step at a time, ending in pending verification.
@@ -42,6 +43,9 @@ class ProfessionalOnboardingScreen extends ConsumerWidget {
         child: switch (step) {
           ProviderOnboardingStep.welcome => const WelcomeStep(
             key: ValueKey('welcome'),
+          ),
+          ProviderOnboardingStep.signIn => const SignInStep(
+            key: ValueKey('signIn'),
           ),
           ProviderOnboardingStep.email || ProviderOnboardingStep.password =>
             AccountStep(key: ValueKey(step), state: state),
