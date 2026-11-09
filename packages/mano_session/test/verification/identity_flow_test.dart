@@ -73,6 +73,7 @@ IdentityFlowState _s(ProviderContainer c) => c.read(identityFlowProvider);
 Future<void> _captureAll(IdentityFlowNotifier n) async {
   n.begin();
   await n.capture();
+  n.begin();
   await n.capture();
   await n.capture();
 }
@@ -109,20 +110,25 @@ void main() {
     });
   });
 
-  test('front, back, selfie, then review, each from the camera', () async {
+  test('front, back tips, back, selfie, then review, as Nu walks it', () async {
     final port = _Port();
     final (:c, :n, :picker) = await _setUp(port);
     final seen = <IdentityFlowStep>[];
 
     n.begin();
     seen.add(_s(c).step);
-    for (var i = 0; i < 3; i++) {
+    await n.capture();
+    seen.add(_s(c).step);
+    n.begin();
+    seen.add(_s(c).step);
+    for (var i = 0; i < 2; i++) {
       await n.capture();
       seen.add(_s(c).step);
     }
 
     expect(seen, [
       IdentityFlowStep.cedulaFront,
+      IdentityFlowStep.backIntro,
       IdentityFlowStep.cedulaBack,
       IdentityFlowStep.selfie,
       IdentityFlowStep.review,
@@ -171,6 +177,15 @@ void main() {
     expect(port.submitted.last, IdentityDocumentKind.cedulaBack);
   });
 
+  test('the back tips take no photo and lead to the back', () async {
+    final (:c, :n, :picker) = await _setUp(_Port());
+    n.begin();
+    await n.capture();
+    await n.capture();
+    expect(_s(c).step, IdentityFlowStep.backIntro);
+    expect(picker.sources, hasLength(1));
+  });
+
   test('back walks the steps and returns from a retake to review', () async {
     final (:c, :n, picker: _) = await _setUp(_Port());
     await _captureAll(n);
@@ -179,6 +194,8 @@ void main() {
     expect(_s(c).step, IdentityFlowStep.selfie);
     n.back();
     expect(_s(c).step, IdentityFlowStep.cedulaBack);
+    n.back();
+    expect(_s(c).step, IdentityFlowStep.backIntro);
     n.back();
     expect(_s(c).step, IdentityFlowStep.cedulaFront);
     n.back();
@@ -228,7 +245,7 @@ void main() {
 
   test('progress runs from the intro to the review', () async {
     final (:c, :n, picker: _) = await _setUp(_Port());
-    expect(_s(c).progress, closeTo(0.2, 1e-9));
+    expect(_s(c).progress, closeTo(1 / 6, 1e-9));
     await _captureAll(n);
     expect(_s(c).progress, 1);
     await n.send();

@@ -9,6 +9,9 @@ enum IdentityFlowStep {
   loading,
   intro,
   cedulaFront,
+
+  /// Tips before the back of the cédula, as Nu shows them; no photo.
+  backIntro,
   cedulaBack,
   selfie,
   review,
@@ -34,6 +37,7 @@ enum IdentityFlowStep {
 const _walked = [
   IdentityFlowStep.intro,
   IdentityFlowStep.cedulaFront,
+  IdentityFlowStep.backIntro,
   IdentityFlowStep.cedulaBack,
   IdentityFlowStep.selfie,
   IdentityFlowStep.review,
@@ -117,9 +121,12 @@ final class IdentityFlowNotifier extends Notifier<IdentityFlowState> {
     return state.step == IdentityFlowStep.approved;
   }
 
-  void begin() {
-    if (state.step == IdentityFlowStep.intro) _goTo(_nextMissing());
-  }
+  /// Continuar on a step that only explains: the intro or the back tips.
+  void begin() => switch (state.step) {
+    IdentityFlowStep.intro => _goTo(_nextMissing()),
+    IdentityFlowStep.backIntro => _goTo(IdentityFlowStep.cedulaBack),
+    _ => null,
+  };
 
   /// Takes the current step's photo with the camera and sends it.
   Future<void> capture() async {
@@ -180,7 +187,10 @@ final class IdentityFlowNotifier extends Notifier<IdentityFlowState> {
 
   IdentityFlowStep _nextMissing() {
     for (final kind in IdentityDocumentKind.values) {
-      if (!state.photos.containsKey(kind)) return IdentityFlowStep.of(kind);
+      if (state.photos.containsKey(kind)) continue;
+      return kind == IdentityDocumentKind.cedulaBack
+          ? IdentityFlowStep.backIntro
+          : IdentityFlowStep.of(kind);
     }
     return IdentityFlowStep.review;
   }
