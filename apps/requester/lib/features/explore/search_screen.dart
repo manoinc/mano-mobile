@@ -124,18 +124,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 ctaLabel: 'Limpiar búsqueda',
                 onCta: _clear,
               )
-            : ListView.separated(
+            : _TileGrid(
                 key: ValueKey(_query),
-                padding: const EdgeInsets.all(ManoSpacing.md),
-                itemCount: services.length,
-                separatorBuilder: (_, _) =>
-                    const Divider(color: ManoColors.stone, height: 1),
-                itemBuilder: (context, i) => _ResultTile(
-                  title: services[i].title,
-                  category: ServiceCategories.labelOf(services[i].category),
-                  description: services[i].description,
-                  onTap: () => context.push('/home/service/${services[i].id}'),
-                ),
+                children: [
+                  for (final service in services)
+                    ManoCategoryTile(
+                      image: categoryPhoto(service.category),
+                      label: service.title,
+                      onTap: () => context.push('/home/service/${service.id}'),
+                    ),
+                ],
               ),
       ),
     );
@@ -154,6 +152,25 @@ class _CategoryGrid extends StatelessWidget {
   final ValueChanged<String> onSelected;
 
   @override
+  Widget build(BuildContext context) => _TileGrid(
+    children: [
+      for (final category in categories)
+        ManoCategoryTile(
+          image: categoryPhoto(category.id),
+          label: category.label,
+          onTap: () => onSelected(category.id),
+        ),
+    ],
+  );
+}
+
+/// Two columns of photo tiles, shared by the browse grid and the results.
+class _TileGrid extends StatelessWidget {
+  const _TileGrid({required this.children, super.key});
+
+  final List<Widget> children;
+
+  @override
   Widget build(BuildContext context) {
     // Taller rows when the user enlarges text, so three-line labels still fit.
     final scale = MediaQuery.textScalerOf(context).scale(1);
@@ -163,60 +180,7 @@ class _CategoryGrid extends StatelessWidget {
       crossAxisSpacing: ManoSpacing.md,
       mainAxisSpacing: ManoSpacing.sm,
       childAspectRatio: 2.2 / scale.clamp(1, 2),
-      children: [
-        for (final category in categories)
-          ManoCategoryTile(
-            image: categoryPhoto(category.id),
-            label: category.label,
-            onTap: () => onSelected(category.id),
-          ),
-      ],
-    );
-  }
-}
-
-class _ResultTile extends StatelessWidget {
-  const _ResultTile({
-    required this.title,
-    required this.category,
-    required this.description,
-    required this.onTap,
-  });
-
-  final String title;
-  final String category;
-  final String description;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(ManoRadius.card),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: ManoSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              category,
-              style: textTheme.labelSmall?.copyWith(color: ManoColors.clay),
-            ),
-            const SizedBox(height: ManoSpacing.xs),
-            Text(title, style: textTheme.titleMedium),
-            if (description.isNotEmpty) ...[
-              const SizedBox(height: ManoSpacing.xs),
-              Text(
-                description,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
-              ),
-            ],
-          ],
-        ),
-      ),
+      children: children,
     );
   }
 }

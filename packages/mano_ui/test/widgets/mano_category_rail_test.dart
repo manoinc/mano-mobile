@@ -27,6 +27,19 @@ void main() {
   ];
 
   group('the category rail', () {
+    testWidgets('grows with enlarged text instead of overflowing', (
+      tester,
+    ) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+      await tester.pumpWidget(
+        _host(ManoCategoryRail(items: items, onSelected: (_) {})),
+      );
+
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('renders every item label', (tester) async {
       await tester.pumpWidget(
         _host(ManoCategoryRail(items: items, onSelected: (_) {})),
