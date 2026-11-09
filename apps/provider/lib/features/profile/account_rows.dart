@@ -5,17 +5,24 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../account/account_gate.dart';
+import '../identity/identity_row.dart';
 import '../payouts/payout_labels.dart';
 
-/// Perfil's account rows: where payouts go, and help (PQRS).
+/// Perfil's account rows: identity, where payouts go, and help (PQRS).
 class AccountRows extends ConsumerWidget {
   const AccountRows({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final account = ref.watch(payoutAccountProvider).value;
+    final divider = Divider(
+      height: 1,
+      color: Theme.of(context).colorScheme.outlineVariant,
+    );
     return Column(
       children: [
+        const IdentityRow(),
+        divider,
         ManoOptionRow(
           icon: Icons.account_balance_outlined,
           label: 'Cuenta para pagos',
@@ -32,7 +39,7 @@ class AccountRows extends ConsumerWidget {
             action: () => context.push('/profile/payout'),
           ),
         ),
-        Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
+        divider,
         ManoOptionRow(
           icon: Icons.support_agent_outlined,
           label: 'Ayuda y PQRS',

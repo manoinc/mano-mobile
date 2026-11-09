@@ -33,11 +33,11 @@ See README.md for the rationale.
 dart analyze                                     # whole workspace, from root
 cd packages/mano_domain  && dart test            # 212 — no Flutter binding
 cd packages/mano_data    && flutter test         # 338
-cd packages/mano_session && flutter test         # 331
-cd packages/mano_ui      && flutter test         # 361
+cd packages/mano_session && flutter test         # 348
+cd packages/mano_ui      && flutter test         # 371
 cd apps/requester        && flutter test         # 237
-cd apps/provider         && flutter test         # 225
-cd widgetbook            && flutter test         # 146 — every use case renders, every widget covered
+cd apps/provider         && flutter test         # 238
+cd widgetbook            && flutter test         # 153 — every use case renders, every widget covered
 tools/docs.sh serve                              # the handbook at localhost:8000
 cd apps/<app> && flutter test integration_test -d RFGL20WAR9E  # on the A36, one at a time
 cd apps/<app> && flutter test integration_test -d "iPhone 17"  # iOS simulator

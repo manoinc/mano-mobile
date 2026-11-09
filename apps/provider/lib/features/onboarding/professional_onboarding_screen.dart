@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../identity/identity_flow_view.dart';
 import 'steps/account_step.dart';
 import 'steps/documents_step.dart';
 import 'steps/pending_step.dart';
@@ -21,11 +22,20 @@ class ProfessionalOnboardingScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(providerOnboardingProvider);
     final step = state.step;
+    final leaveIdentity = ref
+        .read(providerOnboardingProvider.notifier)
+        .leaveIdentity;
 
     return PopScope(
       canPop: step == ProviderOnboardingStep.welcome,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) ref.read(providerOnboardingProvider.notifier).back();
+        if (didPop) return;
+        // The identity photos walk back among themselves.
+        if (step == ProviderOnboardingStep.identity) {
+          ref.read(identityFlowProvider.notifier).back();
+        } else {
+          ref.read(providerOnboardingProvider.notifier).back();
+        }
       },
       child: ManoStepTransition(
         index: step.index,
@@ -35,6 +45,11 @@ class ProfessionalOnboardingScreen extends ConsumerWidget {
           ),
           ProviderOnboardingStep.email || ProviderOnboardingStep.password =>
             AccountStep(key: ValueKey(step), state: state),
+          ProviderOnboardingStep.identity => IdentityFlowView(
+            key: const ValueKey('identity'),
+            onDone: leaveIdentity,
+            onLater: leaveIdentity,
+          ),
           ProviderOnboardingStep.name ||
           ProviderOnboardingStep.phone ||
           ProviderOnboardingStep.zone ||

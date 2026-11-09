@@ -8,6 +8,7 @@ import '../features/agenda/agenda_screen.dart';
 import '../features/chat/chat_screen.dart';
 import '../features/chat/provider_inbox_screen.dart';
 import '../features/home/provider_home_screen.dart';
+import '../features/identity/identity_screen.dart';
 import '../features/projects/lead_detail_screen.dart';
 import '../features/payouts/payout_screen.dart';
 import '../features/profile/earnings_breakdown_screen.dart';
@@ -121,6 +122,11 @@ final providerRouterProvider = Provider<GoRouter>((ref) {
                     path: 'support',
                     parentNavigatorKey: rootKey,
                     builder: (context, state) => const SupportScreen(),
+                  ),
+                  GoRoute(
+                    path: 'identity',
+                    parentNavigatorKey: rootKey,
+                    builder: (context, state) => const IdentityScreen(),
                   ),
                   GoRoute(
                     path: 'payout',

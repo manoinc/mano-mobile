@@ -13,6 +13,7 @@ abstract final class AccountReason {
   static const chat = 'Inicia sesión para escribirle a tus clientes.';
   static const projects = 'Inicia sesión para cotizar este proyecto.';
   static const profile = 'Inicia sesión para editar tu perfil.';
+  static const identity = 'Inicia sesión para verificar tu identidad.';
   static const payouts =
       'Inicia sesión para registrar dónde recibir tus pagos.';
 }

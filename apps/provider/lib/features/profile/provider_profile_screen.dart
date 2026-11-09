@@ -111,7 +111,8 @@ class _Header extends ConsumerWidget {
                           style: text.titleLarge,
                         ),
                       ),
-                      if (profile.verified) ...[
+                      if (profile.verified ||
+                          ref.watch(identityVerifiedProvider)) ...[
                         const SizedBox(width: ManoSpacing.xs),
                         const Icon(
                           Icons.verified,
