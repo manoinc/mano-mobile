@@ -5,6 +5,7 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../chat/job_chat_button.dart';
+import '../checkout/checkout_labels.dart';
 import 'activity_labels.dart';
 import 'job_rating_sheet.dart';
 import 'load_error.dart';
@@ -34,7 +35,10 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
         actions: [if (job.value != null) JobChatButton(jobId: widget.jobId)],
       ),
       body: switch (job) {
-        AsyncData(value: final job?) => _JobBody(job: job),
+        AsyncData(value: final job?) => _JobBody(
+          job: job,
+          paid: _payment(job)?.isSettled ?? false,
+        ),
         AsyncData() => ManoEmptyState(
           icon: Icons.search_off,
           message: 'No encontramos este trabajo.',
@@ -59,7 +63,17 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
     );
   }
 
-  // Finished and unrated: Calificar leads, rebooking follows.
+  // Only a finished job has a payment; null while unknown or unread.
+  JobPayment? _payment(Job job) => job.status == JobStatus.finished
+      ? ref.watch(jobPaymentProvider(job.id)).value
+      : null;
+
+  bool _unpaid(Job job) =>
+      job.status == JobStatus.finished &&
+      ref.watch(jobPaymentProvider(job.id)).hasValue &&
+      !(_payment(job)?.isSettled ?? false);
+
+  // Finished and unpaid: Pagar leads. Paid and unrated: Calificar leads, rebooking follows.
   Widget _actionsFor(Job job) {
     if (job.canCancel) {
       return ManoOutlineButton(
@@ -77,6 +91,28 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
       );
     }
     final rated = ref.watch(ratedStarsProvider(job.id));
+    if (_unpaid(job)) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ManoPrimaryButton(
+            label: payLabel(job.payableCop),
+            onPressed: _busy
+                ? null
+                : () =>
+                      context.push('${GoRouterState.of(context).uri.path}/pay'),
+          ),
+          const SizedBox(height: ManoSpacing.sm),
+          if (rated == null)
+            ManoOutlineButton(
+              label: 'Calificar',
+              onPressed: () => showJobRatingSheet(context, job),
+            )
+          else
+            ManoQuietButton(label: 'Calificado ★$rated', onPressed: null),
+        ],
+      );
+    }
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: rated == null
@@ -157,9 +193,10 @@ class _JobDetailScreenState extends ConsumerState<JobDetailScreen> {
 }
 
 class _JobBody extends StatelessWidget {
-  const _JobBody({required this.job});
+  const _JobBody({required this.job, required this.paid});
 
   final Job job;
+  final bool paid;
 
   @override
   Widget build(BuildContext context) {
@@ -170,9 +207,16 @@ class _JobBody extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(ManoSpacing.md),
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: ManoStatusChip(label: statusLabel, tone: tone),
+        Wrap(
+          spacing: ManoSpacing.sm,
+          children: [
+            ManoStatusChip(label: statusLabel, tone: tone),
+            if (paid)
+              const ManoStatusChip(
+                label: 'Pagado',
+                tone: ManoStatusTone.success,
+              ),
+          ],
         ),
         const SizedBox(height: ManoSpacing.sm),
         Text(job.serviceTitle, style: textTheme.headlineSmall),

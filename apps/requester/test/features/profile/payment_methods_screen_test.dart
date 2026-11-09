@@ -31,13 +31,33 @@ Future<void> _addVia(WidgetTester tester, String kind) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> _edit(WidgetTester tester, String title) async {
+  await tester.tap(
+    find.descendant(
+      of: find.widgetWithText(ManoMethodRow, title),
+      matching: find.text('Editar'),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
 void main() {
-  testWidgets('says payments are not live and starts empty', (tester) async {
-    await _open(tester);
+  testWidgets('starts empty, with the ink add pill and the Mano promise', (
+    tester,
+  ) async {
+    final c = await _open(tester);
 
     expect(find.text('Métodos de pago'), findsOneWidget);
-    expect(find.byType(ManoNotice), findsOneWidget);
-    expect(find.byType(ManoEmptyState), findsOneWidget);
+    expect(find.byType(ManoMethodRow), findsNothing);
+    final add = tester.widget<ManoPrimaryButton>(
+      find.widgetWithText(ManoPrimaryButton, 'Agregar método de pago'),
+    );
+    expect(add.tone, ManoPrimaryTone.ink);
+    expect(find.text('Paga siempre a través de Mano'), findsOneWidget);
+
+    await tester.tap(find.text('Más información'));
+    await tester.pumpAndSettle();
+    expect(routerPath(c), '/profile/support');
   });
 
   testWidgets('a card keeps only its brand and last four', (tester) async {
@@ -82,12 +102,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Nequi •••• 4567'), findsOneWidget);
 
-    await tester.tap(find.text('Nequi •••• 4567'));
+    await _edit(tester, 'Nequi •••• 4567');
     await tester.pumpAndSettle();
     await tester.tap(find.text('Usar como predeterminado'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Visa •••• 4242'));
+    await _edit(tester, 'Visa •••• 4242');
     await tester.pumpAndSettle();
     await tester.tap(find.text('Eliminar'));
     await tester.pumpAndSettle();

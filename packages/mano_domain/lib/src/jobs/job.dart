@@ -17,6 +17,7 @@ final class Job {
     required this.status,
     this.end,
     this.actualHours,
+    this.finalAmountCop,
   });
 
   final String id;
@@ -32,6 +33,17 @@ final class Job {
   final DateTime? end;
   final JobStatus status;
   final double? actualHours;
+
+  /// What the job came to, set once finished (gateway `finalAmount`).
+  final int? finalAmountCop;
+
+  /// What the requester pays for a finished job.
+  int get payableCop =>
+      finalAmountCop ??
+      switch ((rateType, actualHours)) {
+        (RateType.hourly, final double hours) => (amountCop * hours).round(),
+        _ => amountCop,
+      };
 
   bool get canStart => status == JobStatus.scheduled;
 
@@ -57,6 +69,7 @@ final class Job {
     end: end,
     status: status ?? this.status,
     actualHours: actualHours ?? this.actualHours,
+    finalAmountCop: finalAmountCop,
   );
 
   @override
@@ -72,7 +85,8 @@ final class Job {
       other.start == start &&
       other.end == end &&
       other.status == status &&
-      other.actualHours == actualHours;
+      other.actualHours == actualHours &&
+      other.finalAmountCop == finalAmountCop;
 
   @override
   int get hashCode => Object.hash(
@@ -87,6 +101,7 @@ final class Job {
     end,
     status,
     actualHours,
+    finalAmountCop,
   );
 
   @override

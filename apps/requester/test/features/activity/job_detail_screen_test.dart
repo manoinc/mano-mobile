@@ -117,8 +117,26 @@ void main() {
     expect(find.text('Trabajo cancelado'), findsNothing);
   });
 
-  testWidgets('a finished job can be rebooked', (tester) async {
+  testWidgets('a finished, unpaid job offers Pagar first, then Calificar', (
+    tester,
+  ) async {
     await pumpRouterAt(tester, '/projects/job/job-5');
+
+    expect(find.widgetWithText(ManoPrimaryButton, r'Pagar $120.000'), findsOne);
+    expect(find.widgetWithText(ManoOutlineButton, 'Calificar'), findsOne);
+    expect(find.text('Volver a contratar'), findsNothing);
+    expect(find.widgetWithText(ManoStatusChip, 'Pagado'), findsNothing);
+  });
+
+  testWidgets('a paid job shows Pagado and no Pagar', (tester) async {
+    await pumpRouterAt(tester, '/projects/job/job-5', overrides: paidJobs());
+
+    expect(find.widgetWithText(ManoStatusChip, 'Pagado'), findsOneWidget);
+    expect(find.textContaining('Pagar'), findsNothing);
+  });
+
+  testWidgets('a finished job can be rebooked', (tester) async {
+    await pumpRouterAt(tester, '/projects/job/job-5', overrides: paidJobs());
     expect(find.text('Cancelar'), findsNothing);
 
     await tester.tap(find.text('Volver a contratar'));
@@ -137,7 +155,10 @@ void main() {
       await pumpRouterAt(
         tester,
         '/projects/job/job-5',
-        overrides: [reviewRepositoryProvider.overrideWithValue(reviews)],
+        overrides: [
+          reviewRepositoryProvider.overrideWithValue(reviews),
+          ...paidJobs(),
+        ],
       );
       await tester.tap(find.text('Calificar'));
       await tester.pumpAndSettle();
@@ -151,10 +172,10 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('a finished job offers Calificar first, rebooking second', (
+    testWidgets('a paid job offers Calificar first, rebooking second', (
       tester,
     ) async {
-      await pumpRouterAt(tester, '/projects/job/job-5');
+      await pumpRouterAt(tester, '/projects/job/job-5', overrides: paidJobs());
 
       expect(find.widgetWithText(ManoPrimaryButton, 'Calificar'), findsOne);
       expect(

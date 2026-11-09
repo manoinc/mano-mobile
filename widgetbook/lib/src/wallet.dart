@@ -111,6 +111,108 @@ WidgetbookCategory wallet() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoPriceBreakdown', {
+      'Fixed price': (context) => Padding(
+        padding: const EdgeInsets.all(ManoSpacing.md),
+        child: ManoPriceBreakdown(
+          title: 'Detalle del precio',
+          lines: [
+            ('Reparación de fugas · precio fijo', ManoFormat.cop(120000)),
+          ],
+          totalLabel: 'Total (COP)',
+          totalValue: ManoFormat.cop(120000),
+        ),
+      ),
+      'Hourly': (context) => Padding(
+        padding: const EdgeInsets.all(ManoSpacing.md),
+        child: ManoPriceBreakdown(
+          title: 'Detalle del precio',
+          lines: [
+            ('${ManoFormat.cop(45000)} × 2,5 horas', ManoFormat.cop(112500)),
+          ],
+          totalLabel: 'Total (COP)',
+          totalValue: ManoFormat.cop(112500),
+        ),
+      ),
+    }),
+    component('ManoMethodOption', {
+      'Selected, idle and coming soon': (context) => const Padding(
+        padding: EdgeInsets.all(ManoSpacing.md),
+        child: Column(
+          children: [
+            ManoMethodOption(
+              leading: Icon(Icons.phone_iphone),
+              title: 'Nequi',
+              detail: 'Apruebas el pago en tu celular',
+              selected: true,
+              onTap: noop,
+            ),
+            SizedBox(height: ManoSpacing.sm),
+            ManoMethodOption(
+              leading: Icon(Icons.account_balance_outlined),
+              title: 'PSE',
+              detail: 'Pagas desde tu banco',
+              selected: false,
+              onTap: noop,
+            ),
+            SizedBox(height: ManoSpacing.sm),
+            ManoMethodOption(
+              leading: Icon(Icons.credit_card),
+              title: 'Tarjeta',
+              tag: 'Próximamente',
+              selected: false,
+              onTap: null,
+            ),
+          ],
+        ),
+      ),
+    }),
+    component('ManoMethodRow', {
+      'Saved methods': (context) => const Padding(
+        padding: EdgeInsets.all(ManoSpacing.md),
+        child: Column(
+          children: [
+            ManoMethodRow(
+              leading: Icon(Icons.credit_card),
+              title: 'Visa •••• 4242',
+              detail: 'Vence 08/29',
+              tag: 'Predeterminado',
+              actionLabel: 'Editar',
+              onAction: noop,
+            ),
+            ManoMethodRow(
+              leading: Icon(Icons.phone_iphone),
+              title: 'Nequi',
+              detail: '•••• 4567',
+              actionLabel: 'Editar',
+              onAction: noop,
+            ),
+          ],
+        ),
+      ),
+    }),
+    component('ManoInfoCard', {
+      'With link': (context) => const Padding(
+        padding: EdgeInsets.all(ManoSpacing.md),
+        child: ManoInfoCard(
+          icon: Icons.verified_user_outlined,
+          title: 'Paga siempre a través de Mano',
+          message:
+              'Si pagas por fuera de la app, no podemos protegerte ante '
+              'cobros indebidos o trabajos sin terminar.',
+          linkLabel: 'Más información',
+          onLink: noop,
+        ),
+      ),
+      'Plain': (context) => const Padding(
+        padding: EdgeInsets.all(ManoSpacing.md),
+        child: ManoInfoCard(
+          icon: Icons.info_outline,
+          title: 'La tarifa de Mano la paga el profesional',
+          message: 'Tú pagas solo el valor del servicio.',
+        ),
+      ),
+    }),
     component('ManoPhotoGallery', {
       'Lead photos': (context) => const Padding(
         padding: EdgeInsets.all(ManoSpacing.md),

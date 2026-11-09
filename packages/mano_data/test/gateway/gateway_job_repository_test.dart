@@ -148,6 +148,22 @@ void main() {
     expect(await repo.job('nope'), isNull);
   });
 
+  test('a finished job carries its final amount', () async {
+    final (:repo, catalog: _) = _repo((r) async {
+      expect(_body(r)['query'], contains('finalAmount { amount }'));
+      return _data({
+        'job': {
+          ..._jobJson(status: 'FINISHED'),
+          'finalAmount': {'amount': 62500.0, 'currency': 'COP'},
+        },
+      });
+    });
+
+    final job = await repo.job('j1');
+    expect(job?.finalAmountCop, 62500);
+    expect(job?.payableCop, 62500);
+  });
+
   test('bookSlot sends the offer and an RFC 3339 start', () async {
     final (:repo, catalog: _) = _repo((r) async {
       expect(_body(r)['query'], contains('bookSlot'));

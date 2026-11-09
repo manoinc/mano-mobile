@@ -8,6 +8,23 @@ Widget _host(Widget child, {ThemeData? theme}) => MaterialApp(
 );
 
 void main() {
+  testWidgets('the ink primary fills with ink, not flame', (tester) async {
+    await tester.pumpWidget(
+      _host(
+        ManoPrimaryButton(
+          label: 'Agregar método de pago',
+          tone: ManoPrimaryTone.ink,
+          onPressed: () {},
+        ),
+      ),
+    );
+
+    final style = tester.widget<FilledButton>(find.byType(FilledButton)).style!;
+    final scheme = ManoTheme.light().colorScheme;
+    expect(style.backgroundColor!.resolve({}), scheme.onSurface);
+    expect(style.foregroundColor!.resolve({}), scheme.surface);
+  });
+
   group('the outline action', () {
     testWidgets('the flame tone draws border and label in the primary', (
       tester,

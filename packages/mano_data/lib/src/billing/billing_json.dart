@@ -81,25 +81,79 @@ Result<CoinPurchase, DataFailure> coinPurchaseFromJson(
 /// A valid [draft] as `buyCoinPack`'s variables.
 Map<String, Object?> buyCoinPackVariables(CoinPurchaseDraft draft) => {
   'packId': draft.packId,
-  'method': switch (draft.method) {
-    CoinPurchaseMethod.pse => {
-      'pse': {
-        'institutionCode': draft.bankCode,
-        'personType': switch (draft.personType) {
-          PsePersonType.natural => 'NATURAL',
-          PsePersonType.juridical => 'JURIDICAL',
-        },
-        'legalIdType': legalIdTypeToJson(draft.legalIdType),
-        'legalId': draft.cleanLegalId,
-      },
-    },
-    _ => {
-      'wallet': {'phone': draft.nequiPhone},
-    },
-  },
+  'method': draft.method == CoinPurchaseMethod.pse
+      ? _pseInput(
+          draft.bankCode,
+          draft.personType,
+          draft.legalIdType,
+          draft.cleanLegalId,
+        )
+      : _walletInput(draft.nequiPhone),
   'payerEmail': draft.payerEmail.trim(),
   'termsAccepted': draft.termsAccepted,
 };
+
+/// A valid [draft] as `payJob`'s variables.
+Map<String, Object?> payJobVariables(JobPaymentDraft draft) => {
+  'jobId': draft.jobId,
+  'method': draft.method == JobPaymentMethod.pse
+      ? _pseInput(
+          draft.bankCode,
+          draft.personType,
+          draft.legalIdType,
+          draft.cleanLegalId,
+        )
+      : _walletInput(draft.nequiPhone),
+  'payerEmail': draft.payerEmail.trim(),
+  'termsAccepted': draft.termsAccepted,
+};
+
+Map<String, Object?> _walletInput(String phone) => {
+  'wallet': {'phone': phone},
+};
+
+Map<String, Object?> _pseInput(
+  String bankCode,
+  PsePersonType personType,
+  LegalIdType legalIdType,
+  String legalId,
+) => {
+  'pse': {
+    'institutionCode': bankCode,
+    'personType': switch (personType) {
+      PsePersonType.natural => 'NATURAL',
+      PsePersonType.juridical => 'JURIDICAL',
+    },
+    'legalIdType': legalIdTypeToJson(legalIdType),
+    'legalId': legalId,
+  },
+};
+
+/// A job's `PaymentResult`: the payment and what the payer does next.
+JobPayment jobPaymentFromJson(Map<String, dynamic> json) {
+  final payment = json['payment'] as Map<String, dynamic>;
+  final next = json['nextAction'] as Map<String, dynamic>;
+  final url = next['redirectUrl'] as String?;
+  final hasUrl = url != null && url.isNotEmpty;
+  return JobPayment(
+    paymentId: payment['id'] as String,
+    jobId: payment['jobId'] as String,
+    amount: _pesos(payment['amount']),
+    feeAmount: _pesos(payment['feeAmount']),
+    status: switch ((payment['status'], next['type'])) {
+      ('FAILED', _) => JobPaymentStatus.failed,
+      ('COMPLETED', _) => JobPaymentStatus.completed,
+      (_, 'AWAIT_APPROVAL') => JobPaymentStatus.awaitingApproval,
+      (_, 'REDIRECT') when hasUrl => JobPaymentStatus.redirect,
+      _ => JobPaymentStatus.pending,
+    },
+    redirectUrl: hasUrl ? url : null,
+    failureReason: payment['failureReason'] as String?,
+  );
+}
+
+int _pesos(Object? money) =>
+    ((money! as Map<String, dynamic>)['amount'] as num).round();
 
 /// `PayoutAccountInput`: exactly one destination, plus the holder.
 Map<String, Object?> payoutAccountInput(

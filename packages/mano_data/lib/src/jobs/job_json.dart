@@ -7,12 +7,14 @@ import '../gateway/service_lookup.dart';
 /// The `Job` selection every adapter asks for.
 const jobFields =
     'id client { id } worker { id } offer { $offerFields } '
-    'appointment { start end } status pricing { rateType amount } createdAt';
+    'appointment { start end } status pricing { rateType amount } '
+    'finalAmount { amount } createdAt';
 
 /// Maps a gateway `Job`; [service] supplies its title.
 Job jobFromJson(Map<String, dynamic> json, JobService? service) {
   final appointment = json['appointment'] as Map<String, dynamic>?;
   final pricing = json['pricing'] as Map<String, dynamic>;
+  final finalAmount = json['finalAmount'] as Map<String, dynamic>?;
   return Job(
     id: json['id'] as String,
     offerId: (json['offer'] as Map<String, dynamic>)['id'] as String,
@@ -32,6 +34,7 @@ Job jobFromJson(Map<String, dynamic> json, JobService? service) {
       'CANCELLED' => JobStatus.cancelled,
       _ => JobStatus.scheduled,
     },
+    finalAmountCop: (finalAmount?['amount'] as num?)?.round(),
   );
 }
 
