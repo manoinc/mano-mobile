@@ -43,12 +43,7 @@ void main() {
   });
 
   test('referral progress reads "2 de 5 invitados"', () {
-    const program = ReferralProgram(
-      code: 'C',
-      invited: 2,
-      goal: 5,
-      rewardCoins: 10,
-    );
-    expect(referralProgressText(program), '2 de 5 invitados');
+    const reward = ReferralReward(invited: 2, goal: 5, coins: 10);
+    expect(referralProgressText(reward), '2 de 5 invitados');
   });
 }

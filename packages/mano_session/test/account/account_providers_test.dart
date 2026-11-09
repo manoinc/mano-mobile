@@ -65,7 +65,7 @@ void main() {
     test('a new photo refreshes the profile', () async {
       await container
           .read(clientProfileActionsProvider.notifier)
-          .setPhoto('https://cdn/a.png');
+          .setPhoto(const MediaAttachment(id: 'm1', url: 'https://cdn/a.png'));
       expect(
         (await container.read(clientProfileProvider.future)).photoUrl,
         'https://cdn/a.png',

@@ -25,27 +25,37 @@ void main() {
     });
   });
 
-  group('ReferralProgram', () {
+  group('ReferralReward', () {
     test('progress is capped at the goal', () {
-      const program = ReferralProgram(
-        code: 'MANO-1',
-        invited: 7,
-        goal: 5,
-        rewardCoins: 10,
-      );
-      expect(program.progress, 1.0);
-      expect(program.completed, isTrue);
+      const reward = ReferralReward(invited: 7, goal: 5, coins: 10);
+      expect(reward.progress, 1.0);
+      expect(reward.completed, isTrue);
     });
 
     test('progress is the share invited', () {
-      const program = ReferralProgram(
-        code: 'MANO-1',
-        invited: 2,
-        goal: 5,
-        rewardCoins: 10,
-      );
-      expect(program.progress, closeTo(0.4, 1e-9));
-      expect(program.completed, isFalse);
+      const reward = ReferralReward(invited: 2, goal: 5, coins: 10);
+      expect(reward.progress, closeTo(0.4, 1e-9));
+      expect(reward.completed, isFalse);
+    });
+
+    test('a program without a reward only carries its code', () {
+      const program = ReferralProgram(code: 'MANO-1');
+      expect(program.reward, isNull);
+    });
+  });
+
+  group('ProviderStats', () {
+    test('completion percent rounds the served rate', () {
+      expect(ProviderStats.percentOf(0.756), 76);
+      expect(ProviderStats.percentOf(null), isNull);
+    });
+
+    test('what the backend does not serve stays unknown', () {
+      const stats = ProviderStats(reviewCount: 0);
+      expect(stats.rating, isNull);
+      expect(stats.jobsCompleted, isNull);
+      expect(stats.responseRatePct, isNull);
+      expect(stats.completionRatePct, isNull);
     });
   });
 

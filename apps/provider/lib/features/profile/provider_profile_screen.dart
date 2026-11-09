@@ -40,15 +40,8 @@ class ProviderProfileScreen extends ConsumerWidget {
             const SizedBox(height: ManoSpacing.lg),
             const SkillsRow(),
             const SizedBox(height: ManoSpacing.lg),
-            if (referral != null)
-              ManoReferralCard(
-                title: 'Invita a un colega',
-                subtitle: 'y gana ${referral.rewardCoins} Mano coins',
-                coinLabel: '${referral.rewardCoins}',
-                progressLabel: referralProgressText(referral),
-                progress: referral.progress,
-                onTap: () => showReferralSheet(context, referral),
-              ),
+            if (referral != null && referral.code.isNotEmpty)
+              _ReferralCard(program: referral),
             const SizedBox(height: ManoSpacing.lg),
             const AccountRows(),
             const SizedBox(height: ManoSpacing.sm),
@@ -56,6 +49,28 @@ class ProviderProfileScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// The invitation; the coin and progress only where a reward program runs.
+class _ReferralCard extends StatelessWidget {
+  const _ReferralCard({required this.program});
+
+  final ReferralProgram program;
+
+  @override
+  Widget build(BuildContext context) {
+    final reward = program.reward;
+    return ManoReferralCard(
+      title: 'Invita a un colega',
+      subtitle: reward == null
+          ? 'Comparte tu código ${program.code}'
+          : 'y gana ${reward.coins} Mano coins',
+      coinLabel: reward == null ? null : '${reward.coins}',
+      progressLabel: reward == null ? null : referralProgressText(reward),
+      progress: reward?.progress,
+      onTap: () => showReferralSheet(context, program),
     );
   }
 }
@@ -122,10 +137,17 @@ class _Header extends ConsumerWidget {
                       ],
                     ],
                   ),
-                  Text(
-                    yearsText(profile.yearsExperience),
-                    style: text.bodyMedium?.copyWith(color: ManoColors.muted),
-                  ),
+                  if (contactText(profile.email, profile.phone)
+                      case final contact?)
+                    Text(
+                      contact,
+                      style: text.bodyMedium?.copyWith(color: ManoColors.muted),
+                    ),
+                  if (profile.yearsExperience > 0)
+                    Text(
+                      yearsText(profile.yearsExperience),
+                      style: text.bodyMedium?.copyWith(color: ManoColors.muted),
+                    ),
                   Text(
                     profile.zones.join(' · '),
                     style: text.bodySmall?.copyWith(color: ManoColors.faint),
@@ -135,8 +157,10 @@ class _Header extends ConsumerWidget {
             ),
           ],
         ),
-        const SizedBox(height: ManoSpacing.md),
-        Text(profile.bio, style: text.bodyMedium),
+        if (profile.bio.isNotEmpty) ...[
+          const SizedBox(height: ManoSpacing.md),
+          Text(profile.bio, style: text.bodyMedium),
+        ],
         const SizedBox(height: ManoSpacing.xs),
         Wrap(
           children: [
@@ -178,22 +202,22 @@ Future<void> showPublicProfile(
         ? '${ratingLabels(rating).average} · ${ratingLabels(rating).count}'
         : null,
     facts: [
-      ManoProfileFact(
-        label: 'Experiencia',
-        value: yearsText(profile.yearsExperience),
-      ),
-      ManoProfileFact(label: 'Zonas', value: profile.zones.join(', ')),
+      if (profile.yearsExperience > 0)
+        ManoProfileFact(
+          label: 'Experiencia',
+          value: yearsText(profile.yearsExperience),
+        ),
+      if (profile.zones.isNotEmpty)
+        ManoProfileFact(label: 'Zonas', value: profile.zones.join(', ')),
       if (profile.skills.isNotEmpty)
         ManoProfileFact(
           label: 'Servicios',
           value: profile.skills.map(ServiceCategories.labelOf).join(', '),
         ),
-      if (stats != null)
-        ManoProfileFact(
-          label: 'Trabajos completados',
-          value: '${stats.jobsCompleted}',
-        ),
-      ManoProfileFact(label: 'Acerca de', value: profile.bio),
+      if (stats?.jobsCompleted case final jobs?)
+        ManoProfileFact(label: 'Trabajos completados', value: '$jobs'),
+      if (profile.bio.isNotEmpty)
+        ManoProfileFact(label: 'Acerca de', value: profile.bio),
     ],
   ),
 );

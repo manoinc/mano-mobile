@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import '../theme/mano_theme.dart';
 import 'mano_press_scale.dart';
 
-/// An invitation to refer a colleague: a dark card, a coin and a progress bar.
+/// An invitation to refer a colleague: a dark card, a coin and a progress bar when a reward runs.
 ///
 /// The motif is shapes and icons only (overlapping circles plus a flame coin).
 class ManoReferralCard extends StatelessWidget {
   const ManoReferralCard({
     required this.title,
     required this.subtitle,
-    required this.coinLabel,
     required this.onTap,
+    this.coinLabel,
     this.progressLabel,
     this.progress,
     super.key,
@@ -20,8 +20,8 @@ class ManoReferralCard extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  /// The number on the coin, e.g. "10".
-  final String coinLabel;
+  /// The number on the coin, e.g. "10"; no coin without a reward.
+  final String? coinLabel;
   final VoidCallback onTap;
 
   /// Shown with [progress] (0..1) when both are given.
@@ -102,7 +102,7 @@ class ManoReferralCard extends StatelessWidget {
 class _Motif extends StatelessWidget {
   const _Motif({required this.coinLabel});
 
-  final String coinLabel;
+  final String? coinLabel;
 
   Widget _circle(Color color, IconData icon, Color iconColor) => Container(
     width: 36,
@@ -133,24 +133,25 @@ class _Motif extends StatelessWidget {
               top: 10,
               child: _circle(ManoColors.clay, Icons.person, ManoColors.sand),
             ),
-            Positioned(
-              right: 0,
-              top: 0,
-              child: Container(
-                width: 36,
-                height: 36,
-                alignment: Alignment.center,
-                decoration: const BoxDecoration(
-                  color: ManoColors.flame,
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  coinLabel,
-                  style: Theme.of(context).textTheme.titleSmall
-                      ?.copyWith(color: ManoColors.sand),
+            if (coinLabel case final coin?)
+              Positioned(
+                right: 0,
+                top: 0,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(
+                    color: ManoColors.flame,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    coin,
+                    style: Theme.of(context).textTheme.titleSmall
+                        ?.copyWith(color: ManoColors.sand),
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),

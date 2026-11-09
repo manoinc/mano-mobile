@@ -4,8 +4,10 @@ import 'package:mano_domain/mano_domain.dart';
 
 import '../home/greeting_name.dart';
 import '../onboarding/onboarding_flow.dart';
+import '../offline_marketplace_provider.dart';
 import '../onboarding/onboarding_notifier.dart';
 import '../session_notifier.dart';
+import '../session_providers.dart';
 
 /// What the profile starts with: the name typed at sign-up and the account's email.
 ClientProfile clientProfileSeed(AuthenticatedUser? user, OnboardingFlow flow) {
@@ -18,15 +20,21 @@ ClientProfile clientProfileSeed(AuthenticatedUser? user, OnboardingFlow flow) {
   );
 }
 
-// Mock: the gateway's updateClientProfile is a stub and profiles carry no names yet.
-final clientProfileRepositoryProvider = Provider<ClientProfileRepository>(
-  (ref) => MockClientProfileRepository(
-    initial: clientProfileSeed(
-      ref.watch(currentUserProvider),
-      ref.read(onboardingFlowProvider),
-    ),
-  ),
-);
+// Live on D2; the seed fills what the profiles service does not know yet.
+final clientProfileRepositoryProvider = Provider<ClientProfileRepository>((
+  ref,
+) {
+  final seed = clientProfileSeed(
+    ref.watch(currentUserProvider),
+    ref.read(onboardingFlowProvider),
+  );
+  return ref.watch(offlineMarketplaceProvider)
+      ? MockClientProfileRepository(initial: seed)
+      : GatewayClientProfileRepository(
+          ref.watch(gatewayTransportProvider),
+          seed: seed,
+        );
+});
 
 final clientProfileProvider = FutureProvider<ClientProfile>(
   (ref) => ref.watch(clientProfileRepositoryProvider).profile(),
@@ -40,10 +48,8 @@ final class ClientProfileActions extends Notifier<void> {
   Future<Result<ClientProfile, DataFailure>> save(ClientProfile profile) =>
       _refreshing(ref.read(clientProfileRepositoryProvider).update(profile));
 
-  Future<Result<ClientProfile, DataFailure>> setPhoto(String photoUrl) =>
-      _refreshing(
-        ref.read(clientProfileRepositoryProvider).updatePhoto(photoUrl),
-      );
+  Future<Result<ClientProfile, DataFailure>> setPhoto(MediaAttachment photo) =>
+      _refreshing(ref.read(clientProfileRepositoryProvider).updatePhoto(photo));
 
   Future<Result<ClientProfile, DataFailure>> _refreshing(
     Future<Result<ClientProfile, DataFailure>> write,

@@ -6,6 +6,7 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../../support/fake_identity.dart';
+import '../../support/fake_provider_profile.dart';
 import '../../support/fake_reviews.dart';
 import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
@@ -30,10 +31,13 @@ Future<ProviderContainer> _pump(
   String path = '/profile',
   SessionRepository? session,
   ReviewRepository? reviews,
+  ProviderProfileRepository? profile,
   String? subject = 'w1',
   IdentityVerificationPort? identity,
 }) async {
   final overrides = [
+    if (profile != null)
+      providerProfileRepositoryProvider.overrideWithValue(profile),
     serviceCatalogProvider.overrideWithValue(FakeServiceCatalog()),
     reviewRepositoryProvider.overrideWithValue(reviews ?? _liveReviews),
     if (subject != null)
@@ -269,6 +273,49 @@ void main() {
 
       await _scrollTo(tester, 'Identidad verificada');
       expect(find.text('Identidad verificada'), findsOneWidget);
+    });
+  });
+
+  group('live-shaped profile', () {
+    testWidgets('shows contact, jobs done and completion, hides the rest', (
+      tester,
+    ) async {
+      await _pump(tester, profile: LiveShapedProfile());
+
+      expect(find.text('Luisa Pérez'), findsOneWidget);
+      expect(find.text('luisa@mano.co · 3001112233'), findsOneWidget);
+      expect(find.widgetWithText(ManoStatTile, '3'), findsOneWidget);
+      expect(find.widgetWithText(ManoStatTile, '75 %'), findsOneWidget);
+      expect(find.text('Tasa de respuesta'), findsNothing);
+      expect(find.textContaining('años de experiencia'), findsNothing);
+    });
+
+    testWidgets('jobs not served yet hide their tiles', (tester) async {
+      await _pump(
+        tester,
+        profile: LiveShapedProfile(stand: const ProviderStats()),
+      );
+
+      expect(find.text('Trabajos completados'), findsNothing);
+      expect(find.text('Trabajos cumplidos'), findsNothing);
+      expect(find.text('Calificación'), findsOneWidget);
+    });
+
+    testWidgets('a code-only referral shares the code without a reward', (
+      tester,
+    ) async {
+      await _pump(tester, profile: LiveShapedProfile());
+      await _centre(tester, find.byType(ManoReferralCard));
+      expect(find.textContaining('Mano coins'), findsNothing);
+
+      await tester.tap(find.byType(ManoReferralCard));
+      await tester.pumpAndSettle();
+
+      expect(find.text('RP-1a2b3c4d'), findsOneWidget);
+      expect(find.textContaining('invitados'), findsNothing);
+      expect(find.textContaining('Mano coins'), findsNothing);
+      expect(find.textContaining('Comparte tu código con colegas'), findsOne);
+      expect(find.text('Copiar código'), findsOneWidget);
     });
   });
 }

@@ -13,10 +13,14 @@ class ManoProfileHeader extends StatelessWidget {
     required this.name,
     required this.photoUrl,
     required this.onEdit,
+    this.subtitle,
     super.key,
   });
 
   final String name;
+
+  /// A quiet line under the name, e.g. the contact details.
+  final String? subtitle;
 
   /// `null` when there is no real photo to show -- `ManoAvatar` renders its
   /// stone-circle-and-person-icon fallback rather than a stranger's photo.
@@ -32,10 +36,21 @@ class ManoProfileHeader extends StatelessWidget {
         ManoAvatar(photoUrl: photoUrl, size: 72),
         const SizedBox(width: ManoSpacing.md),
         Expanded(
-          child: Text(
-            name,
-            overflow: TextOverflow.ellipsis,
-            style: textTheme.titleLarge,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                name,
+                overflow: TextOverflow.ellipsis,
+                style: textTheme.titleLarge,
+              ),
+              if (subtitle case final line?)
+                Text(
+                  line,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodySmall?.copyWith(color: ManoColors.muted),
+                ),
+            ],
           ),
         ),
         IconButton(

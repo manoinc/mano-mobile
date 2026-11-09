@@ -61,7 +61,8 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | `ManoMethodOption` | One way to pay, picked like a radio; a null `onTap` shows it disabled with a `tag` such as "Próximamente". |
 | `ManoMethodRow` | A saved payment method: mark, name, detail, optional tag, and a small outlined action ("Editar"). |
 | `ManoInfoCard` | An outlined reassurance card: icon, title, message and an optional link ("Paga siempre a través de Mano"). |
-| `ManoProfileHeader`, `ManoGreetingHeader` | Profile top, "Hola, …" header. |
+| `ManoProfileHeader`, `ManoGreetingHeader` | Profile top with an optional contact line, "Hola, …" header. |
+| `ManoStatTile`, `ManoReferralCard` | One standing figure; the invite-a-colleague card, with coin and progress only when a reward runs. |
 
 ### Status and feedback
 

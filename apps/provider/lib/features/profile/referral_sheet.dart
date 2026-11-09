@@ -34,6 +34,7 @@ class _ReferralSheetState extends State<_ReferralSheet> {
   @override
   Widget build(BuildContext context) {
     final program = widget.program;
+    final reward = program.reward;
     final text = Theme.of(context).textTheme;
 
     return SafeArea(
@@ -47,8 +48,10 @@ class _ReferralSheetState extends State<_ReferralSheet> {
             Text('Invita a un colega', style: text.headlineSmall),
             const SizedBox(height: ManoSpacing.xs),
             Text(
-              'Cuando se una con tu código ganas ${program.rewardCoins} '
-              'Mano coins, que llegan a tu Billetera.',
+              reward == null
+                  ? 'Comparte tu código con colegas que quieran trabajar en Mano.'
+                  : 'Cuando se una con tu código ganas ${reward.coins} '
+                        'Mano coins, que llegan a tu Billetera.',
               style: text.bodyMedium?.copyWith(color: ManoColors.muted),
             ),
             const SizedBox(height: ManoSpacing.md),
@@ -65,21 +68,23 @@ class _ReferralSheetState extends State<_ReferralSheet> {
                 style: text.headlineSmall,
               ),
             ),
-            const SizedBox(height: ManoSpacing.md),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(ManoRadius.pill),
-              child: LinearProgressIndicator(
-                value: program.progress,
-                minHeight: 6,
-                color: ManoColors.flame,
-                backgroundColor: ManoColors.stone,
+            if (reward != null) ...[
+              const SizedBox(height: ManoSpacing.md),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(ManoRadius.pill),
+                child: LinearProgressIndicator(
+                  value: reward.progress,
+                  minHeight: 6,
+                  color: ManoColors.flame,
+                  backgroundColor: ManoColors.stone,
+                ),
               ),
-            ),
-            const SizedBox(height: ManoSpacing.xs),
-            Text(
-              referralProgressText(program),
-              style: text.bodySmall?.copyWith(color: ManoColors.faint),
-            ),
+              const SizedBox(height: ManoSpacing.xs),
+              Text(
+                referralProgressText(reward),
+                style: text.bodySmall?.copyWith(color: ManoColors.faint),
+              ),
+            ],
             const SizedBox(height: ManoSpacing.lg),
             ManoPrimaryButton(
               label: _codeCopied ? 'Código copiado' : 'Copiar código',

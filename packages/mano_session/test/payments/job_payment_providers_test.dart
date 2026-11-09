@@ -41,7 +41,6 @@ void main() {
       container.read(identityVerificationProvider),
       isA<IdentityVerificationPort>(),
     );
-    expect(container.read(referralLinkerProvider), isA<ReferralLinker>());
   });
 
   test('an unpaid job reads as no payment', () async {

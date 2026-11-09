@@ -23,9 +23,9 @@ final class MockClientProfileRepository implements ClientProfileRepository {
 
   @override
   Future<Result<ClientProfile, DataFailure>> updatePhoto(
-    String photoUrl,
+    MediaAttachment photo,
   ) async {
-    _profile = _profile.copyWith(photoUrl: () => photoUrl);
+    _profile = _profile.copyWith(photoUrl: () => photo.url);
     return Ok(_profile);
   }
 }

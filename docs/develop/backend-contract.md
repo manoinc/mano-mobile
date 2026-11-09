@@ -27,13 +27,14 @@ For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 | `ReviewRepository` | `reviewWorker`, `reviewClient`, `job { worker { averageRating ratingsCount reviews(page) } }` | **live** (D8 mano-reviews over gRPC) | `GatewayReviewRepository`. See [Reviews](reviews.md) |
 | `ProviderDirectory` | none: there is no `workerProfile(id)` | missing | `MockProviderDirectory` |
 | `ProviderOnboardingRepository` | `updateWorkerProfile`, `submitVerificationRequest` | `updateWorkerProfile` **live** (D2 mano-profiles); D10 verification still a stub | `MockProviderOnboardingRepository` |
-| `ClientProfileRepository` | `viewer { clientProfile }`, `updateClientProfile(displayName, photoMediaId, phone, email)` | **live** (D2 mano-profiles over gRPC) | `MockClientProfileRepository` until STREAM-05. See [Profiles](profiles.md) |
+| `ClientProfileRepository` | `viewer { clientProfile }`, `updateClientProfile(displayName, photoMediaId, phone, email)` | **live** (D2 mano-profiles over gRPC) | `GatewayClientProfileRepository` (offline: `MockClientProfileRepository`). See [Profiles](profiles.md) |
 | `AddressBook` | none | missing | `MockAddressBook` |
 | `WalletRepository` (provider) | `myCoinWallet`, `myCoinMovements`, `coinPacks`, `buyCoinPack`, `checkoutTerms`, `pseBanks`, `leadPrices` | **live** (D6 mano-billing over gRPC); Nequi and PSE. Accepting a service request is free | `GatewayWalletRepository` (offline: `MockWalletRepository`). See [Billing](billing.md) |
 | `PaymentMethods` | `myPaymentMethods`, `addPaymentMethod`, … | stub (no saved-method vault in billing) | `MockPaymentMethods` (display data only) |
 | `SupportDesk` (both apps) | `createSupportTicket(subject, description)` → `ticketNumber` | stub (D11) | `MockSupportDesk` |
-| `ProviderProfileEditor` | `updateWorkerProfile` | **live** for name, phone, email, photo, work zone; no bio, skills or portfolio | `MockProviderProfileRepository` (the same instance Perfil reads) |
-| `ReferralLinker` | `linkWorkerByReferralCode(code)` | **live** (D2) | `MockReferralLinker` until STREAM-05 |
+| `ProviderProfileRepository` | `viewer { workerProfile { … averageRating ratingsCount jobsCompleted completionRate referralCode } }` | **live** for name, contact, zone, verified, rating, jobs done, completion rate, code; no bio, skills, portfolio, response rate or referral reward | `GatewayProviderProfileRepository` composing an in-memory store for the rest (offline: `MockProviderProfileRepository`). See [Profiles](profiles.md) |
+| `ProviderProfileEditor` | `updateWorkerProfile` | **live** for name and work zone; bio, skills and portfolio kept in memory | `GatewayProviderProfileRepository` (offline: `MockProviderProfileRepository`) |
+| `ReferralLinker` | `linkWorkerByReferralCode(code)` | **live** (D2); codes match exactly | `GatewayReferralLinker` (offline: `MockReferralLinker`) |
 | `JobPaymentRepository` | `payJob`, `jobPayment`, `checkoutTerms`, `pseBanks` | **live** (D6); finished jobs only. Nequi and PSE; card waits on a tokenizer | `GatewayJobPaymentRepository` (offline: `MockJobPaymentRepository`). See [Paying for a job](job-payments.md) |
 | `IdentityVerificationPort` | D10 `submitVerificationRequest`, `addVerificationDocuments` | stub | `MockIdentityVerification`. See [Identity verification](identity-verification.md) |
 | `PasswordlessAuth`, `SocialAuth` | mano-auth Passwordless and ThirdParty recipes | not in mano-auth yet | `InMemoryPasswordlessAuth`, `InMemorySocialAuth`. See [Signing in](auth.md) |
@@ -327,9 +328,9 @@ idempotent: it truncates the catalog first.
   finalized, owned and in that chat, although the media plan says it should.
 - `docs/schema.graphql` is stale: it misses `requestChatMediaUpload`,
   `Message.media` and `sendMessage(mediaIds)`. Read the resolvers.
-- Profile and support (`createSupportTicket`) mutations are `not implemented`
-  stubs. Beyond that: `updateWorkerProfile` has no bio, skills or portfolio
-  fields; `createSupportTicket` has no PQRS kind (petición, queja, reclamo,
+- `updateWorkerProfile` has no bio, skills or portfolio fields, and
+  mano-profiles keeps no row until a profile's first write (the provider app
+  creates it from the sign-up name on first read); `createSupportTicket` has no PQRS kind (petición, queja, reclamo,
   sugerencia).
 - Billing (D6): payouts have no read (`myPayoutAccount`) or remove, so the app
   only knows the account registered in this session. `buyCoinPack` has no
