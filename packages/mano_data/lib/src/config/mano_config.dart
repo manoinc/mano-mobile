@@ -4,6 +4,7 @@ final class ManoConfig {
     required this.gatewayGraphQlUrl,
     required this.appRole,
     this.authApiDomain,
+    this.googleServerClientId,
   });
 
   /// The GraphQL endpoint of `mano-gateway`.
@@ -14,6 +15,9 @@ final class ManoConfig {
 
   /// The SuperTokens API domain; `null` leaves sign-in unconfigured.
   final String? authApiDomain;
+
+  /// mano-auth's Google web client ID, the audience of Google id tokens; `null` turns Google off.
+  final String? googleServerClientId;
 
   /// The gateway's `graphql-transport-ws` socket, beside the GraphQL endpoint.
   String get gatewaySubscriptionUrl {

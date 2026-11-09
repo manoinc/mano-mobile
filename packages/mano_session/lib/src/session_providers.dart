@@ -53,13 +53,77 @@ final tokenStoreProvider = Provider<TokenStore>(
 /// SuperTokens when the build names an API domain, otherwise [_NoAuthProviderChosen].
 /// Swapping vendors is this one provider; nothing above it changes.
 final sessionRepositoryProvider = Provider<SessionRepository>((ref) {
+  final fdi = ref.watch(superTokensFdiProvider);
+  if (fdi == null) return const _NoAuthProviderChosen();
+  return SuperTokensSessionRepository.over(fdi);
+});
+
+/// The one SuperTokens client every way in shares; `null` until an API domain is configured.
+final superTokensFdiProvider = Provider<SuperTokensFdi?>((ref) {
   final apiDomain = ref.watch(manoConfigProvider).authApiDomain;
-  if (apiDomain == null) return const _NoAuthProviderChosen();
-  return SuperTokensSessionRepository(
+  if (apiDomain == null) return null;
+  return SuperTokensFdi(
     apiDomain: Uri.parse(apiDomain),
     tokens: ref.watch(tokenStoreProvider),
   );
 });
+
+/// Phone + code sign-in; reports [AuthUnavailable] until an API domain is configured.
+final passwordlessAuthProvider = Provider<PasswordlessAuth>((ref) {
+  final fdi = ref.watch(superTokensFdiProvider);
+  if (fdi == null) return const _NoPasswordless();
+  return SupertokensPasswordlessAuth(fdi);
+});
+
+/// Google and Apple; a provider without a client in this build reports [AuthUnavailable].
+final socialAuthProvider = Provider<SocialAuth>((ref) {
+  final fdi = ref.watch(superTokensFdiProvider);
+  if (fdi == null) return const _NoSocial();
+  final googleClientId = ref.watch(manoConfigProvider).googleServerClientId;
+  return SupertokensSocialAuth(
+    fdi,
+    sources: {
+      if (googleClientId != null)
+        SocialProvider.google: GoogleIdTokenSource(
+          serverClientId: googleClientId,
+        ),
+      SocialProvider.apple: const AppleIdTokenSource(),
+    },
+  );
+});
+
+const _noAuthDomain = AuthUnavailable(detail: 'no auth API domain configured');
+
+final class _NoPasswordless implements PasswordlessAuth {
+  const _NoPasswordless();
+
+  @override
+  Future<Result<OtpChallenge, AuthFailure>> sendCode(
+    String phone, {
+    required String role,
+  }) async => const Err(_noAuthDomain);
+
+  @override
+  Future<Result<OtpChallenge, AuthFailure>> resend(
+    OtpChallenge challenge,
+  ) async => const Err(_noAuthDomain);
+
+  @override
+  Future<Result<Session, AuthFailure>> verify(
+    OtpChallenge challenge,
+    String code,
+  ) async => const Err(_noAuthDomain);
+}
+
+final class _NoSocial implements SocialAuth {
+  const _NoSocial();
+
+  @override
+  Future<Result<Session, AuthFailure>> signIn(
+    SocialProvider provider, {
+    required String role,
+  }) async => const Err(_noAuthDomain);
+}
 
 /// Stands in until an API domain is configured: a cold start is an ordinary
 /// first launch, and only an actual attempt reports [AuthUnavailable].

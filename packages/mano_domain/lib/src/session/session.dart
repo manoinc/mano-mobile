@@ -7,6 +7,7 @@ final class Session {
     required this.user,
     required this.accessToken,
     required this.expiresAt,
+    this.isNewAccount = false,
   });
 
   /// Who the backend says this is.
@@ -21,6 +22,9 @@ final class Session {
 
   /// When [accessToken] stops being accepted.
   final DateTime expiresAt;
+
+  /// Whether this sign-in created the account, so the app asks for a name.
+  final bool isNewAccount;
 
   /// Whether the credential has passed its expiry, allowing [now] to be
   /// supplied so this stays testable without waiting.
@@ -38,10 +42,11 @@ final class Session {
       other is Session &&
           user == other.user &&
           accessToken == other.accessToken &&
-          expiresAt == other.expiresAt;
+          expiresAt == other.expiresAt &&
+          isNewAccount == other.isNewAccount;
 
   @override
-  int get hashCode => Object.hash(user, accessToken, expiresAt);
+  int get hashCode => Object.hash(user, accessToken, expiresAt, isNewAccount);
 
   // Deliberately omits the token: sessions end up in logs and error reports.
   @override

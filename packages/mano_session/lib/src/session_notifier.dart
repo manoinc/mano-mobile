@@ -39,6 +39,9 @@ final class SessionManager extends AsyncNotifier<SessionState> {
     return _authenticate(() => _repository.signUp(credentials, role: role));
   }
 
+  /// Takes a session started by phone or social sign-in.
+  void adopt(Session session) => state = AsyncData(SignedIn(session));
+
   /// Lets somebody without an account into the app; never demotes a signed-in user.
   void browseAsGuest() {
     if (state.value is! SignedIn) state = const AsyncData(Guest());

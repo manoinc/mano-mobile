@@ -63,6 +63,7 @@ final class OnboardingRegistration extends OnboardingFlow {
     this.password = '',
     this.showProblems = false,
     this.status = const RegistrationIdle(),
+    this.hasAccount = false,
   });
 
   final RegistrationDraft draft;
@@ -76,6 +77,9 @@ final class OnboardingRegistration extends OnboardingFlow {
   final bool showProblems;
 
   final RegistrationStatus status;
+
+  /// Signed up by phone or social sign-in already, so email and password are skipped.
+  final bool hasAccount;
 
   OnboardingRegistration copyWith({
     RegistrationDraft? draft,
@@ -91,6 +95,7 @@ final class OnboardingRegistration extends OnboardingFlow {
     password: password ?? this.password,
     showProblems: showProblems ?? this.showProblems,
     status: status ?? this.status,
+    hasAccount: hasAccount,
   );
 }
 

@@ -23,4 +23,16 @@ void main() {
   test('keeps the role this app signs people up as', () {
     expect(_config('http://gw/graphql').appRole, ManoRole.provider);
   });
+
+  test('Google sign-in is off until a server client ID is given', () {
+    expect(_config('http://gw/graphql').googleServerClientId, isNull);
+    expect(
+      const ManoConfig(
+        gatewayGraphQlUrl: 'http://gw/graphql',
+        appRole: ManoRole.provider,
+        googleServerClientId: 'web.apps.googleusercontent.com',
+      ).googleServerClientId,
+      'web.apps.googleusercontent.com',
+    );
+  });
 }

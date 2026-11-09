@@ -60,6 +60,7 @@ export 'src/onboarding/onboarding_flow.dart';
 export 'src/onboarding/onboarding_notifier.dart';
 export 'src/onboarding/registration_providers.dart';
 export 'src/payments/job_payment_providers.dart';
+export 'src/phone_sign_in/phone_sign_in_notifier.dart';
 export 'src/payouts/payout_providers.dart';
 export 'src/profile/profile_editing.dart';
 export 'src/profile/profile_providers.dart';

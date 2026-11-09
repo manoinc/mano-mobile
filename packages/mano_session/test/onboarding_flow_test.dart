@@ -510,4 +510,58 @@ void main() {
       expect(result.isOk, isTrue);
     },
   );
+
+  group('entering by phone or social sign-in', () {
+    Session signedIn({required bool isNew}) => Session(
+      user: _session.user,
+      accessToken: _session.accessToken,
+      expiresAt: _session.expiresAt,
+      isNewAccount: isNew,
+    );
+
+    test('a new account signs in and is asked its name first', () async {
+      final c = containerWith();
+      await c.read(sessionProvider.future);
+      flowOf(c).startSignIn();
+
+      flowOf(c).enter(signedIn(isNew: true));
+
+      expect(c.read(sessionProvider).value, isA<SignedIn>());
+      final flow = registrationOf(c);
+      expect(flow.step, RegistrationStep.name);
+      expect(flow.hasAccount, isTrue);
+    });
+
+    test('the name leads to the address, past email and password', () async {
+      final c = containerWith();
+      await c.read(sessionProvider.future);
+      flowOf(c)
+        ..enter(signedIn(isNew: true))
+        ..editName(givenName: 'Ana', familyName: 'Rojas')
+        ..next();
+
+      expect(registrationOf(c).step, RegistrationStep.address);
+    });
+
+    test('there is no stepping back out of an account that exists', () async {
+      final c = containerWith();
+      await c.read(sessionProvider.future);
+      flowOf(c)
+        ..enter(signedIn(isNew: true))
+        ..back();
+
+      expect(registrationOf(c).step, RegistrationStep.name);
+    });
+
+    test('a returning account goes straight in', () async {
+      final c = containerWith();
+      await c.read(sessionProvider.future);
+      flowOf(c).startSignIn();
+
+      flowOf(c).enter(signedIn(isNew: false));
+
+      expect(c.read(sessionProvider).value, isA<SignedIn>());
+      expect(c.read(onboardingFlowProvider), isA<OnboardingSignIn>());
+    });
+  });
 }

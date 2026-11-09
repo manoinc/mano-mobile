@@ -29,7 +29,11 @@ export 'src/payouts/gateway_payout_accounts.dart';
 export 'src/reviews/gateway_review_repository.dart';
 export 'src/session/in_memory_passwordless_auth.dart';
 export 'src/session/in_memory_session_repository.dart';
+export 'src/session/supertokens_fdi.dart';
+export 'src/session/supertokens_passwordless_auth.dart';
 export 'src/session/supertokens_session_repository.dart';
+export 'src/session/supertokens_social_auth.dart';
+export 'src/session/native_id_tokens.dart';
 export 'src/session/token_store.dart';
 export 'src/wallet/gateway_wallet_repository.dart';
 
