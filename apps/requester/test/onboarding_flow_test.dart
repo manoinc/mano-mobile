@@ -108,6 +108,18 @@ Future<void> _fillAccount(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+/// Email sign-up is the fallback: Registrarse, the email pill, then "Crear cuenta con correo".
+Future<void> _startEmailRegistration(WidgetTester tester) async {
+  await tester.tap(find.text('Registrarse'));
+  await tester.pumpAndSettle();
+  await tester.ensureVisible(find.byTooltip('Continuar con correo'));
+  await tester.tap(find.byTooltip('Continuar con correo'));
+  await tester.pumpAndSettle();
+  await tester.ensureVisible(find.text('Crear cuenta con correo'));
+  await tester.tap(find.text('Crear cuenta con correo'));
+  await tester.pumpAndSettle();
+}
+
 /// From a cold start to the address step, account created.
 Future<void> _registerToAddress(
   WidgetTester tester, {
@@ -115,8 +127,7 @@ Future<void> _registerToAddress(
 }) async {
   await _boot(tester, session: session ?? _signUpRepository());
   await _toLastSlide(tester);
-  await tester.tap(find.text('Registrarse'));
-  await tester.pumpAndSettle();
+  await _startEmailRegistration(tester);
   await _fillName(tester);
   await _fillAccount(tester);
 }
@@ -202,12 +213,16 @@ void main() {
       expect(find.text('Registrarse'), findsOneWidget);
       expect(find.text('Iniciar sesión'), findsOneWidget);
       expect(find.text('Continuar con Google'), findsOneWidget);
-      // One flame surface: Registrarse is filled, the other two are not.
-      expect(find.byType(ManoPrimaryButton), findsOneWidget);
-      final signIn = tester.widget<ManoOutlineButton>(
-        find.widgetWithText(ManoOutlineButton, 'Iniciar sesión'),
+      // Both doors are filled flame, side by side, Wise style.
+      expect(find.byType(ManoWelcomeActions), findsOneWidget);
+      expect(
+        find.widgetWithText(ManoPrimaryButton, 'Iniciar sesión'),
+        findsOneWidget,
       );
-      expect(signIn.tone, ManoOutlineTone.flame);
+      expect(
+        find.widgetWithText(ManoPrimaryButton, 'Registrarse'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('"Omitir" reaches the guest home from any slide', (
@@ -245,7 +260,7 @@ void main() {
         // First tap leaves the carousel; email is the fallback under the phone.
         await tester.tap(find.text('Iniciar sesión'));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Continuar con correo'));
+        await tester.tap(find.byTooltip('Continuar con correo'));
         await tester.pumpAndSettle();
         await tester.enterText(
           find.byKey(const Key('mano-credentials-email')),
@@ -275,7 +290,7 @@ void main() {
 
       await tester.tap(find.text('Iniciar sesión'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Continuar con correo'));
+      await tester.tap(find.byTooltip('Continuar con correo'));
       await tester.pumpAndSettle();
       await tester.enterText(
         find.byKey(const Key('mano-credentials-email')),
@@ -296,12 +311,22 @@ void main() {
   });
 
   group('registration', () {
-    testWidgets('"Registrarse" asks for a name first', (tester) async {
+    testWidgets('"Registrarse" opens the same phone screen', (tester) async {
       await _boot(tester);
       await _toLastSlide(tester);
 
       await tester.tap(find.text('Registrarse'));
       await tester.pumpAndSettle();
+
+      expect(find.byType(SignInScreen), findsOneWidget);
+      expect(find.text('Inicia sesión o regístrate'), findsOneWidget);
+    });
+
+    testWidgets('email sign-up asks for a name first', (tester) async {
+      await _boot(tester);
+      await _toLastSlide(tester);
+
+      await _startEmailRegistration(tester);
 
       expect(find.byType(RegistrationFlowScreen), findsOneWidget);
       expect(find.text('¿Cómo te llamas?'), findsOneWidget);
@@ -310,8 +335,7 @@ void main() {
     testWidgets('an empty name is refused, in Spanish', (tester) async {
       await _boot(tester);
       await _toLastSlide(tester);
-      await tester.tap(find.text('Registrarse'));
-      await tester.pumpAndSettle();
+      await _startEmailRegistration(tester);
 
       await tester.tap(find.text('Siguiente'));
       await tester.pumpAndSettle();
@@ -324,8 +348,7 @@ void main() {
     testWidgets('a good name asks for the email', (tester) async {
       await _boot(tester);
       await _toLastSlide(tester);
-      await tester.tap(find.text('Registrarse'));
-      await tester.pumpAndSettle();
+      await _startEmailRegistration(tester);
 
       await _fillName(tester);
 
@@ -335,8 +358,7 @@ void main() {
     testWidgets('a malformed email is refused, in Spanish', (tester) async {
       await _boot(tester);
       await _toLastSlide(tester);
-      await tester.tap(find.text('Registrarse'));
-      await tester.pumpAndSettle();
+      await _startEmailRegistration(tester);
       await _fillName(tester);
 
       await tester.enterText(find.byType(TextField).first, 'ana@');
@@ -354,8 +376,7 @@ void main() {
       final session = _signUpRepository();
       await _boot(tester, session: session);
       await _toLastSlide(tester);
-      await tester.tap(find.text('Registrarse'));
-      await tester.pumpAndSettle();
+      await _startEmailRegistration(tester);
       await _fillName(tester);
       await tester.enterText(find.byType(TextField).first, 'ana@mano.co');
       await tester.pumpAndSettle();
@@ -422,8 +443,7 @@ void main() {
     testWidgets('going back keeps what was typed', (tester) async {
       await _boot(tester);
       await _toLastSlide(tester);
-      await tester.tap(find.text('Registrarse'));
-      await tester.pumpAndSettle();
+      await _startEmailRegistration(tester);
       await _fillName(tester);
 
       await tester.tap(find.byTooltip('Atrás'));
@@ -439,8 +459,7 @@ void main() {
     ) async {
       await _boot(tester);
       await _toLastSlide(tester);
-      await tester.tap(find.text('Registrarse'));
-      await tester.pumpAndSettle();
+      await _startEmailRegistration(tester);
 
       await tester.tap(find.text('Ahora no'));
       await tester.pumpAndSettle();
@@ -559,8 +578,7 @@ void main() {
     testWidgets('every form step fits or scrolls', (tester) async {
       await boot(tester);
       await _toLastSlide(tester);
-      await tester.tap(find.text('Registrarse'));
-      await tester.pumpAndSettle();
+      await _startEmailRegistration(tester);
       expect(tester.takeException(), isNull);
 
       await _fillName(tester);
@@ -582,8 +600,7 @@ void main() {
     testWidgets('the notifications sheet and the welcome fit', (tester) async {
       await boot(tester);
       await _toLastSlide(tester);
-      await tester.tap(find.text('Registrarse'));
-      await tester.pumpAndSettle();
+      await _startEmailRegistration(tester);
       await _fillName(tester);
       await _fillAccount(tester);
       await tester.enterText(find.byType(TextField).first, 'Calle 12 #3-45');
@@ -646,8 +663,37 @@ void main() {
       expect(find.text('Inicia sesión o regístrate'), findsOneWidget);
       expect(find.text('Colombia (+57)'), findsOneWidget);
       expect(find.text('Te enviaremos un código por SMS.'), findsOneWidget);
-      expect(find.text('Continuar con correo'), findsOneWidget);
-      expect(find.text('Continuar con Google'), findsOneWidget);
+      expect(find.text('País o región'), findsOneWidget);
+      expect(find.text('¿Problemas para entrar?'), findsOneWidget);
+      expect(find.byTooltip('Continuar con correo'), findsOneWidget);
+      expect(find.byTooltip('Continuar con Google'), findsOneWidget);
+    });
+
+    testWidgets('another country sends with its dial code', (tester) async {
+      final phone = InMemoryPasswordlessAuth(
+        onVerified: () => _signedInSession,
+      );
+      await toPhone(tester, phone: phone);
+
+      await tester.tap(find.text('Colombia (+57)'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(ManoCountryPickerSheet),
+          matching: find.byType(TextField),
+        ),
+        'mex',
+      );
+      await tester.pump();
+      await tester.tap(find.text('México'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, '55 1234 5678');
+      await tester.pump();
+      await tester.tap(find.text('Continuar'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('+525512345678'), findsOneWidget);
+      expect(phone.sends, 1);
     });
 
     testWidgets('a number that is not a mobile is refused, in Spanish', (
@@ -730,7 +776,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.text('Continuar con Google'));
+      await tester.tap(find.byTooltip('Continuar con Google'));
       await tester.pumpAndSettle();
 
       expect(
@@ -747,7 +793,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.text('Continuar con Google'));
+      await tester.tap(find.byTooltip('Continuar con Google'));
       await tester.pumpAndSettle();
 
       expect(find.byType(RequesterShell), findsOneWidget);
@@ -755,7 +801,7 @@ void main() {
 
     testWidgets('email sign-up stays one tap away', (tester) async {
       await toPhone(tester);
-      await tester.tap(find.text('Continuar con correo'));
+      await tester.tap(find.byTooltip('Continuar con correo'));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Crear cuenta con correo'));
