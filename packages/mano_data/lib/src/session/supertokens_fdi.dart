@@ -6,10 +6,7 @@ import 'package:mano_domain/mano_domain.dart';
 
 import 'token_store.dart';
 
-/// The SuperTokens frontend driver interface in header mode, shared by every way in.
-///
-/// One instance per app, so a session started by phone, Google or email is
-/// the one refresh renews and sign-out revokes.
+/// SuperTokens' frontend API in header mode; one per app, so every way in refreshes and signs out alike.
 final class SuperTokensFdi {
   SuperTokensFdi({
     required Uri apiDomain,
