@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/mano_motion.dart';
 import '../theme/mano_theme.dart';
+import 'mano_emphasis_text.dart';
 import 'mano_primary_button.dart';
 import 'mano_text_action.dart';
 
@@ -19,6 +20,7 @@ class ManoStepScaffold extends StatelessWidget {
     this.onBack,
     this.trailingLabel,
     this.onTrailing,
+    this.headlineEmphasis,
     this.subhead,
     this.busy = false,
     this.progress,
@@ -33,6 +35,9 @@ class ManoStepScaffold extends StatelessWidget {
   final VoidCallback? onTrailing;
 
   final String headline;
+
+  /// A fragment of [headline] painted in the accent.
+  final String? headlineEmphasis;
   final String? subhead;
 
   /// The fields. Laid out in a stretched column, so they size themselves.
@@ -96,7 +101,11 @@ class ManoStepScaffold extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(headline, style: theme.textTheme.headlineLarge),
+                    ManoEmphasisText(
+                      headline,
+                      emphasis: headlineEmphasis,
+                      style: theme.textTheme.headlineLarge,
+                    ),
                     if (subhead != null) ...[
                       const SizedBox(height: ManoSpacing.sm),
                       Text(

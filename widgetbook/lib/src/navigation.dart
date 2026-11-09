@@ -47,6 +47,15 @@ WidgetbookCategory navigation() => WidgetbookCategory(
       ),
     }),
     component('ManoStepScaffold', {
+      'Highlighted headline': (context) => ManoStepScaffold(
+        headline: 'Vamos a tomar fotos de tu cédula para confirmar tu identidad',
+        headlineEmphasis: 'confirmar tu identidad',
+        subhead: 'Ten a mano tu cédula de ciudadanía.',
+        primaryLabel: 'Continuar',
+        onPrimary: noop,
+        progress: 0.2,
+        children: const [ManoTipList(tips: sampleCaptureTips)],
+      ),
       'Default': (context) => ManoStepScaffold(
         headline: 'Tu perfil',
         subhead: 'Así te verán los clientes cuando tu cuenta esté aprobada.',

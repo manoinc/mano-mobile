@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:mano_ui/mano_ui.dart';
 import 'package:widgetbook/widgetbook.dart';
 
 // Sample content shared by the use cases, in the app's own Spanish.
@@ -10,11 +11,25 @@ const sampleListingPhoto =
 void noop() {}
 
 /// One component with its use cases.
-WidgetbookComponent component(String name, Map<String, WidgetBuilder> useCases) =>
-    WidgetbookComponent(
-      name: name,
-      useCases: [
-        for (final MapEntry(:key, :value) in useCases.entries)
-          WidgetbookUseCase(name: key, builder: value),
-      ],
-    );
+WidgetbookComponent component(
+  String name,
+  Map<String, WidgetBuilder> useCases,
+) => WidgetbookComponent(
+  name: name,
+  useCases: [
+    for (final MapEntry(:key, :value) in useCases.entries)
+      WidgetbookUseCase(name: key, builder: value),
+  ],
+);
+
+const sampleCaptureTips = [
+  ManoTip('Limpia el lente de tu cámara', emphasis: 'Limpia el lente'),
+  ManoTip(
+    'Pon la cédula sobre una superficie plana y oscura',
+    emphasis: 'superficie plana y oscura',
+  ),
+  ManoTip(
+    'Evita reflejos y sombras sobre los datos',
+    emphasis: 'Evita reflejos',
+  ),
+];
