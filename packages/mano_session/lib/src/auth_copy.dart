@@ -26,3 +26,7 @@ String credentialProblemCopy(CredentialProblem problem) => switch (problem) {
   CredentialProblem.tooShort => 'Usa al menos 8 caracteres.',
   CredentialProblem.needsLetterAndNumber => 'Usa letras y números.',
 };
+
+/// The inline error under a phone number that `colombianE164` refuses.
+const phoneNumberProblemCopy =
+    'Escribe un celular colombiano: 10 dígitos que empiezan por 3.';

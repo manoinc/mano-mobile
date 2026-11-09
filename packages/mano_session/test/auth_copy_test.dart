@@ -51,4 +51,8 @@ void main() {
       'Usa letras y números.',
     );
   });
+
+  test('a phone that is not a Colombian mobile says what is expected', () {
+    expect(phoneNumberProblemCopy, contains('10 dígitos'));
+  });
 }

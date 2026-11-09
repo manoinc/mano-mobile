@@ -49,7 +49,7 @@ final class PhoneSignInState {
   );
 }
 
-/// Phone + code, shared by both apps; it hands back the session and leaves routing to the app.
+/// Phone + code (and Google / Apple beside it), shared by both apps; it hands back the session and leaves routing to the app.
 final class PhoneSignInNotifier extends Notifier<PhoneSignInState> {
   PasswordlessAuth get _auth => ref.read(passwordlessAuthProvider);
 
@@ -121,6 +121,31 @@ final class PhoneSignInNotifier extends Notifier<PhoneSignInState> {
     }
   }
 
+  /// Google or Apple from the same screen; closing their sheet leaves no failure behind.
+  Future<Session?> signInWith(SocialProvider provider) async {
+    if (state.busy) return null;
+    state = state.copyWith(busy: true, failure: () => null);
+    final role = ref.read(manoConfigProvider).appRole;
+    final result = await ref
+        .read(socialAuthProvider)
+        .signIn(provider, role: role);
+    if (!ref.mounted) return null;
+    switch (result) {
+      case Ok(:final value):
+        state = state.copyWith(busy: false);
+        return value;
+      case Err(failure: SignInCancelled()):
+        state = state.copyWith(busy: false);
+        return null;
+      case Err(:final failure):
+        state = state.copyWith(busy: false, failure: () => failure);
+        return null;
+    }
+  }
+
+  /// Clears a failure the person has already seen.
+  void acknowledgeFailure() => state = state.copyWith(failure: () => null);
+
   /// Back to the number, keeping what was typed.
   void changeNumber() => state = state.copyWith(
     code: '',
@@ -129,7 +154,8 @@ final class PhoneSignInNotifier extends Notifier<PhoneSignInState> {
   );
 }
 
+/// Auto-disposed, so the next visit to the sign-in screen starts from an empty number.
 final phoneSignInProvider =
-    NotifierProvider<PhoneSignInNotifier, PhoneSignInState>(
+    NotifierProvider.autoDispose<PhoneSignInNotifier, PhoneSignInState>(
       PhoneSignInNotifier.new,
     );

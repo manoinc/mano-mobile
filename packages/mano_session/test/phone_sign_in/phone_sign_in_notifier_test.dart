@@ -12,6 +12,7 @@ final _session = Session(
 
 ({ProviderContainer c, InMemoryPasswordlessAuth auth}) _setUp({
   PasswordlessAuth? passwordless,
+  SocialAuth? social,
 }) {
   final auth = InMemoryPasswordlessAuth(onVerified: () => _session);
   final c = ProviderContainer.test(
@@ -23,6 +24,7 @@ final _session = Session(
         ),
       ),
       passwordlessAuthProvider.overrideWithValue(passwordless ?? auth),
+      if (social != null) socialAuthProvider.overrideWithValue(social),
     ],
   );
   c.listen(phoneSignInProvider, (_, _) {});
@@ -168,4 +170,63 @@ void main() {
       expect(_s(c).phone, '3001234567');
     },
   );
+
+  group('social sign-in', () {
+    test('hands back the session and asks with the app role', () async {
+      final social = InMemorySocialAuth(onSignIn: () => Ok(_session));
+      final (:c, auth: _) = _setUp(social: social);
+
+      final session = await _n(c).signInWith(SocialProvider.google);
+
+      expect(session, _session);
+      expect(social.lastRole, ManoRole.provider);
+      expect(social.lastProvider, SocialProvider.google);
+      expect(_s(c).busy, isFalse);
+    });
+
+    test('closing the sheet says nothing', () async {
+      final (:c, auth: _) = _setUp(social: InMemorySocialAuth());
+
+      expect(await _n(c).signInWith(SocialProvider.apple), isNull);
+      expect(_s(c).failure, isNull);
+    });
+
+    test('a failure is kept to show', () async {
+      final (:c, auth: _) = _setUp(
+        social: InMemorySocialAuth(
+          onSignIn: () => const Err(AuthUnavailable(detail: 'no client')),
+        ),
+      );
+
+      expect(await _n(c).signInWith(SocialProvider.google), isNull);
+      expect(_s(c).failure, isA<AuthUnavailable>());
+    });
+  });
+
+  test('a shown failure can be dismissed', () async {
+    final (:c, auth: _) = _setUp(passwordless: _Refusing());
+    _n(c).editPhone('3001234567');
+    await _n(c).sendCode();
+
+    _n(c).acknowledgeFailure();
+
+    expect(_s(c).failure, isNull);
+  });
+
+  test('starts clean once nobody is looking', () async {
+    final c = ProviderContainer.test(
+      overrides: [
+        passwordlessAuthProvider.overrideWithValue(
+          InMemoryPasswordlessAuth(onVerified: () => _session),
+        ),
+      ],
+    );
+    final sub = c.listen(phoneSignInProvider, (_, _) {});
+    c.read(phoneSignInProvider.notifier).editPhone('3001234567');
+
+    sub.close();
+    await c.pump();
+
+    expect(c.read(phoneSignInProvider).phone, '');
+  });
 }
