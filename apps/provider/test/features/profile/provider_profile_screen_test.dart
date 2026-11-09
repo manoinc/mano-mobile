@@ -34,9 +34,6 @@ Future<ProviderContainer> _pump(
   IdentityVerificationPort? identity,
 }) async {
   final overrides = [
-    identityVerificationProvider.overrideWithValue(
-      identity ?? FakeIdentityVerification(),
-    ),
     serviceCatalogProvider.overrideWithValue(FakeServiceCatalog()),
     reviewRepositoryProvider.overrideWithValue(reviews ?? _liveReviews),
     if (subject != null)
@@ -52,6 +49,7 @@ Future<ProviderContainer> _pump(
     path,
     overrides: overrides,
     session: session,
+    identity: identity ?? FakeIdentityVerification(),
   );
   return container;
 }

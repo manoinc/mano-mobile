@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/mano_theme.dart';
 import 'mano_primary_button.dart';
+import 'mano_quiet_button.dart';
 
 /// A sheet that asks for one thing and explains why.
 ///
@@ -15,6 +16,8 @@ class ManoPromptSheet extends StatelessWidget {
     required this.onPrimary,
     this.child,
     this.onClose,
+    this.secondaryLabel,
+    this.onSecondary,
     super.key,
   });
 
@@ -28,6 +31,10 @@ class ManoPromptSheet extends StatelessWidget {
 
   /// `null` hides the close control, for a sheet that must be answered.
   final VoidCallback? onClose;
+
+  /// A quiet way to decline, under the action. Both halves or neither.
+  final String? secondaryLabel;
+  final VoidCallback? onSecondary;
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +102,10 @@ class ManoPromptSheet extends StatelessWidget {
             ),
             const SizedBox(height: ManoSpacing.lg),
             ManoPrimaryButton(label: primaryLabel, onPressed: onPrimary),
+            if (secondaryLabel != null && onSecondary != null) ...[
+              const SizedBox(height: ManoSpacing.sm),
+              ManoQuietButton(label: secondaryLabel!, onPressed: onSecondary),
+            ],
           ],
         ),
       ),

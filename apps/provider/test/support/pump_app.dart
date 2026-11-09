@@ -6,6 +6,7 @@ import 'package:mano_provider/shell/provider_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import 'fake_identity.dart';
 import 'fake_session_repository.dart';
 
 const testConfig = ManoConfig(
@@ -19,6 +20,7 @@ Future<ProviderContainer> pumpRouterAt(
   String location, {
   List<Override> overrides = const [],
   SessionRepository? session,
+  IdentityVerificationPort? identity,
 }) async {
   final container = ProviderContainer.test(
     overrides: [
@@ -26,6 +28,10 @@ Future<ProviderContainer> pumpRouterAt(
       manoConfigProvider.overrideWithValue(testConfig),
       sessionRepositoryProvider.overrideWithValue(
         session ?? FakeSessionRepository(),
+      ),
+      // A verified pro unless a test says otherwise; the gates have their own tests.
+      identityVerificationProvider.overrideWithValue(
+        identity ?? FakeIdentityVerification(const IdentityCheckApproved()),
       ),
       ...overrides,
     ],

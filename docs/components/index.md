@@ -76,7 +76,7 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 
 | Component | Use it for |
 |---|---|
-| `showManoSheet` + `ManoPromptSheet` | A bottom sheet with one decision. |
+| `showManoSheet` + `ManoPromptSheet` | A bottom sheet with one decision; `secondaryLabel` adds a quiet way to decline ("Ahora no"). |
 | `showManoSheet` + `ManoActionSheet` / `ManoOptionRow` | A list of actions; rows can be destructive or carry a `tag` ("Predeterminada"). |
 | `showManoDialog` + `ManoDialogCard` | A centred confirmation. |
 

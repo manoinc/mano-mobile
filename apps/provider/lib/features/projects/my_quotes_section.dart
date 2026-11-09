@@ -40,7 +40,7 @@ class MyQuotesSection extends ConsumerWidget {
                     ? ManoFormat.cop(quote.amountCop)
                     : null,
                 onTap: () => canBuyLead(quote)
-                    ? showLeadPurchaseSheet(context, quote)
+                    ? offerLeadPurchase(context, ref, quote)
                     : context.push('/home/project/${quote.projectId}'),
               ),
             ),

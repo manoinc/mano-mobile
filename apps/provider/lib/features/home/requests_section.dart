@@ -9,6 +9,7 @@ import 'request_actions_row.dart';
 import 'request_detail_sheet.dart';
 import 'request_labels.dart';
 import '../account/account_gate.dart';
+import '../identity/verification_gate.dart';
 
 enum _Filter {
   pending('Pendientes', 'No tienes solicitudes pendientes', [
@@ -128,14 +129,14 @@ class _RequestsSectionState extends ConsumerState<RequestsSection> {
     }
   }
 
-  Future<void> _accept(ServiceRequest request) => requireAccount(
+  Future<void> _accept(ServiceRequest request) => requireVerified(
     context,
     ref,
     reason: AccountReason.requests,
     action: () => _acceptNow(request),
   );
 
-  Future<void> _reject(ServiceRequest request) => requireAccount(
+  Future<void> _reject(ServiceRequest request) => requireVerified(
     context,
     ref,
     reason: AccountReason.requests,

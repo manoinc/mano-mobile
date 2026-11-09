@@ -4,6 +4,7 @@ final class ManoConfig {
     required this.gatewayGraphQlUrl,
     required this.appRole,
     this.authApiDomain,
+    this.approveIdentityChecks = false,
   });
 
   /// The GraphQL endpoint of `mano-gateway`.
@@ -14,6 +15,9 @@ final class ManoConfig {
 
   /// The SuperTokens API domain; `null` leaves sign-in unconfigured.
   final String? authApiDomain;
+
+  /// Debug only: the mock identity check approves on send, so the gate can be walked.
+  final bool approveIdentityChecks;
 
   /// The gateway's `graphql-transport-ws` socket, beside the GraphQL endpoint.
   String get gatewaySubscriptionUrl {

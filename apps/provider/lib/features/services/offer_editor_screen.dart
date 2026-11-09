@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../account/account_gate.dart';
+import '../identity/verification_gate.dart';
 import 'offer_labels.dart';
 
 const _debounce = Duration(milliseconds: 300);
@@ -60,6 +62,14 @@ class _OfferEditorScreenState extends ConsumerState<OfferEditorScreen> {
     if (draft.amountCop > 0) _amount.text = '${draft.amountCop}';
     _zone.text = draft.zone;
   }
+
+  // Publishing or reactivating puts the offer in front of clients.
+  Future<void> _verified(Future<void> Function() publish) => requireVerified(
+    context,
+    ref,
+    reason: AccountReason.offers,
+    action: publish,
+  );
 
   Future<void> _confirmDelete() async {
     final confirmed = await showManoDialog<bool>(
@@ -161,7 +171,7 @@ class _OfferEditorScreenState extends ConsumerState<OfferEditorScreen> {
         ManoPrimaryButton(
           label: draft.isNew ? 'Publicar' : 'Guardar cambios',
           busy: draft.isBusy,
-          onPressed: draft.isValid ? _editor.submit : null,
+          onPressed: draft.isValid ? () => _verified(_editor.submit) : null,
         ),
         if (original != null) ...[
           const SizedBox(height: ManoSpacing.md),
@@ -171,7 +181,9 @@ class _OfferEditorScreenState extends ConsumerState<OfferEditorScreen> {
                 child: original.status == OfferStatus.paused
                     ? ManoQuietButton(
                         label: 'Reactivar',
-                        onPressed: draft.isBusy ? null : _editor.resume,
+                        onPressed: draft.isBusy
+                            ? null
+                            : () => _verified(_editor.resume),
                       )
                     : ManoQuietButton(
                         label: 'Pausar',

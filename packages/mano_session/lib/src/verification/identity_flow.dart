@@ -111,6 +111,12 @@ final class IdentityFlowNotifier extends Notifier<IdentityFlowState> {
     };
   }
 
+  /// The gate: true only once approved; loads the status first if needed.
+  Future<bool> verified() async {
+    if (state.step == IdentityFlowStep.loading) await refresh();
+    return state.step == IdentityFlowStep.approved;
+  }
+
   void begin() {
     if (state.step == IdentityFlowStep.intro) _goTo(_nextMissing());
   }
@@ -119,7 +125,14 @@ final class IdentityFlowNotifier extends Notifier<IdentityFlowState> {
   Future<void> capture() async {
     final kind = state.step.kind;
     if (kind == null || state.busy) return;
-    final image = await ref.read(mediaPickerProvider).pick(PhotoSource.camera);
+    final image = await ref
+        .read(mediaPickerProvider)
+        .pick(
+          PhotoSource.camera,
+          facing: kind == IdentityDocumentKind.selfie
+              ? CameraFacing.front
+              : CameraFacing.rear,
+        );
     if (image == null || !ref.mounted) return;
     state = state.copyWith(busy: true);
     final result = await _port.submit(kind, image);

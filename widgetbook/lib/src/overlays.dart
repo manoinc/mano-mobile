@@ -16,6 +16,17 @@ WidgetbookCategory overlays() => WidgetbookCategory(
     }),
     component('ManoPromptSheet', {
       'Inline': (context) => const Align(alignment: Alignment.bottomCenter, child: _Prompt()),
+      'With a way to decline': (context) => const Align(
+        alignment: Alignment.bottomCenter,
+        child: ManoPromptSheet(
+          title: 'Verifica tu identidad para continuar',
+          message: 'Antes de comprometerte con un cliente, confirma quién eres.',
+          primaryLabel: 'Verificar ahora',
+          onPrimary: noop,
+          secondaryLabel: 'Ahora no',
+          onSecondary: noop,
+        ),
+      ),
       'Open with showManoSheet': (context) => _Launcher(
         label: 'Abrir hoja',
         open: (c) => showManoSheet<void>(context: c, builder: (_) => const _Prompt()),

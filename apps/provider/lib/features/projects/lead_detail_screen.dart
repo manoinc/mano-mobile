@@ -5,6 +5,7 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../account/account_gate.dart';
+import '../identity/verification_gate.dart';
 import 'client_contact_section.dart';
 import 'lead_labels.dart';
 import 'lead_purchase_sheet.dart';
@@ -82,12 +83,12 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
             padding: const EdgeInsets.all(ManoSpacing.md),
             child: ManoPrimaryButton(
               label: 'Comprar contacto',
-              onPressed: () => showLeadPurchaseSheet(context, quote),
+              onPressed: () => offerLeadPurchase(context, ref, quote),
             ),
           ),
         );
 
-  Future<void> _quote(Project project) => requireAccount(
+  Future<void> _quote(Project project) => requireVerified(
     context,
     ref,
     reason: AccountReason.projects,

@@ -76,6 +76,32 @@ foto opens the camera through `MediaPicker` (`PhotoSource.camera`) and calls
 camera preview and no liveness check: the frame is a visual guide, and the
 vendor does liveness. `identityVerifiedProvider` is true once approved.
 
+The cédula photos open the rear camera and the selfie the front one
+(`MediaPicker.pick(..., facing: CameraFacing.front)`, which
+`ImagePickerMediaPicker` passes on as image_picker's `preferredCameraDevice`).
+
+## The gate
+
+The check can be put off ("Ahora no"), but until it is **approved** a pro can
+only browse. A pending check does not count. Every action that commits a pro
+to a client goes through one guard, `requireVerified` (`apps/provider/lib/features/identity/verification_gate.dart`):
+
+- accepting or rejecting a request (Inicio)
+- sending a quote (Cotizar gratis)
+- buying a lead (Comprar contacto, from the project or from Mis cotizaciones)
+- publishing, saving or reactivating an offer
+
+A guest is asked to sign in first (`requireAccount`). A signed-in pro who is
+not verified gets "Verifica tu identidad para continuar" with **Verificar
+ahora** (opens `/profile/identity`) and **Ahora no**. The decision itself is
+`IdentityFlowNotifier.verified()` in `mano_session`, which loads the status
+first if nothing has asked yet.
+
+The mock never approves on its own. To walk the gates, build the provider app
+with `--dart-define=MANO_APPROVE_IDENTITY=true`
+(`ManoConfig.approveIdentityChecks`): the mock then answers Enviar with
+approval.
+
 ### Where it shows
 
 - Provider onboarding: right after the account is created (`identity` step,

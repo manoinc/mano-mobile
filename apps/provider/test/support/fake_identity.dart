@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:mano_session/mano_session.dart';
 
 /// Reports [reported] when set; otherwise collects photos like the mock.
@@ -24,3 +25,8 @@ final class FakeIdentityVerification implements IdentityVerificationPort {
   Future<Result<IdentityCheckStatus, DataFailure>> finish() async =>
       Ok(reported = const IdentityCheckPending());
 }
+
+/// A pro whose identity check came back approved, so no gate stops them.
+Override verifiedIdentity() => identityVerificationProvider.overrideWithValue(
+  FakeIdentityVerification(const IdentityCheckApproved()),
+);

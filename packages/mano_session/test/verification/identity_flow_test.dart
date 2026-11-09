@@ -13,10 +13,15 @@ PickedImage _photo([String type = 'image/jpeg']) =>
 final class _Picker implements MediaPicker {
   PickedImage? next = _photo();
   final sources = <PhotoSource>[];
+  final facings = <CameraFacing>[];
 
   @override
-  Future<PickedImage?> pick(PhotoSource source) async {
+  Future<PickedImage?> pick(
+    PhotoSource source, {
+    CameraFacing facing = CameraFacing.rear,
+  }) async {
     sources.add(source);
+    facings.add(facing);
     return next;
   }
 }
@@ -124,6 +129,11 @@ void main() {
     ]);
     expect(port.submitted, IdentityDocumentKind.values);
     expect(picker.sources, everyElement(PhotoSource.camera));
+    expect(picker.facings, [
+      CameraFacing.rear,
+      CameraFacing.rear,
+      CameraFacing.front,
+    ], reason: 'the selfie opens the front camera');
     expect(_s(c).photos.keys, IdentityDocumentKind.values);
   });
 
@@ -223,5 +233,47 @@ void main() {
     expect(_s(c).progress, 1);
     await n.send();
     expect(_s(c).progress, isNull);
+  });
+
+  group('the verification gate', () {
+    test('only an approved check counts, even before the flow loads', () async {
+      final port = _Port()..reported = const IdentityCheckApproved();
+      final c = ProviderContainer.test(
+        overrides: [identityVerificationProvider.overrideWithValue(port)],
+      );
+
+      expect(await c.read(identityFlowProvider.notifier).verified(), isTrue);
+    });
+
+    test('a pending check is not verified yet', () async {
+      final (:c, :n, picker: _) = await _setUp(
+        _Port()..reported = const IdentityCheckPending(),
+      );
+      expect(await n.verified(), isFalse);
+    });
+
+    test('a debug build set to approve approves on send', () async {
+      final c = ProviderContainer.test(
+        overrides: [
+          manoConfigProvider.overrideWithValue(
+            const ManoConfig(
+              gatewayGraphQlUrl: 'http://gw/graphql',
+              appRole: ManoRole.provider,
+              approveIdentityChecks: true,
+            ),
+          ),
+          mediaPickerProvider.overrideWithValue(_Picker()),
+        ],
+      );
+      c.listen(identityFlowProvider, (_, _) {});
+      await pumpEventQueue();
+      final n = c.read(identityFlowProvider.notifier);
+      await _captureAll(n);
+
+      await n.send();
+
+      expect(_s(c).step, IdentityFlowStep.approved);
+      expect(c.read(identityVerifiedProvider), isTrue);
+    });
   });
 }

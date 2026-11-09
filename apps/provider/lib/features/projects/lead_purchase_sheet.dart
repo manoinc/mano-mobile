@@ -3,9 +3,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../account/account_gate.dart';
+import '../identity/verification_gate.dart';
 import '../wallet/recharge_sheet.dart';
 import '../wallet/wallet_labels.dart';
 import 'insufficient_coins_sheet.dart';
+
+/// Offers the lead to a verified pro; anyone else verifies first.
+Future<void> offerLeadPurchase(
+  BuildContext context,
+  WidgetRef ref,
+  Quote quote,
+) => requireVerified(
+  context,
+  ref,
+  reason: AccountReason.projects,
+  action: () => showLeadPurchaseSheet(context, quote),
+);
 
 /// Buy the selected quote's lead with coins; unlocks the requester's contact.
 Future<void> showLeadPurchaseSheet(BuildContext context, Quote quote) =>

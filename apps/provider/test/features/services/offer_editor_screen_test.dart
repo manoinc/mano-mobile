@@ -6,6 +6,7 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../../support/pump_app.dart';
+import '../projects/projects_fakes.dart';
 import 'services_fakes.dart';
 
 void main() {
@@ -19,9 +20,11 @@ void main() {
       ..physicalSize = const Size(800, 1600)
       ..devicePixelRatio = 1;
     addTearDown(tester.view.reset);
+    // Signed in: publishing needs an account (and a verified identity).
     return pumpRouterAt(
       tester,
       location,
+      session: signedIn(),
       overrides: [
         offerManagementProvider.overrideWithValue(offers),
         serviceCatalogProvider.overrideWithValue(FakeServiceCatalog()),
