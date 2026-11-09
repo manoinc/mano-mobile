@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_requester/features/explore/search_screen.dart';
@@ -11,6 +13,8 @@ Finder _chip(String label) => find.descendant(
   of: find.byType(ManoCategoryRail),
   matching: find.text(label),
 );
+
+Finder _tile(String label) => find.widgetWithText(ManoCategoryTile, label);
 
 Future<FakeServiceCatalog> _open(
   WidgetTester tester, {
@@ -26,43 +30,134 @@ Future<FakeServiceCatalog> _open(
   return fake;
 }
 
+Future<void> _type(WidgetTester tester, String text) async {
+  await tester.enterText(find.byType(TextField), text);
+  await tester.pump(const Duration(milliseconds: 300));
+  await tester.pumpAndSettle();
+}
+
 void main() {
-  testWidgets('opens on every service with title, category and description', (
+  testWidgets('opens on a grid of every category, without searching', (
     tester,
   ) async {
     final catalog = await _open(tester);
 
     expect(find.byType(SearchScreen), findsOneWidget);
-    expect(find.text('Limpieza profunda'), findsOneWidget);
-    expect(find.text('Reparación de fugas'), findsOneWidget);
-    expect(find.text('Plomería'), findsNWidgets(2));
-    expect(
-      find.text('Cocina, baños y habitaciones de arriba a abajo.'),
-      findsOneWidget,
-    );
-    expect(catalog.searches.last, (category: null, text: null));
+    expect(find.byType(ManoCategoryTile), findsNWidgets(5));
+    for (final label in [
+      'Limpieza',
+      'Plomería',
+      'Electricidad',
+      'Pintura',
+      'Jardinería',
+    ]) {
+      expect(_tile(label), findsOneWidget);
+    }
+    expect(find.byType(GridView), findsOneWidget);
+    expect(catalog.searches, isEmpty);
   });
 
-  testWidgets('the search field is autofocused', (tester) async {
+  testWidgets('the grid fits a small phone at double text size', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(360, 640)
+      ..devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
     await _open(tester);
 
+    expect(tester.takeException(), isNull);
+    expect(_tile('Jardinería'), findsOneWidget);
+  });
+
+  testWidgets('each tile shows its category photo', (tester) async {
+    await _open(tester);
+
+    final image = tester.widget<Image>(
+      find.descendant(of: _tile('Plomería'), matching: find.byType(Image)),
+    );
+    expect(
+      (image.image as AssetImage).assetName,
+      'assets/categories/plumbing.jpg',
+    );
+  });
+
+  testWidgets('a back chevron and an autofocused pill sit on top', (
+    tester,
+  ) async {
+    await _open(tester);
+
+    expect(find.byType(BackButton), findsOneWidget);
+    expect(find.text('¿Con qué necesitas ayuda?'), findsOneWidget);
     final field = tester.widget<EditableText>(find.byType(EditableText));
     expect(field.focusNode.hasFocus, isTrue);
   });
 
   testWidgets('typing searches only once the user pauses', (tester) async {
     final catalog = await _open(tester);
-    final before = catalog.searches.length;
 
     await tester.enterText(find.byType(TextField), 'fuga');
     await tester.pump(const Duration(milliseconds: 100));
-    expect(catalog.searches.length, before);
+    expect(catalog.searches, isEmpty);
 
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pumpAndSettle();
     expect(catalog.searches.last, (category: null, text: 'fuga'));
     expect(find.text('Reparación de fugas'), findsOneWidget);
     expect(find.text('Limpieza profunda'), findsNothing);
+    expect(find.byType(ManoCategoryTile), findsNothing);
+  });
+
+  testWidgets('results show title, category and description', (tester) async {
+    await _open(tester);
+
+    await _type(tester, 'limpieza');
+
+    expect(find.text('Limpieza profunda'), findsOneWidget);
+    expect(
+      find.text('Cocina, baños y habitaciones de arriba a abajo.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('clearing the text goes back to the grid', (tester) async {
+    await _open(tester);
+    await _type(tester, 'fuga');
+
+    await _type(tester, '');
+
+    expect(find.byType(ManoCategoryTile), findsNWidgets(5));
+  });
+
+  testWidgets('shows the Mano loader while results load', (tester) async {
+    final catalog = FakeServiceCatalog()..hold = Completer<void>();
+    await _open(tester, catalog: catalog);
+
+    await tester.enterText(find.byType(TextField), 'fuga');
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump();
+
+    expect(find.byType(ManoLoader), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+
+    catalog.hold!.complete();
+    await tester.pumpAndSettle();
+    expect(find.byType(ManoLoader), findsNothing);
+    expect(find.text('Reparación de fugas'), findsOneWidget);
+  });
+
+  testWidgets('tapping a tile filters to that category', (tester) async {
+    final catalog = await _open(tester);
+
+    await tester.tap(_tile('Limpieza'));
+    await tester.pumpAndSettle();
+
+    expect(catalog.searches.last, (category: 'cleaning', text: null));
+    expect(find.text('Limpieza profunda'), findsOneWidget);
+    expect(find.text('Reparación de fugas'), findsNothing);
   });
 
   testWidgets('a category from the route is preselected and filters', (
@@ -88,10 +183,13 @@ void main() {
     expect(find.text('Reparación de fugas'), findsNothing);
   });
 
-  testWidgets('tapping a chip filters and tapping it again clears', (
+  testWidgets('a chip switches category; tapping it again shows the grid', (
     tester,
   ) async {
-    final catalog = await _open(tester);
+    final catalog = await _open(
+      tester,
+      location: '/home/search?category=cleaning',
+    );
 
     await tester.tap(_chip('Plomería'));
     await tester.pumpAndSettle();
@@ -100,8 +198,7 @@ void main() {
 
     await tester.tap(_chip('Plomería'));
     await tester.pumpAndSettle();
-    expect(catalog.searches.last, (category: null, text: null));
-    expect(find.text('Limpieza profunda'), findsOneWidget);
+    expect(find.byType(ManoCategoryTile), findsNWidgets(5));
   });
 
   testWidgets('no matches shows the empty state, which clears the search', (
@@ -113,12 +210,16 @@ void main() {
 
     await tester.tap(find.text('Limpiar búsqueda'));
     await tester.pumpAndSettle();
-    expect(find.text('Limpieza profunda'), findsOneWidget);
+    expect(find.byType(ManoCategoryTile), findsNWidgets(5));
   });
 
   testWidgets('a failed search offers a retry that recovers', (tester) async {
     final catalog = FakeServiceCatalog()..searchError = Exception('down');
-    await _open(tester, catalog: catalog);
+    await _open(
+      tester,
+      catalog: catalog,
+      location: '/home/search?category=cleaning',
+    );
 
     expect(find.textContaining('No pudimos cargar'), findsOneWidget);
 
@@ -132,7 +233,7 @@ void main() {
     final catalog = FakeServiceCatalog();
     final container = await pumpRouterAt(
       tester,
-      '/home/search',
+      '/home/search?category=plumbing',
       overrides: [serviceCatalogProvider.overrideWithValue(catalog)],
     );
 

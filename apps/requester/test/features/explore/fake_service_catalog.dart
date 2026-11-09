@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:mano_session/mano_session.dart';
 
 /// An in-memory catalog that filters like the gateway: exact category, substring text.
@@ -21,11 +23,15 @@ class FakeServiceCatalog implements ServiceCatalog {
 
   List<JobService> services;
   Object? searchError;
+
+  // Set to hold searches in flight until the test completes it.
+  Completer<void>? hold;
   final searches = <({String? category, String? text})>[];
 
   @override
   Future<List<JobService>> search({String? category, String? text}) async {
     searches.add((category: category, text: text));
+    await hold?.future;
     final error = searchError;
     if (error != null) throw error;
     return [

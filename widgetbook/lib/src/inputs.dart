@@ -155,6 +155,31 @@ WidgetbookCategory inputs() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoCategoryTile', {
+      'Default': (context) => _padded(
+        SizedBox(
+          width: 180,
+          child: ManoCategoryTile(
+            image: const _TilePhoto(),
+            label: context.knobs.string(label: 'Label', initialValue: 'Limpieza'),
+            onTap: noop,
+          ),
+        ),
+      ),
+      'Grid': (context) => _padded(
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          childAspectRatio: 2.2,
+          crossAxisSpacing: ManoSpacing.md,
+          mainAxisSpacing: ManoSpacing.sm,
+          children: [
+            for (final c in _categories) ManoCategoryTile(image: const _TilePhoto(), label: c.label, onTap: noop),
+            const ManoCategoryTile(image: _TilePhoto(), label: 'Reparaciones eléctricas y de iluminación', onTap: noop),
+          ],
+        ),
+      ),
+    }),
     component('ManoProjectFilterTabs', {
       'Default': (context) => _padded(
         ManoProjectFilterTabs(
@@ -327,6 +352,17 @@ class _TimeRangeDemoState extends State<_TimeRangeDemo> {
 
 Widget _padded(Widget child) =>
     Center(child: Padding(padding: const EdgeInsets.all(ManoSpacing.lg), child: child));
+
+// Stands in for the app's category photo; widgetbook ships no app assets.
+class _TilePhoto extends StatelessWidget {
+  const _TilePhoto();
+
+  @override
+  Widget build(BuildContext context) => const ColoredBox(
+    color: ManoColors.stone,
+    child: Icon(Icons.image_outlined, color: ManoColors.faint),
+  );
+}
 
 class _StarInputDemo extends StatefulWidget {
   const _StarInputDemo();

@@ -17,14 +17,17 @@ and falls back to the raw string. The home tab reuses them.
 
 ### Search
 
-- An autofocused `ManoSearchField` sits in the app bar. Each keystroke restarts
-  a 300 ms timer, and the query only changes when that timer fires.
-- The `ManoCategoryRail` filters by `ServiceCategory.id`. Tapping the selected
-  chip clears the filter. The `?category=` route parameter preselects a chip.
-- An empty query lists everything the catalog returns (the gateway caps it at 50).
+- A back chevron and an autofocused `ManoSearchField` ("¿Con qué necesitas
+  ayuda?") sit in the app bar. Each keystroke restarts a 300 ms timer, and the
+  query only changes when that timer fires.
+- An empty query shows a two-column grid of `ManoCategoryTile`s instead of
+  results, and does not call the gateway. Tapping a tile filters by it.
+- Once filtering, the `ManoCategoryRail` switches category; tapping the selected
+  chip clears it. The `?category=` route parameter preselects a chip. See
+  [Search](../develop/search.md).
 - Each result shows its category label (clay), title and a 2-line description.
   Tapping one does `context.push('/home/service/<id>')`.
-- The states are loading (a spinner), error ("No pudimos cargar los servicios." with
+- The states are loading (`ManoLoader`), error ("No pudimos cargar los servicios." with
   **Reintentar**) and empty ("No encontramos servicios con esa búsqueda…" with
   **Limpiar búsqueda**, which resets the text and the category). A previous
   result stays visible while the next one loads (`skipLoadingOnReload`).
@@ -43,7 +46,8 @@ and falls back to the raw string. The home tab reuses them.
 ### Home entry points (`screens/home_tab_screen.dart`)
 
 - The search pill and **Ver todo** both go to `/home/search`.
-- Tapping a category goes to `/home/search?category=<id>`. The old local
+- Tapping a category, a rail header or a listing card goes to
+  `/home/search?category=<id>`. The old local
   filter on popular listings is gone, so the home tab is now a stateless
   `ConsumerWidget`.
 
@@ -108,7 +112,8 @@ ManoSearchField({
 |---|---|---|
 | session | `packages/mano_session/test/explore/service_search_test.dart` | 6 |
 | ui | `packages/mano_ui/test/widgets/mano_search_field_test.dart` | 4 |
-| requester | `apps/requester/test/features/explore/search_screen_test.dart` | 8 |
+| requester | `apps/requester/test/features/explore/search_screen_test.dart` | 14 |
+| requester | `apps/requester/test/features/explore/category_photos_test.dart` | 2 |
 | requester | `apps/requester/test/features/explore/service_detail_screen_test.dart` | 4 |
 | requester | `apps/requester/test/screens/home_tab_screen_test.dart` (entry points) | 3 new, 2 removed |
 | device | `apps/requester/integration_test/explore_flow_test.dart` | 1 |
@@ -128,5 +133,6 @@ gateway.
   may return nothing.
 - **Images and price.** `JobService` has no photo and no "from" price, so
   results are text only. Popular listings on home still come from the mock
-  `CatalogRepository`, and tapping them still shows "Muy pronto".
+  `CatalogRepository`; tapping one opens search filtered to its category
+  (see [Search](../develop/search.md)).
 - **Paging.** Search asks for the first 50. There is no paging or infinite scroll.
