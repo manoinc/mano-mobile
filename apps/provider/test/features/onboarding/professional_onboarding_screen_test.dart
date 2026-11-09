@@ -225,9 +225,10 @@ void main() {
       await _createAccount(tester);
 
       await _tapText(tester, 'Continuar');
-      for (var i = 0; i < 3; i++) {
-        await _tapText(tester, 'Tomar foto');
-      }
+      await _tapText(tester, 'Tomar foto');
+      await _tapText(tester, 'Continuar');
+      await _tapText(tester, 'Tomar foto');
+      await _tapText(tester, 'Tomar foto');
       await _tapText(tester, 'Enviar');
       expect(find.text('Estamos revisando tus documentos'), findsOneWidget);
       await _tapText(tester, 'Continuar');

@@ -4,14 +4,17 @@ import 'package:mano_ui/mano_ui.dart';
 const photoTips = [
   ManoTip('Limpia el lente de tu cámara', emphasis: 'Limpia el lente'),
   ManoTip(
-    'Pon la cédula sobre una superficie plana y oscura',
-    emphasis: 'superficie plana y oscura',
+    'Revisa que tu cédula no tenga manchas ni calcomanías',
+    emphasis: 'no tenga manchas ni calcomanías',
+  ),
+  ManoTip(
+    'Toma la foto sobre una superficie plana y opaca',
+    emphasis: 'superficie plana y opaca',
   ),
   ManoTip(
     'Evita reflejos y sombras para que los datos se lean',
     emphasis: 'los datos se lean',
   ),
-  ManoTip('Que se vea completa, sin dedos encima', emphasis: 'completa'),
 ];
 
 const commonMistakes = [
@@ -20,19 +23,22 @@ const commonMistakes = [
   ManoTip('El lente de la cámara sucio', emphasis: 'lente'),
 ];
 
-/// What the camera guide asks for at each photo.
-String captureInstruction(IdentityDocumentKind kind) => switch (kind) {
-  IdentityDocumentKind.cedulaFront => 'Muestra el frente de tu cédula',
-  IdentityDocumentKind.cedulaBack => 'Muestra el reverso de tu cédula',
-  IdentityDocumentKind.selfie => 'Mira a la cámara',
-};
-
-String captureHint(IdentityDocumentKind kind) => switch (kind) {
-  IdentityDocumentKind.cedulaFront || IdentityDocumentKind.cedulaBack =>
-    'Colócala dentro del marco y toma la foto.',
-  IdentityDocumentKind.selfie =>
-    'Con buena luz, sin gafas ni gorra, para confirmar que eres tú.',
-};
+/// The line over each photo's picture, and the fragment set in flame.
+({String text, String? emphasis}) captureHeadline(IdentityDocumentKind kind) =>
+    switch (kind) {
+      IdentityDocumentKind.cedulaFront => (
+        text: 'Toma la foto del frente de tu cédula',
+        emphasis: 'foto del frente',
+      ),
+      IdentityDocumentKind.cedulaBack => (
+        text: 'Voltea tu cédula para tomar una foto de la parte de atrás',
+        emphasis: 'Voltea tu cédula',
+      ),
+      IdentityDocumentKind.selfie => (
+        text: '¿Tomamos tu selfie?',
+        emphasis: null,
+      ),
+    };
 
 String documentName(IdentityDocumentKind kind) => switch (kind) {
   IdentityDocumentKind.cedulaFront => 'Frente de la cédula',

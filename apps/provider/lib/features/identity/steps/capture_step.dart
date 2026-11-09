@@ -3,9 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../identity_art.dart';
 import '../identity_copy.dart';
 
-/// One photo on the camera's dark ground: guide, hint, and the shutter.
+/// One photo, Nu-style: the picture, one line, and Tomar foto opens the camera.
 class CaptureStep extends ConsumerWidget {
   const CaptureStep({required this.state, super.key});
 
@@ -15,70 +16,27 @@ class CaptureStep extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final notifier = ref.read(identityFlowProvider.notifier);
     final kind = state.step.kind!;
-    final taken = state.photos[kind];
-    final text = Theme.of(context).textTheme;
+    final headline = captureHeadline(kind);
+    final isCedula = kind != IdentityDocumentKind.selfie;
 
-    return Scaffold(
-      backgroundColor: ManoColors.ink,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            ManoSpacing.lg,
-            0,
-            ManoSpacing.lg,
-            ManoSpacing.md,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: IconButton(
-                  onPressed: state.busy ? null : notifier.back,
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                  iconSize: 20,
-                  color: ManoColors.sand,
-                  tooltip: 'Atrás',
-                ),
-              ),
-              const SizedBox(height: ManoSpacing.sm),
-              Expanded(
-                child: ManoCaptureFrame(
-                  instruction: captureInstruction(kind),
-                  shape: kind == IdentityDocumentKind.selfie
-                      ? ManoCaptureShape.face
-                      : ManoCaptureShape.card,
-                  preview: taken == null
-                      ? null
-                      : Image.memory(taken.bytes, fit: BoxFit.cover),
-                  helpLabel: 'Ayuda',
-                  onHelp: () => _showHelp(context),
-                ),
-              ),
-              const SizedBox(height: ManoSpacing.md),
-              Text(
-                captureHint(kind),
-                textAlign: TextAlign.center,
-                style: text.bodyMedium?.copyWith(color: ManoColors.sand),
-              ),
-              if (state.failure case final failure?) ...[
-                const SizedBox(height: ManoSpacing.md),
-                ManoNotice(
-                  message: failure.message,
-                  tone: ManoNoticeTone.error,
-                  onDismiss: notifier.acknowledgeFailure,
-                ),
-              ],
-              const SizedBox(height: ManoSpacing.md),
-              ManoPrimaryButton(
-                label: 'Tomar foto',
-                busy: state.busy,
-                onPressed: notifier.capture,
-              ),
-            ],
-          ),
+    return ManoIllustratedStep(
+      illustration: identityArt(kind),
+      onBack: notifier.back,
+      headline: headline.text,
+      headlineEmphasis: headline.emphasis,
+      notice: switch (state.failure) {
+        final failure? => ManoNotice(
+          message: failure.message,
+          tone: ManoNoticeTone.error,
+          onDismiss: notifier.acknowledgeFailure,
         ),
-      ),
+        null => null,
+      },
+      primaryLabel: 'Tomar foto',
+      onPrimary: notifier.capture,
+      secondaryLabel: isCedula ? 'Ayuda' : null,
+      onSecondary: isCedula ? () => _showHelp(context) : null,
+      busy: state.busy,
     );
   }
 }
@@ -97,7 +55,7 @@ Future<void> _showHelp(BuildContext context) => showManoSheet<void>(
         const ManoTipList(tips: commonMistakes),
         const SizedBox(height: ManoSpacing.lg),
         ManoPrimaryButton(
-          label: 'Entendido',
+          label: 'Ok, entendido',
           onPressed: () => Navigator.of(sheet).pop(),
         ),
       ],

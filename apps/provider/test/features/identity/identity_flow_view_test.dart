@@ -41,10 +41,18 @@ Future<void> _tap(WidgetTester tester, String text) async {
 
 Future<void> _photograph(WidgetTester tester) async {
   await _tap(tester, 'Continuar');
-  for (var i = 0; i < 3; i++) {
-    await _tap(tester, 'Tomar foto');
-  }
+  await _tap(tester, 'Tomar foto');
+  await _tap(tester, 'Continuar');
+  await _tap(tester, 'Tomar foto');
+  await _tap(tester, 'Tomar foto');
 }
+
+const _front = 'Toma la foto del frente de tu cédula';
+const _backTips = 'Ahora necesitamos una foto del reverso de tu cédula';
+const _back = 'Voltea tu cédula para tomar una foto de la parte de atrás';
+const _selfie = '¿Tomamos tu selfie?';
+
+Finder _art(String name) => find.image(AssetImage('assets/identity/$name.jpg'));
 
 void main() {
   testWidgets('the intro says why, with tips, and highlights the point', (
@@ -66,24 +74,45 @@ void main() {
     expect(later, 1);
   });
 
-  testWidgets('front, back and selfie each show their guide', (tester) async {
+  testWidgets('walks Nu\'s steps: front, back tips, back, selfie', (
+    tester,
+  ) async {
     final picker = await _pump(tester);
     await _tap(tester, 'Continuar');
 
-    expect(find.text('Muestra el frente de tu cédula'), findsOneWidget);
+    expect(find.text(_front), findsOneWidget);
+    expect(_art('cedula'), findsOneWidget);
     await _tap(tester, 'Tomar foto');
-    expect(find.text('Muestra el reverso de tu cédula'), findsOneWidget);
+
+    expect(find.text(_backTips), findsOneWidget);
+    expect(find.byType(ManoTipList), findsOneWidget);
+    await _tap(tester, 'Continuar');
+
+    expect(find.text(_back), findsOneWidget);
+    expect(_art('cedula'), findsOneWidget);
     await _tap(tester, 'Tomar foto');
-    expect(find.text('Mira a la cámara'), findsOneWidget);
-    expect(
-      tester.widget<ManoCaptureFrame>(find.byType(ManoCaptureFrame)).shape,
-      ManoCaptureShape.face,
-    );
+
+    expect(find.text(_selfie), findsOneWidget);
+    expect(_art('selfie'), findsOneWidget);
     await _tap(tester, 'Tomar foto');
 
     expect(find.text('Revisa tus fotos'), findsOneWidget);
     expect(find.byType(ManoCaptureReviewRow), findsNWidgets(3));
     expect(picker.sources, everyElement(PhotoSource.camera));
+    expect(picker.facings, [
+      CameraFacing.rear,
+      CameraFacing.rear,
+      CameraFacing.front,
+    ], reason: 'the cédula on the back camera, the selfie on the front');
+  });
+
+  testWidgets('the selfie offers no cédula help', (tester) async {
+    await _pump(tester);
+    await _photograph(tester);
+    await tester.tap(find.text('Repetir').at(2));
+    await tester.pumpAndSettle();
+    expect(find.text(_selfie), findsOneWidget);
+    expect(find.text('Ayuda'), findsNothing);
   });
 
   testWidgets('Ayuda lists the common mistakes', (tester) async {
@@ -99,7 +128,7 @@ void main() {
 
     await tester.tap(find.text('Repetir').at(1));
     await tester.pumpAndSettle();
-    expect(find.text('Muestra el reverso de tu cédula'), findsOneWidget);
+    expect(find.text(_back), findsOneWidget, reason: 'no tips on a retake');
     await _tap(tester, 'Tomar foto');
 
     expect(find.text('Revisa tus fotos'), findsOneWidget);
@@ -128,7 +157,7 @@ void main() {
     expect(find.text('La foto del frente está borrosa.'), findsOneWidget);
 
     await _tap(tester, 'Intentar de nuevo');
-    expect(find.text('Muestra el frente de tu cédula'), findsOneWidget);
+    expect(find.text(_front), findsOneWidget);
   });
 
   testWidgets('an approved check says so with the badge', (tester) async {
@@ -146,5 +175,15 @@ void main() {
     await tester.tap(find.byTooltip('Atrás'));
     await tester.pumpAndSettle();
     expect(find.byType(ManoTipList), findsOneWidget);
+  });
+
+  testWidgets('back from the back photo returns to its tips', (tester) async {
+    await _pump(tester);
+    await _tap(tester, 'Continuar');
+    await _tap(tester, 'Tomar foto');
+    await _tap(tester, 'Continuar');
+    await tester.tap(find.byTooltip('Atrás'));
+    await tester.pumpAndSettle();
+    expect(find.text(_backTips), findsOneWidget);
   });
 }

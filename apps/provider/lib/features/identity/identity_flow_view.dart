@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import 'steps/back_intro_step.dart';
 import 'steps/capture_step.dart';
 import 'steps/identity_intro_step.dart';
 import 'steps/identity_outcome_step.dart';
@@ -34,6 +35,10 @@ class IdentityFlowView extends ConsumerWidget {
           key: const ValueKey('intro'),
           state: state,
           onLater: onLater,
+        ),
+        IdentityFlowStep.backIntro => BackIntroStep(
+          key: const ValueKey('backIntro'),
+          state: state,
         ),
         IdentityFlowStep.cedulaFront ||
         IdentityFlowStep.cedulaBack ||
