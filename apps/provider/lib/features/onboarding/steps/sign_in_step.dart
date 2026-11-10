@@ -27,6 +27,15 @@ class SignInStep extends ConsumerWidget {
     void openEmail() =>
         showSignInSheet(context, ref, onCreateAccount: onboarding.start);
 
+    // Help, not a second copy of the email pill.
+    void openHelp() => showSignInSheet(
+      context,
+      ref,
+      onCreateAccount: onboarding.start,
+      title: '¿No te llega el código?',
+      message: 'Entra con el correo de tu cuenta profesional, o crea una con correo.',
+    );
+
     return ManoPhoneSignInScreen(
       countries: [
         for (final c in supportedCountries)
@@ -42,7 +51,7 @@ class SignInStep extends ConsumerWidget {
       phone: state.phone,
       onPhoneChanged: phone.editPhone,
       onSendCode: phone.sendCode,
-      onTrouble: openEmail,
+      onTrouble: openHelp,
       googleMark: const GoogleMark(),
       appleMark: const Icon(Icons.apple, size: 22),
       onGoogle: () async =>

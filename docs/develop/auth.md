@@ -46,7 +46,8 @@ The phone screen (`ManoSignInLayout`):
   default) that opens `ManoCountryPickerSheet`, searchable by name or code;
 - "Número de celular": an outlined box, "Te enviaremos un código por SMS.";
 - the flame "Continuar", then the underlined "¿Problemas para entrar?", which
-  opens the email sheet;
+  opens the email sheet titled as help ("¿No te llega el código?"); neither
+  app has a support screen a signed-out person can use;
 - pinned at the bottom, "O continúa con" and a `ManoBrandPillRow`: Google
   (Android) or Apple (iOS), and an email pill. The pills hide while the
   keyboard is up.
@@ -75,7 +76,8 @@ the notice.
 ## Phone and code
 
 1. `phoneE164('300 123 4567', Country.colombia)` turns what was typed into
-   `+573001234567`. Colombia wants ten digits starting with 3; the other
+   `+573001234567`. The code screen shows `maskedPhone`, e.g.
+   `+57 300 *** 4567` or `+593 *** 4567`. Colombia wants ten digits starting with 3; the other
    `supportedCountries` (MX, PE, EC, CL, AR, VE, US, ES) take 6–12 digits.
    Null means the number does not fit, and the field shows
    `phoneNumberProblemCopy(country)`.

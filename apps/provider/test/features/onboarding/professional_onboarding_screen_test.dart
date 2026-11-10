@@ -577,6 +577,15 @@ void main() {
       );
     });
 
+    testWidgets('trouble opens the email sheet as help', (tester) async {
+      await _pump(tester);
+      await _tapText(tester, 'Iniciar sesión');
+      await _tapText(tester, '¿Problemas para entrar?');
+
+      expect(find.byType(ManoCredentialsSheet), findsOneWidget);
+      expect(find.text('¿No te llega el código?'), findsOneWidget);
+    });
+
     testWidgets('email sign-up stays one tap away', (tester) async {
       await _pump(tester);
       await _tapText(tester, 'Iniciar sesión');

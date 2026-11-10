@@ -799,6 +799,17 @@ void main() {
       expect(find.byType(RequesterShell), findsOneWidget);
     });
 
+    testWidgets('trouble opens the email sheet as help', (tester) async {
+      await toPhone(tester);
+
+      await tester.tap(find.text('¿Problemas para entrar?'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ManoCredentialsSheet), findsOneWidget);
+      expect(find.text('¿No te llega el código?'), findsOneWidget);
+      expect(find.text('Crear cuenta con correo'), findsOneWidget);
+    });
+
     testWidgets('email sign-up stays one tap away', (tester) async {
       await toPhone(tester);
       await tester.tap(find.byTooltip('Continuar con correo'));

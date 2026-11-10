@@ -27,6 +27,14 @@ class SignInScreen extends ConsumerWidget {
 
     void openEmail() => _openEmail(context, ref);
 
+    // Help, not a second copy of the email pill.
+    void openHelp() => _openEmail(
+      context,
+      ref,
+      title: '¿No te llega el código?',
+      message: 'Entra con el correo de tu cuenta Mano, o crea una con correo.',
+    );
+
     return ManoPhoneSignInScreen(
       countries: [
         for (final c in supportedCountries)
@@ -42,7 +50,7 @@ class SignInScreen extends ConsumerWidget {
       phone: state.phone,
       onPhoneChanged: phone.editPhone,
       onSendCode: phone.sendCode,
-      onTrouble: openEmail,
+      onTrouble: openHelp,
       googleMark: const GoogleMark(),
       appleMark: const Icon(Icons.apple, size: 22),
       onGoogle: () async =>
@@ -75,15 +83,20 @@ class SignInScreen extends ConsumerWidget {
     );
   }
 
-  void _openEmail(BuildContext context, WidgetRef ref) {
+  void _openEmail(
+    BuildContext context,
+    WidgetRef ref, {
+    String title = 'Inicia sesión',
+    String message = 'Con el correo de tu cuenta Mano.',
+  }) {
     // Captured first: a successful sign-in replaces this screen, and its ref with it.
     final session = ref.read(sessionProvider.notifier);
     final flow = ref.read(onboardingFlowProvider.notifier);
     showManoSheet<void>(
       context: context,
       builder: (sheet) => ManoCredentialsSheet(
-        title: 'Inicia sesión',
-        message: 'Con el correo de tu cuenta Mano.',
+        title: title,
+        message: message,
         submitLabel: 'Entrar',
         onSubmit: (email, password) async {
           final failure = await session.signIn(
