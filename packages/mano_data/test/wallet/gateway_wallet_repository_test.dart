@@ -144,6 +144,29 @@ void main() {
     expect(history.last.amount, -3);
   });
 
+  test('history labels a referral bonus', () async {
+    final repo = _repo(
+      (_) async => _data({
+        'myCoinMovements': {
+          'items': [
+            {
+              'id': 'm3',
+              'type': 'REFERRAL_BONUS',
+              'coins': 10,
+              'leadId': null,
+              'createdAt': '2026-11-04T15:00:00Z',
+            },
+          ],
+          'pageInfo': {'hasNextPage': false, 'nextCursor': null},
+        },
+      }),
+    );
+    final bonus = (await repo.history()).single;
+    expect(bonus.kind, CoinTransactionKind.referralBonus);
+    expect(bonus.label, 'Bono por referido');
+    expect(bonus.amount, 10);
+  });
+
   test('lead prices map billing categories to canonical ids', () async {
     final repo = _repo((r) async {
       expect(_body(r)['query'], contains('leadPrices'));

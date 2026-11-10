@@ -54,9 +54,9 @@ void main() {
     test('referral offers coins and a code', () async {
       final referral = await repo.referral();
       expect(referral.code, isNotEmpty);
-      expect(referral.reward!.coins, 10);
-      expect(referral.reward!.invited, lessThan(referral.reward!.goal));
-      expect(referral.referralsCount, 2);
+      expect(referral.coinsPerColleague, 10);
+      expect(referral.invited, 2);
+      expect(referral.verified, 1);
     });
 
     test('a seeded profile replaces the fixture', () async {

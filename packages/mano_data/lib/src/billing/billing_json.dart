@@ -17,12 +17,16 @@ CoinPack coinPackFromJson(Map<String, dynamic> json) => CoinPack(
   priceCop: ((json['price'] as Map<String, dynamic>)['amount'] as num).round(),
 );
 
-/// A `CoinMovement`: a purchase, a lead spend or a lead refund.
+/// A `CoinMovement`: a purchase, a lead spend, a lead refund or a referral bonus.
 CoinTransaction coinMovementFromJson(Map<String, dynamic> json) {
   final coins = json['coins'] as int;
   final (kind, label) = switch (json['type']) {
     'LEAD_SPEND' => (CoinTransactionKind.leadSpend, leadSpendLabel),
     'LEAD_REFUND' => (CoinTransactionKind.refund, 'Reembolso de contacto'),
+    'REFERRAL_BONUS' => (
+      CoinTransactionKind.referralBonus,
+      'Bono por referido',
+    ),
     _ => (CoinTransactionKind.purchase, purchaseLabel(coins)),
   };
   return CoinTransaction(

@@ -6,7 +6,7 @@ import '../gateway/gateway_transport.dart';
 import '../reviews/review_json.dart';
 
 const _fields =
-    'id displayName photoUrl phone email workZone referralCode referralsCount '
+    'id displayName photoUrl phone email workZone referralCode '
     'verification { isVerified } averageRating ratingsCount '
     'jobsCompleted completionRate';
 
@@ -31,6 +31,13 @@ final class GatewayProviderProfileRepository
 
   static const _query =
       'query WorkerProfile { viewer { workerProfile { $_fields } } }';
+
+  // Its own query, so a gateway without these fields only loses the referral card.
+  static const _referral = '''
+query WorkerReferral {
+  viewer { workerProfile { referralCode referralsCount verifiedReferralsCount } }
+  referralReward { coinsPerColleague }
+}''';
 
   static const _reviews =
       '''
@@ -63,10 +70,16 @@ mutation UpdateWorkerProfile(\$input: UpdateWorkerProfileInput!) {
 
   @override
   Future<ReferralProgram> referral() async {
-    final json = await _worker();
+    final data = await _transport.run(_referral);
+    final viewer = data['viewer'] as Map<String, dynamic>;
+    final json =
+        viewer['workerProfile'] as Map<String, dynamic>? ?? await _worker();
+    final reward = data['referralReward'] as Map<String, dynamic>?;
     return ReferralProgram(
       code: json['referralCode'] as String? ?? '',
-      referralsCount: json['referralsCount'] as int? ?? 0,
+      invited: json['referralsCount'] as int? ?? 0,
+      verified: json['verifiedReferralsCount'] as int? ?? 0,
+      coinsPerColleague: reward?['coinsPerColleague'] as int?,
     );
   }
 
