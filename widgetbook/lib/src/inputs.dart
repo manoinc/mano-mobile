@@ -14,10 +14,36 @@ const _categories = [
 WidgetbookCategory inputs() => WidgetbookCategory(
   name: 'Inputs',
   children: [
+    component('ManoLabelledField', {
+      'Text': (context) => _padded(
+        ManoLabelledField(
+          label: context.knobs.string(label: 'Label', initialValue: 'Número de celular'),
+          controller: TextEditingController(),
+          helperText: 'Te enviaremos un código por SMS.',
+        ),
+      ),
+      'Error': (context) => _padded(
+        ManoLabelledField(
+          label: 'Número de celular',
+          controller: TextEditingController(text: '300 12'),
+          errorText: 'Escribe un celular colombiano: 10 dígitos que empiezan por 3.',
+        ),
+      ),
+      'Select': (context) => _padded(
+        ManoLabelledField.select(
+          label: 'País o región',
+          value: 'Colombia (+57)',
+          leading: const Text('🇨🇴'),
+          onTap: noop,
+        ),
+      ),
+    }),
     component('ManoPhoneField', {
       'Empty': (context) => _padded(
         ManoPhoneField(
           controller: TextEditingController(),
+          countryFlag: '🇨🇴',
+          onCountryTap: noop,
           helperText: 'Te enviaremos un código por SMS.',
           enabled: context.knobs.boolean(label: 'Enabled', initialValue: true),
         ),

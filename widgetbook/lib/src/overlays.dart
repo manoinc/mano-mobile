@@ -67,6 +67,17 @@ WidgetbookCategory overlays() => WidgetbookCategory(
         open: (c) => showManoSheet<void>(context: c, builder: (_) => const _Actions()),
       ),
     }),
+    component('ManoCountryPickerSheet', {
+      'Default': (context) => Align(
+        alignment: Alignment.bottomCenter,
+        child: ManoCountryPickerSheet(
+          countries: sampleCountries,
+          selectedCode: 'CO',
+          onSelected: (_) {},
+          onClose: noop,
+        ),
+      ),
+    }),
     component('ManoMediaSourceSheet', {
       'Inline': (context) => const Align(
         alignment: Alignment.bottomCenter,

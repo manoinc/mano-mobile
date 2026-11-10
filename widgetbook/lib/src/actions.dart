@@ -70,6 +70,35 @@ WidgetbookCategory actions() => WidgetbookCategory(
       'Android': (context) => _platform(TargetPlatform.android),
       'iOS': (context) => _platform(TargetPlatform.iOS),
     }),
+    component('ManoBrandPillRow', {
+      'Android': (context) => _pills(TargetPlatform.android),
+      'iOS': (context) => _pills(TargetPlatform.iOS),
+    }),
+    component('ManoWelcomeActions', {
+      'Requester': (context) => _padded(
+        ManoWelcomeActions(
+          firstLabel: 'Iniciar sesión',
+          onFirst: noop,
+          secondLabel: 'Registrarse',
+          onSecond: noop,
+          busy: context.knobs.boolean(label: 'Busy'),
+          below: const ManoPlatformSignInButton(
+            googleMark: Icon(Icons.g_mobiledata, size: 28),
+            appleMark: Icon(Icons.apple, size: 22),
+            onGoogle: noop,
+            onApple: noop,
+          ),
+        ),
+      ),
+      'Provider': (context) => _padded(
+        const ManoWelcomeActions(
+          firstLabel: 'Iniciar sesión',
+          onFirst: noop,
+          secondLabel: 'Crear cuenta',
+          onSecond: noop,
+        ),
+      ),
+    }),
     component('ManoPressScale', {
       'Press me': (context) => Center(
         child: ManoPressScale(
@@ -102,5 +131,28 @@ Widget _platform(TargetPlatform platform) => Builder(
         onApple: noop,
       ),
     ),
+  ),
+);
+
+Widget _pills(TargetPlatform platform) => _padded(
+  ManoBrandPillRow(
+    pills: [
+      platform == TargetPlatform.iOS
+          ? const ManoBrandPill(
+              mark: Icon(Icons.apple, size: 22),
+              label: 'Continuar con Apple',
+              onPressed: noop,
+            )
+          : const ManoBrandPill(
+              mark: Icon(Icons.g_mobiledata, size: 28),
+              label: 'Continuar con Google',
+              onPressed: noop,
+            ),
+      const ManoBrandPill(
+        mark: Icon(Icons.mail_outline_rounded, size: 22),
+        label: 'Continuar con correo',
+        onPressed: noop,
+      ),
+    ],
   ),
 );
