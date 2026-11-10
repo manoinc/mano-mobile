@@ -95,7 +95,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(ProfessionalOnboardingScreen), findsOneWidget);
-    expect(find.text('Crear cuenta profesional'), findsOneWidget);
+    expect(find.text('Crear cuenta'), findsOneWidget);
   });
 
   testWidgets('signed in goes straight to the shell', (tester) async {

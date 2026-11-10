@@ -45,7 +45,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await _tapText(tester, 'Crear cuenta profesional');
+    // Email sign-up is the fallback under the phone screen.
+    await _tapText(tester, 'Crear cuenta');
+    await tester.tap(find.byTooltip('Continuar con correo'));
+    await tester.pumpAndSettle();
+    await _tapText(tester, 'Crear cuenta con correo');
 
     await _answer(tester, 'Correo', 'pro@mano.co');
     await tester.enterText(_field('Contraseña'), 'mano2026');
