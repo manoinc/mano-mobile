@@ -132,7 +132,12 @@ void main() {
     ) async {
       final sent = <String>[];
       await tester.pumpWidget(
-        _host(ManoMessageComposer(hintText: 'Escribe…', onSend: sent.add)),
+        _host(
+          ManoMessageComposer(
+            hintText: 'Escribe…',
+            onSend: (t) => (sent..add(t)).isNotEmpty,
+          ),
+        ),
       );
       await tester.tap(find.byKey(const Key('mano-composer-send')));
       expect(sent, isEmpty);

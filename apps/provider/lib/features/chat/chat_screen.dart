@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_session/mano_session.dart';
@@ -36,12 +38,7 @@ class ChatScreen extends ConsumerWidget {
               ),
               ManoMessageComposer(
                 hintText: 'Escribe un mensaje',
-                onSend: (body) => requireVerified(
-                  context,
-                  ref,
-                  reason: AccountReason.chat,
-                  action: () => ref.read(provider.notifier).send(body),
-                ),
+                onSend: (body) => _send(context, ref, body),
                 onAttach: () => requireVerified(
                   context,
                   ref,
@@ -65,6 +62,23 @@ class ChatScreen extends ConsumerWidget {
         },
       ),
     );
+  }
+
+  /// True once the message goes out; the gate may keep it, and the draft.
+  Future<bool> _send(BuildContext context, WidgetRef ref, String body) async {
+    var sent = false;
+    await requireVerified(
+      context,
+      ref,
+      reason: AccountReason.chat,
+      action: () {
+        sent = true;
+        unawaited(
+          ref.read(chatThreadProvider(conversationId).notifier).send(body),
+        );
+      },
+    );
+    return sent;
   }
 
   static ManoChatEntry _entry(ChatThreadItem item) => switch (item) {

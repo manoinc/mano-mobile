@@ -156,6 +156,16 @@ void main() {
       );
     });
 
+    testWidgets('the draft survives Ahora no', (tester) async {
+      await _unverified(tester, '/inbox/conv-1');
+      await tester.enterText(find.byType(TextField), 'Voy en camino');
+      await _tap(tester, find.byKey(const Key('mano-composer-send')));
+
+      await _tap(tester, find.text('Ahora no'));
+
+      expect(find.text('Voy en camino'), findsOneWidget);
+    });
+
     testWidgets('attaching a photo asks to verify first', (tester) async {
       await _unverified(tester, '/inbox/conv-1');
 

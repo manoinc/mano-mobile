@@ -282,17 +282,17 @@ WidgetbookCategory inputs() => WidgetbookCategory(
     component('ManoMessageComposer', {
       'Default': (context) => Align(
         alignment: Alignment.bottomCenter,
-        child: ManoMessageComposer(hintText: 'Escribe un mensaje', onSend: (_) {}),
+        child: ManoMessageComposer(hintText: 'Escribe un mensaje', onSend: (_) => true),
       ),
       'With attach': (context) => Align(
         alignment: Alignment.bottomCenter,
-        child: ManoMessageComposer(hintText: 'Escribe un mensaje', onSend: (_) {}, onAttach: noop),
+        child: ManoMessageComposer(hintText: 'Escribe un mensaje', onSend: (_) => true, onAttach: noop),
       ),
       'Pending photos': (context) => Align(
         alignment: Alignment.bottomCenter,
         child: ManoMessageComposer(
           hintText: 'Escribe un mensaje',
-          onSend: (_) {},
+          onSend: (_) => true,
           onAttach: noop,
           onRemoveAttachment: (_) {},
           onRetryAttachment: (_) {},

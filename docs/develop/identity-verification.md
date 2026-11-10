@@ -84,10 +84,7 @@ holds the step and the photos (kept on the device for the thumbnails). Tomar
 foto opens the camera through `MediaPicker` (`PhotoSource.camera`) and calls
 `submit`; a retake from the review returns to the review. There is no live
 camera preview and no liveness check: the frame is a visual guide, and the
-vendor does liveness.
-
-An unverified pro who types a message and hits send loses the text when the
-gate sheet opens: `ManoMessageComposer` clears on send. `identityVerifiedProvider` is true once approved.
+vendor does liveness. `identityVerifiedProvider` is true once approved.
 
 The cédula photos open the rear camera and the selfie the front one
 (`MediaPicker.pick(..., facing: CameraFacing.front)`, which
@@ -104,7 +101,9 @@ to a client goes through one guard, `requireVerified` (`apps/provider/lib/featur
 - buying a lead (Comprar contacto, from the project or from Mis cotizaciones)
 - publishing, saving or reactivating an offer
 - chatting with a client: sending a message or a photo, and opening a job's
-  chat (Escribir). Reading the inbox and existing threads stays open.
+  chat (Escribir). Reading the inbox and existing threads stays open. A
+  message held by the gate stays in the composer: `ManoMessageComposer`
+  clears only when `onSend` answers true.
 
 A guest is asked to sign in first (`requireAccount`). A signed-in pro who is
 not verified gets "Verifica tu identidad para continuar" with **Verificar

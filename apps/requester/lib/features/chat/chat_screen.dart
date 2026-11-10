@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -36,7 +38,10 @@ class ChatScreen extends ConsumerWidget {
               ),
               ManoMessageComposer(
                 hintText: 'Escribe un mensaje',
-                onSend: ref.read(provider.notifier).send,
+                onSend: (body) {
+                  unawaited(ref.read(provider.notifier).send(body));
+                  return true;
+                },
                 onAttach: () => pickPhoto(context, photosNotifier),
                 attachments: pickedPhotos(photos),
                 onRemoveAttachment: photosNotifier.remove,

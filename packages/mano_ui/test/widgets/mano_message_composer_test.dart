@@ -17,7 +17,7 @@ final _send = find.byKey(const Key('mano-composer-send'));
 void main() {
   testWidgets('no attach button without onAttach', (tester) async {
     await tester.pumpWidget(
-      _host(ManoMessageComposer(hintText: 'Escribe', onSend: (_) {})),
+      _host(ManoMessageComposer(hintText: 'Escribe', onSend: (_) => true)),
     );
     expect(_attach, findsNothing);
   });
@@ -30,7 +30,7 @@ void main() {
       _host(
         ManoMessageComposer(
           hintText: 'Escribe',
-          onSend: (_) {},
+          onSend: (_) => true,
           onAttach: () => attached++,
         ),
       ),
@@ -49,7 +49,7 @@ void main() {
       _host(
         ManoMessageComposer(
           hintText: 'Escribe',
-          onSend: (_) {},
+          onSend: (_) => true,
           onAttach: () {},
           attachments: [
             ManoPickedPhoto(id: 'a', image: tinyImage),
@@ -79,7 +79,7 @@ void main() {
       _host(
         ManoMessageComposer(
           hintText: 'Escribe',
-          onSend: sent.add,
+          onSend: (t) => (sent..add(t)).isNotEmpty,
           attachments: [ManoPickedPhoto(id: 'a', image: tinyImage)],
         ),
       ),
@@ -95,7 +95,7 @@ void main() {
       _host(
         ManoMessageComposer(
           hintText: 'Escribe',
-          onSend: sent.add,
+          onSend: (t) => (sent..add(t)).isNotEmpty,
           canSend: false,
         ),
       ),
@@ -106,5 +106,31 @@ void main() {
     await tester.testTextInput.receiveAction(TextInputAction.send);
     expect(sent, isEmpty);
     expect(tester.widget<IconButton>(_send).onPressed, isNull);
+  });
+
+  testWidgets('a refused send keeps the draft', (tester) async {
+    await tester.pumpWidget(
+      _host(ManoMessageComposer(hintText: 'Escribe', onSend: (_) => false)),
+    );
+
+    await tester.enterText(find.byType(TextField), 'Voy en camino');
+    await tester.tap(_send);
+    await tester.pump();
+
+    expect(find.text('Voy en camino'), findsOneWidget);
+  });
+
+  testWidgets('an accepted send clears once it answers', (tester) async {
+    await tester.pumpWidget(
+      _host(
+        ManoMessageComposer(hintText: 'Escribe', onSend: (_) async => true),
+      ),
+    );
+
+    await tester.enterText(find.byType(TextField), 'Voy en camino');
+    await tester.tap(_send);
+    await tester.pump();
+
+    expect(find.text('Voy en camino'), findsNothing);
   });
 }
