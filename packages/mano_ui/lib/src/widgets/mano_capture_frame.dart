@@ -20,7 +20,7 @@ class ManoCaptureFrame extends StatelessWidget {
   final String instruction;
   final ManoCaptureShape shape;
 
-  /// The photo already taken, clipped to the guide; empty when null.
+  /// The live lens or the photo just taken, clipped to the guide.
   final Widget? preview;
 
   /// The help pill shows only with both.

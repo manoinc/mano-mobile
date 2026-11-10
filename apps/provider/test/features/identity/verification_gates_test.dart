@@ -141,4 +141,54 @@ void main() {
     expect(find.text(_title), findsNothing);
     expect(routerPath(c), '/home');
   });
+
+  group('chat', () {
+    testWidgets('sending a message asks to verify first', (tester) async {
+      await _unverified(tester, '/inbox/conv-1');
+
+      await tester.enterText(find.byType(TextField), 'Voy en camino');
+      await _tap(tester, find.byKey(const Key('mano-composer-send')));
+
+      expect(find.text(_title), findsOneWidget);
+      expect(
+        find.widgetWithText(ManoChatBubble, 'Voy en camino'),
+        findsNothing,
+      );
+    });
+
+    testWidgets('the draft survives Ahora no', (tester) async {
+      await _unverified(tester, '/inbox/conv-1');
+      await tester.enterText(find.byType(TextField), 'Voy en camino');
+      await _tap(tester, find.byKey(const Key('mano-composer-send')));
+
+      await _tap(tester, find.text('Ahora no'));
+
+      expect(find.text('Voy en camino'), findsOneWidget);
+    });
+
+    testWidgets('attaching a photo asks to verify first', (tester) async {
+      await _unverified(tester, '/inbox/conv-1');
+
+      await _tap(tester, find.byKey(const Key('mano-composer-attach')));
+
+      expect(find.text(_title), findsOneWidget);
+      expect(find.byType(ManoMediaSourceSheet), findsNothing);
+    });
+
+    testWidgets('Escribir on a job asks to verify first', (tester) async {
+      final c = await _unverified(tester, '/agenda/job/job-1');
+
+      await _tap(tester, find.byTooltip('Escribir'));
+
+      expect(find.text(_title), findsOneWidget);
+      expect(routerPath(c), '/agenda/job/job-1');
+    });
+
+    testWidgets('reading a thread stays open', (tester) async {
+      await _unverified(tester, '/inbox/conv-1');
+
+      expect(find.byType(ManoChatThread), findsOneWidget);
+      expect(find.text(_title), findsNothing);
+    });
+  });
 }

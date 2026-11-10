@@ -54,31 +54,57 @@ there is no `UploadTarget` for identity documents: the port takes the
 
 ## The flow
 
-The screens follow Nu's identity check (intro with tips, a dark capture
-screen with a framed guide and an "Ayuda" pill, a face guide for the selfie)
-and Airbnb/Uber/Wise for the oval selfie guide and the review-before-send.
+The screens follow Nu's identity check step for step (Mobbin, "Nu iOS
+Screens 0–8"), in Mano's flame and Poppins, including Nu's in-app camera.
 
-| Step (`IdentityFlowStep`) | Screen |
-|---|---|
-| `loading` | `ManoLoader` while `status()` answers |
-| `intro` | "Vamos a tomar fotos de tu cédula para **confirmar tu identidad**", tips, Continuar |
-| `cedulaFront`, `cedulaBack` | Ink ground, `ManoCaptureFrame` (card), Tomar foto |
-| `selfie` | Same, with the face (oval) guide |
-| `review` | `ManoCaptureReviewRow` per photo with Repetir, then Enviar |
-| `pending` | "Estamos revisando tus documentos" |
-| `approved` | "Tu identidad está verificada" with the badge |
-| `rejected` | The `reason`, and Intentar de nuevo (every photo again) |
+| Nu screen | Step (`IdentityFlowStep`) | Mano screen |
+|---|---|---|
+| — | `loading` | `ManoLoader` while `status()` answers |
+| 0, tips | `intro` | "Vamos a tomar fotos de tu cédula para **confirmar tu identidad**", tips, Continuar |
+| 1, man photographing his ID | `cedulaFront` | `ManoIllustratedStep`: `cedula.jpg`, "Toma la **foto del frente** de tu cédula", Tomar foto (back lens) |
+| 2, camera with the card frame | camera | `IdentityCameraScreen`: `ManoCaptureFrame` (card) over the live back lens, "Muestra el frente de tu cédula", shutter, Ayuda, Cerrar; then the photo with Usar foto / Repetir |
+| 3, Errores comunes | Ayuda | sheet listing the common mistakes |
+| 4, back tips | `backIntro` | "Ahora necesitamos una **foto del reverso** de tu cédula", the same tips, Continuar |
+| 5, close-up of the back | `cedulaBack` | `cedula.jpg` cropped toward the table, "**Voltea tu cédula** para tomar una foto de la parte de atrás", Tomar foto (back lens) |
+| 6, camera, back | camera | the same, "Muestra el reverso de tu cédula" |
+| 7, man taking a selfie | `selfie` | `selfie.jpg`, "¿Tomamos tu selfie?", Tomar foto (front lens) |
+| 8, face circle | camera | `ManoCaptureFrame` (face oval) over the live front lens, "Mira a la cámara", no Ayuda |
+| — | `review` | `ManoCaptureReviewRow` per photo with Repetir, then Enviar |
+| — | `pending` | "Estamos revisando tus documentos" |
+| — | `approved` | "Tu identidad está verificada" with the badge |
+| — | `rejected` | The `reason`, and Intentar de nuevo (every photo again) |
+
+The pictures are provider-app assets (`apps/provider/assets/identity/`,
+1080 px tall JPEGs), handed to `ManoIllustratedStep` as its `illustration`
+slot by `identityArt` (`features/identity/identity_art.dart`); `mano_ui`
+ships none. A retake from the review skips the back tips.
 
 `IdentityFlowNotifier` (`mano_session/verification/identity_flow.dart`)
-holds the step and the photos (kept on the device for the thumbnails). Tomar
-foto opens the camera through `MediaPicker` (`PhotoSource.camera`) and calls
-`submit`; a retake from the review returns to the review. There is no live
-camera preview and no liveness check: the frame is a visual guide, and the
-vendor does liveness. `identityVerifiedProvider` is true once approved.
+holds the step and the photos (kept on the device for the thumbnails). Each
+photo step names its lens (`IdentityFlowStep.facing`: back for the cédula,
+front for the selfie); the app takes the photo and hands it to `usePhoto`,
+which calls `submit`. A retake from the review returns to the review. There
+is no liveness check: the vendor does liveness. `identityVerifiedProvider` is
+true once approved.
 
-The cédula photos open the rear camera and the selfie the front one
-(`MediaPicker.pick(..., facing: CameraFacing.front)`, which
-`ImagePickerMediaPicker` passes on as image_picker's `preferredCameraDevice`).
+### The camera
+
+The system camera cannot be told which lens to open on many Android phones
+(Samsung Camera ignores every front-camera hint), so identity photos use an
+in-app camera (`apps/provider/lib/features/identity/camera/`):
+
+| File | Does |
+|---|---|
+| `capture_camera.dart` | `CaptureCamera`: open a lens, preview, take, close, open settings; `CameraDenied` |
+| `plugin_capture_camera.dart` | over the `camera` package; `pickLens` takes the asked lens or whichever exists |
+| `capture_camera_provider.dart` | a fresh camera per capture; tests override it with a fake |
+| `identity_camera_screen.dart` | ink ground, `ManoCaptureFrame` with the preview in its slot, shutter, then Usar foto / Repetir |
+
+A refused camera shows "Necesitamos acceso a tu cámara…" with **Abrir
+ajustes** (`app_settings`); coming back to the app tries the lens again. The
+camera is let go when the app goes to the background. Android declares
+`CAMERA`; iOS explains it in `NSCameraUsageDescription`. Chat and profile
+photos still go through `MediaPicker` (image_picker).
 
 ## The gate
 
@@ -90,6 +116,10 @@ to a client goes through one guard, `requireVerified` (`apps/provider/lib/featur
 - sending a quote (Cotizar gratis)
 - buying a lead (Comprar contacto, from the project or from Mis cotizaciones)
 - publishing, saving or reactivating an offer
+- chatting with a client: sending a message or a photo, and opening a job's
+  chat (Escribir). Reading the inbox and existing threads stays open. A
+  message held by the gate stays in the composer: `ManoMessageComposer`
+  clears only when `onSend` answers true.
 
 A guest is asked to sign in first (`requireAccount`). A signed-in pro who is
 not verified gets "Verifica tu identidad para continuar" with **Verificar
@@ -106,7 +136,10 @@ approval.
 
 - Provider onboarding: right after the account is created (`identity` step,
   between password and name). "Ahora no" puts it off; system back walks the
-  photos.
+  photos. A phone sign-up is not asked its number again. If the check was put
+  off, the closing screen says "Falta verificar tu identidad" with
+  **Verificar mi identidad** (opens `/profile/identity`) instead of "Tu cuenta
+  está en revisión".
 - Perfil: an "Verifica tu identidad" row (or "Verificación en revisión",
   "Identidad verificada") opens `/profile/identity`. The header's verified
   badge shows when the profile says so or the check is approved.

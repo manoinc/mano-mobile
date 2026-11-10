@@ -618,6 +618,34 @@ void main() {
       expect(c.read(providerOnboardingProvider).phone, '+525512345678');
     });
 
+    test('a phone sign-up is not asked its number again', () async {
+      final (:c, :n) = _setUp();
+      await c.read(sessionProvider.future);
+      n
+        ..startWithPhone()
+        ..enter(signedIn(isNew: true), phone: '+573001234567')
+        ..leaveIdentity()
+        ..editDisplayName('Ana Gómez')
+        ..next();
+
+      expect(_step(c), ProviderOnboardingStep.zone);
+      n.back();
+      expect(_step(c), ProviderOnboardingStep.name);
+      expect(c.read(providerOnboardingProvider).draft.phone, '3001234567');
+    });
+
+    test('a sign-up with no number still gets the phone question', () async {
+      final (:c, :n) = _setUp();
+      await c.read(sessionProvider.future);
+      n
+        ..enter(signedIn(isNew: true))
+        ..leaveIdentity()
+        ..editDisplayName('Ana Gómez')
+        ..next();
+
+      expect(_step(c), ProviderOnboardingStep.phone);
+    });
+
     test('a returning account leaves the onboarding for the shell', () async {
       final (:c, :n) = _setUp();
       await c.read(sessionProvider.future);

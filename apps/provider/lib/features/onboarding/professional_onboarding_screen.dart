@@ -14,10 +14,17 @@ import 'steps/welcome_step.dart';
 
 /// A professional's sign-up, one step at a time, ending in pending verification.
 class ProfessionalOnboardingScreen extends ConsumerWidget {
-  const ProfessionalOnboardingScreen({required this.onFinished, super.key});
+  const ProfessionalOnboardingScreen({
+    required this.onFinished,
+    required this.onVerifyIdentity,
+    super.key,
+  });
 
   /// Enters the shell once the pending step is left.
   final VoidCallback onFinished;
+
+  /// Enters the shell on the identity check, put off earlier.
+  final VoidCallback onVerifyIdentity;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -74,6 +81,7 @@ class ProfessionalOnboardingScreen extends ConsumerWidget {
           ProviderOnboardingStep.pending => PendingStep(
             key: const ValueKey('pending'),
             onExplore: onFinished,
+            onVerifyIdentity: onVerifyIdentity,
           ),
         },
       ),

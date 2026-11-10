@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../theme/mano_motion.dart';
@@ -20,8 +22,8 @@ class ManoMessageComposer extends StatefulWidget {
 
   final String hintText;
 
-  /// Gets the trimmed draft; empty when only photos go out.
-  final ValueChanged<String> onSend;
+  /// Gets the trimmed draft (empty for photos only); true clears the field.
+  final FutureOr<bool> Function(String text) onSend;
 
   /// Shows the "+" button; null hides it.
   final VoidCallback? onAttach;
@@ -47,12 +49,11 @@ class _ManoMessageComposerState extends State<ManoMessageComposer> {
     super.dispose();
   }
 
-  void _send() {
+  Future<void> _send() async {
     if (!widget.canSend) return;
     final text = _controller.text.trim();
     if (text.isEmpty && widget.attachments.isEmpty) return;
-    widget.onSend(text);
-    _controller.clear();
+    if (await widget.onSend(text) && mounted) _controller.clear();
   }
 
   @override

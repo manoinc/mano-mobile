@@ -38,7 +38,7 @@ class IdentityIntroStep extends ConsumerWidget {
           const SizedBox(height: ManoSpacing.lg),
         ],
         Text(
-          'Para que se vea bien en la foto:',
+          'Sigue estos consejos para que tu cédula se vea bien en la foto:',
           style: text.bodyLarge?.copyWith(color: ManoColors.muted),
         ),
         const SizedBox(height: ManoSpacing.md),

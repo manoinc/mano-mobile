@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_domain/mano_domain.dart';
 
-import '../media/media_providers.dart';
 import 'identity_verification_providers.dart';
 
 /// The screens of the identity check, in the order they are walked.
@@ -9,6 +8,9 @@ enum IdentityFlowStep {
   loading,
   intro,
   cedulaFront,
+
+  /// Tips before the back of the cédula, as Nu shows them; no photo.
+  backIntro,
   cedulaBack,
   selfie,
   review,
@@ -24,6 +26,13 @@ enum IdentityFlowStep {
     _ => null,
   };
 
+  /// The lens this step's photo is taken with, if it takes one.
+  CameraFacing? get facing => switch (kind) {
+    null => null,
+    IdentityDocumentKind.selfie => CameraFacing.front,
+    _ => CameraFacing.rear,
+  };
+
   static IdentityFlowStep of(IdentityDocumentKind kind) => switch (kind) {
     IdentityDocumentKind.cedulaFront => cedulaFront,
     IdentityDocumentKind.cedulaBack => cedulaBack,
@@ -34,6 +43,7 @@ enum IdentityFlowStep {
 const _walked = [
   IdentityFlowStep.intro,
   IdentityFlowStep.cedulaFront,
+  IdentityFlowStep.backIntro,
   IdentityFlowStep.cedulaBack,
   IdentityFlowStep.selfie,
   IdentityFlowStep.review,
@@ -117,23 +127,17 @@ final class IdentityFlowNotifier extends Notifier<IdentityFlowState> {
     return state.step == IdentityFlowStep.approved;
   }
 
-  void begin() {
-    if (state.step == IdentityFlowStep.intro) _goTo(_nextMissing());
-  }
+  /// Continuar on a step that only explains: the intro or the back tips.
+  void begin() => switch (state.step) {
+    IdentityFlowStep.intro => _goTo(_nextMissing()),
+    IdentityFlowStep.backIntro => _goTo(IdentityFlowStep.cedulaBack),
+    _ => null,
+  };
 
-  /// Takes the current step's photo with the camera and sends it.
-  Future<void> capture() async {
+  /// Sends the photo the app's camera took for the current step.
+  Future<void> usePhoto(PickedImage image) async {
     final kind = state.step.kind;
     if (kind == null || state.busy) return;
-    final image = await ref
-        .read(mediaPickerProvider)
-        .pick(
-          PhotoSource.camera,
-          facing: kind == IdentityDocumentKind.selfie
-              ? CameraFacing.front
-              : CameraFacing.rear,
-        );
-    if (image == null || !ref.mounted) return;
     state = state.copyWith(busy: true);
     final result = await _port.submit(kind, image);
     if (!ref.mounted) return;
@@ -180,7 +184,10 @@ final class IdentityFlowNotifier extends Notifier<IdentityFlowState> {
 
   IdentityFlowStep _nextMissing() {
     for (final kind in IdentityDocumentKind.values) {
-      if (!state.photos.containsKey(kind)) return IdentityFlowStep.of(kind);
+      if (state.photos.containsKey(kind)) continue;
+      return kind == IdentityDocumentKind.cedulaBack
+          ? IdentityFlowStep.backIntro
+          : IdentityFlowStep.of(kind);
     }
     return IdentityFlowStep.review;
   }

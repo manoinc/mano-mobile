@@ -6,6 +6,7 @@ import 'package:mano_provider/shell/provider_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import 'fake_capture_camera.dart';
 import 'fake_identity.dart';
 import 'fake_session_repository.dart';
 
@@ -26,6 +27,7 @@ Future<ProviderContainer> pumpRouterAt(
     overrides: [
       offlineMarketplaceProvider.overrideWithValue(true),
       manoConfigProvider.overrideWithValue(testConfig),
+      fakeCamera(FakeCaptureCamera()),
       sessionRepositoryProvider.overrideWithValue(
         session ?? FakeSessionRepository(),
       ),

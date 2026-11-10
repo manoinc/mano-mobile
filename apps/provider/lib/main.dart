@@ -7,6 +7,7 @@ import 'package:mano_ui/mano_ui.dart';
 
 import 'config.dart';
 import 'features/onboarding/professional_onboarding_screen.dart';
+import 'shell/provider_router.dart';
 import 'shell/provider_shell.dart';
 
 void main() {
@@ -93,8 +94,13 @@ class _RootState extends ConsumerState<_Root> {
       return _Crashed(error: error);
     }
 
+    final finish = ref.read(providerOnboardingProvider.notifier).finish;
     final onboardingScreen = ProfessionalOnboardingScreen(
-      onFinished: ref.read(providerOnboardingProvider.notifier).finish,
+      onFinished: finish,
+      onVerifyIdentity: () {
+        finish();
+        ref.read(providerRouterProvider).push('/profile/identity');
+      },
     );
     return switch (state.value) {
       // Sign-up happens on the second step; the questions after it still belong here.

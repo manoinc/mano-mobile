@@ -78,6 +78,7 @@ final class ProviderOnboardingState {
     this.finished = false,
     this.displayName = '',
     this.phone = '',
+    this.phoneVerified = false,
     this.workZone = '',
     this.categories = const [],
     this.experience = '',
@@ -98,6 +99,9 @@ final class ProviderOnboardingState {
 
   final String displayName;
   final String phone;
+
+  /// The account came in by phone, so its number needs no asking.
+  final bool phoneVerified;
   final String workZone;
   final List<String> categories;
 
@@ -164,6 +168,7 @@ final class ProviderOnboardingState {
     bool? finished,
     String? displayName,
     String? phone,
+    bool? phoneVerified,
     String? workZone,
     List<String>? categories,
     String? experience,
@@ -178,6 +183,7 @@ final class ProviderOnboardingState {
     finished: finished ?? this.finished,
     displayName: displayName ?? this.displayName,
     phone: phone ?? this.phone,
+    phoneVerified: phoneVerified ?? this.phoneVerified,
     workZone: workZone ?? this.workZone,
     categories: categories ?? this.categories,
     experience: experience ?? this.experience,
@@ -205,13 +211,15 @@ final class ProviderOnboardingNotifier
 
   /// Takes a phone or social session; a new account goes to the identity check, a returning one leaves.
   void enter(Session session, {String? phone}) {
+    // Colombian numbers in the local format; others whole, in E.164.
+    final known = phone == null
+        ? null
+        : normalizeColombianMobile(phone) ?? phone;
     state = session.isNewAccount
         ? const ProviderOnboardingState().copyWith(
             step: ProviderOnboardingStep.identity,
-            // Colombian numbers in the local format; others whole, in E.164.
-            phone: phone == null
-                ? ''
-                : normalizeColombianMobile(phone) ?? phone,
+            phone: known ?? '',
+            phoneVerified: known != null,
           )
         : const ProviderOnboardingState();
     ref.read(sessionProvider.notifier).adopt(session);
@@ -301,7 +309,7 @@ final class ProviderOnboardingNotifier
       return;
     }
     final i = _flow.indexOf(state.step);
-    if (i >= 0 && i < _flow.length - 1) _goTo(_flow[i + 1]);
+    if (i >= 0 && i < _flow.length - 1) _goTo(_past(_flow[i + 1], 1));
   }
 
   /// Leaves the identity check, done or put off, for the first question.
@@ -326,9 +334,15 @@ final class ProviderOnboardingNotifier
     }
     final i = _flow.indexOf(state.step);
     if (i > 0 && state.step != ProviderOnboardingStep.pending) {
-      _goTo(_flow[i - 1]);
+      _goTo(_past(_flow[i - 1], -1));
     }
   }
+
+  /// [step], or one further in [direction] past a phone already verified.
+  ProviderOnboardingStep _past(ProviderOnboardingStep step, int direction) =>
+      step == ProviderOnboardingStep.phone && state.phoneVerified
+      ? _flow[_flow.indexOf(step) + direction]
+      : step;
 
   void acknowledgeFailure() {
     if (state.status is ProviderOnboardingFailed) {

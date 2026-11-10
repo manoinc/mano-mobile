@@ -36,7 +36,7 @@
 			<true/>
 		</dict>
 		<key>NSCameraUsageDescription</key>
-		<string>Para tomar fotos del trabajo y enviarlas por chat o en tu perfil.</string>
+		<string>Para tomar las fotos de tu cédula y tu selfie que confirman tu identidad, y fotos del trabajo para el chat o tu perfil.</string>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>Para elegir fotos del trabajo y enviarlas por chat o en tu perfil.</string>
 		<key>NSLocalNetworkUsageDescription</key>

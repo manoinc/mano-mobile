@@ -99,12 +99,13 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 |---|---|
 | `ManoBottomNavBar` | Four tabs around a raised centre action. |
 | `ManoHeroScaffold` | Full-bleed brand screens: wordmark, headline, an `actions` slot (usually `ManoWelcomeActions`), footnote. |
+| `ManoIllustratedStep` | A step led by a full-bleed picture (an app asset, passed as a slot): one highlighted line, Tomar foto, an optional quiet action. |
 | `ManoSignInLayout` | Wise's log-in: round close, bold title, fields, the flame "Continuar", an underlined link, and a footer pinned to the bottom under a grey label (hidden while the keyboard is up). |
 | `ManoPhoneSignInScreen` | The one sign-in screen both apps show: country and number, then the code. Dumb; each app maps `phoneSignInProvider` onto it. |
 | `ManoStepScaffold` + `ManoStepTransition` | Multi-step forms that slide between steps; `headlineEmphasis` paints part of the headline in flame. |
 | `ManoEmphasisText` | One sentence with one fragment set apart (flame by default). |
 | `ManoTipList` | Bulleted advice in quiet text, each with a bold fragment (`ManoTip`). |
-| `ManoCaptureFrame` | A camera-style guide on the ink ground: instruction, card or face outline, optional photo inside, "Ayuda" pill. |
+| `ManoCaptureFrame` | A camera-style guide on the ink ground: instruction, card or face outline, the live lens or the photo inside (a slot), "Ayuda" pill. The provider app's identity camera. |
 | `ManoCaptureReviewRow` | A photo just taken, its name and "Repetir". |
 | `ManoRefreshList` | A pull-to-refresh list with dividers and an empty message. |
 | `ManoPullToRefresh` | Makes any screen body pullable: a list inside it, or a still empty state. |

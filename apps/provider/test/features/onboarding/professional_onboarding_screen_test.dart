@@ -6,6 +6,7 @@ import 'package:mano_provider/features/onboarding/professional_onboarding_screen
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_capture_camera.dart';
 import '../../support/fake_media.dart';
 import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
@@ -34,6 +35,7 @@ Future<void> _pump(
   SessionRepository? session,
   MediaPicker? picker,
   VoidCallback? onFinished,
+  VoidCallback? onVerifyIdentity,
   PasswordlessAuth? phone,
   SocialAuth? social,
 }) async {
@@ -50,16 +52,28 @@ Future<void> _pump(
           onboarding ?? _FakeOnboarding(),
         ),
         if (picker != null) mediaPickerProvider.overrideWithValue(picker),
+        fakeCamera(FakeCaptureCamera()),
         if (phone != null) passwordlessAuthProvider.overrideWithValue(phone),
         if (social != null) socialAuthProvider.overrideWithValue(social),
       ],
       child: MaterialApp(
         theme: ManoTheme.light(),
-        home: ProfessionalOnboardingScreen(onFinished: onFinished ?? () {}),
+        home: ProfessionalOnboardingScreen(
+          onFinished: onFinished ?? () {},
+          onVerifyIdentity: onVerifyIdentity ?? () {},
+        ),
       ),
     ),
   );
   await tester.pumpAndSettle();
+}
+
+/// Tomar foto, the shutter, then Usar foto.
+Future<void> _shoot(WidgetTester tester) async {
+  await _tapText(tester, 'Tomar foto');
+  await tester.tap(find.byTooltip('Capturar'));
+  await tester.pumpAndSettle();
+  await _tapText(tester, 'Usar foto');
 }
 
 Finder _field(String label) => find.descendant(
@@ -110,6 +124,22 @@ Future<void> _toName(WidgetTester tester) async {
 /// Answers every question up to the bio, leaving the bio on screen.
 Future<void> _answerUpToBio(WidgetTester tester) async {
   await _toName(tester);
+  await _answerFromName(tester);
+}
+
+/// Sends the three identity photos and leaves the pending check.
+Future<void> _sendIdentity(WidgetTester tester) async {
+  await _tapText(tester, 'Continuar');
+  await _shoot(tester);
+  await _tapText(tester, 'Continuar');
+  await _shoot(tester);
+  await _shoot(tester);
+  await _tapText(tester, 'Enviar');
+  await _tapText(tester, 'Continuar');
+}
+
+/// From the name question up to the bio.
+Future<void> _answerFromName(WidgetTester tester) async {
   await _answer(tester, 'Nombre completo', 'Ana Gómez');
   await _answer(tester, 'Celular', '300 123 4567');
   await _answer(tester, 'Zona de cobertura', 'Chapinero');
@@ -270,9 +300,10 @@ void main() {
       await _createAccount(tester);
 
       await _tapText(tester, 'Continuar');
-      for (var i = 0; i < 3; i++) {
-        await _tapText(tester, 'Tomar foto');
-      }
+      await _shoot(tester);
+      await _tapText(tester, 'Continuar');
+      await _shoot(tester);
+      await _shoot(tester);
       await _tapText(tester, 'Enviar');
       expect(find.text('Estamos revisando tus documentos'), findsOneWidget);
       await _tapText(tester, 'Continuar');
@@ -467,7 +498,11 @@ void main() {
       onboarding: onboarding,
       onFinished: () => finished = true,
     );
-    await _reachReview(tester);
+    await _createAccount(tester);
+    await _sendIdentity(tester);
+    await _answerFromName(tester);
+    await _answer(tester, 'Descripción', 'Plomera con 5 años.');
+    await _tapText(tester, 'Continuar');
 
     expect(find.text('Chapinero'), findsOneWidget);
     expect(find.text('Plomería, Electricidad'), findsOneWidget);
@@ -479,6 +514,28 @@ void main() {
     expect(draft.yearsExperience, 5);
     expect(draft.bio, 'Plomera con 5 años.');
     expect(find.text('Tu cuenta está en revisión'), findsOneWidget);
+    await _tapText(tester, 'Explorar la app');
+    expect(finished, isTrue);
+  });
+
+  testWidgets('with the identity check put off, pending says so', (
+    tester,
+  ) async {
+    var verify = 0;
+    var finished = false;
+    await _pump(
+      tester,
+      onVerifyIdentity: () => verify++,
+      onFinished: () => finished = true,
+    );
+    await _reachReview(tester);
+    await _tapText(tester, 'Enviar a revisión');
+
+    expect(find.text('Tu cuenta está en revisión'), findsNothing);
+    expect(find.text('Falta verificar tu identidad'), findsOneWidget);
+    await _tapText(tester, 'Verificar mi identidad');
+    expect(verify, 1);
+
     await _tapText(tester, 'Explorar la app');
     expect(finished, isTrue);
   });

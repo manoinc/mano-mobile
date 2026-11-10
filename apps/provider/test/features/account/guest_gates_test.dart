@@ -94,7 +94,12 @@ void main() {
     await tester.pumpAndSettle();
 
     _expectSheet('Inicia sesión para escribirle a tus clientes.');
-    expect(find.text('Hola'), findsNothing, reason: 'nothing was sent');
+    expect(
+      find.widgetWithText(ManoChatBubble, 'Hola'),
+      findsNothing,
+      reason: 'nothing was sent',
+    );
+    expect(find.text('Hola'), findsOneWidget, reason: 'the draft stays');
   });
 
   testWidgets('attaching a photo asks a guest to sign in', (tester) async {
