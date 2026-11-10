@@ -136,7 +136,10 @@ approval.
 
 - Provider onboarding: right after the account is created (`identity` step,
   between password and name). "Ahora no" puts it off; system back walks the
-  photos.
+  photos. A phone sign-up is not asked its number again. If the check was put
+  off, the closing screen says "Falta verificar tu identidad" with
+  **Verificar mi identidad** (opens `/profile/identity`) instead of "Tu cuenta
+  está en revisión".
 - Perfil: an "Verifica tu identidad" row (or "Verificación en revisión",
   "Identidad verificada") opens `/profile/identity`. The header's verified
   badge shows when the profile says so or the check is approved.
