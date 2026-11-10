@@ -124,6 +124,24 @@ void main() {
     expect(find.byType(ManoBarChart), findsOneWidget);
   });
 
+  testWidgets('a nameless pro sees their masked phone, else Tu perfil', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      profile: LiveShapedProfile(displayName: '', phone: '3010000101'),
+    );
+    expect(find.text('+57 301 *** 0101'), findsOneWidget);
+  });
+
+  testWidgets('a pro with no name or phone reads Tu perfil', (tester) async {
+    await _pump(
+      tester,
+      profile: LiveShapedProfile(displayName: '', phone: ''),
+    );
+    expect(find.text('Tu perfil'), findsOneWidget);
+  });
+
   testWidgets('switching to Este mes changes the total', (tester) async {
     await _pump(tester);
     await tester.tap(find.text('Este mes'));

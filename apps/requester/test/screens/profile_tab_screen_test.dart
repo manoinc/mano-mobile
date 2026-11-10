@@ -43,6 +43,25 @@ final class _ServedProfile implements ClientProfileRepository {
   ) async => Ok(await profile());
 }
 
+/// A phone-only account that never gave a name.
+final class _NamelessProfile implements ClientProfileRepository {
+  _NamelessProfile({required this.phone});
+
+  final String phone;
+
+  @override
+  Future<ClientProfile> profile() async => ClientProfile(phone: phone);
+
+  @override
+  Future<Result<ClientProfile, DataFailure>> update(ClientProfile p) async =>
+      Ok(p);
+
+  @override
+  Future<Result<ClientProfile, DataFailure>> updatePhoto(
+    MediaAttachment photo,
+  ) async => Ok(await profile());
+}
+
 void main() {
   testWidgets('renders the signed-in user\'s name in the header', (
     tester,
@@ -50,6 +69,68 @@ void main() {
     await _signedIn(tester);
 
     expect(find.text('mano-test'), findsOneWidget);
+  });
+
+  testWidgets('a nameless phone account shows its phone, never its ID', (
+    tester,
+  ) async {
+    const subject = '48cdf3a6-eb2e-4a1b-9c3d-000000000001';
+    await pumpRouterAt(
+      tester,
+      '/profile',
+      session: FakeSessionRepository(
+        onRestore: () async => Ok(
+          Session(
+            user: const AuthenticatedUser(
+              subject: subject,
+              roles: {ManoRole.requester},
+            ),
+            accessToken: 'a',
+            expiresAt: DateTime.now().add(const Duration(minutes: 5)),
+          ),
+        ),
+      ),
+      overrides: [
+        clientProfileRepositoryProvider.overrideWithValue(
+          _NamelessProfile(phone: '3010000101'),
+        ),
+      ],
+    );
+
+    expect(find.textContaining('48cdf3a6'), findsNothing);
+    final header = tester.widget<ManoProfileHeader>(
+      find.byType(ManoProfileHeader),
+    );
+    expect(header.name, '+57 301 *** 0101');
+  });
+
+  testWidgets('with no name or phone the header reads Tu perfil', (
+    tester,
+  ) async {
+    await pumpRouterAt(
+      tester,
+      '/profile',
+      session: FakeSessionRepository(
+        onRestore: () async => Ok(
+          Session(
+            user: const AuthenticatedUser(
+              subject: '48cdf3a6-eb2e-4a1b',
+              roles: {ManoRole.requester},
+            ),
+            accessToken: 'a',
+            expiresAt: DateTime.now().add(const Duration(minutes: 5)),
+          ),
+        ),
+      ),
+      overrides: [
+        clientProfileRepositoryProvider.overrideWithValue(
+          _NamelessProfile(phone: ''),
+        ),
+      ],
+    );
+
+    expect(find.textContaining('48cdf3a6'), findsNothing);
+    expect(find.text('Tu perfil'), findsOneWidget);
   });
 
   testWidgets('renders every menu label and Cerrar sesión', (tester) async {

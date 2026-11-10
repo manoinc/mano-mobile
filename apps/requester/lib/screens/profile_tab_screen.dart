@@ -66,9 +66,10 @@ class ProfileTabScreen extends ConsumerWidget {
     final user = ref.watch(currentUserProvider);
     final signedIn = ref.watch(hasAccountProvider);
     final profile = signedIn ? ref.watch(clientProfileProvider).value : null;
-    final name = (profile?.displayName.isNotEmpty ?? false)
-        ? profile!.displayName
-        : user?.displayName ?? 'Solicitante';
+    final name = profileHeaderName(
+      names: [profile?.displayName, greetingName(user)],
+      phone: profile?.phone ?? '',
+    );
     final divider = Divider(
       height: 1,
       thickness: 1,
