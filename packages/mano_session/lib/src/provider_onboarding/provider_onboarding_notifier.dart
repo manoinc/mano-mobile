@@ -208,7 +208,10 @@ final class ProviderOnboardingNotifier
     state = session.isNewAccount
         ? const ProviderOnboardingState().copyWith(
             step: ProviderOnboardingStep.identity,
-            phone: phone == null ? '' : normalizeColombianMobile(phone) ?? '',
+            // Colombian numbers in the local format; others whole, in E.164.
+            phone: phone == null
+                ? ''
+                : normalizeColombianMobile(phone) ?? phone,
           )
         : const ProviderOnboardingState();
     ref.read(sessionProvider.notifier).adopt(session);

@@ -608,6 +608,16 @@ void main() {
       expect(c.read(providerOnboardingProvider).inProgress, isTrue);
     });
 
+    test('a number from elsewhere is kept whole, dial code and all', () async {
+      final (:c, :n) = _setUp();
+      await c.read(sessionProvider.future);
+      n.startWithPhone();
+
+      n.enter(signedIn(isNew: true), phone: '+525512345678');
+
+      expect(c.read(providerOnboardingProvider).phone, '+525512345678');
+    });
+
     test('a returning account leaves the onboarding for the shell', () async {
       final (:c, :n) = _setUp();
       await c.read(sessionProvider.future);
