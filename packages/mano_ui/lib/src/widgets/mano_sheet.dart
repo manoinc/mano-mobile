@@ -228,7 +228,8 @@ Future<T?> showManoSheet<T>({
 
   return showModalBottomSheet<T>(
     context: context,
-    builder: builder,
+    // Keeps every sheet's last action above the system navigation bar.
+    builder: (sheet) => SafeArea(top: false, child: builder(sheet)),
     isScrollControlled: true,
     useRootNavigator: true,
     backgroundColor: Theme.of(context).colorScheme.surface,
