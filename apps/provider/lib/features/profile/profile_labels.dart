@@ -45,8 +45,13 @@ String reviewsCountText(int count) =>
   count: reviewsCountText(summary.count),
 );
 
-String referralProgressText(ReferralReward reward) =>
-    '${reward.invited} de ${reward.goal} invitados';
+/// "3 colegas invitados · 2 verificados"
+String referralCountText(int invited, int verified) =>
+    '$invited ${invited == 1 ? 'colega invitado' : 'colegas invitados'} · '
+    '$verified ${verified == 1 ? 'verificado' : 'verificados'}';
+
+String referralOfferText(int coins) =>
+    'Gana $coins Mano coins por cada colega verificado';
 
 /// "luisa@mano.co · 3001112233", or null when neither is known.
 String? contactText(String email, String phone) {
@@ -54,6 +59,7 @@ String? contactText(String email, String phone) {
   return parts.isEmpty ? null : parts.join(' · ');
 }
 
-String referralMessage(String code) =>
-    'Únete a Mano Profesionales y consigue trabajos en tu zona. '
-    'Usa mi código $code al registrarte.';
+/// What the share sheet sends: an invitation to earn with Mano, the code and the link.
+String referralMessage(String code, Uri link) =>
+    'Te invito a Mano Profesionales: consigue clientes en tu zona y gana con '
+    'tu oficio. Regístrate con mi código $code: $link';

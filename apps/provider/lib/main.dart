@@ -6,6 +6,7 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import 'config.dart';
+import 'features/onboarding/onboarding_copy.dart';
 import 'features/onboarding/professional_onboarding_screen.dart';
 import 'shell/provider_router.dart';
 import 'shell/provider_shell.dart';
@@ -68,6 +69,14 @@ class _RootState extends ConsumerState<_Root> {
     final onboarding = ref.watch(
       providerOnboardingProvider.select((s) => s.inProgress),
     );
+
+    // Built here so a launch link or install referrer is kept from the first frame.
+    ref.listen(referralInviteProvider.select((i) => i.failure), (_, failure) {
+      if (failure == null) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(referralFailureCopy(failure))));
+      ref.read(referralInviteProvider.notifier).acknowledge();
+    });
 
     // Signing out starts the onboarding over, at the welcome.
     ref.listen(sessionProvider, (before, after) {

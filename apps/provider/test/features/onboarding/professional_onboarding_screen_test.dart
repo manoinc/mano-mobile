@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -29,8 +31,30 @@ final class _FakeOnboarding implements ProviderOnboardingRepository {
   }
 }
 
+// Single-subscription, so a link sent before anyone listens waits, like a launch link.
+final class _Links implements InviteLinkSource {
+  final controller = StreamController<Uri>();
+
+  @override
+  Stream<Uri> get links => controller.stream;
+}
+
+final class _Redeemer implements WorkerReferralRedeemer {
+  final redeemed = <ReferralCode>[];
+
+  @override
+  Future<Result<void, ReferralRedemptionFailure>> redeem(
+    ReferralCode code,
+  ) async {
+    redeemed.add(code);
+    return const Ok(null);
+  }
+}
+
 Future<void> _pump(
   WidgetTester tester, {
+  InviteLinkSource? links,
+  WorkerReferralRedeemer? redeemer,
   ProviderOnboardingRepository? onboarding,
   SessionRepository? session,
   MediaPicker? picker,
@@ -55,6 +79,15 @@ Future<void> _pump(
         fakeCamera(FakeCaptureCamera()),
         if (phone != null) passwordlessAuthProvider.overrideWithValue(phone),
         if (social != null) socialAuthProvider.overrideWithValue(social),
+        inviteLinkSourceProvider.overrideWithValue(
+          links ?? const NoInviteLinks(),
+        ),
+        installReferrerSourceProvider.overrideWithValue(
+          const NoInstallReferrer(),
+        ),
+        workerReferralRedeemerProvider.overrideWithValue(
+          redeemer ?? _Redeemer(),
+        ),
       ],
       child: MaterialApp(
         theme: ManoTheme.light(),
@@ -554,6 +587,51 @@ void main() {
     expect(find.text(const DataUnavailable().message), findsOneWidget);
     expect(find.text('Ana Gómez'), findsOneWidget);
     expect(find.text('Tu cuenta está en revisión'), findsNothing);
+  });
+
+  group('a colleague\'s code', () {
+    testWidgets('from the invite link it shows on the review and is redeemed', (
+      tester,
+    ) async {
+      final links = _Links();
+      final redeemer = _Redeemer();
+      await _pump(tester, links: links, redeemer: redeemer);
+      links.controller.add(Uri.parse('https://manoapp.co/r/RP-bb2cde6b'));
+      await _reachReview(tester);
+
+      expect(find.text('Te invitó un colega'), findsOneWidget);
+      expect(find.text('RP-bb2cde6b'), findsOneWidget);
+      await _tapText(tester, 'Enviar a revisión');
+
+      expect(redeemer.redeemed.single.value, 'RP-bb2cde6b');
+      expect(find.text('Tu cuenta está en revisión'), findsOneWidget);
+    });
+
+    testWidgets('can be typed on the review', (tester) async {
+      final redeemer = _Redeemer();
+      await _pump(tester, redeemer: redeemer);
+      await _reachReview(tester);
+
+      await _tapText(tester, '¿Te invitó un colega? Escribe su código');
+      await tester.enterText(_field('Código'), 'nope');
+      await _tapText(tester, 'Guardar código');
+      expect(find.text('Revisa el código, se ve así: RP-1a2b3c4d.'), findsOne);
+
+      await tester.enterText(_field('Código'), 'rp-0123ABCD');
+      await _tapText(tester, 'Guardar código');
+      expect(find.text('RP-0123abcd'), findsOneWidget);
+
+      await _tapText(tester, 'Enviar a revisión');
+      expect(redeemer.redeemed.single.value, 'RP-0123abcd');
+    });
+
+    testWidgets('without one, nothing is redeemed', (tester) async {
+      final redeemer = _Redeemer();
+      await _pump(tester, redeemer: redeemer);
+      await _reachReview(tester);
+      await _tapText(tester, 'Enviar a revisión');
+      expect(redeemer.redeemed, isEmpty);
+    });
   });
 
   group('phone sign-in', () {

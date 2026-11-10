@@ -20,6 +20,25 @@ void main() {
     );
   });
 
+  test('invite links default to manoapp.co/r/<code>', () {
+    expect(
+      _config('http://gw/graphql').inviteLink('RP-bb2cde6b').toString(),
+      'https://manoapp.co/r/RP-bb2cde6b',
+    );
+  });
+
+  test('the invite link base can be replaced and the code is escaped', () {
+    const config = ManoConfig(
+      gatewayGraphQlUrl: 'http://gw/graphql',
+      appRole: ManoRole.provider,
+      inviteLinkBase: 'https://staging.manoapp.co/r/',
+    );
+    expect(
+      config.inviteLink('A B').toString(),
+      'https://staging.manoapp.co/r/A%20B',
+    );
+  });
+
   test('keeps the role this app signs people up as', () {
     expect(_config('http://gw/graphql').appRole, ManoRole.provider);
   });

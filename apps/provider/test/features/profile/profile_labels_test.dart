@@ -42,8 +42,25 @@ void main() {
     expect(chartLabels(month), ['12 oct']);
   });
 
-  test('referral progress reads "2 de 5 invitados"', () {
-    const reward = ReferralReward(invited: 2, goal: 5, coins: 10);
-    expect(referralProgressText(reward), '2 de 5 invitados');
+  test('referral counts read invited, then verified', () {
+    expect(referralCountText(2, 1), '2 colegas invitados · 1 verificado');
+    expect(referralCountText(1, 0), '1 colega invitado · 0 verificados');
+    expect(referralCountText(3, 2), '3 colegas invitados · 2 verificados');
+  });
+
+  test('the offer pays per verified colleague', () {
+    expect(
+      referralOfferText(10),
+      'Gana 10 Mano coins por cada colega verificado',
+    );
+  });
+
+  test('the share message carries the code and the link', () {
+    final message = referralMessage(
+      'RP-bb2cde6b',
+      Uri.parse('https://manoapp.co/r/RP-bb2cde6b'),
+    );
+    expect(message, contains('RP-bb2cde6b'));
+    expect(message, endsWith('https://manoapp.co/r/RP-bb2cde6b'));
   });
 }

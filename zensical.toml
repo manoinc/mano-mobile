@@ -49,6 +49,7 @@ nav = [
     "develop/job-payments.md",
     "develop/auth.md",
     "develop/profiles.md",
+    "develop/referrals.md",
     "develop/identity-verification.md",
     "develop/documentation.md",
   ] },

@@ -53,7 +53,7 @@ class ProviderProfileScreen extends ConsumerWidget {
   }
 }
 
-/// The invitation; the coin and progress only where a reward program runs.
+/// The invitation; the coin and the offer only where a reward program runs.
 class _ReferralCard extends StatelessWidget {
   const _ReferralCard({required this.program});
 
@@ -61,15 +61,16 @@ class _ReferralCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reward = program.reward;
+    final coins = program.coinsPerColleague;
     return ManoReferralCard(
       title: 'Invita a un colega',
-      subtitle: reward == null
+      subtitle: coins == null
           ? 'Comparte tu código\n${program.code}'
-          : 'y gana ${reward.coins} Mano coins',
-      coinLabel: reward == null ? null : '${reward.coins}',
-      progressLabel: reward == null ? null : referralProgressText(reward),
-      progress: reward?.progress,
+          : referralOfferText(coins),
+      coinLabel: coins == null ? null : '$coins',
+      detail: program.invited == 0
+          ? null
+          : referralCountText(program.invited, program.verified),
       onTap: () => showReferralSheet(context, program),
     );
   }

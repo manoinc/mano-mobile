@@ -40,7 +40,7 @@ read them on any `WorkerProfile`).
 | Field | In the app |
 |---|---|
 | `responseRatePct` | null live; the tile is hidden |
-| referral reward (`ReferralProgram.reward`: invited, goal, coins) | null live; the card shows the code only, no coin or progress |
+| referral counts and reward (`ReferralProgram.invited`, `.verified`, `.coinsPerColleague`) | 0 and null until the gateway serves them; the card then shows the code only. See [Referrals](referrals.md) |
 | `bio`, `yearsExperience`, `skills`, portfolio | kept in memory for the session (`localProviderDetailsProvider`), starting blank; hidden while blank |
 
 A screen hides what is not served rather than showing a mock number next to
@@ -63,6 +63,9 @@ field it was never given empty.
 Codes look like `RP-1a2b3c4d` and match exactly, case included, so
 `GatewayReferralLinker` only trims whitespace. The requester enters one from
 Perfil → "¿Tienes un código?"; an unknown code reads "Ese código no existe".
+
+That is the client saving a professional. Professionals inviting
+professionals, with links and coins, is [Referrals](referrals.md).
 
 ## Adapters
 

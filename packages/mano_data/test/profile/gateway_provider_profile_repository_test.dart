@@ -151,7 +151,7 @@ void main() {
     expect(stats.completionRatePct, isNull);
   });
 
-  test('the referral is the served code with no reward program', () async {
+  test('the referral is the served code; nothing counted, no reward', () async {
     final (:repo, local: _) = _setUp(
       (_) async => _data({
         'viewer': {'workerProfile': _worker()},
@@ -161,7 +161,47 @@ void main() {
     final referral = await repo.referral();
 
     expect(referral.code, 'RP-1a2b3c4d');
-    expect(referral.reward, isNull);
+    expect(referral.invited, 0);
+    expect(referral.verified, 0);
+    expect(referral.coinsPerColleague, isNull);
+  });
+
+  test(
+    'the referral counts colleagues and reads the coins per colleague',
+    () async {
+      final (:repo, local: _) = _setUp((r) async {
+        final query = _body(r)['query'] as String;
+        expect(query, contains('verifiedReferralsCount'));
+        expect(query, contains('referralReward { coinsPerColleague }'));
+        return _data({
+          'viewer': {
+            'workerProfile': {
+              ..._worker(),
+              'referralsCount': 3,
+              'verifiedReferralsCount': 2,
+            },
+          },
+          'referralReward': {'coinsPerColleague': 10},
+        });
+      });
+
+      final referral = await repo.referral();
+
+      expect(referral.invited, 3);
+      expect(referral.verified, 2);
+      expect(referral.coinsPerColleague, 10);
+    },
+  );
+
+  test('the profile query does not depend on the referral fields', () async {
+    final (:repo, local: _) = _setUp((r) async {
+      expect(_body(r)['query'], isNot(contains('referralsCount')));
+      return _data({
+        'viewer': {'workerProfile': _worker()},
+      });
+    });
+
+    await repo.stats();
   });
 
   test('reviews read the worker profile, newest first as served', () async {

@@ -53,26 +53,23 @@ final class ProviderStats {
       rate == null ? null : (rate * 100).round();
 }
 
-/// The code to share and, where a reward program runs, its progress.
+/// The code to share, who joined with it, and what each verified colleague earns.
 final class ReferralProgram {
-  const ReferralProgram({required this.code, this.reward});
-
-  final String code;
-  final ReferralReward? reward;
-}
-
-/// Invite-a-colleague progress towards a coin reward.
-final class ReferralReward {
-  const ReferralReward({
-    required this.invited,
-    required this.goal,
-    required this.coins,
+  const ReferralProgram({
+    required this.code,
+    this.invited = 0,
+    this.verified = 0,
+    this.coinsPerColleague,
   });
 
-  final int invited;
-  final int goal;
-  final int coins;
+  final String code;
 
-  double get progress => goal <= 0 ? 1 : (invited / goal).clamp(0.0, 1.0);
-  bool get completed => invited >= goal;
+  /// Colleagues who signed up with [code] (gateway `referralsCount`).
+  final int invited;
+
+  /// Of those, the ones whose identity is verified (`verifiedReferralsCount`).
+  final int verified;
+
+  /// Coins per verified colleague (`referralReward`); null where no reward runs.
+  final int? coinsPerColleague;
 }

@@ -124,6 +124,8 @@ final class MockProviderProfileRepository
   @override
   Future<ReferralProgram> referral() async => const ReferralProgram(
     code: 'ANDRES-M4N0',
-    reward: ReferralReward(invited: 2, goal: 5, coins: 10),
+    invited: 2,
+    verified: 1,
+    coinsPerColleague: 10,
   );
 }

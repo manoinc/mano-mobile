@@ -16,6 +16,10 @@ void main() {
         overrides: [
           offlineMarketplaceProvider.overrideWithValue(true),
           manoConfigProvider.overrideWithValue(testConfig),
+          inviteLinkSourceProvider.overrideWithValue(const NoInviteLinks()),
+          installReferrerSourceProvider.overrideWithValue(
+            const NoInstallReferrer(),
+          ),
           sessionRepositoryProvider.overrideWithValue(
             FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
           ),

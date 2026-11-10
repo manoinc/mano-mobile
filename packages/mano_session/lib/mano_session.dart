@@ -19,7 +19,9 @@ export 'package:mano_data/mano_data.dart'
         InMemoryPasswordlessAuth,
         InMemorySessionRepository,
         InMemorySocialAuth,
-        ManoConfig;
+        ManoConfig,
+        NoInstallReferrer,
+        NoInviteLinks;
 
 // The domain's vocabulary -- Session, AuthFailure and its cases,
 // AuthenticatedUser, ManoRole -- re-exported in full, unlike mano_data above.
@@ -54,6 +56,7 @@ export 'src/gateway_subscription_provider.dart';
 export 'src/home/greeting_name.dart';
 export 'src/home/home_sections.dart';
 export 'src/links/external_links.dart';
+export 'src/links/text_sharer.dart';
 export 'src/marketplace_providers.dart';
 export 'src/media/media_providers.dart';
 export 'src/media/photo_attachment.dart';
@@ -78,6 +81,8 @@ export 'src/projects/project_actions.dart';
 export 'src/projects/project_providers.dart';
 export 'src/projects/provider_categories.dart';
 export 'src/projects/quote_arrangement.dart';
+export 'src/referrals/invite_providers.dart';
+export 'src/referrals/referral_invite.dart';
 export 'src/projects/quote_copy.dart';
 export 'src/provider_onboarding/provider_onboarding_notifier.dart';
 export 'src/provider_onboarding/provider_profile_validation.dart';

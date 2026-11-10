@@ -29,7 +29,10 @@ void main() {
       (await container.read(providerStatsProvider.future)).rating,
       greaterThan(0),
     );
-    expect((await container.read(referralProvider.future)).reward?.coins, 10);
+    expect(
+      (await container.read(referralProvider.future)).coinsPerColleague,
+      10,
+    );
   });
 
   test('online, profiles, editing and referral codes go to the gateway', () {

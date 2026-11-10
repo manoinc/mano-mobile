@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/mano_theme.dart';
 import 'mano_press_scale.dart';
 
-/// An invitation to refer a colleague: a dark card, a coin and a progress bar when a reward runs.
+/// An invitation to refer a colleague: a dark card, a coin when a reward runs, and how it is going.
 ///
 /// The motif is shapes and icons only (overlapping circles plus a flame coin).
 class ManoReferralCard extends StatelessWidget {
@@ -12,8 +12,7 @@ class ManoReferralCard extends StatelessWidget {
     required this.subtitle,
     required this.onTap,
     this.coinLabel,
-    this.progressLabel,
-    this.progress,
+    this.detail,
     super.key,
   });
 
@@ -24,15 +23,13 @@ class ManoReferralCard extends StatelessWidget {
   final String? coinLabel;
   final VoidCallback onTap;
 
-  /// Shown with [progress] (0..1) when both are given.
-  final String? progressLabel;
-  final double? progress;
+  /// A line under the copy, e.g. "3 colegas invitados · 2 verificados".
+  final String? detail;
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final label = progressLabel;
-    final fraction = progress;
+    final line = detail;
 
     return ManoPressScale(
       enabled: true,
@@ -73,20 +70,10 @@ class ManoReferralCard extends StatelessWidget {
                     _Motif(coinLabel: coinLabel),
                   ],
                 ),
-                if (label != null && fraction != null) ...[
-                  const SizedBox(height: ManoSpacing.md),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(ManoRadius.pill),
-                    child: LinearProgressIndicator(
-                      value: fraction,
-                      minHeight: 6,
-                      color: ManoColors.flame,
-                      backgroundColor: ManoColors.muted,
-                    ),
-                  ),
-                  const SizedBox(height: ManoSpacing.xs),
+                if (line != null) ...[
+                  const SizedBox(height: ManoSpacing.sm),
                   Text(
-                    label,
+                    line,
                     style: text.bodySmall?.copyWith(color: ManoColors.faint),
                   ),
                 ],

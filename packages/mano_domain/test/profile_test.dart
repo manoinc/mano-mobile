@@ -25,22 +25,12 @@ void main() {
     });
   });
 
-  group('ReferralReward', () {
-    test('progress is capped at the goal', () {
-      const reward = ReferralReward(invited: 7, goal: 5, coins: 10);
-      expect(reward.progress, 1.0);
-      expect(reward.completed, isTrue);
-    });
-
-    test('progress is the share invited', () {
-      const reward = ReferralReward(invited: 2, goal: 5, coins: 10);
-      expect(reward.progress, closeTo(0.4, 1e-9));
-      expect(reward.completed, isFalse);
-    });
-
-    test('a program without a reward only carries its code', () {
-      const program = ReferralProgram(code: 'MANO-1');
-      expect(program.reward, isNull);
+  group('ReferralProgram', () {
+    test('a fresh program has the code and no colleagues yet', () {
+      const program = ReferralProgram(code: 'RP-1a2b3c4d');
+      expect(program.invited, 0);
+      expect(program.verified, 0);
+      expect(program.coinsPerColleague, isNull);
     });
   });
 

@@ -32,6 +32,13 @@ final class GatewayProviderProfileRepository
   static const _query =
       'query WorkerProfile { viewer { workerProfile { $_fields } } }';
 
+  // Its own query, so a gateway without these fields only loses the referral card.
+  static const _referral = '''
+query WorkerReferral {
+  viewer { workerProfile { referralCode referralsCount verifiedReferralsCount } }
+  referralReward { coinsPerColleague }
+}''';
+
   static const _reviews =
       '''
 query WorkerReviews { viewer { workerProfile {
@@ -62,8 +69,19 @@ mutation UpdateWorkerProfile(\$input: UpdateWorkerProfileInput!) {
   }
 
   @override
-  Future<ReferralProgram> referral() async =>
-      ReferralProgram(code: (await _worker())['referralCode'] as String? ?? '');
+  Future<ReferralProgram> referral() async {
+    final data = await _transport.run(_referral);
+    final viewer = data['viewer'] as Map<String, dynamic>;
+    final json =
+        viewer['workerProfile'] as Map<String, dynamic>? ?? await _worker();
+    final reward = data['referralReward'] as Map<String, dynamic>?;
+    return ReferralProgram(
+      code: json['referralCode'] as String? ?? '',
+      invited: json['referralsCount'] as int? ?? 0,
+      verified: json['verifiedReferralsCount'] as int? ?? 0,
+      coinsPerColleague: reward?['coinsPerColleague'] as int?,
+    );
+  }
 
   @override
   Future<List<Review>> reviews() async {

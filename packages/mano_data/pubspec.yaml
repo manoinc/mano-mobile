@@ -38,6 +38,10 @@ dependencies:
   web_socket_channel: ^3.0.3
   google_sign_in: ^7.2.0
   sign_in_with_apple: ^8.2.0
+  # Invite links (https://manoapp.co/r/<code>) that open the provider app.
+  app_links: ^7.2.2
+  # Android only: the invite code a Play install carried (referrer=ref%3D<code>).
+  play_install_referrer: ^0.6.0
 
 dev_dependencies:
   flutter_test:
