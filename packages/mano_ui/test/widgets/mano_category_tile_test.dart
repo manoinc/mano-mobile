@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_ui/mano_ui.dart';
 
@@ -54,6 +55,56 @@ void main() {
       final text = tester.widget<Text>(find.byType(Text));
       expect(text.maxLines, 3);
       expect(text.overflow, TextOverflow.ellipsis);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the label is smaller than a title, Taskrabbit-style', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _host(ManoCategoryTile(image: _photo, label: 'Limpieza', onTap: () {})),
+      );
+
+      final style = tester.widget<Text>(find.text('Limpieza')).style!;
+      expect(
+        style.fontSize,
+        lessThan(ManoTheme.light().textTheme.titleSmall!.fontSize!),
+      );
+    });
+
+    testWidgets('a word too long for the tile shrinks instead of breaking', (
+      tester,
+    ) async {
+      const word = 'Electrodomésticos';
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ManoTheme.light(),
+          home: Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: 150,
+                child: ManoCategoryTile(
+                  image: _photo,
+                  label: word,
+                  onTap: () {},
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final paragraph = tester.renderObject<RenderParagraph>(
+        find.descendant(of: find.text(word), matching: find.byType(RichText)),
+      );
+      final lines = paragraph
+          .getBoxesForSelection(
+            const TextSelection(baseOffset: 0, extentOffset: word.length),
+          )
+          .map((box) => box.top)
+          .toSet();
+      expect(lines, hasLength(1));
+      expect(paragraph.didExceedMaxLines, isFalse);
       expect(tester.takeException(), isNull);
     });
 

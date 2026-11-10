@@ -36,12 +36,19 @@ class ManoCategoryTile extends StatelessWidget {
                 ),
                 const SizedBox(width: ManoSpacing.sm),
                 Expanded(
-                  child: Text(
-                    label,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall
-                        ?.copyWith(color: ManoColors.ink),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) => Text(
+                      label,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: _fitLongestWord(
+                        label,
+                        Theme.of(context).textTheme.labelMedium!
+                            .copyWith(color: ManoColors.ink),
+                        constraints.maxWidth,
+                        MediaQuery.textScalerOf(context),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -51,4 +58,26 @@ class ManoCategoryTile extends StatelessWidget {
       ),
     );
   }
+}
+
+/// [style], shrunk just enough that the longest word of [text] fits [width] unbroken.
+TextStyle _fitLongestWord(
+  String text,
+  TextStyle style,
+  double width,
+  TextScaler scaler,
+) {
+  var widest = 0.0;
+  for (final word in text.split(RegExp(r'\s+'))) {
+    final painter = TextPainter(
+      text: TextSpan(text: word, style: style),
+      textDirection: TextDirection.ltr,
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    if (painter.width > widest) widest = painter.width;
+    painter.dispose();
+  }
+  if (widest <= width || width <= 0) return style;
+  return style.copyWith(fontSize: style.fontSize! * width / widest * 0.98);
 }
