@@ -35,6 +35,7 @@ Future<void> _pump(
   SessionRepository? session,
   MediaPicker? picker,
   VoidCallback? onFinished,
+  VoidCallback? onVerifyIdentity,
   PasswordlessAuth? phone,
   SocialAuth? social,
 }) async {
@@ -57,7 +58,10 @@ Future<void> _pump(
       ],
       child: MaterialApp(
         theme: ManoTheme.light(),
-        home: ProfessionalOnboardingScreen(onFinished: onFinished ?? () {}),
+        home: ProfessionalOnboardingScreen(
+          onFinished: onFinished ?? () {},
+          onVerifyIdentity: onVerifyIdentity ?? () {},
+        ),
       ),
     ),
   );
@@ -107,6 +111,22 @@ Future<void> _toName(WidgetTester tester) async {
 /// Answers every question up to the bio, leaving the bio on screen.
 Future<void> _answerUpToBio(WidgetTester tester) async {
   await _toName(tester);
+  await _answerFromName(tester);
+}
+
+/// Sends the three identity photos and leaves the pending check.
+Future<void> _sendIdentity(WidgetTester tester) async {
+  await _tapText(tester, 'Continuar');
+  await _shoot(tester);
+  await _tapText(tester, 'Continuar');
+  await _shoot(tester);
+  await _shoot(tester);
+  await _tapText(tester, 'Enviar');
+  await _tapText(tester, 'Continuar');
+}
+
+/// From the name question up to the bio.
+Future<void> _answerFromName(WidgetTester tester) async {
   await _answer(tester, 'Nombre completo', 'Ana Gómez');
   await _answer(tester, 'Celular', '300 123 4567');
   await _answer(tester, 'Zona de cobertura', 'Chapinero');
@@ -435,7 +455,11 @@ void main() {
       onboarding: onboarding,
       onFinished: () => finished = true,
     );
-    await _reachReview(tester);
+    await _createAccount(tester);
+    await _sendIdentity(tester);
+    await _answerFromName(tester);
+    await _answer(tester, 'Descripción', 'Plomera con 5 años.');
+    await _tapText(tester, 'Continuar');
 
     expect(find.text('Chapinero'), findsOneWidget);
     expect(find.text('Plomería, Electricidad'), findsOneWidget);
@@ -447,6 +471,28 @@ void main() {
     expect(draft.yearsExperience, 5);
     expect(draft.bio, 'Plomera con 5 años.');
     expect(find.text('Tu cuenta está en revisión'), findsOneWidget);
+    await _tapText(tester, 'Explorar la app');
+    expect(finished, isTrue);
+  });
+
+  testWidgets('with the identity check put off, pending says so', (
+    tester,
+  ) async {
+    var verify = 0;
+    var finished = false;
+    await _pump(
+      tester,
+      onVerifyIdentity: () => verify++,
+      onFinished: () => finished = true,
+    );
+    await _reachReview(tester);
+    await _tapText(tester, 'Enviar a revisión');
+
+    expect(find.text('Tu cuenta está en revisión'), findsNothing);
+    expect(find.text('Falta verificar tu identidad'), findsOneWidget);
+    await _tapText(tester, 'Verificar mi identidad');
+    expect(verify, 1);
+
     await _tapText(tester, 'Explorar la app');
     expect(finished, isTrue);
   });
