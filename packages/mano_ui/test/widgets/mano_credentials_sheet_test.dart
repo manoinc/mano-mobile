@@ -21,6 +21,41 @@ Future<void> pumpSheet(
 );
 
 void main() {
+  testWidgets('the email alternative is an outlined button with a mail icon', (
+    tester,
+  ) async {
+    var created = false;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ManoTheme.light(),
+        home: Scaffold(
+          body: ManoCredentialsSheet(
+            title: 'Inicia sesión',
+            submitLabel: 'Entrar',
+            onSubmit: (_, _) async => null,
+            secondaryLabel: 'Crear cuenta con correo',
+            onSecondary: () => created = true,
+          ),
+        ),
+      ),
+    );
+
+    final button = find.widgetWithText(
+      ManoOutlineButton,
+      'Crear cuenta con correo',
+    );
+    expect(button, findsOneWidget);
+    expect(
+      find.descendant(
+        of: button,
+        matching: find.byIcon(Icons.mail_outline_rounded),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(button);
+    expect(created, isTrue);
+  });
+
   testWidgets('submits the typed email and password', (tester) async {
     String? email;
     String? password;
@@ -33,8 +68,14 @@ void main() {
       },
     );
 
-    await tester.enterText(find.byKey(const Key('mano-credentials-email')), 'ana@mano.co');
-    await tester.enterText(find.byKey(const Key('mano-credentials-password')), 'secret');
+    await tester.enterText(
+      find.byKey(const Key('mano-credentials-email')),
+      'ana@mano.co',
+    );
+    await tester.enterText(
+      find.byKey(const Key('mano-credentials-password')),
+      'secret',
+    );
     await tester.pump();
     await tester.tap(find.text('Entrar'));
     await tester.pump();
@@ -57,12 +98,18 @@ void main() {
 
   testWidgets('cannot submit until both fields are filled', (tester) async {
     var calls = 0;
-    await pumpSheet(tester, onSubmit: (_, _) async {
-      calls++;
-      return null;
-    });
+    await pumpSheet(
+      tester,
+      onSubmit: (_, _) async {
+        calls++;
+        return null;
+      },
+    );
 
-    await tester.enterText(find.byKey(const Key('mano-credentials-email')), 'ana@mano.co');
+    await tester.enterText(
+      find.byKey(const Key('mano-credentials-email')),
+      'ana@mano.co',
+    );
     await tester.pump();
     await tester.tap(find.text('Entrar'));
     await tester.pump();
@@ -74,8 +121,14 @@ void main() {
     final answer = Completer<String?>();
     await pumpSheet(tester, onSubmit: (_, _) => answer.future);
 
-    await tester.enterText(find.byKey(const Key('mano-credentials-email')), 'ana@mano.co');
-    await tester.enterText(find.byKey(const Key('mano-credentials-password')), 'nope');
+    await tester.enterText(
+      find.byKey(const Key('mano-credentials-email')),
+      'ana@mano.co',
+    );
+    await tester.enterText(
+      find.byKey(const Key('mano-credentials-password')),
+      'nope',
+    );
     await tester.pump();
     await tester.tap(find.text('Entrar'));
     await tester.pump();

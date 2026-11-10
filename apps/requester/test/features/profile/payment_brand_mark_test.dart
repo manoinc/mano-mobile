@@ -16,27 +16,32 @@ Future<void> _pump(WidgetTester tester, PaymentMethod method) =>
     );
 
 void main() {
-  testWidgets('Mastercard is two overlapping circles', (tester) async {
-    await _pump(tester, _method(PaymentKind.card, 'Mastercard'));
+  // The asset each method shows, by its path.
+  String? assetOf(WidgetTester tester) {
+    final images = tester.widgetList<Image>(find.byType(Image));
+    if (images.isEmpty) return null;
+    return (images.single.image as AssetImage).assetName;
+  }
 
-    expect(find.byKey(const Key('mark-mastercard')), findsOneWidget);
+  testWidgets('Mastercard, Visa, Nequi and PSE show their real logos', (
+    tester,
+  ) async {
+    for (final (kind, label, asset) in [
+      (PaymentKind.card, 'Mastercard', 'assets/payments/mastercard.png'),
+      (PaymentKind.card, 'Visa', 'assets/payments/visa.png'),
+      (PaymentKind.nequi, 'Nequi', 'assets/payments/nequi.png'),
+      (PaymentKind.pse, 'PSE', 'assets/payments/pse.png'),
+    ]) {
+      await _pump(tester, _method(kind, label));
+      expect(assetOf(tester), asset, reason: label);
+    }
   });
 
-  testWidgets('Visa is its wordmark', (tester) async {
-    await _pump(tester, _method(PaymentKind.card, 'Visa'));
-
-    expect(find.text('VISA'), findsOneWidget);
-  });
-
-  testWidgets('other cards, Nequi and PSE take an icon', (tester) async {
+  testWidgets('a card without a logo takes the card icon', (tester) async {
     await _pump(tester, _method(PaymentKind.card, 'Amex'));
+
     expect(find.byIcon(Icons.credit_card), findsOneWidget);
-
-    await _pump(tester, _method(PaymentKind.nequi, 'Nequi'));
-    expect(find.byIcon(Icons.account_balance_wallet_outlined), findsOneWidget);
-
-    await _pump(tester, _method(PaymentKind.pse, 'PSE'));
-    expect(find.byIcon(Icons.account_balance_outlined), findsOneWidget);
+    expect(assetOf(tester), isNull);
   });
 
   testWidgets('every mark takes the same width so titles line up', (

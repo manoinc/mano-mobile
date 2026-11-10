@@ -604,7 +604,8 @@ void main() {
       await _tapText(tester, 'Enviar a revisión');
 
       expect(redeemer.redeemed.single.value, 'RP-bb2cde6b');
-      expect(find.text('Tu cuenta está en revisión'), findsOneWidget);
+      // The identity check was put off, so the pending screen asks for it.
+      expect(find.text('Verificar mi identidad'), findsOneWidget);
     });
 
     testWidgets('can be typed on the review', (tester) async {

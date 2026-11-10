@@ -39,12 +39,17 @@ class PayoutSummary extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      destination is NequiDestination
-                          ? Icons.phone_iphone
-                          : Icons.account_balance_outlined,
-                      color: ManoColors.clay,
-                    ),
+                    switch (payoutLogoAsset(destination, banks)) {
+                      final String asset => SizedBox(
+                        width: 48,
+                        height: 24,
+                        child: Image.asset(asset, fit: BoxFit.contain),
+                      ),
+                      null => const Icon(
+                        Icons.account_balance_outlined,
+                        color: ManoColors.clay,
+                      ),
+                    },
                     const SizedBox(width: ManoSpacing.md),
                     Expanded(
                       child: Column(

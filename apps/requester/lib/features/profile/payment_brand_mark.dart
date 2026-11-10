@@ -1,67 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:mano_session/mano_session.dart';
-import 'package:mano_ui/mano_ui.dart';
 
-// Brand stand-ins drawn from tokens until licensed marks ship as assets.
+/// The logo asset for a method, or null when it has none.
+String? paymentLogoAsset(PaymentKind kind, String label) =>
+    switch ((kind, label)) {
+      (PaymentKind.card, 'Mastercard') => 'assets/payments/mastercard.png',
+      (PaymentKind.card, 'Visa') => 'assets/payments/visa.png',
+      (PaymentKind.card, _) => null,
+      (PaymentKind.nequi, _) => 'assets/payments/nequi.png',
+      (PaymentKind.pse, _) => 'assets/payments/pse.png',
+    };
 
-/// A saved method's mark, one fixed width so the row titles line up.
+/// A method's logo in one fixed box, so the row titles line up.
 class PaymentBrandMark extends StatelessWidget {
   const PaymentBrandMark(this.method, {super.key});
 
   final PaymentMethod method;
 
-  static const double _width = 40;
+  @override
+  Widget build(BuildContext context) =>
+      PaymentLogo(asset: paymentLogoAsset(method.kind, method.label));
+}
+
+/// [asset] fitted into the shared logo box; the card icon when null.
+class PaymentLogo extends StatelessWidget {
+  const PaymentLogo({required this.asset, super.key});
+
+  final String? asset;
+
+  static const double _width = 48;
+  static const double _height = 24;
 
   @override
   Widget build(BuildContext context) => SizedBox(
     width: _width,
+    height: _height,
     child: Align(
       alignment: AlignmentDirectional.centerStart,
-      child: switch ((method.kind, method.label)) {
-        (PaymentKind.card, 'Mastercard') => const _TwoCircles(
-          key: Key('mark-mastercard'),
-        ),
-        (PaymentKind.card, 'Visa') => Text(
-          'VISA',
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontStyle: FontStyle.italic,
-            fontWeight: FontWeight.w800,
-            color: ManoColors.ink,
-          ),
-        ),
-        (PaymentKind.card, _) => const Icon(Icons.credit_card),
-        (PaymentKind.nequi, _) => const Icon(
-          Icons.account_balance_wallet_outlined,
-        ),
-        (PaymentKind.pse, _) => const Icon(Icons.account_balance_outlined),
-      },
+      child: asset == null
+          ? const Icon(Icons.credit_card)
+          : Image.asset(asset!, fit: BoxFit.contain),
     ),
-  );
-}
-
-class _TwoCircles extends StatelessWidget {
-  const _TwoCircles({super.key});
-
-  static const double _size = 20;
-
-  @override
-  Widget build(BuildContext context) => SizedBox(
-    width: _size * 1.6,
-    height: _size,
-    child: Stack(
-      children: [
-        _circle(ManoColors.flame),
-        Positioned(
-          left: _size * 0.6,
-          child: _circle(ManoColors.clay.withValues(alpha: 0.85)),
-        ),
-      ],
-    ),
-  );
-
-  Widget _circle(Color color) => Container(
-    width: _size,
-    height: _size,
-    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
   );
 }

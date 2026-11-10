@@ -50,6 +50,24 @@ void main() {
   });
 
   group('the outline action', () {
+    testWidgets('an icon leads the label', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          ManoOutlineButton(
+            label: 'Continuar con correo',
+            icon: Icons.mail_outline_rounded,
+            onPressed: () {},
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.mail_outline_rounded), findsOneWidget);
+      expect(
+        tester.getCenter(find.byIcon(Icons.mail_outline_rounded)).dx,
+        lessThan(tester.getCenter(find.text('Continuar con correo')).dx),
+      );
+    });
+
     testWidgets('the flame tone draws border and label in the primary', (
       tester,
     ) async {

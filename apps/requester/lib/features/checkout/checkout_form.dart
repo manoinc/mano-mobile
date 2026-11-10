@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../profile/payment_brand_mark.dart';
 import 'checkout_labels.dart';
 import 'checkout_pse_fields.dart';
 
@@ -50,7 +51,7 @@ class CheckoutForm extends ConsumerWidget {
         Text('Método de pago', style: heading),
         const SizedBox(height: ManoSpacing.md),
         ManoMethodOption(
-          leading: const Icon(Icons.phone_iphone),
+          leading: const PaymentLogo(asset: 'assets/payments/nequi.png'),
           title: 'Nequi',
           detail: 'Apruebas el pago en tu celular',
           selected: draft.method == JobPaymentMethod.nequi,
@@ -58,7 +59,7 @@ class CheckoutForm extends ConsumerWidget {
         ),
         const SizedBox(height: ManoSpacing.sm),
         ManoMethodOption(
-          leading: const Icon(Icons.account_balance_outlined),
+          leading: const PaymentLogo(asset: 'assets/payments/pse.png'),
           title: 'PSE',
           detail: 'Pagas desde tu banco',
           selected: draft.method == JobPaymentMethod.pse,
@@ -66,7 +67,7 @@ class CheckoutForm extends ConsumerWidget {
         ),
         const SizedBox(height: ManoSpacing.sm),
         const ManoMethodOption(
-          leading: Icon(Icons.credit_card),
+          leading: PaymentLogo(asset: null),
           title: 'Tarjeta',
           tag: 'Próximamente',
           selected: false,

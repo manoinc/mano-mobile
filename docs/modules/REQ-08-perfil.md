@@ -72,8 +72,11 @@ full number never leaves the form. When billing lands, cards will be
 PSE has a `PaymentKind` for display but no add flow: it is a per-payment bank
 redirect, not a saved method. Offline the mock starts with
 `demoPaymentMethods` (a Mastercard and a Nequi) so the list is never blank.
-Brand marks (`PaymentBrandMark`) are token-drawn stand-ins in the app, not
-`mano_ui`, until licensed logos ship as assets.
+Brand marks (`PaymentBrandMark`, `PaymentLogo`) are the real Mastercard, Visa,
+Nequi and PSE logos, PNG assets in `apps/requester/assets/payments/` (rendered
+from the SVGs at 96 px tall). Checkout's Nequi and PSE options use the same
+logos; other cards fall back to the card icon. The provider app shows the Nequi
+and Bancolombia logos on its payout account (`payoutLogoAsset`).
 
 ## Historial de pedidos
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../brand/mano_loader.dart';
+import '../theme/mano_theme.dart';
 import 'mano_press_scale.dart';
 
 /// Which ink an outline action takes.
@@ -16,6 +17,7 @@ class ManoOutlineButton extends StatelessWidget {
     required this.onPressed,
     this.busy = false,
     this.tone = ManoOutlineTone.ink,
+    this.icon,
     super.key,
   });
 
@@ -28,6 +30,9 @@ class ManoOutlineButton extends StatelessWidget {
 
   /// [ManoOutlineTone.flame] pairs with a flame primary, e.g. sign in beside sign up.
   final ManoOutlineTone tone;
+
+  /// Leads the label, e.g. a mail icon for "Continuar con correo".
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +54,18 @@ class ManoOutlineButton extends StatelessWidget {
           textStyle: theme.textTheme.labelLarge,
           side: BorderSide(color: foreground, width: 1.5),
         ),
-        child: busy ? ManoLoader.small(color: foreground) : Text(label),
+        child: busy
+            ? ManoLoader.small(color: foreground)
+            : icon == null
+            ? Text(label)
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 20),
+                  const SizedBox(width: ManoSpacing.sm),
+                  Flexible(child: Text(label)),
+                ],
+              ),
       ),
     );
   }

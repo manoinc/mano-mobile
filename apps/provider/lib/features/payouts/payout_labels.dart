@@ -60,3 +60,13 @@ String? legalIdError(PayoutAccountDraft draft) =>
         draft.problems.contains(PayoutAccountProblem.invalidLegalId)
     ? 'Revisa el número de documento.'
     : null;
+
+/// The logo asset for where payouts go, or null for banks without one.
+String? payoutLogoAsset(PayoutDestination destination, List<Bank> banks) =>
+    switch (destination) {
+      NequiDestination() => 'assets/payments/nequi.png',
+      BankDestination() => switch (destinationTitle(destination, banks)) {
+        'Bancolombia' => 'assets/payments/bancolombia.png',
+        _ => null,
+      },
+    };

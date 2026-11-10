@@ -17,7 +17,7 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | Component | Use it for |
 |---|---|
 | `ManoPrimaryButton` | The one flame action on a screen. Full width, supports `busy`. `tone: ink` fills it with ink for a main action that is not the hot one, as "Agregar método de pago". |
-| `ManoOutlineButton` | A strong secondary action (ink outline). `tone: flame` pairs it with a flame primary. |
+| `ManoOutlineButton` | A strong secondary action (ink outline). `tone: flame` pairs it with a flame primary; an optional leading `icon` (the mail icon on "Crear cuenta con correo"). |
 | `ManoWelcomeActions` | The welcome's two equal flame pills side by side ("Iniciar sesión", "Registrarse"), with a full-width slot below for the platform button. The one-flame rule's only exception, see [Colour](../brand/colour.md). |
 | `ManoQuietButton` | A low-emphasis action in clay text. |
 | `ManoTextAction` | An inline link-like action ("Iniciar sesión", "Agendar"). |

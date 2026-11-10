@@ -39,6 +39,13 @@ WidgetbookCategory actions() => WidgetbookCategory(
           onPressed: noop,
         ),
       ),
+      'With icon': (context) => _padded(
+        ManoOutlineButton(
+          label: 'Crear cuenta con correo',
+          icon: Icons.mail_outline_rounded,
+          onPressed: noop,
+        ),
+      ),
       'Flame': (context) => _padded(
         ManoOutlineButton(
           label: 'Iniciar sesión',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mano_requester/features/profile/payment_brand_mark.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
@@ -80,6 +81,14 @@ void main() {
       isNull,
     );
     expect(find.text('Próximamente'), findsOneWidget);
+    // Nequi and PSE show their own logos.
+    final logos = tester
+        .widgetList<PaymentLogo>(find.byType(PaymentLogo))
+        .map((logo) => logo.asset);
+    expect(
+      logos,
+      containsAll(['assets/payments/nequi.png', 'assets/payments/pse.png']),
+    );
     expect(_payButton(tester).label, r'Pagar $120.000');
     expect(_payButton(tester).onPressed, isNull);
   });

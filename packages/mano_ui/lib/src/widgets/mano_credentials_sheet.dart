@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/mano_theme.dart';
 import 'mano_primary_button.dart';
-import 'mano_text_action.dart';
+import 'mano_outline_button.dart';
 import 'mano_text_field.dart';
 
 /// Email and password in a sheet; the caller signs in and closes it on success.
@@ -127,11 +127,10 @@ class _ManoCredentialsSheetState extends State<ManoCredentialsSheet> {
               ),
               if (widget.secondaryLabel case final label?) ...[
                 const SizedBox(height: ManoSpacing.sm),
-                Center(
-                  child: ManoTextAction(
-                    label: label,
-                    onPressed: _busy ? null : widget.onSecondary,
-                  ),
+                ManoOutlineButton(
+                  label: label,
+                  icon: Icons.mail_outline_rounded,
+                  onPressed: _busy ? null : widget.onSecondary,
                 ),
               ],
             ],
