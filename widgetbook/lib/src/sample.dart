@@ -33,3 +33,16 @@ const sampleCaptureTips = [
     emphasis: 'Evita reflejos',
   ),
 ];
+
+/// The sign-in's countries, as the apps map them from the domain.
+const sampleCountries = [
+  ManoCountryOption(code: 'CO', flag: '🇨🇴', name: 'Colombia', dialCode: '+57'),
+  ManoCountryOption(code: 'MX', flag: '🇲🇽', name: 'México', dialCode: '+52'),
+  ManoCountryOption(code: 'PE', flag: '🇵🇪', name: 'Perú', dialCode: '+51'),
+  ManoCountryOption(code: 'EC', flag: '🇪🇨', name: 'Ecuador', dialCode: '+593'),
+  ManoCountryOption(code: 'CL', flag: '🇨🇱', name: 'Chile', dialCode: '+56'),
+  ManoCountryOption(code: 'AR', flag: '🇦🇷', name: 'Argentina', dialCode: '+54'),
+  ManoCountryOption(code: 'VE', flag: '🇻🇪', name: 'Venezuela', dialCode: '+58'),
+  ManoCountryOption(code: 'US', flag: '🇺🇸', name: 'Estados Unidos', dialCode: '+1'),
+  ManoCountryOption(code: 'ES', flag: '🇪🇸', name: 'España', dialCode: '+34'),
+];

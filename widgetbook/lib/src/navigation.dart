@@ -39,11 +39,20 @@ WidgetbookCategory navigation() => WidgetbookCategory(
     component('ManoHeroScaffold', {
       'Default': (context) => ManoHeroScaffold(
         headline: context.knobs.string(label: 'Headline', initialValue: 'Tu oficio, más cerca de tus clientes.'),
-        primaryLabel: 'Crear cuenta profesional',
-        onPrimary: noop,
-        secondaryLabel: 'Ya tengo cuenta',
-        onSecondary: noop,
-        busy: context.knobs.boolean(label: 'Busy'),
+        actions: ManoWelcomeActions(
+          firstLabel: 'Iniciar sesión',
+          onFirst: noop,
+          secondLabel: 'Crear cuenta',
+          onSecond: noop,
+          busy: context.knobs.boolean(label: 'Busy'),
+          below: const ManoPlatformSignInButton(
+            googleMark: Icon(Icons.g_mobiledata, size: 28),
+            appleMark: Icon(Icons.apple, size: 22),
+            onGoogle: noop,
+            onApple: noop,
+          ),
+        ),
+        footnote: 'Verificamos tu identidad antes de que publiques servicios.',
       ),
     }),
     component('ManoStepScaffold', {

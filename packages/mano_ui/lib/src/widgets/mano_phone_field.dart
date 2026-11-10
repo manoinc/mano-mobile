@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
 import '../theme/mano_theme.dart';
+import 'mano_labelled_field.dart';
 
-/// A fixed country pill above a phone-number pill, Airbnb's layout in Mano's stadium shapes.
+/// A labelled country select above a labelled phone box, Wise's layout.
 class ManoPhoneField extends StatelessWidget {
   const ManoPhoneField({
     required this.controller,
     this.countryLabel = 'País o región',
     this.country = 'Colombia (+57)',
+    this.countryFlag,
+    this.onCountryTap,
     this.label = 'Número de celular',
     this.helperText,
     this.errorText,
@@ -21,7 +24,15 @@ class ManoPhoneField extends StatelessWidget {
 
   final TextEditingController controller;
   final String countryLabel;
+
+  /// Name and dial code, e.g. `Colombia (+57)`.
   final String country;
+
+  /// A flag emoji before the country.
+  final String? countryFlag;
+
+  /// Opens the country picker; `null` keeps the select still.
+  final VoidCallback? onCountryTap;
   final String label;
 
   /// Replaced by [errorText] while set.
@@ -35,44 +46,23 @@ class ManoPhoneField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final note = errorText ?? helperText;
-
-    OutlineInputBorder pill(Color color, double width) => OutlineInputBorder(
-      borderRadius: BorderRadius.circular(ManoRadius.pill),
-      borderSide: BorderSide(color: color, width: width),
-    );
-
+    final flag = countryFlag;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: ManoSpacing.lg,
-            vertical: ManoSpacing.sm,
-          ),
-          decoration: ShapeDecoration(
-            shape: StadiumBorder(
-              side: BorderSide(color: scheme.outlineVariant),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                countryLabel,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: ManoColors.faint,
-                ),
-              ),
-              Text(country, style: theme.textTheme.titleMedium),
-            ],
-          ),
+        ManoLabelledField.select(
+          label: countryLabel,
+          value: country,
+          leading: flag == null
+              ? null
+              : Text(flag, style: Theme.of(context).textTheme.titleMedium),
+          onTap: onCountryTap,
+          enabled: enabled && onCountryTap != null,
         ),
-        const SizedBox(height: ManoSpacing.sm),
-        TextField(
+        const SizedBox(height: ManoSpacing.md),
+        ManoLabelledField(
+          label: label,
           controller: controller,
           focusNode: focusNode,
           autofocus: autofocus,
@@ -82,41 +72,9 @@ class ManoPhoneField extends StatelessWidget {
           keyboardType: TextInputType.phone,
           textInputAction: TextInputAction.done,
           autofillHints: const [AutofillHints.telephoneNumberNational],
-          style: theme.textTheme.titleMedium,
-          cursorColor: ManoColors.flame,
-          decoration: InputDecoration(
-            hintText: label,
-            hintStyle: theme.textTheme.titleMedium?.copyWith(
-              color: ManoColors.faint,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: ManoSpacing.lg,
-              vertical: ManoSpacing.md,
-            ),
-            border: pill(scheme.outlineVariant, 1),
-            enabledBorder: pill(
-              errorText == null ? scheme.outlineVariant : scheme.error,
-              1,
-            ),
-            focusedBorder: pill(
-              errorText == null ? ManoColors.flame : scheme.error,
-              2,
-            ),
-            disabledBorder: pill(scheme.outlineVariant, 1),
-          ),
+          helperText: helperText,
+          errorText: errorText,
         ),
-        if (note != null) ...[
-          const SizedBox(height: ManoSpacing.sm),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: ManoSpacing.md),
-            child: Text(
-              note,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: errorText == null ? ManoColors.faint : scheme.error,
-              ),
-            ),
-          ),
-        ],
       ],
     );
   }

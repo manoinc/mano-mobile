@@ -4,29 +4,46 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../onboarding_copy.dart';
+import '../widgets/google_mark.dart';
 
-/// The front door: create a professional account or sign in to one.
-class WelcomeStep extends ConsumerStatefulWidget {
+/// The front door: both ways in go to the phone screen; Google or Apple below.
+class WelcomeStep extends ConsumerWidget {
   const WelcomeStep({super.key});
 
   @override
-  ConsumerState<WelcomeStep> createState() => _WelcomeStepState();
-}
-
-class _WelcomeStepState extends ConsumerState<WelcomeStep> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final onboarding = ref.read(providerOnboardingProvider.notifier);
+    final busy = ref.watch(phoneSignInProvider.select((s) => s.busy));
     final failure = switch (ref.watch(sessionProvider).value) {
       SignedOut(:final lastFailure) => lastFailure,
       _ => null,
     };
 
+    // A failure is shown on the phone screen, which keeps the same sign-in state.
+    Future<void> platform(SocialProvider provider) async {
+      final phone = ref.read(phoneSignInProvider.notifier);
+      final session = await phone.signInWith(provider);
+      if (session != null) return onboarding.enter(session);
+      if (ref.read(phoneSignInProvider).failure != null) {
+        onboarding.startWithPhone();
+      }
+    }
+
     return ManoHeroScaffold(
       headline: 'Tu oficio, más cerca de tus clientes.',
-      primaryLabel: 'Crear cuenta profesional',
-      onPrimary: ref.read(providerOnboardingProvider.notifier).start,
-      secondaryLabel: 'Ya tengo cuenta',
-      onSecondary: ref.read(providerOnboardingProvider.notifier).startWithPhone,
+      actions: ManoWelcomeActions(
+        firstLabel: 'Iniciar sesión',
+        onFirst: onboarding.startWithPhone,
+        secondLabel: 'Crear cuenta',
+        onSecond: onboarding.startWithPhone,
+        busy: busy,
+        below: ManoPlatformSignInButton(
+          googleMark: const GoogleMark(),
+          appleMark: const Icon(Icons.apple, size: 22),
+          onGoogle: busy ? null : () => platform(SocialProvider.google),
+          onApple: busy ? null : () => platform(SocialProvider.apple),
+        ),
+      ),
       footnote:
           'Con Mano Profesionales recibes solicitudes de hogares en tu zona. '
           'Verificamos tu identidad antes de que publiques servicios.',

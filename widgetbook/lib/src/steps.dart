@@ -114,6 +114,14 @@ WidgetbookCategory steps() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoPhoneSignInScreen', {
+      'Phone': (context) => _screen(context),
+      'Phone, error': (context) => _screen(
+        context,
+        phoneError: 'Escribe un celular colombiano: 10 dígitos que empiezan por 3.',
+      ),
+      'Code': (context) => _screen(context, codeSentTo: '+57 300 *** 4567'),
+    }),
     component('ManoSignInLayout', {
       'Phone': (context) => _phone(context, busy: false),
       'Phone, error': (context) => _phone(context, busy: false, error: true),
@@ -157,6 +165,8 @@ Widget _phone(BuildContext context, {required bool busy, bool error = false}) =>
       busy: busy,
       body: ManoPhoneField(
         controller: TextEditingController(text: error ? '300 12' : ''),
+        countryFlag: '🇨🇴',
+        onCountryTap: noop,
         helperText: 'Te enviaremos un código por SMS.',
         errorText: error
             ? 'Escribe un celular colombiano: 10 dígitos que empiezan por 3.'
@@ -165,13 +175,50 @@ Widget _phone(BuildContext context, {required bool busy, bool error = false}) =>
       ),
       primaryLabel: 'Continuar',
       onPrimary: noop,
-      alternatives: [
-        ManoOutlineButton(label: 'Continuar con correo', onPressed: busy ? null : noop),
-        ManoPlatformSignInButton(
-          googleMark: const Icon(Icons.g_mobiledata, size: 28),
-          appleMark: const Icon(Icons.apple, size: 22),
-          onGoogle: busy ? null : noop,
-          onApple: busy ? null : noop,
-        ),
-      ],
+      linkLabel: '¿Problemas para entrar?',
+      onLink: noop,
+      footerLabel: 'O continúa con',
+      footer: ManoBrandPillRow(
+        pills: [
+          ManoBrandPill(
+            mark: const Icon(Icons.g_mobiledata, size: 28),
+            label: 'Continuar con Google',
+            onPressed: busy ? null : noop,
+          ),
+          ManoBrandPill(
+            mark: const Icon(Icons.mail_outline_rounded, size: 22),
+            label: 'Continuar con correo',
+            onPressed: busy ? null : noop,
+          ),
+        ],
+      ),
     );
+
+Widget _screen(
+  BuildContext context, {
+  String? phoneError,
+  String? codeSentTo,
+}) => ManoPhoneSignInScreen(
+  countries: sampleCountries,
+  countryCode: 'CO',
+  onCountrySelected: (_) {},
+  phone: '',
+  onPhoneChanged: (_) {},
+  onSendCode: noop,
+  onTrouble: noop,
+  googleMark: const Icon(Icons.g_mobiledata, size: 28),
+  appleMark: const Icon(Icons.apple, size: 22),
+  onGoogle: noop,
+  onApple: noop,
+  onEmail: noop,
+  onClose: noop,
+  codeSentTo: codeSentTo,
+  code: '',
+  onCodeChanged: (_) {},
+  onVerify: noop,
+  canVerify: false,
+  onResend: noop,
+  onChangeNumber: noop,
+  busy: context.knobs.boolean(label: 'Busy'),
+  phoneError: phoneError,
+);

@@ -8,14 +8,16 @@ Future<void> showSignInSheet(
   BuildContext context,
   WidgetRef ref, {
   VoidCallback? onCreateAccount,
+  String title = 'Inicia sesión',
+  String message = 'Con el correo de tu cuenta profesional.',
 }) {
   // Captured first: a successful sign-in replaces the caller, and its ref with it.
   final session = ref.read(sessionProvider.notifier);
   return showManoSheet<void>(
     context: context,
     builder: (sheet) => ManoCredentialsSheet(
-      title: 'Inicia sesión',
-      message: 'Con el correo de tu cuenta profesional.',
+      title: title,
+      message: message,
       submitLabel: 'Entrar',
       onSubmit: (email, password) async {
         final failure = await session.signIn(

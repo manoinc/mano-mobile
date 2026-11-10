@@ -145,7 +145,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
               onNext: () => _animateTo(
                 (_offset.round() + 1).clamp(0, OnboardingScreen.slideCount - 1),
               ),
-              onRegister: _flow.startRegistration,
+              onRegister: _flow.startSignIn,
               onSignIn: _flow.startSignIn,
               onPlatform: busy ? null : _platform,
             ),
@@ -262,39 +262,21 @@ class _BottomBar extends StatelessWidget {
               label: index == 0 ? 'Empezar' : 'Siguiente',
               onPressed: onNext,
             )
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: ManoOutlineButton(
-                        label: 'Iniciar sesión',
-                        tone: ManoOutlineTone.flame,
-                        onPressed: onSignIn,
-                      ),
-                    ),
-                    const SizedBox(width: ManoSpacing.sm),
-                    Expanded(
-                      child: ManoPrimaryButton(
-                        label: 'Registrarse',
-                        onPressed: onRegister,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: ManoSpacing.sm),
-                ManoPlatformSignInButton(
-                  googleMark: const GoogleMark(),
-                  appleMark: const Icon(Icons.apple, size: 22),
-                  onGoogle: onPlatform == null
-                      ? null
-                      : () => onPlatform!(SocialProvider.google),
-                  onApple: onPlatform == null
-                      ? null
-                      : () => onPlatform!(SocialProvider.apple),
-                ),
-              ],
+          : ManoWelcomeActions(
+              firstLabel: 'Iniciar sesión',
+              onFirst: onSignIn,
+              secondLabel: 'Registrarse',
+              onSecond: onRegister,
+              below: ManoPlatformSignInButton(
+                googleMark: const GoogleMark(),
+                appleMark: const Icon(Icons.apple, size: 22),
+                onGoogle: onPlatform == null
+                    ? null
+                    : () => onPlatform!(SocialProvider.google),
+                onApple: onPlatform == null
+                    ? null
+                    : () => onPlatform!(SocialProvider.apple),
+              ),
             ),
     );
   }

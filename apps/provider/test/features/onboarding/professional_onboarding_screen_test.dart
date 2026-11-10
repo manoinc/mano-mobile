@@ -73,6 +73,19 @@ Future<void> _tapText(WidgetTester tester, String text) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> _tapTooltip(WidgetTester tester, String tooltip) async {
+  await tester.ensureVisible(find.byTooltip(tooltip));
+  await tester.tap(find.byTooltip(tooltip));
+  await tester.pumpAndSettle();
+}
+
+/// Email sign-up is the fallback: Crear cuenta, the email pill, then "Crear cuenta con correo".
+Future<void> _startEmailSignUp(WidgetTester tester) async {
+  await _tapText(tester, 'Crear cuenta');
+  await _tapTooltip(tester, 'Continuar con correo');
+  await _tapText(tester, 'Crear cuenta con correo');
+}
+
 Future<void> _answer(WidgetTester tester, String label, String value) async {
   await tester.enterText(_field(label), value);
   await tester.pump();
@@ -81,7 +94,7 @@ Future<void> _answer(WidgetTester tester, String label, String value) async {
 
 /// From the welcome through email and password; the account is created.
 Future<void> _createAccount(WidgetTester tester) async {
-  await _tapText(tester, 'Crear cuenta profesional');
+  await _startEmailSignUp(tester);
   await _answer(tester, 'Correo', 'pro@mano.co');
   await tester.enterText(_field('Contraseña'), 'mano2026');
   await tester.pump();
@@ -134,19 +147,53 @@ void main() {
     tester,
   ) async {
     await _pump(tester);
-    expect(find.text('Crear cuenta profesional'), findsOneWidget);
-    expect(find.text('Ya tengo cuenta'), findsOneWidget);
+    // Both doors are filled flame, side by side, Wise style.
+    expect(find.byType(ManoWelcomeActions), findsOneWidget);
+    expect(
+      find.widgetWithText(ManoPrimaryButton, 'Iniciar sesión'),
+      findsOneWidget,
+    );
+    expect(
+      find.widgetWithText(ManoPrimaryButton, 'Crear cuenta'),
+      findsOneWidget,
+    );
+    expect(find.text('Continuar con Google'), findsOneWidget);
   });
 
-  testWidgets('Ya tengo cuenta surfaces the sign-in failure', (tester) async {
+  testWidgets('Crear cuenta opens the same phone screen', (tester) async {
+    await _pump(tester);
+    await _tapText(tester, 'Crear cuenta');
+
+    expect(find.text('Inicia sesión o regístrate'), findsOneWidget);
+  });
+
+  testWidgets('Google failing on the welcome opens the phone screen', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      social: InMemorySocialAuth(
+        onSignIn: () => const Err(AuthUnavailable(detail: 'no client')),
+      ),
+    );
+    await _tapText(tester, 'Continuar con Google');
+
+    expect(find.text('Inicia sesión o regístrate'), findsOneWidget);
+    expect(
+      find.text('No pudimos conectarnos. Intenta de nuevo.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('Iniciar sesión surfaces the sign-in failure', (tester) async {
     await _pump(
       tester,
       session: FakeSessionRepository(
         onSignIn: () async => const Err(AuthUnavailable()),
       ),
     );
-    await _tapText(tester, 'Ya tengo cuenta');
-    await _tapText(tester, 'Continuar con correo');
+    await _tapText(tester, 'Iniciar sesión');
+    await _tapTooltip(tester, 'Continuar con correo');
     await tester.enterText(
       find.byKey(const Key('mano-credentials-email')),
       'pro@mano.co',
@@ -170,8 +217,8 @@ void main() {
       onSignIn: () async => Ok(fakeSession()),
     );
     await _pump(tester, session: repository);
-    await _tapText(tester, 'Ya tengo cuenta');
-    await _tapText(tester, 'Continuar con correo');
+    await _tapText(tester, 'Iniciar sesión');
+    await _tapTooltip(tester, 'Continuar con correo');
     await tester.enterText(
       find.byKey(const Key('mano-credentials-email')),
       'pro@mano.co',
@@ -188,11 +235,9 @@ void main() {
   });
 
   group('the account steps', () {
-    testWidgets('Crear cuenta profesional asks for the email first', (
-      tester,
-    ) async {
+    testWidgets('email sign-up asks for the email first', (tester) async {
       await _pump(tester);
-      await _tapText(tester, 'Crear cuenta profesional');
+      await _startEmailSignUp(tester);
 
       expect(find.text('¿Cuál es tu correo?'), findsOneWidget);
       expect(_primaryEnabled(tester), isFalse);
@@ -250,7 +295,7 @@ void main() {
 
     testWidgets('a weak password keeps Crear cuenta shut', (tester) async {
       await _pump(tester);
-      await _tapText(tester, 'Crear cuenta profesional');
+      await _startEmailSignUp(tester);
       await _answer(tester, 'Correo', 'pro@mano.co');
 
       await tester.enterText(_field('Contraseña'), 'corta');
@@ -296,17 +341,15 @@ void main() {
     });
   });
 
-  testWidgets('Ya tengo cuenta says when the details are wrong', (
-    tester,
-  ) async {
+  testWidgets('Iniciar sesión says when the details are wrong', (tester) async {
     await _pump(
       tester,
       session: FakeSessionRepository(
         onSignIn: () async => const Err(WrongCredentials()),
       ),
     );
-    await _tapText(tester, 'Ya tengo cuenta');
-    await _tapText(tester, 'Continuar con correo');
+    await _tapText(tester, 'Iniciar sesión');
+    await _tapTooltip(tester, 'Continuar con correo');
     await tester.enterText(
       find.byKey(const Key('mano-credentials-email')),
       'pro@mano.co',
@@ -470,14 +513,15 @@ void main() {
       await _tapText(tester, 'Continuar');
     }
 
-    testWidgets('Ya tengo cuenta opens the phone screen', (tester) async {
+    testWidgets('Iniciar sesión opens the phone screen', (tester) async {
       await _pump(tester);
-      await _tapText(tester, 'Ya tengo cuenta');
+      await _tapText(tester, 'Iniciar sesión');
 
       expect(find.text('Inicia sesión o regístrate'), findsOneWidget);
       expect(find.text('Colombia (+57)'), findsOneWidget);
-      expect(find.text('Continuar con correo'), findsOneWidget);
-      expect(find.text('Continuar con Google'), findsOneWidget);
+      expect(find.text('¿Problemas para entrar?'), findsOneWidget);
+      expect(find.byTooltip('Continuar con correo'), findsOneWidget);
+      expect(find.byTooltip('Continuar con Google'), findsOneWidget);
     });
 
     testWidgets('a new account goes to the identity check, then the name', (
@@ -487,7 +531,7 @@ void main() {
         onVerified: () => phoneSession(isNew: true),
       );
       await _pump(tester, phone: phone);
-      await _tapText(tester, 'Ya tengo cuenta');
+      await _tapText(tester, 'Iniciar sesión');
       await sendCode(tester);
 
       expect(find.text('Confirma tu número'), findsOneWidget);
@@ -505,7 +549,7 @@ void main() {
         tester,
         phone: InMemoryPasswordlessAuth(onVerified: fakeSession),
       );
-      await _tapText(tester, 'Ya tengo cuenta');
+      await _tapText(tester, 'Iniciar sesión');
       await sendCode(tester);
 
       await tester.enterText(find.byType(TextField).first, '000000');
@@ -524,8 +568,8 @@ void main() {
           onSignIn: () => const Err(AuthUnavailable(detail: 'no client')),
         ),
       );
-      await _tapText(tester, 'Ya tengo cuenta');
-      await _tapText(tester, 'Continuar con Google');
+      await _tapText(tester, 'Iniciar sesión');
+      await _tapTooltip(tester, 'Continuar con Google');
 
       expect(
         find.text('No pudimos conectarnos. Intenta de nuevo.'),
@@ -533,10 +577,19 @@ void main() {
       );
     });
 
+    testWidgets('trouble opens the email sheet as help', (tester) async {
+      await _pump(tester);
+      await _tapText(tester, 'Iniciar sesión');
+      await _tapText(tester, '¿Problemas para entrar?');
+
+      expect(find.byType(ManoCredentialsSheet), findsOneWidget);
+      expect(find.text('¿No te llega el código?'), findsOneWidget);
+    });
+
     testWidgets('email sign-up stays one tap away', (tester) async {
       await _pump(tester);
-      await _tapText(tester, 'Ya tengo cuenta');
-      await _tapText(tester, 'Continuar con correo');
+      await _tapText(tester, 'Iniciar sesión');
+      await _tapTooltip(tester, 'Continuar con correo');
       await _tapText(tester, 'Crear cuenta con correo');
 
       expect(find.text('¿Cuál es tu correo?'), findsOneWidget);

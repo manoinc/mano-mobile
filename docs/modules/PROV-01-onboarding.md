@@ -20,8 +20,9 @@ All files live in `apps/provider/lib/features/onboarding/`.
 |---|---|
 | `professional_onboarding_screen.dart` | Switches between the steps with `ManoStepTransition` (keyed by step). A `PopScope` sends system back to `notifier.back()` on every step except the welcome. |
 | `steps/account_step.dart` | The email, then the password, one per screen (`ManoQuestionStep`). **Crear cuenta** on the password calls `createAccount()` → `SessionManager.signUp` with the app's role (`provider`). Failures show inline under the field; a taken email also offers **Iniciar sesión** (the sign-in sheet). **Ahora no** browses as a guest. |
-| `sign_in_sheet.dart` | `showSignInSheet`: the **Ya tengo cuenta** `ManoCredentialsSheet`, failures shown in it with `authFailureCopy`. |
-| `steps/welcome_step.dart` | `ManoHeroScaffold`: headline, footnote explaining Mano Profesionales, primary **Crear cuenta profesional** (`start()`), secondary **Ya tengo cuenta** (`sessionProvider.notifier.signIn()`). A `SignedOut.lastFailure` is shown as a `ManoNotice` and dismissed with `acknowledgeFailure()`. While the sign-in call runs, a local `_busy` flag makes the buttons spin. |
+| `sign_in_sheet.dart` | `showSignInSheet`: the email `ManoCredentialsSheet` (the email pill and **¿Problemas para entrar?** on the phone screen), failures shown in it with `authFailureCopy`; **Crear cuenta con correo** starts email sign-up (`start()`). |
+| `steps/sign_in_step.dart` | The shared `ManoPhoneSignInScreen` fed by `phoneSignInProvider`; see [Signing in](../develop/auth.md). |
+| `steps/welcome_step.dart` | `ManoHeroScaffold` with `ManoWelcomeActions`: **Iniciar sesión** and **Crear cuenta**, both flame, both `startWithPhone()`; `ManoPlatformSignInButton` below signs straight in (a failure opens the phone screen). A `SignedOut.lastFailure` is shown as a `ManoNotice` and dismissed with `acknowledgeFailure()`. |
 | `steps/profile_step.dart` | `ManoStepScaffold`: **Nombre para mostrar**, **Celular** (phone keyboard), **Zona de cobertura** (helper "Por ejemplo, Chapinero."). Errors appear inline after the first refused **Continuar**, then update as you type. |
 | `../identity/identity_flow_view.dart` | The `identity` step, right after **Crear cuenta**: the cédula and selfie photos. **Ahora no** or finishing calls `leaveIdentity()`. |
 | `steps/documents_step.dart` | "Tus certificados": one optional row, "Certificados o soportes (opcional)", with **Adjuntar**, which flips to "Adjuntado". The cédula is no longer asked here; the identity check covers it. |
@@ -88,8 +89,8 @@ document row and summary row are private to the feature.
   - submit failure keeps the data, and `acknowledgeFailure` clears it;
   - submit is a no-op off the review step.
 - `apps/provider/test/features/onboarding/professional_onboarding_screen_test.dart` (7):
-  - the welcome entries;
-  - **Ya tengo cuenta** shows the sign-in failure notice;
+  - the welcome entries (two flame pills, both to the phone screen);
+  - the email sheet shows the sign-in failure;
   - inline profile errors, including a live phone error;
   - documents are optional certificates, with no cédula rows;
   - back keeps the data;
@@ -98,7 +99,7 @@ document row and summary row are private to the feature.
 - `apps/provider/test/root_test.dart` (existing): signed out lands here; `onFinished` enters the shell.
 - `apps/provider/integration_test/onboarding_flow_test.dart` (device):
   - start signed out;
-  - **Crear cuenta profesional**, fill the profile, **Continuar**;
+  - **Crear cuenta**, the email pill, **Crear cuenta con correo**, fill the profile, **Continuar**;
   - put the identity photos off, then **Continuar** past the certificates;
   - **Enviar a revisión** → pending;
   - **Explorar la app** → `ProviderNavShell`.
@@ -107,8 +108,8 @@ document row and summary row are private to the feature.
 
 - **No file picker for certificates.** **Adjuntar** records `placeholder://certificates`. Going live needs a picker plugin (camera and gallery for ID photos, files for certificates), permissions on Android and later iOS, and real local paths in `WorkerProfileDraft.documentPaths`. Certificates are one row with one placeholder; multiple certificates would need a list.
 - **No photo.** T-1 lists a profile photo; the domain draft has no field for it.
-- **Email and password only.** "Crear cuenta profesional" creates a real `provider` account through `mano-auth` (build with `SUPERTOKENS_API_DOMAIN`; without it sign-up reports `AuthUnavailable` and **Ahora no** still lets you in as a guest). Phone or Google sign-up (T-1 step 1) is not built.
-- **Role mismatch is not blocked.** A requester account can sign in through **Ya tengo cuenta**; its `st-role` claim is not checked yet.
+- **Phone first.** Both welcome pills open the phone screen; email sign-up through `mano-auth` is the fallback behind the email pill (build with `SUPERTOKENS_API_DOMAIN`; without it sign-up reports `AuthUnavailable` and **Ahora no** still lets you in as a guest).
+- **Role mismatch is not blocked.** A requester account can sign in through **Iniciar sesión**; its `st-role` claim is not checked yet.
 - **The verification port is mocked.** No gateway operation exists for a worker profile, document upload or `VerificationStatus`. Document upload would also need storage, such as pre-signed URLs.
 - **The pending state does not persist.** After a cold start the professional is signed out and sees the welcome again. Once auth exists, the root should read `ProviderOnboardingRepository.status()` and gate publishing services and receiving requests on `approved`. Today the shell does not enforce that restriction.
 - **Validation could move to the domain.** `validateDisplayName`, `validatePhone`, `validateWorkZone` and `normalizePhone` are pure functions in `mano_session` because this module could not edit `mano_domain`. They belong on or beside `WorkerProfileDraft`, like `registration_validation.dart`.

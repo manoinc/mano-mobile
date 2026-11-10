@@ -7,120 +7,80 @@ import '../onboarding_copy.dart';
 import '../sign_in_sheet.dart';
 import '../widgets/google_mark.dart';
 
-/// The way in: phone and code first, then Google or Apple, with email as the fallback.
-class SignInStep extends ConsumerStatefulWidget {
+/// The shared phone sign-in, routed through this app's onboarding.
+class SignInStep extends ConsumerWidget {
   const SignInStep({super.key});
 
   @override
-  ConsumerState<SignInStep> createState() => _SignInStepState();
-}
-
-class _SignInStepState extends ConsumerState<SignInStep> {
-  late final TextEditingController _phone;
-
-  PhoneSignInNotifier get _notifier => ref.read(phoneSignInProvider.notifier);
-
-  ProviderOnboardingNotifier get _onboarding =>
-      ref.read(providerOnboardingProvider.notifier);
-
-  @override
-  void initState() {
-    super.initState();
-    _phone = TextEditingController(text: ref.read(phoneSignInProvider).phone);
-  }
-
-  @override
-  void dispose() {
-    _phone.dispose();
-    super.dispose();
-  }
-
-  // A new account continues the onboarding at the name; a returning one enters the shell.
-  void _enter(Session? session, {String? phone}) {
-    if (session != null) _onboarding.enter(session, phone: phone);
-  }
-
-  Future<void> _verify() async {
-    final phone = ref.read(phoneSignInProvider).e164;
-    _enter(await _notifier.verify(), phone: phone);
-  }
-
-  Future<void> _social(SocialProvider provider) async =>
-      _enter(await _notifier.signInWith(provider));
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(phoneSignInProvider);
-    final challenge = state.challenge;
+    final phone = ref.read(phoneSignInProvider.notifier);
+    final onboarding = ref.read(providerOnboardingProvider.notifier);
     final failure = state.failure;
+    final codeStep = state.challenge != null;
 
-    if (challenge != null) {
-      return ManoSignInLayout(
-        key: const ValueKey('code'),
-        title: 'Confirma tu número',
-        message: 'Escribe el código que enviamos a ${challenge.maskedPhone}.',
-        onClose: _notifier.changeNumber,
-        busy: state.busy,
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ManoOtpField(
-              value: state.code,
-              autofocus: true,
-              enabled: !state.busy,
-              errorText: failure == null ? null : authFailureCopy(failure),
-              onChanged: _notifier.editCode,
-              onCompleted: (_) => _verify(),
-            ),
-            const SizedBox(height: ManoSpacing.md),
-            ManoResendTimer(onResend: _notifier.resend, enabled: !state.busy),
-          ],
-        ),
-        primaryLabel: 'Continuar',
-        onPrimary: state.canVerify ? _verify : null,
-      );
+    // A new account continues at the identity check; a returning one enters the shell.
+    void enter(Session? session, {String? number}) {
+      if (session != null) onboarding.enter(session, phone: number);
     }
 
-    return ManoSignInLayout(
-      key: const ValueKey('phone'),
-      title: 'Inicia sesión o regístrate',
-      onClose: _onboarding.back,
+    void openEmail() =>
+        showSignInSheet(context, ref, onCreateAccount: onboarding.start);
+
+    // Help, not a second copy of the email pill.
+    void openHelp() => showSignInSheet(
+      context,
+      ref,
+      onCreateAccount: onboarding.start,
+      title: '¿No te llega el código?',
+      message: 'Entra con el correo de tu cuenta profesional, o crea una con correo.',
+    );
+
+    return ManoPhoneSignInScreen(
+      countries: [
+        for (final c in supportedCountries)
+          ManoCountryOption(
+            code: c.code,
+            flag: c.flag,
+            name: c.name,
+            dialCode: '+${c.dialCode}',
+          ),
+      ],
+      countryCode: state.country.code,
+      onCountrySelected: (code) => phone.selectCountry(countryByCode(code)!),
+      phone: state.phone,
+      onPhoneChanged: phone.editPhone,
+      onSendCode: phone.sendCode,
+      onTrouble: openHelp,
+      googleMark: const GoogleMark(),
+      appleMark: const Icon(Icons.apple, size: 22),
+      onGoogle: () async =>
+          enter(await phone.signInWith(SocialProvider.google)),
+      onApple: () async => enter(await phone.signInWith(SocialProvider.apple)),
+      onEmail: openEmail,
+      onClose: onboarding.back,
+      codeSentTo: state.challenge?.maskedPhone,
+      code: state.code,
+      onCodeChanged: phone.editCode,
+      onVerify: () async {
+        final number = ref.read(phoneSignInProvider).e164;
+        enter(await phone.verify(), number: number);
+      },
+      canVerify: state.canVerify,
+      onResend: phone.resend,
+      onChangeNumber: phone.changeNumber,
       busy: state.busy,
-      notice: failure == null
+      phoneError: state.showPhoneProblem
+          ? phoneNumberProblemCopy(state.country)
+          : null,
+      codeError: codeStep && failure != null ? authFailureCopy(failure) : null,
+      notice: codeStep || failure == null
           ? null
           : ManoNotice(
               message: authFailureCopy(failure),
               tone: authFailureTone(failure),
-              onDismiss: _notifier.acknowledgeFailure,
+              onDismiss: phone.acknowledgeFailure,
             ),
-      body: ManoPhoneField(
-        controller: _phone,
-        enabled: !state.busy,
-        helperText: 'Te enviaremos un código por SMS.',
-        errorText: state.showPhoneProblem ? phoneNumberProblemCopy : null,
-        onChanged: _notifier.editPhone,
-        onSubmitted: (_) => _notifier.sendCode(),
-      ),
-      primaryLabel: 'Continuar',
-      onPrimary: state.busy ? null : _notifier.sendCode,
-      alternatives: [
-        ManoOutlineButton(
-          label: 'Continuar con correo',
-          onPressed: state.busy
-              ? null
-              : () => showSignInSheet(
-                  context,
-                  ref,
-                  onCreateAccount: _onboarding.start,
-                ),
-        ),
-        ManoPlatformSignInButton(
-          googleMark: const GoogleMark(),
-          appleMark: const Icon(Icons.apple, size: 22),
-          onGoogle: state.busy ? null : () => _social(SocialProvider.google),
-          onApple: state.busy ? null : () => _social(SocialProvider.apple),
-        ),
-      ],
     );
   }
 }

@@ -83,6 +83,36 @@ void main() {
     expect(_s(c).busy, isFalse);
   });
 
+  group('the country', () {
+    test('is Colombia until another is chosen', () {
+      final (:c, auth: _) = _setUp();
+
+      expect(_s(c).country, Country.colombia);
+    });
+
+    test('a chosen country sends its dial code', () async {
+      final (:c, auth: _) = _setUp();
+      _n(c).selectCountry(countryByCode('MX')!);
+      _n(c).editPhone('55 1234 5678');
+
+      await _n(c).sendCode();
+
+      expect(_s(c).challenge?.phone, '+525512345678');
+    });
+
+    test('changing it clears a shown number problem', () async {
+      final (:c, auth: _) = _setUp();
+      _n(c).editPhone('55 1234 5678');
+      await _n(c).sendCode();
+      expect(_s(c).showPhoneProblem, isTrue);
+
+      _n(c).selectCountry(countryByCode('MX')!);
+
+      expect(_s(c).showPhoneProblem, isFalse);
+      expect(_s(c).canSend, isTrue);
+    });
+  });
+
   test('a send that fails keeps the number and says why', () async {
     final (:c, auth: _) = _setUp(passwordless: _Refusing());
     _n(c).editPhone('3001234567');

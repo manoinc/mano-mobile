@@ -2,18 +2,6 @@ import 'package:mano_domain/mano_domain.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('a Colombian mobile in E.164', () {
-    test('adds +57 to ten digits, whatever the separators', () {
-      expect(colombianE164('300 123 4567'), '+573001234567');
-      expect(colombianE164('+57 (300) 123-4567'), '+573001234567');
-    });
-
-    test('is null for anything that is not a mobile', () {
-      expect(colombianE164('601 123 4567'), isNull);
-      expect(colombianE164('30012'), isNull);
-    });
-  });
-
   group('a one-time code', () {
     test('is six digits', () {
       expect(isWellFormedOtp('123456'), isTrue);
@@ -31,6 +19,16 @@ void main() {
     );
 
     expect(challenge.maskedPhone, '+57 300 *** 4567');
+  });
+
+  test('any country keeps its dial code and the last four digits', () {
+    OtpChallenge sentTo(String phone) =>
+        OtpChallenge(deviceId: 'd', preAuthSessionId: 'p', phone: phone);
+
+    expect(sentTo('+525512345678').maskedPhone, '+52 551 *** 5678');
+    expect(sentTo('+593991234567').maskedPhone, '+593 *** 4567');
+    expect(sentTo('+34612345678').maskedPhone, '+34 *** 5678');
+    expect(sentTo('+4915112345678').maskedPhone, '+*** 5678');
   });
 
   test('a wrong code says how many tries are left', () {

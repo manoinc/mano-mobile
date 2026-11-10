@@ -53,6 +53,13 @@ void main() {
   });
 
   test('a phone that is not a Colombian mobile says what is expected', () {
-    expect(phoneNumberProblemCopy, contains('10 dígitos'));
+    expect(phoneNumberProblemCopy(Country.colombia), contains('10 dígitos'));
+  });
+
+  test('a phone elsewhere asks for six to twelve digits', () {
+    expect(
+      phoneNumberProblemCopy(countryByCode('MX')!),
+      contains('entre 6 y 12 dígitos'),
+    );
   });
 }

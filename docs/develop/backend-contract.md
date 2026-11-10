@@ -253,14 +253,15 @@ any session refreshes and signs out the same way.
 - The apps check the email shape and the password (8+ characters, a letter
   and a number, SuperTokens' default rules) before sending, so a password
   `FIELD_ERROR` should be rare.
-- **Where accounts are made.** Phone or social, both apps: "Iniciar sesión" /
-  "Ya tengo cuenta" opens "Inicia sesión o regístrate"; a new account
+- **Where accounts are made.** Phone or social, both apps: both welcome pills
+  ("Iniciar sesión" and "Registrarse" / "Crear cuenta") open the one
+  "Inicia sesión o regístrate" screen; a new account
   (`createdNewRecipeUser`) continues at the name step, a returning one goes in.
   Email, requester: name → email → password (signs up) → address →
   notifications, ending signed in. Email, provider: welcome → email →
   password (signs up) → the profile questions → pending. Email sign-up is
-  reached from "Continuar con correo" → "Crear cuenta con correo" (and still
-  from "Registrarse" / "Crear cuenta profesional"). "Ahora no" on either
+  reached from the email pill (or "¿Problemas para entrar?") on the phone
+  screen → "Crear cuenta con correo". "Ahora no" on either
   flow still browses as a guest; guests are asked to sign in at account-only
   actions (`ManoAccountNeededSheet`).
 - **Greetings** ("Hola, Ana") use the first name typed while signing up: the

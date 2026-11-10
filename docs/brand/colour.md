@@ -47,3 +47,10 @@ Statuses use `ManoStatusTone`, never a raw colour:
     Some Material surfaces (cards, unselected pills, app bars) currently come out
     pinkish, because the theme derives them from the flame seed. They should be
     sand and stone. This is tracked in `POLISH.md`.
+
+!!! info "The one exception: the welcome"
+    The welcome screens put two flame pills side by side, "Iniciar sesión" and
+    "Registrarse" (provider: "Crear cuenta"), after Wise's welcome. Both lead to
+    the same phone screen, so neither outranks the other. `ManoWelcomeActions`
+    is the only component allowed to draw two flames; the platform sign-in
+    button below stays white with the official mark.
