@@ -17,14 +17,24 @@ FieldProblem? validateCardNumber(String number) {
   return null;
 }
 
+/// A card's month and four-digit year.
+typedef CardExpiry = ({int month, int year});
+
+/// MM/AA as a [CardExpiry], or null when the shape or month is wrong.
+CardExpiry? parseCardExpiry(String expiry) {
+  final match = _expiryShape.firstMatch(expiry.trim());
+  if (match == null) return null;
+  final month = int.parse(match.group(1)!);
+  if (month < 1 || month > 12) return null;
+  return (month: month, year: 2000 + int.parse(match.group(2)!));
+}
+
 /// MM/AA, this month or later.
 FieldProblem? validateCardExpiry(String expiry, {required DateTime now}) {
   if (expiry.trim().isEmpty) return FieldProblem.empty;
-  final match = _expiryShape.firstMatch(expiry.trim());
-  if (match == null) return FieldProblem.malformed;
-  final month = int.parse(match.group(1)!);
-  final year = 2000 + int.parse(match.group(2)!);
-  if (month < 1 || month > 12) return FieldProblem.malformed;
+  final parsed = parseCardExpiry(expiry);
+  if (parsed == null) return FieldProblem.malformed;
+  final (:month, :year) = parsed;
   if (year < now.year || (year == now.year && month < now.month)) {
     return FieldProblem.expired;
   }

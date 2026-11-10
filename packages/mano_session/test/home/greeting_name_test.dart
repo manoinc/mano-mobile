@@ -17,6 +17,23 @@ const _andres = ProviderProfile(
 );
 
 void main() {
+  group('profileHeaderName', () {
+    test('the first real name wins', () {
+      expect(
+        profileHeaderName(names: ['  ', 'Ana Gómez'], phone: '3010000101'),
+        'Ana Gómez',
+      );
+    });
+
+    test('no name falls back to the masked phone, then Tu perfil', () {
+      expect(
+        profileHeaderName(names: [''], phone: '+573010000101'),
+        '+57 301 *** 0101',
+      );
+      expect(profileHeaderName(names: [null], phone: ''), 'Tu perfil');
+    });
+  });
+
   group('greetingName', () {
     test('uses a real name', () {
       expect(greetingName(_user(username: 'Andrés')), 'Andrés');

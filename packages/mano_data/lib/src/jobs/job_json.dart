@@ -8,7 +8,7 @@ import '../gateway/service_lookup.dart';
 const jobFields =
     'id client { id } worker { id } offer { $offerFields } '
     'appointment { start end } status pricing { rateType amount } '
-    'finalAmount { amount } createdAt';
+    'finalAmount { amount } cancelledBy createdAt';
 
 /// Maps a gateway `Job`; [service] supplies its title.
 Job jobFromJson(Map<String, dynamic> json, JobService? service) {
@@ -35,6 +35,11 @@ Job jobFromJson(Map<String, dynamic> json, JobService? service) {
       _ => JobStatus.scheduled,
     },
     finalAmountCop: (finalAmount?['amount'] as num?)?.round(),
+    cancelledBy: switch (json['cancelledBy']) {
+      'CLIENT' => JobParty.client,
+      'WORKER' => JobParty.worker,
+      _ => null,
+    },
   );
 }
 

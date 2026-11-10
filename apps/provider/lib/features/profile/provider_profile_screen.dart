@@ -121,7 +121,10 @@ class _Header extends ConsumerWidget {
                     children: [
                       Flexible(
                         child: Text(
-                          profile.party.displayName,
+                          profileHeaderName(
+                            names: [profile.party.displayName],
+                            phone: profile.phone,
+                          ),
                           overflow: TextOverflow.ellipsis,
                           style: text.titleLarge,
                         ),

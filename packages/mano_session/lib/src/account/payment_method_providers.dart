@@ -4,7 +4,7 @@ import 'package:mano_domain/mano_domain.dart';
 
 // Mock: billing is not on the gateway, so nothing is tokenised or charged yet.
 final paymentMethodsProvider = Provider<PaymentMethods>(
-  (ref) => MockPaymentMethods(),
+  (ref) => MockPaymentMethods(initial: demoPaymentMethods),
 );
 
 final savedPaymentMethodsProvider = FutureProvider<List<PaymentMethod>>(

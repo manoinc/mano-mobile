@@ -154,6 +154,20 @@ void main() {
       },
     );
 
+    test('the seeded cancellation says the professional cancelled', () async {
+      expect((await jobs.job('job-6'))?.cancelledBy, JobParty.worker);
+    });
+
+    test('a cancel records the side the mock acts for', () async {
+      final asClient = MockJobRepository(
+        now: _clock,
+        cancelsAs: JobParty.client,
+      );
+      final cancelled = await asClient.cancel('job-1');
+      expect(cancelled.valueOrNull?.cancelledBy, JobParty.client);
+      expect((await jobs.cancel('job-1')).valueOrNull?.cancelledBy, isNull);
+    });
+
     test('job finds by id or returns null', () async {
       final any = (await jobs.mine()).first;
       expect(await jobs.job(any.id), any);

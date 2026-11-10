@@ -97,7 +97,10 @@ void main() {
     await tester.tap(find.text('Entendido'));
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(ManoStatusChip, 'Cancelado'), findsOneWidget);
+    expect(
+      find.widgetWithText(ManoStatusChip, 'Cancelaste este trabajo'),
+      findsOneWidget,
+    );
     expect(find.text('Cancelar'), findsNothing);
     expect(find.text('Volver a contratar'), findsOneWidget);
     final job = await c.read(jobRepositoryProvider).job('job-1');
@@ -186,6 +189,11 @@ void main() {
 
     testWidgets('a cancelled job can only be rebooked', (tester) async {
       await pumpRouterAt(tester, '/projects/job/job-6');
+
+      expect(
+        find.widgetWithText(ManoStatusChip, 'Cancelado por el profesional'),
+        findsOneWidget,
+      );
 
       expect(find.text('Calificar'), findsNothing);
       expect(

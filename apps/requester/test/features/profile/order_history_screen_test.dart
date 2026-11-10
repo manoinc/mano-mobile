@@ -32,6 +32,10 @@ void main() {
         .toList();
     expect(cards.first, 'history-job-${history.first.id}');
     expect(find.text('Programado'), findsNothing);
+    final cancelled = tester.widget<ManoProjectCard>(
+      find.byKey(const Key('history-job-job-6')),
+    );
+    expect(cancelled.statusLabel, 'Cancelado por el profesional');
   });
 
   testWidgets('a job opens its detail inside Perfil', (tester) async {

@@ -15,6 +15,18 @@ String? greetingName(AuthenticatedUser? user) {
   return name;
 }
 
+/// A Perfil header's name: the first real one, else the masked phone, else "Tu perfil"; never an ID.
+String profileHeaderName({
+  required List<String?> names,
+  required String phone,
+}) {
+  for (final name in names) {
+    if (name != null && name.trim().isNotEmpty) return name.trim();
+  }
+  final masked = maskedMobile(phone);
+  return masked.isEmpty ? 'Tu perfil' : masked;
+}
+
 /// The requester's name: the one typed while registering, else the account's.
 String? requesterGreetingName(AuthenticatedUser? user, OnboardingFlow flow) =>
     switch (flow) {

@@ -39,8 +39,10 @@ class ManoCategoryRail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The chip is 80 tall plus its label line, which grows with the text size.
+    final label = MediaQuery.textScalerOf(context).scale(16);
     return SizedBox(
-      height: 96,
+      height: 80 + label,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: items.length,

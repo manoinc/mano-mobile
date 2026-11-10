@@ -174,8 +174,8 @@ WidgetbookCategory wallet() => WidgetbookCategory(
           children: [
             ManoMethodRow(
               leading: Icon(Icons.credit_card),
-              title: 'Visa •••• 4242',
-              detail: 'Vence 08/29',
+              title: 'Mastercard 8341',
+              detail: 'Vence: 05/2033',
               tag: 'Predeterminado',
               actionLabel: 'Editar',
               onAction: noop,
@@ -200,6 +200,19 @@ WidgetbookCategory wallet() => WidgetbookCategory(
           message:
               'Si pagas por fuera de la app, no podemos protegerte ante '
               'cobros indebidos o trabajos sin terminar.',
+          linkLabel: 'Más información',
+          onLink: noop,
+        ),
+      ),
+      'With links in the message': (context) => Padding(
+        padding: const EdgeInsets.all(ManoSpacing.md),
+        child: ManoInfoCard(
+          icon: Icons.shield_outlined,
+          title: 'Paga siempre a través de Mano',
+          message:
+              'Pagando en Mano tu dinero queda protegido según los '
+              'Términos de pago.',
+          messageLinks: {'Términos de pago': noop},
           linkLabel: 'Más información',
           onLink: noop,
         ),

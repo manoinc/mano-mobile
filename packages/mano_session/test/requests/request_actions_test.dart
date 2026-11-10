@@ -14,7 +14,15 @@ Future<List<String>> _idsIn(
 
 // The coupled offline mocks, so accepting a request schedules a job.
 ProviderContainer _offline() => ProviderContainer.test(
-  overrides: [offlineMarketplaceProvider.overrideWithValue(true)],
+  overrides: [
+    offlineMarketplaceProvider.overrideWithValue(true),
+    manoConfigProvider.overrideWithValue(
+      const ManoConfig(
+        gatewayGraphQlUrl: 'http://gw/graphql',
+        appRole: ManoRole.provider,
+      ),
+    ),
+  ],
 );
 
 void main() {

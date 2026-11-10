@@ -129,6 +129,19 @@ void main() {
       expect((await methods.list()).single.isDefault, isTrue);
     });
 
+    test('can start seeded, keeping one default first', () async {
+      final seeded = MockPaymentMethods(initial: demoPaymentMethods);
+      final list = await seeded.list();
+      expect(list, hasLength(demoPaymentMethods.length));
+      expect(list.where((m) => m.isDefault), hasLength(1));
+      expect(list.first.isDefault, isTrue);
+      final card = list.firstWhere((m) => m.kind == PaymentKind.card);
+      expect(card.expiry, isNotNull);
+      final added = (await seeded.add(const NewNequi(phone: '3009998888')))
+          .valueOrNull!;
+      expect(list.map((m) => m.id), isNot(contains(added.id)));
+    });
+
     test('refuses invalid input and unknown ids', () async {
       expect(
         (await methods.add(const NewCard(number: '1234', expiry: '12/28')))

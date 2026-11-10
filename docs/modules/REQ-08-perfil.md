@@ -65,11 +65,15 @@ The Inicio pill shows `defaultAddressProvider` as "Casa · Calle 45 # 12-30"
 A `ManoNotice` says payments are not live yet. "Agregar método de pago" asks
 Tarjeta or Nequi, then a form: card number (Luhn-checked) and expiry (MM/AA,
 not past), or a Nequi mobile. Only `NewPaymentMethod.storedAs` is kept: brand
-(Visa, Mastercard, Amex, else Tarjeta), last four and the default flag. The
+(Visa, Mastercard, Amex, else Tarjeta), last four, the card's expiry
+(`CardExpiry`, shown as "Vence: 05/2033") and the default flag. The
 full number never leaves the form. When billing lands, cards will be
 **tokenised by Wompi** in the form and only the token and display data sent.
 PSE has a `PaymentKind` for display but no add flow: it is a per-payment bank
-redirect, not a saved method.
+redirect, not a saved method. Offline the mock starts with
+`demoPaymentMethods` (a Mastercard and a Nequi) so the list is never blank.
+Brand marks (`PaymentBrandMark`) are token-drawn stand-ins in the app, not
+`mano_ui`, until licensed logos ship as assets.
 
 ## Historial de pedidos
 

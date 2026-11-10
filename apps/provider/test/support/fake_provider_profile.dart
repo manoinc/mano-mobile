@@ -9,18 +9,22 @@ final class LiveShapedProfile implements ProviderProfileRepository {
       jobsCompleted: 3,
       completionRatePct: 75,
     ),
+    this.displayName = 'Luisa Pérez',
+    this.phone = '3001112233',
   });
 
   final ProviderStats stand;
+  final String displayName;
+  final String phone;
 
   @override
-  Future<ProviderProfile> profile() async => const ProviderProfile(
-    party: Party(id: 'w1', displayName: 'Luisa Pérez', photoUrl: ''),
+  Future<ProviderProfile> profile() async => ProviderProfile(
+    party: Party(id: 'w1', displayName: displayName, photoUrl: ''),
     bio: '',
     zones: ['Chapinero'],
     yearsExperience: 0,
     verified: false,
-    phone: '3001112233',
+    phone: phone,
     email: 'luisa@mano.co',
   );
 

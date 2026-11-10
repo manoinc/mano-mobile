@@ -102,6 +102,16 @@ real accounts through `mano-auth` (see **Auth**).
 - `Job.start` / `end` come from `appointment`; without one, `start` is
   `createdAt` and `end` is null. `rateType` and `amountCop` come from
   `pricing`. `actualHours` is always null: the gateway doesn't return it.
+- `Job.cancelledBy: JobParty` (`CLIENT` | `WORKER`) maps to the domain's
+  nullable `JobParty`; null for live jobs and for legacy cancellations that
+  never recorded it. List cards say only "Cancelado"; on detail and history
+  (`jobDetailBadge`) the requester reads "Cancelado por el profesional" or
+  "Cancelaste este trabajo", the provider "Cancelado por el cliente" or
+  "Cancelaste este trabajo", and null reads "Cancelado". Offline, the seeded
+  `job-6` is cancelled by the worker and a mock cancel records the app's own
+  side (`MockJobRepository.cancelsAs`, from `ManoConfig.appRole`).
+- `workerProfile.completionRate` = finished / (finished + cancelled by the
+  worker); client and legacy-unknown cancellations are excluded.
 - Requests have no neighborhood or photos on the gateway: `neighborhood` is
   `''` and `photoUrls` is empty.
 - Times are sent as UTC RFC 3339 and read back in local time. `bookSlot`'s

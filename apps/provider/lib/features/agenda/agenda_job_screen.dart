@@ -177,7 +177,7 @@ class _JobBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final line = partyLine(job.client, role: 'Cliente');
-    final (statusLabel, tone) = jobBadge(job.status);
+    final (statusLabel, tone) = jobDetailBadge(job);
     final hours = job.actualHours;
 
     return ListView(

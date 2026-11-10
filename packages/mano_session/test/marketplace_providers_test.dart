@@ -43,8 +43,16 @@ ProviderContainer _container() => ProviderContainer.test(
   ],
 );
 
+const _requesterConfig = ManoConfig(
+  gatewayGraphQlUrl: 'http://gw/graphql',
+  appRole: ManoRole.requester,
+);
+
 ProviderContainer _offline() => ProviderContainer.test(
-  overrides: [offlineMarketplaceProvider.overrideWithValue(true)],
+  overrides: [
+    offlineMarketplaceProvider.overrideWithValue(true),
+    manoConfigProvider.overrideWithValue(_requesterConfig),
+  ],
 );
 
 void main() {
@@ -94,10 +102,26 @@ void main() {
     );
   });
 
+  test('the offline job mock cancels as the app role', () {
+    for (final (role, party) in [
+      (ManoRole.requester, JobParty.client),
+      (ManoRole.provider, JobParty.worker),
+    ]) {
+      final c = ProviderContainer.test(
+        overrides: [
+          offlineMarketplaceProvider.overrideWithValue(true),
+          manoConfigProvider.overrideWithValue(
+            ManoConfig(gatewayGraphQlUrl: 'http://gw/graphql', appRole: role),
+          ),
+        ],
+      );
+      final jobs = c.read(jobRepositoryProvider) as MockJobRepository;
+      expect(jobs.cancelsAs, party);
+    }
+  });
+
   test('offline mode runs every marketplace port on mocks', () {
-    final c = ProviderContainer.test(
-      overrides: [offlineMarketplaceProvider.overrideWithValue(true)],
-    );
+    final c = _offline();
     expect(c.read(offerManagementProvider), isA<MockOfferManagement>());
     expect(
       c.read(serviceRequestRepositoryProvider),

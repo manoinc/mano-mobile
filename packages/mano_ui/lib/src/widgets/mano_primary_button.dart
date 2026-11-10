@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/mano_theme.dart';
 import 'mano_press_scale.dart';
 import '../brand/mano_loader.dart';
 
@@ -20,6 +21,7 @@ class ManoPrimaryButton extends StatelessWidget {
     required this.onPressed,
     this.busy = false,
     this.tone = ManoPrimaryTone.flame,
+    this.compact = false,
     super.key,
   });
 
@@ -35,24 +37,31 @@ class ManoPrimaryButton extends StatelessWidget {
   /// [ManoPrimaryTone.ink] for a main action that is not the screen's hot one, e.g. adding a method.
   final ManoPrimaryTone tone;
 
+  /// Hugs its label at the start instead of filling the width.
+  final bool compact;
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final ink = tone == ManoPrimaryTone.ink;
     final foreground = ink ? scheme.surface : scheme.onPrimary;
 
-    return ManoPressScale(
+    final button = ManoPressScale(
       enabled: !busy && onPressed != null,
       child: FilledButton(
         onPressed: busy ? null : onPressed,
-        style: ink
-            ? FilledButton.styleFrom(
-                backgroundColor: scheme.onSurface,
-                foregroundColor: foreground,
-              )
-            : null,
+        style: FilledButton.styleFrom(
+          backgroundColor: ink ? scheme.onSurface : null,
+          foregroundColor: ink ? foreground : null,
+          minimumSize: compact ? const Size(0, 52) : null,
+          padding: compact
+              ? const EdgeInsets.symmetric(horizontal: ManoSpacing.lg)
+              : null,
+        ),
         child: busy ? ManoLoader.small(color: foreground) : Text(label),
       ),
     );
+    if (!compact) return button;
+    return Align(alignment: AlignmentDirectional.centerStart, child: button);
   }
 }

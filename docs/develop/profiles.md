@@ -30,9 +30,9 @@ finished and cancelled job counts (counts only, so any signed-in caller may
 read them on any `WorkerProfile`).
 
 - `jobsCompleted` = finished jobs.
-- `completionRate` = finished / (finished + cancelled). A cancellation by
-  **either** side counts against it, because a job does not record who
-  cancelled. Null until the worker has closed a job.
+- `completionRate` = finished / (finished + cancelled by the worker). Client
+  cancellations and legacy ones that never recorded who cancelled
+  (`Job.cancelledBy` null) are excluded. Null before the first such job.
 - Both are null when the gateway has no `TASKMANAGER_URL`.
 
 ## Not served

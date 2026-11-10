@@ -17,7 +17,10 @@ category tiles, each a square photo with its name beside it.
 | Gateway error | An empty state with "Reintentar". |
 
 Tapping the selected chip again, or clearing the text with no category, goes
-back to the grid. A result opens `/home/service/<id>`.
+back to the grid. Results use the same Taskrabbit layout as the grid: two
+columns of `ManoCategoryTile`, the service's category photo (icon on stone when
+there is none) with its title beside it. A result opens `/home/service/<id>`.
+The rail grows with the text size so it never overflows.
 
 Categories are still the static `ServiceCategories` list in `mano_domain`; the
 gateway has no category query yet. Results are live (`serviceSearchProvider`

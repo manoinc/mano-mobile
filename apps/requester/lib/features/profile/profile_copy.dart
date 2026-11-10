@@ -18,11 +18,26 @@ String descriptionCopy(FieldProblem problem) => switch (problem) {
   _ => problemCopy(problem, field: 'tu mensaje'),
 };
 
-/// "Visa •••• 4242", "Nequi •••• 4567" or "PSE".
+/// "Mastercard 8341", "Nequi 4567" or "PSE".
 String paymentMethodTitle(PaymentMethod method) => switch (method.kind) {
   PaymentKind.pse => 'PSE',
-  _ => '${method.label} •••• ${method.last4}',
+  _ => '${method.label} ${method.last4}',
 };
+
+/// The grey line under a method: "Vence: 05/2033 · Predeterminado" for the default card.
+String paymentMethodDetail(PaymentMethod method) {
+  final detail = switch (method) {
+    PaymentMethod(
+      kind: PaymentKind.card,
+      expiry: (:final month, :final year),
+    ) =>
+      'Vence: ${month.toString().padLeft(2, '0')}/$year',
+    PaymentMethod(kind: PaymentKind.card) => 'Tarjeta',
+    PaymentMethod(kind: PaymentKind.nequi) => 'Billetera Nequi',
+    PaymentMethod(kind: PaymentKind.pse) => 'Débito desde tu banco',
+  };
+  return method.isDefault ? '$detail · Predeterminado' : detail;
+}
 
 /// What the snackbar says once a referral code saved a professional.
 String savedProfessionalCopy(String name) => name.trim().isEmpty

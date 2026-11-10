@@ -1,11 +1,33 @@
 import 'package:mano_domain/mano_domain.dart';
 
-/// In-memory [PaymentMethods]; keeps display data only, starts empty.
+/// What the app shows offline until billing tokenises real methods.
+const demoPaymentMethods = [
+  PaymentMethod(
+    id: 'demo-card',
+    kind: PaymentKind.card,
+    label: 'Mastercard',
+    last4: '8341',
+    expiry: (month: 5, year: 2033),
+    isDefault: true,
+  ),
+  PaymentMethod(
+    id: 'demo-nequi',
+    kind: PaymentKind.nequi,
+    label: 'Nequi',
+    last4: '4567',
+  ),
+];
+
+/// In-memory [PaymentMethods]; keeps display data only, empty unless seeded.
 final class MockPaymentMethods implements PaymentMethods {
-  MockPaymentMethods({DateTime Function()? now}) : _now = now ?? DateTime.now;
+  MockPaymentMethods({
+    DateTime Function()? now,
+    List<PaymentMethod> initial = const [],
+  }) : _now = now ?? DateTime.now,
+       _methods = withOneDefaultMethod(initial);
 
   final DateTime Function() _now;
-  List<PaymentMethod> _methods = const [];
+  List<PaymentMethod> _methods;
   int _nextId = 1;
 
   @override
