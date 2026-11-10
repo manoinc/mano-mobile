@@ -94,6 +94,60 @@ void main() {
     });
   });
 
+  group('ManoCaptureFrame', () {
+    testWidgets('shows the instruction and a help pill', (tester) async {
+      var help = 0;
+      await tester.pumpWidget(
+        _host(
+          ManoCaptureFrame(
+            instruction: 'Muestra el reverso de tu cédula',
+            helpLabel: 'Ayuda',
+            onHelp: () => help++,
+          ),
+        ),
+      );
+      expect(find.text('Muestra el reverso de tu cédula'), findsOneWidget);
+      await tester.tap(find.text('Ayuda'));
+      expect(help, 1);
+    });
+
+    testWidgets('no help pill without a callback', (tester) async {
+      await tester.pumpWidget(
+        _host(const ManoCaptureFrame(instruction: 'Mira a la cámara')),
+      );
+      expect(find.text('Ayuda'), findsNothing);
+    });
+
+    testWidgets('a card guide is wider than tall, a face guide is not', (
+      tester,
+    ) async {
+      Future<Size> guide(ManoCaptureShape shape) async {
+        await tester.pumpWidget(
+          _host(ManoCaptureFrame(instruction: 'x', shape: shape)),
+        );
+        return tester.getSize(find.byKey(const ValueKey('mano-capture-guide')));
+      }
+
+      final card = await guide(ManoCaptureShape.card);
+      final face = await guide(ManoCaptureShape.face);
+      expect(card.width, greaterThan(card.height));
+      expect(face.height, greaterThan(face.width));
+    });
+
+    testWidgets('shows the captured photo inside the guide', (tester) async {
+      await tester.pumpWidget(
+        _host(const ManoCaptureFrame(instruction: 'x', preview: Text('foto'))),
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('mano-capture-guide')),
+          matching: find.text('foto'),
+        ),
+        findsOneWidget,
+      );
+    });
+  });
+
   group('ManoCaptureReviewRow', () {
     testWidgets('shows the photo, its label and a retake action', (
       tester,

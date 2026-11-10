@@ -68,6 +68,29 @@ WidgetbookCategory steps() => WidgetbookCategory(
         child: ManoTipList(tips: sampleCaptureTips),
       ),
     }),
+    component('ManoCaptureFrame', {
+      'ID card': (context) => _OnInk(
+        ManoCaptureFrame(
+          instruction: 'Muestra el frente de tu cédula',
+          helpLabel: 'Ayuda',
+          onHelp: noop,
+        ),
+      ),
+      'ID card, taken': (context) => _OnInk(
+        ManoCaptureFrame(
+          instruction: 'Muestra el reverso de tu cédula',
+          preview: const ColoredBox(color: ManoColors.muted),
+          helpLabel: 'Ayuda',
+          onHelp: noop,
+        ),
+      ),
+      'Selfie': (context) => const _OnInk(
+        ManoCaptureFrame(
+          instruction: 'Mira a la cámara',
+          shape: ManoCaptureShape.face,
+        ),
+      ),
+    }),
     component('ManoIllustratedStep', {
       'Cédula': (context) => ManoIllustratedStep(
         illustration: const ColoredBox(color: ManoColors.clay),
@@ -133,6 +156,19 @@ WidgetbookCategory steps() => WidgetbookCategory(
     }),
   ],
 );
+
+/// The capture guides are drawn for the camera's dark ground.
+class _OnInk extends StatelessWidget {
+  const _OnInk(this.child);
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => ColoredBox(
+    color: ManoColors.ink,
+    child: Padding(padding: const EdgeInsets.all(ManoSpacing.lg), child: child),
+  );
+}
 
 Widget _phone(BuildContext context, {required bool busy, bool error = false}) =>
     ManoSignInLayout(
