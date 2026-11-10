@@ -17,6 +17,8 @@ final class PlayInstallReferrerSource implements InstallReferrerSource {
       return (await PlayInstallReferrer.installReferrer).installReferrer;
     } on PlatformException {
       return null;
+    } on MissingPluginException {
+      return null;
     }
   }
 }

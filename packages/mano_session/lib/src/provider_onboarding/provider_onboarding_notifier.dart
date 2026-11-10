@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_domain/mano_domain.dart';
 
 import '../marketplace_providers.dart';
+import '../referrals/referral_invite.dart';
 import '../session_notifier.dart';
 import 'provider_profile_validation.dart';
 
@@ -343,6 +346,10 @@ final class ProviderOnboardingNotifier
         .read(providerOnboardingRepositoryProvider)
         .submit(state.draft);
     if (!ref.mounted) return;
+    // The profile exists now, so a colleague's code can be recorded; it never holds the step up.
+    if (result.isOk) {
+      unawaited(ref.read(referralInviteProvider.notifier).redeem());
+    }
     state = switch (result) {
       Ok() => state.copyWith(
         step: ProviderOnboardingStep.pending,

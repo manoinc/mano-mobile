@@ -25,6 +25,8 @@ dependencies:
   flutter_riverpod: ^3.4.3
   # Opens a PSE bank page in the system browser.
   url_launcher: ^6.3.3
+  # The system share sheet, for a professional's invite link.
+  share_plus: ^13.3.1
 
 dev_dependencies:
   flutter_test:

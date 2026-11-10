@@ -40,6 +40,10 @@ void main() {
     expect(await PlayInstallReferrerSource(isAndroid: true).referrer(), isNull);
   });
 
+  test('a missing plugin is no referrer', () async {
+    expect(await PlayInstallReferrerSource(isAndroid: true).referrer(), isNull);
+  });
+
   test('iOS has no install referrer and never asks', () async {
     messenger.setMockMethodCallHandler(
       _channel,

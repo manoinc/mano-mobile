@@ -29,12 +29,32 @@ final _session = Session(
   expiresAt: DateTime.now().add(const Duration(minutes: 5)),
 );
 
+final class _Redeemer implements WorkerReferralRedeemer {
+  final redeemed = <ReferralCode>[];
+
+  @override
+  Future<Result<void, ReferralRedemptionFailure>> redeem(
+    ReferralCode code,
+  ) async {
+    redeemed.add(code);
+    return const Ok(null);
+  }
+}
+
 ({ProviderContainer c, ProviderOnboardingNotifier n}) _setUp([
   ProviderOnboardingRepository? repository,
   InMemorySessionRepository? session,
+  WorkerReferralRedeemer? redeemer,
 ]) {
   final c = ProviderContainer.test(
     overrides: [
+      inviteLinkSourceProvider.overrideWithValue(const NoInviteLinks()),
+      installReferrerSourceProvider.overrideWithValue(
+        const NoInstallReferrer(),
+      ),
+      workerReferralRedeemerProvider.overrideWithValue(
+        redeemer ?? MockWorkerReferralRedeemer(),
+      ),
       manoConfigProvider.overrideWithValue(
         const ManoConfig(
           gatewayGraphQlUrl: 'http://gw/graphql',
@@ -533,6 +553,46 @@ void main() {
       ),
     );
     expect(_step(c), ProviderOnboardingStep.pending);
+  });
+
+  test('a submitted profile redeems the colleague code kept for it', () async {
+    final redeemer = _Redeemer();
+    final (:c, :n) = _setUp(
+      _RecordingOnboarding(const Ok(VerificationStatus.pending)),
+      null,
+      redeemer,
+    );
+    c.listen(referralInviteProvider, (_, _) {});
+    final code = ReferralCode.parse('RP-bb2cde6b')!;
+    c.read(referralInviteProvider.notifier).keep(code);
+    await _answerAll(n);
+    n.next();
+
+    await n.submit();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(redeemer.redeemed, [code]);
+    expect(_step(c), ProviderOnboardingStep.pending);
+  });
+
+  test('a failed submit redeems nothing yet', () async {
+    final redeemer = _Redeemer();
+    final (:c, :n) = _setUp(
+      _RecordingOnboarding(const Err(DataUnavailable())),
+      null,
+      redeemer,
+    );
+    c.listen(referralInviteProvider, (_, _) {});
+    c
+        .read(referralInviteProvider.notifier)
+        .keep(ReferralCode.parse('RP-bb2cde6b')!);
+    await _answerAll(n);
+    n.next();
+
+    await n.submit();
+
+    expect(redeemer.redeemed, isEmpty);
+    expect(c.read(referralInviteProvider).code, isNotNull);
   });
 
   test('finishing leaves the onboarding but keeps the name to greet', () async {
