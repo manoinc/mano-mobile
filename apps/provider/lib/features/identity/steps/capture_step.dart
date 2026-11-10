@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../camera/capture_camera_provider.dart';
+import '../camera/identity_camera_screen.dart';
 import '../identity_art.dart';
 import '../identity_copy.dart';
 
@@ -17,7 +19,16 @@ class CaptureStep extends ConsumerWidget {
     final notifier = ref.read(identityFlowProvider.notifier);
     final kind = state.step.kind!;
     final headline = captureHeadline(kind);
-    final isCedula = kind != IdentityDocumentKind.selfie;
+
+    Future<void> shoot() async {
+      final photo = await openIdentityCamera(
+        context,
+        kind: kind,
+        facing: state.step.facing!,
+        camera: ref.read(captureCameraProvider)(),
+      );
+      if (photo != null) await notifier.usePhoto(photo);
+    }
 
     return ManoIllustratedStep(
       illustration: identityArt(kind),
@@ -33,32 +44,8 @@ class CaptureStep extends ConsumerWidget {
         null => null,
       },
       primaryLabel: 'Tomar foto',
-      onPrimary: notifier.capture,
-      secondaryLabel: isCedula ? 'Ayuda' : null,
-      onSecondary: isCedula ? () => _showHelp(context) : null,
+      onPrimary: shoot,
       busy: state.busy,
     );
   }
 }
-
-/// The usual reasons a photo comes back unreadable.
-Future<void> _showHelp(BuildContext context) => showManoSheet<void>(
-  context: context,
-  builder: (sheet) => Padding(
-    padding: const EdgeInsets.all(ManoSpacing.lg),
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text('Errores comunes', style: Theme.of(sheet).textTheme.titleLarge),
-        const SizedBox(height: ManoSpacing.md),
-        const ManoTipList(tips: commonMistakes),
-        const SizedBox(height: ManoSpacing.lg),
-        ManoPrimaryButton(
-          label: 'Ok, entendido',
-          onPressed: () => Navigator.of(sheet).pop(),
-        ),
-      ],
-    ),
-  ),
-);

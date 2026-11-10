@@ -40,6 +40,17 @@ const commonMistakes = [
       ),
     };
 
+/// The line over the camera's guide, as Nu labels it.
+String captureInstruction(IdentityDocumentKind kind) => switch (kind) {
+  IdentityDocumentKind.cedulaFront => 'Muestra el frente de tu cédula',
+  IdentityDocumentKind.cedulaBack => 'Muestra el reverso de tu cédula',
+  IdentityDocumentKind.selfie => 'Mira a la cámara',
+};
+
+const cameraDenied =
+    'Necesitamos acceso a tu cámara para tomar las fotos. Actívalo en los '
+    'ajustes de tu teléfono.';
+
 String documentName(IdentityDocumentKind kind) => switch (kind) {
   IdentityDocumentKind.cedulaFront => 'Frente de la cédula',
   IdentityDocumentKind.cedulaBack => 'Reverso de la cédula',

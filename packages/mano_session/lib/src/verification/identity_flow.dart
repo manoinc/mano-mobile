@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_domain/mano_domain.dart';
 
-import '../media/media_providers.dart';
 import 'identity_verification_providers.dart';
 
 /// The screens of the identity check, in the order they are walked.
@@ -25,6 +24,13 @@ enum IdentityFlowStep {
     cedulaBack => IdentityDocumentKind.cedulaBack,
     selfie => IdentityDocumentKind.selfie,
     _ => null,
+  };
+
+  /// The lens this step's photo is taken with, if it takes one.
+  CameraFacing? get facing => switch (kind) {
+    null => null,
+    IdentityDocumentKind.selfie => CameraFacing.front,
+    _ => CameraFacing.rear,
   };
 
   static IdentityFlowStep of(IdentityDocumentKind kind) => switch (kind) {
@@ -128,19 +134,10 @@ final class IdentityFlowNotifier extends Notifier<IdentityFlowState> {
     _ => null,
   };
 
-  /// Takes the current step's photo with the camera and sends it.
-  Future<void> capture() async {
+  /// Sends the photo the app's camera took for the current step.
+  Future<void> usePhoto(PickedImage image) async {
     final kind = state.step.kind;
     if (kind == null || state.busy) return;
-    final image = await ref
-        .read(mediaPickerProvider)
-        .pick(
-          PhotoSource.camera,
-          facing: kind == IdentityDocumentKind.selfie
-              ? CameraFacing.front
-              : CameraFacing.rear,
-        );
-    if (image == null || !ref.mounted) return;
     state = state.copyWith(busy: true);
     final result = await _port.submit(kind, image);
     if (!ref.mounted) return;

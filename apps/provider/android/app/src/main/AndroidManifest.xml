@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Required for the local gateway (adb reverse) and network images. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- The in-app camera for the identity photos. -->
+    <uses-permission android:name="android.permission.CAMERA" />
     <!-- Singular on purpose: the icon caption truncates at "Mano Profesiona…" with the plural, but "Mano Profesional" fits. The plural is still used everywhere else. -->
     <application
         android:label="Mano Profesional"

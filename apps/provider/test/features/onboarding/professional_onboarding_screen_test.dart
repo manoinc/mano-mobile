@@ -6,6 +6,7 @@ import 'package:mano_provider/features/onboarding/professional_onboarding_screen
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_capture_camera.dart';
 import '../../support/fake_media.dart';
 import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
@@ -50,6 +51,7 @@ Future<void> _pump(
           onboarding ?? _FakeOnboarding(),
         ),
         if (picker != null) mediaPickerProvider.overrideWithValue(picker),
+        fakeCamera(FakeCaptureCamera()),
         if (phone != null) passwordlessAuthProvider.overrideWithValue(phone),
         if (social != null) socialAuthProvider.overrideWithValue(social),
       ],
@@ -60,6 +62,14 @@ Future<void> _pump(
     ),
   );
   await tester.pumpAndSettle();
+}
+
+/// Tomar foto, the shutter, then Usar foto.
+Future<void> _shoot(WidgetTester tester) async {
+  await _tapText(tester, 'Tomar foto');
+  await tester.tap(find.byTooltip('Capturar'));
+  await tester.pumpAndSettle();
+  await _tapText(tester, 'Usar foto');
 }
 
 Finder _field(String label) => find.descendant(
@@ -225,10 +235,10 @@ void main() {
       await _createAccount(tester);
 
       await _tapText(tester, 'Continuar');
-      await _tapText(tester, 'Tomar foto');
+      await _shoot(tester);
       await _tapText(tester, 'Continuar');
-      await _tapText(tester, 'Tomar foto');
-      await _tapText(tester, 'Tomar foto');
+      await _shoot(tester);
+      await _shoot(tester);
       await _tapText(tester, 'Enviar');
       expect(find.text('Estamos revisando tus documentos'), findsOneWidget);
       await _tapText(tester, 'Continuar');

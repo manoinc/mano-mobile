@@ -9,23 +9,6 @@ import 'package:mano_session/mano_session.dart';
 PickedImage _photo([String type = 'image/jpeg']) =>
     PickedImage(bytes: Uint8List(4), mimeType: type, name: 'p');
 
-/// Hands back [next] once per pick; null means the user backed out.
-final class _Picker implements MediaPicker {
-  PickedImage? next = _photo();
-  final sources = <PhotoSource>[];
-  final facings = <CameraFacing>[];
-
-  @override
-  Future<PickedImage?> pick(
-    PhotoSource source, {
-    CameraFacing facing = CameraFacing.rear,
-  }) async {
-    sources.add(source);
-    facings.add(facing);
-    return next;
-  }
-}
-
 /// The mock, with a status it can be told to report.
 final class _Port implements IdentityVerificationPort {
   final inner = MockIdentityVerification();
@@ -53,47 +36,43 @@ final class _Port implements IdentityVerificationPort {
   }
 }
 
-Future<({ProviderContainer c, IdentityFlowNotifier n, _Picker picker})> _setUp(
+Future<({ProviderContainer c, IdentityFlowNotifier n})> _setUp(
   _Port port,
 ) async {
-  final picker = _Picker();
   final c = ProviderContainer.test(
-    overrides: [
-      identityVerificationProvider.overrideWithValue(port),
-      mediaPickerProvider.overrideWithValue(picker),
-    ],
+    overrides: [identityVerificationProvider.overrideWithValue(port)],
   );
   c.listen(identityFlowProvider, (_, _) {});
   await pumpEventQueue();
-  return (c: c, n: c.read(identityFlowProvider.notifier), picker: picker);
+  return (c: c, n: c.read(identityFlowProvider.notifier));
 }
 
 IdentityFlowState _s(ProviderContainer c) => c.read(identityFlowProvider);
 
 Future<void> _captureAll(IdentityFlowNotifier n) async {
   n.begin();
-  await n.capture();
+  await n.usePhoto(_photo());
   n.begin();
-  await n.capture();
-  await n.capture();
+  await n.usePhoto(_photo());
+  await n.usePhoto(_photo());
 }
 
 void main() {
   group('opening', () {
     test('a fresh check opens on the intro', () async {
-      final (:c, n: _, picker: _) = await _setUp(_Port());
+      final (:c, n: _) = await _setUp(_Port());
       expect(_s(c).step, IdentityFlowStep.intro);
     });
 
     test('a check already sent opens on pending', () async {
-      final (:c, n: _, picker: _) = await _setUp(
+      final (:c, n: _) = await _setUp(
         _Port()..reported = const IdentityCheckPending(),
       );
       expect(_s(c).step, IdentityFlowStep.pending);
     });
 
     test('an approved check opens approved and counts as verified', () async {
-      final (:c, n: _, picker: _) = await _setUp(
+      final (:c, n: _) = await _setUp(
         _Port()..reported = const IdentityCheckApproved(),
       );
       expect(_s(c).step, IdentityFlowStep.approved);
@@ -101,7 +80,7 @@ void main() {
     });
 
     test('a refused check opens on the reason', () async {
-      final (:c, n: _, picker: _) = await _setUp(
+      final (:c, n: _) = await _setUp(
         _Port()..reported = const IdentityCheckRejected(reason: 'Borrosa'),
       );
       expect(_s(c).step, IdentityFlowStep.rejected);
@@ -112,18 +91,22 @@ void main() {
 
   test('front, back tips, back, selfie, then review, as Nu walks it', () async {
     final port = _Port();
-    final (:c, :n, :picker) = await _setUp(port);
+    final (:c, :n) = await _setUp(port);
     final seen = <IdentityFlowStep>[];
+    final lenses = <CameraFacing?>[];
 
     n.begin();
+    lenses.add(_s(c).step.facing);
     seen.add(_s(c).step);
-    await n.capture();
+    await n.usePhoto(_photo());
     seen.add(_s(c).step);
     n.begin();
     seen.add(_s(c).step);
+    lenses.add(_s(c).step.facing);
     for (var i = 0; i < 2; i++) {
-      await n.capture();
+      await n.usePhoto(_photo());
       seen.add(_s(c).step);
+      lenses.add(_s(c).step.facing);
     }
 
     expect(seen, [
@@ -134,29 +117,19 @@ void main() {
       IdentityFlowStep.review,
     ]);
     expect(port.submitted, IdentityDocumentKind.values);
-    expect(picker.sources, everyElement(PhotoSource.camera));
-    expect(picker.facings, [
+    expect(lenses, [
       CameraFacing.rear,
       CameraFacing.rear,
       CameraFacing.front,
-    ], reason: 'the selfie opens the front camera');
+      null,
+    ], reason: 'the cédula on the back camera, the selfie on the front');
     expect(_s(c).photos.keys, IdentityDocumentKind.values);
   });
 
-  test('backing out of the camera stays on the step', () async {
-    final (:c, :n, :picker) = await _setUp(_Port());
-    n.begin();
-    picker.next = null;
-    await n.capture();
-    expect(_s(c).step, IdentityFlowStep.cedulaFront);
-    expect(_s(c).photos, isEmpty);
-  });
-
   test('an unsupported photo stays on the step and says why', () async {
-    final (:c, :n, :picker) = await _setUp(_Port());
+    final (:c, :n) = await _setUp(_Port());
     n.begin();
-    picker.next = _photo('image/gif');
-    await n.capture();
+    await n.usePhoto(_photo('image/gif'));
     expect(_s(c).step, IdentityFlowStep.cedulaFront);
     expect(_s(c).failure, isA<DataRejected>());
 
@@ -166,28 +139,30 @@ void main() {
 
   test('retake from review comes straight back to review', () async {
     final port = _Port();
-    final (:c, :n, picker: _) = await _setUp(port);
+    final (:c, :n) = await _setUp(port);
     await _captureAll(n);
 
     n.retake(IdentityDocumentKind.cedulaBack);
     expect(_s(c).step, IdentityFlowStep.cedulaBack);
-    await n.capture();
+    await n.usePhoto(_photo());
 
     expect(_s(c).step, IdentityFlowStep.review);
     expect(port.submitted.last, IdentityDocumentKind.cedulaBack);
   });
 
   test('the back tips take no photo and lead to the back', () async {
-    final (:c, :n, :picker) = await _setUp(_Port());
+    final port = _Port();
+    final (:c, :n) = await _setUp(port);
     n.begin();
-    await n.capture();
-    await n.capture();
+    await n.usePhoto(_photo());
+    await n.usePhoto(_photo());
     expect(_s(c).step, IdentityFlowStep.backIntro);
-    expect(picker.sources, hasLength(1));
+    expect(_s(c).step.facing, isNull);
+    expect(port.submitted, hasLength(1));
   });
 
   test('back walks the steps and returns from a retake to review', () async {
-    final (:c, :n, picker: _) = await _setUp(_Port());
+    final (:c, :n) = await _setUp(_Port());
     await _captureAll(n);
 
     n.back();
@@ -205,7 +180,7 @@ void main() {
   });
 
   test('back from a retake returns to review', () async {
-    final (:c, :n, picker: _) = await _setUp(_Port());
+    final (:c, :n) = await _setUp(_Port());
     await _captureAll(n);
     n
       ..retake(IdentityDocumentKind.selfie)
@@ -215,7 +190,7 @@ void main() {
 
   test('send is busy while in flight, then pending', () async {
     final port = _Port()..gate = Completer<void>();
-    final (:c, :n, picker: _) = await _setUp(port);
+    final (:c, :n) = await _setUp(port);
     await _captureAll(n);
 
     final sending = n.send();
@@ -228,14 +203,14 @@ void main() {
   });
 
   test('send does nothing off the review', () async {
-    final (:c, :n, picker: _) = await _setUp(_Port());
+    final (:c, :n) = await _setUp(_Port());
     n.begin();
     await n.send();
     expect(_s(c).step, IdentityFlowStep.cedulaFront);
   });
 
   test('retry after a refusal starts the photos over', () async {
-    final (:c, :n, picker: _) = await _setUp(
+    final (:c, :n) = await _setUp(
       _Port()..reported = const IdentityCheckRejected(reason: 'Borrosa'),
     );
     n.retry();
@@ -244,7 +219,7 @@ void main() {
   });
 
   test('progress runs from the intro to the review', () async {
-    final (:c, :n, picker: _) = await _setUp(_Port());
+    final (:c, :n) = await _setUp(_Port());
     expect(_s(c).progress, closeTo(1 / 6, 1e-9));
     await _captureAll(n);
     expect(_s(c).progress, 1);
@@ -263,7 +238,7 @@ void main() {
     });
 
     test('a pending check is not verified yet', () async {
-      final (:c, :n, picker: _) = await _setUp(
+      final (:c, :n) = await _setUp(
         _Port()..reported = const IdentityCheckPending(),
       );
       expect(await n.verified(), isFalse);
@@ -279,7 +254,6 @@ void main() {
               approveIdentityChecks: true,
             ),
           ),
-          mediaPickerProvider.overrideWithValue(_Picker()),
         ],
       );
       c.listen(identityFlowProvider, (_, _) {});
