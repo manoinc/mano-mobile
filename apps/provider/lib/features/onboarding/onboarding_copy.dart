@@ -20,6 +20,21 @@ const experienceProblemCopy = 'Escribe un número de años entre 0 y 60.';
 
 const bioProblemCopy = 'Usa máximo 280 caracteres.';
 
+const inviteCodeProblemCopy = 'Revisa el código, se ve así: RP-1a2b3c4d.';
+
+/// Shown once after the profile is sent, when the colleague's code was not recorded.
+String referralFailureCopy(ReferralRedemptionFailure failure) =>
+    switch (failure) {
+      ReferralRedemptionFailure.unknownCode =>
+        'No encontramos el código de tu colega.',
+      ReferralRedemptionFailure.ownCode =>
+        'Ese código es el tuyo; no cuenta como invitación.',
+      ReferralRedemptionFailure.alreadyRedeemed =>
+        'Ya tienes registrado al colega que te invitó.',
+      ReferralRedemptionFailure.notSaved =>
+        'No pudimos registrar el código de tu colega.',
+    };
+
 String documentLabel(ProviderDocument document) => switch (document) {
   ProviderDocument.certificates => 'Certificados o soportes (opcional)',
 };

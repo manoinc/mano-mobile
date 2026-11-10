@@ -9,9 +9,11 @@ final class LiveShapedProfile implements ProviderProfileRepository {
       jobsCompleted: 3,
       completionRatePct: 75,
     ),
+    this.program = const ReferralProgram(code: 'RP-1a2b3c4d'),
   });
 
   final ProviderStats stand;
+  final ReferralProgram program;
 
   @override
   Future<ProviderProfile> profile() async => const ProviderProfile(
@@ -31,6 +33,5 @@ final class LiveShapedProfile implements ProviderProfileRepository {
   Future<List<Review>> reviews() async => const [];
 
   @override
-  Future<ReferralProgram> referral() async =>
-      const ReferralProgram(code: 'RP-1a2b3c4d');
+  Future<ReferralProgram> referral() async => program;
 }

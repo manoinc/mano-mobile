@@ -34,8 +34,10 @@ Future<ProviderContainer> _pump(
   ProviderProfileRepository? profile,
   String? subject = 'w1',
   IdentityVerificationPort? identity,
+  List<String>? shared,
 }) async {
   final overrides = [
+    textSharerProvider.overrideWithValue((text) async => shared?.add(text)),
     if (profile != null)
       providerProfileRepositoryProvider.overrideWithValue(profile),
     serviceCatalogProvider.overrideWithValue(FakeServiceCatalog()),
@@ -228,12 +230,56 @@ void main() {
     await tester.tap(find.byType(ManoReferralCard));
     await tester.pumpAndSettle();
     expect(find.text('ANDRES-M4N0'), findsOneWidget);
-    expect(find.text('2 de 5 invitados'), findsWidgets);
+    expect(find.text('2 colegas invitados · 1 verificado'), findsWidgets);
 
     await tester.tap(find.text('Copiar código'));
     await tester.pumpAndSettle();
     expect(copied, 'ANDRES-M4N0');
     expect(find.text('Código copiado'), findsOneWidget);
+  });
+
+  testWidgets('the card offers coins per verified colleague', (tester) async {
+    await _pump(tester);
+    await _centre(tester, find.byType(ManoReferralCard));
+    expect(
+      find.text('Gana 10 Mano coins por cada colega verificado'),
+      findsOneWidget,
+    );
+    expect(find.text('2 colegas invitados · 1 verificado'), findsOneWidget);
+  });
+
+  testWidgets('with no invites yet the offer still shows, without counts', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      profile: LiveShapedProfile(
+        program: const ReferralProgram(
+          code: 'RP-1a2b3c4d',
+          coinsPerColleague: 10,
+        ),
+      ),
+    );
+    await _centre(tester, find.byType(ManoReferralCard));
+    expect(
+      find.text('Gana 10 Mano coins por cada colega verificado'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('invitado'), findsNothing);
+  });
+
+  testWidgets('Compartir mi código shares the invite link', (tester) async {
+    final shared = <String>[];
+    await _pump(tester, shared: shared);
+    await _centre(tester, find.byType(ManoReferralCard));
+    await tester.tap(find.byType(ManoReferralCard));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Compartir mi código'));
+    await tester.pumpAndSettle();
+
+    expect(shared.single, contains('ANDRES-M4N0'));
+    expect(shared.single, endsWith('https://manoapp.co/r/ANDRES-M4N0'));
   });
 
   testWidgets('the referral sheet links to Billetera', (tester) async {
@@ -314,10 +360,11 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('RP-1a2b3c4d'), findsOneWidget);
-      expect(find.textContaining('invitados'), findsNothing);
+      expect(find.textContaining('invitado'), findsNothing);
       expect(find.textContaining('Mano coins'), findsNothing);
       expect(find.textContaining('Comparte tu código con colegas'), findsOne);
       expect(find.text('Copiar código'), findsOneWidget);
+      expect(find.text('Compartir mi código'), findsOneWidget);
     });
   });
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
@@ -12,29 +13,34 @@ Future<void> showReferralSheet(BuildContext context, ReferralProgram program) =>
       builder: (_) => _ReferralSheet(program: program),
     );
 
-class _ReferralSheet extends StatefulWidget {
+class _ReferralSheet extends ConsumerStatefulWidget {
   const _ReferralSheet({required this.program});
 
   final ReferralProgram program;
 
   @override
-  State<_ReferralSheet> createState() => _ReferralSheetState();
+  ConsumerState<_ReferralSheet> createState() => _ReferralSheetState();
 }
 
-class _ReferralSheetState extends State<_ReferralSheet> {
+class _ReferralSheetState extends ConsumerState<_ReferralSheet> {
   bool _codeCopied = false;
-  bool _messageCopied = false;
 
-  Future<void> _copy(String text, {required bool code}) async {
-    await Clipboard.setData(ClipboardData(text: text));
+  Future<void> _copy() async {
+    await Clipboard.setData(ClipboardData(text: widget.program.code));
     if (!mounted) return;
-    setState(() => code ? _codeCopied = true : _messageCopied = true);
+    setState(() => _codeCopied = true);
+  }
+
+  Future<void> _share() {
+    final code = widget.program.code;
+    final link = ref.read(manoConfigProvider).inviteLink(code);
+    return ref.read(textSharerProvider)(referralMessage(code, link));
   }
 
   @override
   Widget build(BuildContext context) {
     final program = widget.program;
-    final reward = program.reward;
+    final coins = program.coinsPerColleague;
     final text = Theme.of(context).textTheme;
 
     return SafeArea(
@@ -48,10 +54,10 @@ class _ReferralSheetState extends State<_ReferralSheet> {
             Text('Invita a un colega', style: text.headlineSmall),
             const SizedBox(height: ManoSpacing.xs),
             Text(
-              reward == null
+              coins == null
                   ? 'Comparte tu código con colegas que quieran trabajar en Mano.'
-                  : 'Cuando se una con tu código ganas ${reward.coins} '
-                        'Mano coins, que llegan a tu Billetera.',
+                  : 'Cuando un colega se une con tu código y verifica su '
+                        'identidad, ganas $coins Mano coins en tu Billetera.',
               style: text.bodyMedium?.copyWith(color: ManoColors.muted),
             ),
             const SizedBox(height: ManoSpacing.md),
@@ -68,35 +74,19 @@ class _ReferralSheetState extends State<_ReferralSheet> {
                 style: text.headlineSmall,
               ),
             ),
-            if (reward != null) ...[
-              const SizedBox(height: ManoSpacing.md),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(ManoRadius.pill),
-                child: LinearProgressIndicator(
-                  value: reward.progress,
-                  minHeight: 6,
-                  color: ManoColors.flame,
-                  backgroundColor: ManoColors.stone,
-                ),
-              ),
-              const SizedBox(height: ManoSpacing.xs),
+            if (program.invited > 0) ...[
+              const SizedBox(height: ManoSpacing.sm),
               Text(
-                referralProgressText(reward),
+                referralCountText(program.invited, program.verified),
                 style: text.bodySmall?.copyWith(color: ManoColors.faint),
               ),
             ],
             const SizedBox(height: ManoSpacing.lg),
-            ManoPrimaryButton(
-              label: _codeCopied ? 'Código copiado' : 'Copiar código',
-              onPressed: () => _copy(program.code, code: true),
-            ),
+            ManoPrimaryButton(label: 'Compartir mi código', onPressed: _share),
             const SizedBox(height: ManoSpacing.sm),
             ManoOutlineButton(
-              label: _messageCopied
-                  ? 'Mensaje copiado'
-                  : 'Copiar mensaje para compartir',
-              onPressed: () =>
-                  _copy(referralMessage(program.code), code: false),
+              label: _codeCopied ? 'Código copiado' : 'Copiar código',
+              onPressed: _copy,
             ),
             Center(
               child: ManoTextAction(

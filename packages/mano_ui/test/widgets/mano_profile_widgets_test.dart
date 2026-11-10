@@ -77,20 +77,20 @@ void main() {
       _host(
         ManoReferralCard(
           title: 'Invita a un colega',
-          subtitle: 'Gana 10 Mano coins',
+          subtitle: 'Gana 10 Mano coins por cada colega verificado',
           coinLabel: '10',
-          progressLabel: '2 de 5 invitados',
-          progress: 0.4,
+          detail: '2 colegas invitados · 1 verificado',
           onTap: () => taps++,
         ),
       ),
     );
-    expect(find.text('2 de 5 invitados'), findsOneWidget);
+    expect(find.text('2 colegas invitados · 1 verificado'), findsOneWidget);
+    expect(find.byType(LinearProgressIndicator), findsNothing);
     await tester.tap(find.byType(ManoReferralCard));
     expect(taps, 1);
   });
 
-  testWidgets('ManoReferralCard without a reward shows no coin or bar', (
+  testWidgets('ManoReferralCard without a reward shows no coin or detail', (
     tester,
   ) async {
     await tester.pumpWidget(

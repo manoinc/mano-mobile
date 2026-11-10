@@ -19,7 +19,9 @@ export 'package:mano_data/mano_data.dart'
         InMemoryPasswordlessAuth,
         InMemorySessionRepository,
         InMemorySocialAuth,
-        ManoConfig;
+        ManoConfig,
+        NoInstallReferrer,
+        NoInviteLinks;
 
 // The domain's vocabulary -- Session, AuthFailure and its cases,
 // AuthenticatedUser, ManoRole -- re-exported in full, unlike mano_data above.

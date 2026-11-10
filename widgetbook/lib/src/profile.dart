@@ -93,10 +93,17 @@ WidgetbookCategory profile() => WidgetbookCategory(
       'Default': (context) => _padded(
         const ManoReferralCard(
           title: 'Invita a un colega',
-          subtitle: 'Gana 10 Mano coins por cada colega que se una',
+          subtitle: 'Gana 10 Mano coins por cada colega verificado',
           coinLabel: '10',
-          progressLabel: '2 de 5 invitados',
-          progress: 0.4,
+          onTap: noop,
+        ),
+      ),
+      'With invites': (context) => _padded(
+        const ManoReferralCard(
+          title: 'Invita a un colega',
+          subtitle: 'Gana 10 Mano coins por cada colega verificado',
+          coinLabel: '10',
+          detail: '3 colegas invitados · 2 verificados',
           onTap: noop,
         ),
       ),

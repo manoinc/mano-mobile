@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../invite_code_sheet.dart';
 import '../onboarding_copy.dart';
 
 /// Everything entered so far, and the submission for review.
@@ -16,6 +17,7 @@ class ReviewStep extends ConsumerWidget {
     final notifier = ref.read(providerOnboardingProvider.notifier);
     final draft = state.draft;
     final submitting = state.status is ProviderOnboardingSubmitting;
+    final invite = ref.watch(referralInviteProvider.select((i) => i.code));
 
     return ManoStepScaffold(
       onBack: submitting ? null : notifier.back,
@@ -55,6 +57,17 @@ class ReviewStep extends ConsumerWidget {
               for (final d in ProviderDocument.values)
                 if (state.attached.containsKey(d)) documentLabel(d),
             ].join('\n'),
+          ),
+        if (invite != null)
+          _SummaryRow(label: 'Te invitó un colega', value: invite.value)
+        else
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: ManoTextAction(
+              label: '¿Te invitó un colega? Escribe su código',
+              padding: EdgeInsets.zero,
+              onPressed: submitting ? null : () => showInviteCodeSheet(context),
+            ),
           ),
       ],
     );
