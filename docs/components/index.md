@@ -100,7 +100,6 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | `ManoStepScaffold` + `ManoStepTransition` | Multi-step forms that slide between steps; `headlineEmphasis` paints part of the headline in flame. |
 | `ManoEmphasisText` | One sentence with one fragment set apart (flame by default). |
 | `ManoTipList` | Bulleted advice in quiet text, each with a bold fragment (`ManoTip`). |
-| `ManoCaptureFrame` | A camera-style guide on the ink ground: instruction, card or face outline, optional photo inside, "Ayuda" pill. No app uses it since the Nu-style identity flow. |
 | `ManoCaptureReviewRow` | A photo just taken, its name and "Repetir". |
 | `ManoRefreshList` | A pull-to-refresh list with dividers and an empty message. |
 | `ManoPullToRefresh` | Makes any screen body pullable: a list inside it, or a still empty state. |
