@@ -41,6 +41,12 @@ void main() {
     test('a program without a reward only carries its code', () {
       const program = ReferralProgram(code: 'MANO-1');
       expect(program.reward, isNull);
+      expect(program.referralsCount, 0);
+    });
+
+    test('a program counts the colleagues who joined with its code', () {
+      const program = ReferralProgram(code: 'RP-1a2b3c4d', referralsCount: 3);
+      expect(program.referralsCount, 3);
     });
   });
 

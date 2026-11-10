@@ -55,10 +55,17 @@ final class ProviderStats {
 
 /// The code to share and, where a reward program runs, its progress.
 final class ReferralProgram {
-  const ReferralProgram({required this.code, this.reward});
+  const ReferralProgram({
+    required this.code,
+    this.reward,
+    this.referralsCount = 0,
+  });
 
   final String code;
   final ReferralReward? reward;
+
+  /// Colleagues who signed up with [code] (gateway `referralsCount`).
+  final int referralsCount;
 }
 
 /// Invite-a-colleague progress towards a coin reward.
