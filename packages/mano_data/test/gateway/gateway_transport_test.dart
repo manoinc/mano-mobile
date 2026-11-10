@@ -96,4 +96,30 @@ void main() {
       ),
     );
   });
+
+  test('a rejection carries extensions.code when there is one', () {
+    final transport = _transport(
+      (_) async => http.Response(
+        jsonEncode({
+          'errors': [
+            {
+              'message': 'referral code not found',
+              'extensions': {'code': 'REFERRAL_NOT_FOUND'},
+            },
+          ],
+        }),
+        200,
+      ),
+    );
+    expect(
+      transport.run('{ ok }'),
+      throwsA(
+        isA<GatewayRejected>().having(
+          (e) => e.code,
+          'code',
+          'REFERRAL_NOT_FOUND',
+        ),
+      ),
+    );
+  });
 }

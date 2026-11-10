@@ -27,9 +27,12 @@ final class GatewayUnavailable implements Exception {
 
 /// The gateway answered with GraphQL errors (not found, not allowed, invalid).
 final class GatewayRejected implements Exception {
-  const GatewayRejected(this.message);
+  const GatewayRejected(this.message, {this.code});
 
   final String message;
+
+  /// The error's `extensions.code`, when the gateway sets one.
+  final String? code;
 
   @override
   String toString() => 'GatewayRejected($message)';
@@ -90,8 +93,11 @@ final class GatewayTransport {
 
     final errors = body['errors'];
     if (errors is List && errors.isNotEmpty) {
+      final first = errors.first as Map<String, dynamic>;
+      final extensions = first['extensions'];
       throw GatewayRejected(
-        '${(errors.first as Map<String, dynamic>)['message']}',
+        '${first['message']}',
+        code: extensions is Map ? extensions['code'] as String? : null,
       );
     }
 

@@ -6,7 +6,7 @@ import '../gateway/gateway_transport.dart';
 import '../reviews/review_json.dart';
 
 const _fields =
-    'id displayName photoUrl phone email workZone referralCode '
+    'id displayName photoUrl phone email workZone referralCode referralsCount '
     'verification { isVerified } averageRating ratingsCount '
     'jobsCompleted completionRate';
 
@@ -62,8 +62,13 @@ mutation UpdateWorkerProfile(\$input: UpdateWorkerProfileInput!) {
   }
 
   @override
-  Future<ReferralProgram> referral() async =>
-      ReferralProgram(code: (await _worker())['referralCode'] as String? ?? '');
+  Future<ReferralProgram> referral() async {
+    final json = await _worker();
+    return ReferralProgram(
+      code: json['referralCode'] as String? ?? '',
+      referralsCount: json['referralsCount'] as int? ?? 0,
+    );
+  }
 
   @override
   Future<List<Review>> reviews() async {

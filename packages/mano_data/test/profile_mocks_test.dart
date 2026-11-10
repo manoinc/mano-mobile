@@ -56,6 +56,7 @@ void main() {
       expect(referral.code, isNotEmpty);
       expect(referral.reward!.coins, 10);
       expect(referral.reward!.invited, lessThan(referral.reward!.goal));
+      expect(referral.referralsCount, 2);
     });
 
     test('a seeded profile replaces the fixture', () async {

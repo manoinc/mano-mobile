@@ -162,6 +162,20 @@ void main() {
 
     expect(referral.code, 'RP-1a2b3c4d');
     expect(referral.reward, isNull);
+    expect(referral.referralsCount, 0);
+  });
+
+  test('the referral counts the colleagues who joined with the code', () async {
+    final (:repo, local: _) = _setUp((r) async {
+      expect(_body(r)['query'], contains('referralsCount'));
+      return _data({
+        'viewer': {
+          'workerProfile': {..._worker(), 'referralsCount': 3},
+        },
+      });
+    });
+
+    expect((await repo.referral()).referralsCount, 3);
   });
 
   test('reviews read the worker profile, newest first as served', () async {
