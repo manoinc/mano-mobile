@@ -25,41 +25,60 @@ README has the contract and the env variables.
 
 ## The screens
 
-| App | Entry | Screen |
-|---|---|---|
-| Requester | onboarding "Iniciar sesión" (flame outline) | `SignInScreen` |
-| Provider | welcome "Ya tengo cuenta" | `SignInStep` (onboarding step `signIn`) |
+One screen for both apps: `ManoPhoneSignInScreen` (`mano_ui`), after Wise's
+"Log in". It is dumb; each app has a thin wrapper that maps
+`phoneSignInProvider` onto it and routes the session.
 
-Both compose the same `mano_ui` pieces, after Airbnb's "Log in or sign up"
-sheet with Wise's pills: `ManoSignInLayout` with `ManoPhoneField`
-("Colombia (+57)" fixed, "Te enviaremos un código por SMS."), the flame
-"Continuar", "o", then "Continuar con correo" and `ManoPlatformSignInButton`.
-The code screen is `ManoSignInLayout` with `ManoOtpField` and
-`ManoResendTimer` (30 s).
+| App | Entries | Wrapper |
+|---|---|---|
+| Requester | welcome "Iniciar sesión" and "Registrarse" | `SignInScreen` |
+| Provider | welcome "Iniciar sesión" and "Crear cuenta" | `SignInStep` (onboarding step `signIn`) |
+
+Sign-in and sign-up are one flow (SuperTokens `signinup`), so both welcome
+pills open the same phone screen. They are both filled flame, side by side
+(`ManoWelcomeActions`), with `ManoPlatformSignInButton` full width below; see
+the exception in [Colour](../brand/colour.md).
+
+The phone screen (`ManoSignInLayout`):
+
+- round close top-left, title "Inicia sesión o regístrate";
+- "País o región": a select with flag, name and dial code (Colombia +57 by
+  default) that opens `ManoCountryPickerSheet`, searchable by name or code;
+- "Número de celular": an outlined box, "Te enviaremos un código por SMS.";
+- the flame "Continuar", then the underlined "¿Problemas para entrar?", which
+  opens the email sheet;
+- pinned at the bottom, "O continúa con" and a `ManoBrandPillRow`: Google
+  (Android) or Apple (iOS), and an email pill. The pills hide while the
+  keyboard is up.
+
+The code screen is the same layout with `ManoOtpField` and `ManoResendTimer`
+(30 s), and no footer.
 
 State lives in `phoneSignInProvider` (`mano_session`, auto-disposed): the
-number, the challenge, the code, busy and the failure. It hands back the
-`Session`; the app routes it:
+country, the number, the challenge, the code, busy and the failure. It hands
+back the `Session`; the app routes it:
 
 - requester: `OnboardingFlowNotifier.enter(session)` — a new account goes to
   the registration flow at the name step with `hasAccount`, which skips email
   and password (name → address → notifications);
 - provider: `ProviderOnboardingNotifier.enter(session, phone:)` — a new
-  account continues at the name step with the verified phone filled in; a
-  returning one leaves the onboarding for the shell.
+  account continues at the identity check with the verified phone filled in;
+  a returning one leaves the onboarding for the shell.
 
 Either way the notifier then calls `SessionManager.adopt(session)`.
 
-"Continuar con correo" opens the old credentials sheet, which now offers
-"Crear cuenta con correo" (the email sign-up flows). The requester's
-"Registrarse" and the provider's "Crear cuenta profesional" still start email
-sign-up.
+The email pill and "¿Problemas para entrar?" open the credentials sheet,
+which offers "Crear cuenta con correo" (the email sign-up flows). Google or
+Apple on the welcome signs straight in; a failure opens the phone screen with
+the notice.
 
 ## Phone and code
 
-1. `colombianE164('300 123 4567')` turns what was typed into `+573001234567`;
-   null means it is not a Colombian mobile, and the field shows
-   `phoneNumberProblemCopy`.
+1. `phoneE164('300 123 4567', Country.colombia)` turns what was typed into
+   `+573001234567`. Colombia wants ten digits starting with 3; the other
+   `supportedCountries` (MX, PE, EC, CL, AR, VE, US, ES) take 6–12 digits.
+   Null means the number does not fit, and the field shows
+   `phoneNumberProblemCopy(country)`.
 2. `sendCode(phone, role:)` posts `/auth/signinup/code` and returns an
    `OtpChallenge` (`deviceId`, `preAuthSessionId`, `phone`). The code screen
    shows `maskedPhone`.

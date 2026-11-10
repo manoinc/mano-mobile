@@ -17,11 +17,13 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | Component | Use it for |
 |---|---|
 | `ManoPrimaryButton` | The one flame action on a screen. Full width, supports `busy`. `tone: ink` fills it with ink for a main action that is not the hot one, as "Agregar método de pago". |
-| `ManoOutlineButton` | A strong secondary action (ink outline). `tone: flame` pairs it with a flame primary, as "Iniciar sesión" beside "Registrarse". |
+| `ManoOutlineButton` | A strong secondary action (ink outline). `tone: flame` pairs it with a flame primary. |
+| `ManoWelcomeActions` | The welcome's two equal flame pills side by side ("Iniciar sesión", "Registrarse"), with a full-width slot below for the platform button. The one-flame rule's only exception, see [Colour](../brand/colour.md). |
 | `ManoQuietButton` | A low-emphasis action in clay text. |
 | `ManoTextAction` | An inline link-like action ("Iniciar sesión", "Agendar"). |
 | `ManoBrandButton` | Third-party sign-in; takes the brand mark as `leading`. |
 | `ManoPlatformSignInButton` | "Continuar con Apple" on iOS, "Continuar con Google" elsewhere. White pill with the official mark: Google and Apple forbid recolouring them. |
+| `ManoBrandPillRow` | Equal-width outlined pills holding only brand marks ("O continúa con"); each pill's label is its tooltip and screen-reader text. |
 | `ManoPressScale` | Wraps anything tappable with the press-down feel. |
 
 ### Inputs
@@ -29,7 +31,8 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | Component | Use it for |
 |---|---|
 | `ManoTextField` | Labelled text input; single or multi-line, helper and error text. |
-| `ManoPhoneField` | A fixed "Colombia (+57)" pill above a phone-number pill, with helper or error text. |
+| `ManoLabelledField` | A label above an outlined 14px box: a text input, or `.select` showing a value with a chevron that opens a picker. |
+| `ManoPhoneField` | "País o región" select (flag, name, dial code) above "Número de celular", both `ManoLabelledField`s. |
 | `ManoOtpField` | Six code boxes over one hidden field: SMS autofill (`oneTimeCode`), paste, error text. |
 | `ManoResendTimer` | "Reenviar código" held back by a countdown, restarted on each resend. |
 | `ManoSearchField` / `ManoSearchPill` | A real search input / a tappable pill that opens search. |
@@ -86,6 +89,7 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | Component | Use it for |
 |---|---|
 | `showManoSheet` + `ManoPromptSheet` | A bottom sheet with one decision; `secondaryLabel` adds a quiet way to decline ("Ahora no"). |
+| `showManoSheet` + `ManoCountryPickerSheet` | A searchable country list (flag, name, dial code, a check on the chosen one); search ignores case and accents and matches dial codes. |
 | `showManoSheet` + `ManoActionSheet` / `ManoOptionRow` | A list of actions; rows can be destructive or carry a `tag` ("Predeterminada"). |
 | `showManoDialog` + `ManoDialogCard` | A centred confirmation. |
 
@@ -94,8 +98,9 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | Component | Use it for |
 |---|---|
 | `ManoBottomNavBar` | Four tabs around a raised centre action. |
-| `ManoHeroScaffold` | Full-bleed brand screens with up to two actions. |
-| `ManoSignInLayout` | The way in: title, one field, the flame "Continuar", then "o" and outlined alternatives (email, Google/Apple). Phone and code screens in both apps. |
+| `ManoHeroScaffold` | Full-bleed brand screens: wordmark, headline, an `actions` slot (usually `ManoWelcomeActions`), footnote. |
+| `ManoSignInLayout` | Wise's log-in: round close, bold title, fields, the flame "Continuar", an underlined link, and a footer pinned to the bottom under a grey label (hidden while the keyboard is up). |
+| `ManoPhoneSignInScreen` | The one sign-in screen both apps show: country and number, then the code. Dumb; each app maps `phoneSignInProvider` onto it. |
 | `ManoStepScaffold` + `ManoStepTransition` | Multi-step forms that slide between steps; `headlineEmphasis` paints part of the headline in flame. |
 | `ManoEmphasisText` | One sentence with one fragment set apart (flame by default). |
 | `ManoTipList` | Bulleted advice in quiet text, each with a bold fragment (`ManoTip`). |
