@@ -73,7 +73,15 @@ void main() {
     expect(
       find.descendant(
         of: _row('Mastercard 8341'),
-        matching: find.text('Vence: 05/2033'),
+        matching: find.text('Vence: 05/2033 · Predeterminado'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Predeterminado'), findsNothing);
+    expect(
+      find.descendant(
+        of: _row('Nequi 4567'),
+        matching: find.text('Billetera Nequi'),
       ),
       findsOneWidget,
     );

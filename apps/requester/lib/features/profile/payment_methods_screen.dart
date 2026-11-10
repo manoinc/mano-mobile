@@ -56,7 +56,6 @@ class PaymentMethodsScreen extends ConsumerWidget {
                 leading: PaymentBrandMark(method),
                 title: paymentMethodTitle(method),
                 detail: paymentMethodDetail(method),
-                tag: method.isDefault ? 'Predeterminado' : null,
                 actionLabel: 'Editar',
                 onAction: () => _open(context, ref, method),
               ),
