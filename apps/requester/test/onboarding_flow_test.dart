@@ -692,7 +692,7 @@ void main() {
       await tester.tap(find.text('Continuar'));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('+525512345678'), findsOneWidget);
+      expect(find.textContaining('+52 551 *** 5678'), findsOneWidget);
       expect(phone.sends, 1);
     });
 

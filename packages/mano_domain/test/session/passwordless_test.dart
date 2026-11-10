@@ -21,6 +21,16 @@ void main() {
     expect(challenge.maskedPhone, '+57 300 *** 4567');
   });
 
+  test('any country keeps its dial code and the last four digits', () {
+    OtpChallenge sentTo(String phone) =>
+        OtpChallenge(deviceId: 'd', preAuthSessionId: 'p', phone: phone);
+
+    expect(sentTo('+525512345678').maskedPhone, '+52 551 *** 5678');
+    expect(sentTo('+593991234567').maskedPhone, '+593 *** 4567');
+    expect(sentTo('+34612345678').maskedPhone, '+34 *** 5678');
+    expect(sentTo('+4915112345678').maskedPhone, '+*** 5678');
+  });
+
   test('a wrong code says how many tries are left', () {
     const failure = InvalidCode(attemptsLeft: 2);
 
