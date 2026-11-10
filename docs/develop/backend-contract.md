@@ -104,7 +104,8 @@ real accounts through `mano-auth` (see **Auth**).
   `pricing`. `actualHours` is always null: the gateway doesn't return it.
 - `Job.cancelledBy: JobParty` (`CLIENT` | `WORKER`) maps to the domain's
   nullable `JobParty`; null for live jobs and for legacy cancellations that
-  never recorded it. The requester reads "Cancelado por el profesional" or
+  never recorded it. List cards say only "Cancelado"; on detail and history
+  (`jobDetailBadge`) the requester reads "Cancelado por el profesional" or
   "Cancelaste este trabajo", the provider "Cancelado por el cliente" or
   "Cancelaste este trabajo", and null reads "Cancelado". Offline, the seeded
   `job-6` is cancelled by the worker and a mock cancel records the app's own

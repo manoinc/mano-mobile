@@ -132,10 +132,7 @@ void main() {
 
     await tester.tap(_card('activity-request-request-1'));
     await tester.pumpAndSettle();
-    expect(
-      find.textContaining('Acabamos de mudarnos'),
-      findsOneWidget,
-    );
+    expect(find.textContaining('Acabamos de mudarnos'), findsOneWidget);
 
     await tester.tap(find.text('Cancelar solicitud'));
     await tester.pumpAndSettle();
@@ -144,6 +141,14 @@ void main() {
     expect(_card('activity-request-request-1'), findsNothing);
     await _openFilter(tester, 'Cancelados');
     expect(_card('activity-request-request-1'), findsOneWidget);
+  });
+
+  testWidgets('a cancelled job card says only Cancelado', (tester) async {
+    await pumpRouterAt(tester, '/projects');
+    await _openFilter(tester, 'Cancelados');
+
+    final card = tester.widget<ManoProjectCard>(_card('activity-job-job-6'));
+    expect(card.statusLabel, 'Cancelado');
   });
 
   testWidgets('a closed request sheet offers no cancel', (tester) async {

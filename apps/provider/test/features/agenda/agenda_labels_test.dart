@@ -19,17 +19,25 @@ Job _job(JobStatus status, {JobParty? cancelledBy}) => Job(
 );
 
 void main() {
-  test('a cancelled job says who cancelled it', () {
-    expect(jobBadge(_job(JobStatus.cancelled, cancelledBy: JobParty.client)), (
-      'Cancelado por el cliente',
+  test('a list card says only Cancelado', () {
+    expect(jobBadge(JobStatus.cancelled), (
+      'Cancelado',
       ManoStatusTone.neutral,
     ));
+  });
+
+  test('a cancelled job says who cancelled it', () {
     expect(
-      jobBadge(_job(JobStatus.cancelled, cancelledBy: JobParty.worker)).$1,
+      jobDetailBadge(_job(JobStatus.cancelled, cancelledBy: JobParty.client)),
+      ('Cancelado por el cliente', ManoStatusTone.neutral),
+    );
+    expect(
+      jobDetailBadge(_job(JobStatus.cancelled, cancelledBy: JobParty.worker))
+          .$1,
       'Cancelaste este trabajo',
     );
-    expect(jobBadge(_job(JobStatus.cancelled)).$1, 'Cancelado');
-    expect(jobBadge(_job(JobStatus.inProgress)).$1, 'En curso');
+    expect(jobDetailBadge(_job(JobStatus.cancelled)).$1, 'Cancelado');
+    expect(jobDetailBadge(_job(JobStatus.inProgress)).$1, 'En curso');
   });
 
   final today = DateTime(2026, 10, 4, 15);

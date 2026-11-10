@@ -3,15 +3,19 @@ import 'package:mano_ui/mano_ui.dart';
 
 // Domain → copy for the agenda screens; mano_ui cannot see these enums.
 
-(String, ManoStatusTone) jobBadge(Job job) => switch (job.status) {
+/// A list card's badge: plain status, "Cancelado" whoever cancelled.
+(String, ManoStatusTone) jobBadge(JobStatus status) => switch (status) {
   JobStatus.scheduled => ('Programado', ManoStatusTone.info),
   JobStatus.inProgress => ('En curso', ManoStatusTone.warning),
   JobStatus.finished => ('Finalizado', ManoStatusTone.success),
-  JobStatus.cancelled => (
-    _cancelledBy(job.cancelledBy),
-    ManoStatusTone.neutral,
-  ),
+  JobStatus.cancelled => ('Cancelado', ManoStatusTone.neutral),
 };
+
+/// A detail or history badge, saying who cancelled.
+(String, ManoStatusTone) jobDetailBadge(Job job) =>
+    job.status == JobStatus.cancelled
+    ? (_cancelledBy(job.cancelledBy), ManoStatusTone.neutral)
+    : jobBadge(job.status);
 
 String _cancelledBy(JobParty? party) => switch (party) {
   JobParty.worker => 'Cancelaste este trabajo',

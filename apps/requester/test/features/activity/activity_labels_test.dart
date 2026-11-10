@@ -19,19 +19,27 @@ Job _job(JobStatus status, {JobParty? cancelledBy}) => Job(
 );
 
 void main() {
-  test('a cancelled job says who cancelled it', () {
-    expect(jobBadge(_job(JobStatus.cancelled, cancelledBy: JobParty.worker)), (
-      'Cancelado por el profesional',
+  test('a list card says only Cancelado', () {
+    expect(jobBadge(JobStatus.cancelled), (
+      'Cancelado',
       ManoStatusTone.neutral,
     ));
+  });
+
+  test('a cancelled job says who cancelled it', () {
     expect(
-      jobBadge(_job(JobStatus.cancelled, cancelledBy: JobParty.client)).$1,
+      jobDetailBadge(_job(JobStatus.cancelled, cancelledBy: JobParty.worker)),
+      ('Cancelado por el profesional', ManoStatusTone.neutral),
+    );
+    expect(
+      jobDetailBadge(_job(JobStatus.cancelled, cancelledBy: JobParty.client))
+          .$1,
       'Cancelaste este trabajo',
     );
-    expect(jobBadge(_job(JobStatus.cancelled)).$1, 'Cancelado');
+    expect(jobDetailBadge(_job(JobStatus.cancelled)).$1, 'Cancelado');
   });
 
   test('a live job keeps its status label', () {
-    expect(jobBadge(_job(JobStatus.scheduled)).$1, 'Programado');
+    expect(jobDetailBadge(_job(JobStatus.scheduled)).$1, 'Programado');
   });
 }
