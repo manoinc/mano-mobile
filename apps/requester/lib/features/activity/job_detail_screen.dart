@@ -202,7 +202,7 @@ class _JobBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final line = partyLine(job.provider, role: 'Tu profesional');
-    final (statusLabel, tone) = jobBadge(job.status);
+    final (statusLabel, tone) = jobBadge(job);
 
     return ListView(
       padding: const EdgeInsets.all(ManoSpacing.md),

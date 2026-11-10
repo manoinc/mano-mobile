@@ -41,7 +41,7 @@ class OrderHistoryScreen extends ConsumerWidget {
   }
 
   Widget _card(BuildContext context, Job job) {
-    final (label, tone) = jobBadge(job.status);
+    final (label, tone) = jobBadge(job);
     return Padding(
       padding: const EdgeInsets.only(bottom: ManoSpacing.sm),
       child: ManoProjectCard(

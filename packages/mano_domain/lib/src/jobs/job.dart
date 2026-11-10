@@ -3,6 +3,9 @@ import '../shared/party.dart';
 
 enum JobStatus { scheduled, inProgress, finished, cancelled }
 
+/// A side of a job, e.g. who cancelled it.
+enum JobParty { client, worker }
+
 /// Agreed work with a time slot; created by booking or accepting a request.
 final class Job {
   const Job({
@@ -18,6 +21,7 @@ final class Job {
     this.end,
     this.actualHours,
     this.finalAmountCop,
+    this.cancelledBy,
   });
 
   final String id;
@@ -36,6 +40,9 @@ final class Job {
 
   /// What the job came to, set once finished (gateway `finalAmount`).
   final int? finalAmountCop;
+
+  /// Who cancelled; null for legacy cancellations and live jobs.
+  final JobParty? cancelledBy;
 
   /// What the requester pays for a finished job.
   int get payableCop =>
@@ -57,7 +64,11 @@ final class Job {
 
   bool get requiresHoursOnFinish => rateType == RateType.hourly;
 
-  Job copyWith({JobStatus? status, double? actualHours}) => Job(
+  Job copyWith({
+    JobStatus? status,
+    double? actualHours,
+    JobParty? cancelledBy,
+  }) => Job(
     id: id,
     offerId: offerId,
     serviceTitle: serviceTitle,
@@ -70,6 +81,7 @@ final class Job {
     status: status ?? this.status,
     actualHours: actualHours ?? this.actualHours,
     finalAmountCop: finalAmountCop,
+    cancelledBy: cancelledBy ?? this.cancelledBy,
   );
 
   @override
@@ -86,7 +98,8 @@ final class Job {
       other.end == end &&
       other.status == status &&
       other.actualHours == actualHours &&
-      other.finalAmountCop == finalAmountCop;
+      other.finalAmountCop == finalAmountCop &&
+      other.cancelledBy == cancelledBy;
 
   @override
   int get hashCode => Object.hash(
@@ -102,6 +115,7 @@ final class Job {
     status,
     actualHours,
     finalAmountCop,
+    cancelledBy,
   );
 
   @override

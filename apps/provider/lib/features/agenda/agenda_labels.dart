@@ -3,11 +3,20 @@ import 'package:mano_ui/mano_ui.dart';
 
 // Domain → copy for the agenda screens; mano_ui cannot see these enums.
 
-(String, ManoStatusTone) jobBadge(JobStatus status) => switch (status) {
+(String, ManoStatusTone) jobBadge(Job job) => switch (job.status) {
   JobStatus.scheduled => ('Programado', ManoStatusTone.info),
   JobStatus.inProgress => ('En curso', ManoStatusTone.warning),
   JobStatus.finished => ('Finalizado', ManoStatusTone.success),
-  JobStatus.cancelled => ('Cancelado', ManoStatusTone.neutral),
+  JobStatus.cancelled => (
+    _cancelledBy(job.cancelledBy),
+    ManoStatusTone.neutral,
+  ),
+};
+
+String _cancelledBy(JobParty? party) => switch (party) {
+  JobParty.worker => 'Cancelaste este trabajo',
+  JobParty.client => 'Cancelado por el cliente',
+  null => 'Cancelado',
 };
 
 /// "$45.000/hora" or "$120.000", for a card.

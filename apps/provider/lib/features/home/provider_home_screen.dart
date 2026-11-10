@@ -77,7 +77,7 @@ class _NextJobCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (label, tone) = jobBadge(job.status);
+    final (label, tone) = jobBadge(job);
     return ManoProjectCard(
       key: const Key('home-next-job'),
       title: job.serviceTitle,

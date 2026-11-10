@@ -4,7 +4,7 @@ import '../mock/mock_fixtures.dart';
 
 /// In-memory [JobRepository] enforcing the domain's lifecycle rules.
 final class MockJobRepository implements JobRepository {
-  MockJobRepository({DateTime Function()? now, this._requests})
+  MockJobRepository({DateTime Function()? now, this._requests, this.cancelsAs})
     : _now = now ?? DateTime.now {
     final today = _now();
     DateTime at(int days, int hour) =>
@@ -15,7 +15,12 @@ final class MockJobRepository implements JobRepository {
       _make('job-3', mockOffers[1], JobStatus.inProgress, at(0, 8)),
       _make('job-4', mockOffers[0], JobStatus.inProgress, at(0, 7)),
       _make('job-5', mockOffers[0], JobStatus.finished, at(-7, 10)),
-      _make('job-6', mockOffers[2], JobStatus.cancelled, at(-3, 15)),
+      _make(
+        'job-6',
+        mockOffers[2],
+        JobStatus.cancelled,
+        at(-3, 15),
+      ).copyWith(cancelledBy: JobParty.worker),
     ]);
   }
 
@@ -23,6 +28,9 @@ final class MockJobRepository implements JobRepository {
   // When shared, rebooked requests land where the requests list reads them.
   final ServiceRequestRepository? _requests;
   final List<Job> _jobs = [];
+
+  /// The side whose cancels this mock records, as the app's role would.
+  final JobParty? cancelsAs;
   int _nextId = 100;
 
   Job _make(String id, ServiceOffer offer, JobStatus status, DateTime start) =>
@@ -119,7 +127,7 @@ final class MockJobRepository implements JobRepository {
       _change(
         id,
         (j) => j.canCancel,
-        (j) => j.copyWith(status: JobStatus.cancelled),
+        (j) => j.copyWith(status: JobStatus.cancelled, cancelledBy: cancelsAs),
       );
 
   @override

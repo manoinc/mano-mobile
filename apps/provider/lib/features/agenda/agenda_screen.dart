@@ -262,7 +262,7 @@ class _JobCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (label, tone) = jobBadge(job.status);
+    final (label, tone) = jobBadge(job);
     return Padding(
       padding: const EdgeInsets.only(bottom: ManoSpacing.sm),
       child: ManoProjectCard(

@@ -27,7 +27,11 @@ final _mockWorkStoresProvider = Provider((ref) {
   final requests = MockServiceRequestRepository(
     onAccepted: (request) => jobs.addFromRequest(request),
   );
-  jobs = MockJobRepository(requests: requests);
+  final role = ref.watch(manoConfigProvider).appRole;
+  jobs = MockJobRepository(
+    requests: requests,
+    cancelsAs: role == ManoRole.provider ? JobParty.worker : JobParty.client,
+  );
   return (requests: requests, jobs: jobs);
 });
 

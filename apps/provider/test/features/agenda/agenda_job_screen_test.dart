@@ -168,7 +168,7 @@ void main() {
     await tester.tap(find.text('Sí, cancelar'));
     await tester.pumpAndSettle();
 
-    expect(_chip('Cancelado'), findsOneWidget);
+    expect(_chip('Cancelaste este trabajo'), findsOneWidget);
     expect(find.text('Iniciar trabajo'), findsNothing);
     final job = await c.read(jobRepositoryProvider).job('job-1');
     expect(job?.status, JobStatus.cancelled);
@@ -211,6 +211,8 @@ void main() {
       await pumpRouterAt(tester, '/agenda/job/job-6');
 
       expect(find.text('Calificar cliente'), findsNothing);
+      // The shared mock seeds job-6 as cancelled by the professional.
+      expect(find.text('Cancelaste este trabajo'), findsOneWidget);
     });
 
     testWidgets('rating the client is private, sent, then marked', (

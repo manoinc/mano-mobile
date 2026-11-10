@@ -164,6 +164,27 @@ void main() {
     expect(job?.payableCop, 62500);
   });
 
+  test('a cancelled job says who cancelled, legacy ones do not', () async {
+    final (:repo, catalog: _) = _repo((r) async {
+      expect(_body(r)['query'], contains('cancelledBy'));
+      final id = (_body(r)['variables'] as Map)['id'];
+      return _data({
+        'job': {
+          ..._jobJson(id: id as String, status: 'CANCELLED'),
+          'cancelledBy': switch (id) {
+            'by-client' => 'CLIENT',
+            'by-worker' => 'WORKER',
+            _ => null,
+          },
+        },
+      });
+    });
+
+    expect((await repo.job('by-client'))?.cancelledBy, JobParty.client);
+    expect((await repo.job('by-worker'))?.cancelledBy, JobParty.worker);
+    expect((await repo.job('legacy'))?.cancelledBy, isNull);
+  });
+
   test('bookSlot sends the offer and an RFC 3339 start', () async {
     final (:repo, catalog: _) = _repo((r) async {
       expect(_body(r)['query'], contains('bookSlot'));
