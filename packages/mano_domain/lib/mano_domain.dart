@@ -21,6 +21,7 @@ export 'src/account/client_profile_repository.dart';
 export 'src/account/payment_method.dart';
 export 'src/account/payment_methods.dart';
 export 'src/account/saved_address.dart';
+export 'src/activity/activity_item.dart';
 export 'src/catalog/catalog_repository.dart';
 export 'src/catalog/job_service.dart';
 export 'src/catalog/offer_management.dart';

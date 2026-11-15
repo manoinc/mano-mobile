@@ -91,10 +91,7 @@ final requesterRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/projects',
-                builder: (context, state) => ProjectsTabScreen(
-                  showProjects:
-                      state.uri.queryParameters['segment'] == 'proyectos',
-                ),
+                builder: (context, state) => const ProjectsTabScreen(),
                 routes: [
                   GoRoute(
                     path: 'project/:id',

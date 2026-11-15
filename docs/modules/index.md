@@ -10,9 +10,9 @@ routes are already registered, so a module never edits the router.
 | REQ-01 | Explore | `explore/` | `/home/search?category=`, `/home/service/:id` | `ServiceCatalog` (live) | [REQ-01](REQ-01-explore.md) |
 | REQ-02 | Offers List | `offers/` | `/home/service/:id/offers` | `ServiceCatalog` (live) | [REQ-02](REQ-02-offers.md) |
 | REQ-03 | Booking Flow | `booking/` | `/home/book/:offerId` (full screen) | `ServiceCatalog`, `AvailabilityRepository`, `JobRepository`, `ServiceRequestRepository` | [REQ-03](REQ-03-booking.md) |
-| REQ-04 | Activity | `activity/` + `screens/projects_tab_screen.dart` | `/projects`, `/projects/job/:id` | `ServiceRequestRepository`, `JobRepository` | [REQ-04](REQ-04-activity.md) |
+| REQ-04 | Activity | `activity/` + `screens/projects_tab_screen.dart` | `/projects`, `/projects/job/:id` | `ServiceRequestRepository`, `JobRepository`, `ProjectRepository` | [REQ-04](REQ-04-activity.md) |
 | REQ-05 | Inbox & Chat | `chat/` + `screens/inbox_tab_screen.dart` | `/inbox`, `/inbox/:conversationId` (full screen) | `ConversationRepository`, `ChatRepository` | [REQ-05](REQ-05-chat.md) |
-| REQ-06 | Projects & Quotes | `projects/` | `/publish?category=` (full screen), `/projects?segment=proyectos`, `/projects/project/:id` | `ProjectRepository` (live) | [REQ-06](REQ-06-projects.md) |
+| REQ-06 | Projects & Quotes | `projects/` | `/publish?category=` (full screen), `/projects/project/:id` | `ProjectRepository` (live) | [REQ-06](REQ-06-projects.md) |
 | REQ-07 | Provider Profile | `provider_profile/` | `/provider/:providerId`, `/provider/:providerId/reviews` (full screen) | `ProviderDirectory` (mock), `ReviewRepository` | [REQ-07](REQ-07-provider-profile.md) |
 | REQ-08 | Perfil | `profile/` + `screens/profile_tab_screen.dart` | `/profile/personal`, `/profile/addresses` (also `/home/addresses`), `/profile/payments`, `/profile/history`, `/profile/support`, `/profile/settings` | `ClientProfileRepository`, `AddressBook`, `PaymentMethods`, `SupportDesk` (mocks), `MediaUploader` (live avatar) | [REQ-08](REQ-08-perfil.md) |
 

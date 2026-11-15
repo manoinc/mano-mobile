@@ -14,6 +14,7 @@ List<Override> emptyActivity() => [
   myServiceRequestsProvider.overrideWith(
     (ref) async => const <ServiceRequest>[],
   ),
+  myProjectsProvider.overrideWith((ref) async => const <Project>[]),
 ];
 
 List<Override> failingActivity() => [
@@ -21,6 +22,7 @@ List<Override> failingActivity() => [
   myServiceRequestsProvider.overrideWith(
     (ref) async => throw StateError('offline'),
   ),
+  myProjectsProvider.overrideWith((ref) async => throw StateError('offline')),
 ];
 
 /// Every job reads as paid, settled through billing.

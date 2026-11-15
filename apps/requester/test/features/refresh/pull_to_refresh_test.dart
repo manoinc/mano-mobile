@@ -54,24 +54,16 @@ Future<void> _pull(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('pulling Servicios refetches requests and jobs', (tester) async {
+  testWidgets('pulling Actividad refetches requests, jobs and projects', (
+    tester,
+  ) async {
     final fetches = await _pumpActividad(tester);
     final before = Map.of(fetches.counts);
 
     await _pull(tester);
 
-    expect(fetches.counts['requests'], before['requests']! + 1);
-    expect(fetches.counts['jobs'], (before['jobs'] ?? 0) + 1);
-  });
-
-  testWidgets('pulling Proyectos refetches the projects', (tester) async {
-    final fetches = await _pumpActividad(tester);
-    await tester.tap(find.text('Proyectos'));
-    await tester.pumpAndSettle();
-    final before = fetches.counts['projects']!;
-
-    await _pull(tester);
-
-    expect(fetches.counts['projects'], before + 1);
+    for (final read in ['requests', 'jobs', 'projects']) {
+      expect(fetches.counts[read], before[read]! + 1, reason: read);
+    }
   });
 }

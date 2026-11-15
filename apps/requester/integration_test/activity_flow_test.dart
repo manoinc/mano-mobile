@@ -10,17 +10,12 @@ import '../test/support/fake_session_repository.dart';
 import '../test/support/pump_app.dart';
 
 Future<void> _openFilter(WidgetTester tester, String label) async {
-  final tab = find.descendant(
-    of: find.byType(ManoProjectFilterTabs).last,
-    matching: find.text(label),
+  await tester.tap(
+    find.descendant(
+      of: find.byType(ManoProjectFilterTabs),
+      matching: find.text(label),
+    ),
   );
-  await tester.dragUntilVisible(
-    tab,
-    find.byType(ManoProjectFilterTabs).last,
-    const Offset(-120, 0),
-  );
-  await tester.pumpAndSettle();
-  await tester.tap(tab);
   await tester.pumpAndSettle();
 }
 
@@ -46,7 +41,7 @@ void main() {
 
     await tester.tap(find.text('Actividad'));
     await tester.pumpAndSettle();
-    await _openFilter(tester, 'Programados');
+    await _openFilter(tester, 'En curso');
 
     await tester.tap(find.byKey(const Key('activity-job-job-1')));
     await tester.pumpAndSettle();
@@ -63,7 +58,7 @@ void main() {
     ); // locale-proof, unlike pageBack()
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('activity-job-job-1')), findsNothing);
-    await _openFilter(tester, 'Cancelados');
+    await _openFilter(tester, 'Historial');
     expect(find.byKey(const Key('activity-job-job-1')), findsOneWidget);
   });
 
@@ -73,7 +68,7 @@ void main() {
 
     await tester.tap(find.text('Actividad'));
     await tester.pumpAndSettle();
-    await _openFilter(tester, 'Finalizados');
+    await _openFilter(tester, 'Historial');
     await tester.tap(find.byKey(const Key('activity-job-job-5')));
     await tester.pumpAndSettle();
 

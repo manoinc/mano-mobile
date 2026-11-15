@@ -8,7 +8,7 @@ Design and research: [Projects and quotes](../design/projects-and-quotes.md).
 | Route | Class | File |
 |---|---|---|
 | `/publish?category=` (root navigator) | `PublishProjectScreen(initialCategory:)` | `features/projects/publish/publish_project_screen.dart` |
-| `/projects?segment=proyectos` | `ProjectsTabScreen(showProjects:)` → `MyProjectsList` | `screens/projects_tab_screen.dart`, `features/projects/my_projects_list.dart` |
+| `/projects` | `ProjectsTabScreen` → `ActivityList` (projects among requests and jobs) | `screens/projects_tab_screen.dart`, `features/activity/activity_list.dart` |
 | `/projects/project/:id` | `ProjectDetailScreen(projectId:)` | `features/projects/project_detail_screen.dart` |
 
 ### Entry points
@@ -18,8 +18,8 @@ All three go through `startPublishing`, which asks a guest to sign in first
 
 - the create sheet (`shell/create_action_sheet.dart`): "Publicar proyecto", or a
   category, which skips step 1;
-- the Proyectos segment's outlined pill "+ Publicar proyecto" (the shell's
-  centre "+" is the flame);
+- Actividad's outlined pill "+ Publicar proyecto", floating over every filter
+  (`publish_project_pill.dart`; the shell's centre "+" is the flame);
 - a quiet clay row on Home (`PublishProjectRow`).
 
 ### Publish flow
@@ -37,12 +37,16 @@ One `ManoQuestionStep` per screen, moved by `ManoStepTransition`:
    `projectActionsProvider.publish` with the photo URLs, and waits for uploads. A failure shows its message in a snackbar.
 
 Success shows "Proyecto publicado"; "Ver proyecto" goes to
-`/projects/project/<id>?segment=proyectos`.
+`/projects/project/<id>`, over Actividad's Pendientes.
 
-### Proyectos segment
+### Projects in Actividad
 
-`myProjectsProvider` as `ManoProjectSummaryCard`s, keyed `project-card-<id>`.
-`projectStatusLine` maps each project:
+There is no Proyectos segment. Projects share Actividad's one list with
+requests and jobs: open ones under Pendientes, awarded under En curso, closed
+and cancelled under Historial ([REQ-04](REQ-04-activity.md),
+[Activity filtering architecture](../develop/activity.md)). Each is a
+`ManoProjectSummaryCard`, keyed `project-card-<id>`. `projectStatusLine` maps
+each project:
 
 | Case | Chip | Trailing |
 |---|---|---|
@@ -51,8 +55,7 @@ Success shows "Proyecto publicado"; "Ver proyecto" goes to
 | awarded | Elegiste a {worker} | $amount |
 | closed / cancelled | Cerrado / Cancelado | none |
 
-Empty: `ManoEmptyState` "Aún no has publicado proyectos." with "Publicar
-proyecto". Error: "No pudimos cargar tus proyectos." with Reintentar.
+Empty and error states are Actividad's.
 
 ### Project detail
 
@@ -82,8 +85,8 @@ All in `packages/mano_session/lib/src/projects/`: `myProjectsProvider`,
 
 ## Tests
 
-- `apps/requester/test/features/projects/`: the publish flow, the segment list,
-  the detail, the entry points, and `projects_flow_test.dart` (the host twin).
+- `apps/requester/test/features/projects/`: the publish flow, the pill, the
+  detail, the entry points, and `projects_flow_test.dart` (the host twin).
 - `apps/requester/integration_test/projects_flow_test.dart`: publish from the
   create sheet, then choose a quote on project-1.
 

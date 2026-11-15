@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:mano_requester/features/activity/activity_list.dart';
 import 'package:mano_requester/main.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
@@ -73,8 +74,18 @@ void main() {
     expect(find.text('Pintar el estudio'), findsOneWidget);
     expect(find.byType(ManoPhotoGallery), findsOneWidget);
 
-    // Back on Proyectos, open the one with quotes and choose the cheapest.
+    // Back on Actividad's Pendientes, open the one with quotes and choose the cheapest.
     await _tap(tester, find.byType(BackButton));
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('project-card-project-1')),
+      300,
+      scrollable: find
+          .descendant(
+            of: find.byType(ActivityList),
+            matching: find.byType(Scrollable),
+          )
+          .last,
+    );
     expect(find.byKey(const Key('project-card-project-1')), findsOneWidget);
     await _tap(tester, find.byKey(const Key('project-card-project-1')));
     await _tap(

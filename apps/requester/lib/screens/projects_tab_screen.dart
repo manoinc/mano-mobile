@@ -1,29 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-import '../features/activity/activity_tab.dart';
-import '../features/projects/my_projects_list.dart';
+import '../features/activity/activity_list.dart';
 
-/// The Actividad tab at `/projects`: Servicios (`features/activity/`) or Proyectos (`features/projects/`).
+const _labels = {
+  ActivityBucket.pending: 'Pendientes',
+  ActivityBucket.active: 'En curso',
+  ActivityBucket.history: 'Historial',
+};
+
+/// The Actividad tab at `/projects`: one status filter over requests, jobs and projects alike.
 class ProjectsTabScreen extends StatefulWidget {
-  const ProjectsTabScreen({this.showProjects = false, super.key});
-
-  /// Opens on the Proyectos segment, e.g. after publishing one.
-  final bool showProjects;
+  const ProjectsTabScreen({super.key});
 
   @override
   State<ProjectsTabScreen> createState() => _ProjectsTabScreenState();
 }
 
 class _ProjectsTabScreenState extends State<ProjectsTabScreen> {
-  late bool _projects = widget.showProjects;
-
-  @override
-  void didUpdateWidget(ProjectsTabScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // A link to the segment wins over the last choice.
-    if (widget.showProjects && !oldWidget.showProjects) _projects = true;
-  }
+  ActivityBucket _bucket = ActivityBucket.pending;
 
   @override
   Widget build(BuildContext context) {
@@ -45,14 +41,13 @@ class _ProjectsTabScreenState extends State<ProjectsTabScreen> {
               ),
               const SizedBox(height: ManoSpacing.md),
               ManoProjectFilterTabs(
-                labels: const ['Servicios', 'Proyectos'],
-                selectedIndex: _projects ? 1 : 0,
-                onSelected: (i) => setState(() => _projects = i == 1),
+                labels: [for (final b in ActivityBucket.values) _labels[b]!],
+                selectedIndex: _bucket.index,
+                onSelected: (i) =>
+                    setState(() => _bucket = ActivityBucket.values[i]),
               ),
-              const SizedBox(height: ManoSpacing.sm),
-              Expanded(
-                child: _projects ? const MyProjectsList() : const ActivityTab(),
-              ),
+              const SizedBox(height: ManoSpacing.md),
+              Expanded(child: ActivityList(bucket: _bucket)),
             ],
           ),
         ),
