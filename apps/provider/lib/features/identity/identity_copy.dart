@@ -17,42 +17,23 @@ const photoTips = [
   ),
 ];
 
-const commonMistakes = [
-  ManoTip('La cédula lejos o fuera del marco', emphasis: 'fuera del marco'),
-  ManoTip('Sombras o brillo sobre los datos', emphasis: 'Sombras o brillo'),
-  ManoTip('El lente de la cámara sucio', emphasis: 'lente'),
-];
-
-/// The line over each photo's picture, and the fragment set in flame.
-({String text, String? emphasis}) captureHeadline(IdentityDocumentKind kind) =>
-    switch (kind) {
-      IdentityDocumentKind.cedulaFront => (
-        text: 'Toma la foto del frente de tu cédula',
-        emphasis: 'foto del frente',
-      ),
-      IdentityDocumentKind.cedulaBack => (
-        text: 'Voltea tu cédula para tomar una foto de la parte de atrás',
-        emphasis: 'Voltea tu cédula',
-      ),
-      IdentityDocumentKind.selfie => (
-        text: '¿Tomamos tu selfie?',
-        emphasis: null,
-      ),
-    };
-
-/// The line over the camera's guide, as Nu labels it.
-String captureInstruction(IdentityDocumentKind kind) => switch (kind) {
-  IdentityDocumentKind.cedulaFront => 'Muestra el frente de tu cédula',
-  IdentityDocumentKind.cedulaBack => 'Muestra el reverso de tu cédula',
-  IdentityDocumentKind.selfie => 'Mira a la cámara',
-};
-
-const cameraDenied =
-    'Necesitamos acceso a tu cámara para tomar las fotos. Actívalo en los '
-    'ajustes de tu teléfono.';
-
-String documentName(IdentityDocumentKind kind) => switch (kind) {
-  IdentityDocumentKind.cedulaFront => 'Frente de la cédula',
-  IdentityDocumentKind.cedulaBack => 'Reverso de la cédula',
-  IdentityDocumentKind.selfie => 'Selfie',
+/// Each brief's line, the fragment set in flame, and its picture.
+({String text, String? emphasis, String art}) briefCopy(
+  IdentityFlowStep step,
+) => switch (step) {
+  IdentityFlowStep.backBrief => (
+    text: 'Voltea tu identificación para tomar una foto de la parte de atrás',
+    emphasis: 'Voltea tu identificación',
+    art: 'assets/identity/cedula_back.jpg',
+  ),
+  IdentityFlowStep.selfieBrief => (
+    text: '¿Tomamos tu selfie?',
+    emphasis: null,
+    art: 'assets/identity/selfie.jpg',
+  ),
+  _ => (
+    text: 'Toma la foto del frente de tu cédula',
+    emphasis: 'foto del frente',
+    art: 'assets/identity/cedula.jpg',
+  ),
 };

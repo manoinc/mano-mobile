@@ -27,7 +27,7 @@ class IdentityIntroStep extends ConsumerWidget {
           'quién llega a su casa.',
       progress: state.progress,
       primaryLabel: 'Continuar',
-      onPrimary: notifier.begin,
+      onPrimary: notifier.next,
       children: [
         if (state.failure case final failure?) ...[
           ManoNotice(

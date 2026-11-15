@@ -8,7 +8,6 @@ import 'package:mano_provider/features/onboarding/professional_onboarding_screen
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-import '../../support/fake_capture_camera.dart';
 import '../../support/fake_media.dart';
 import '../../support/fake_session_repository.dart';
 import '../../support/pump_app.dart';
@@ -76,7 +75,6 @@ Future<void> _pump(
           onboarding ?? _FakeOnboarding(),
         ),
         if (picker != null) mediaPickerProvider.overrideWithValue(picker),
-        fakeCamera(FakeCaptureCamera()),
         if (phone != null) passwordlessAuthProvider.overrideWithValue(phone),
         if (social != null) socialAuthProvider.overrideWithValue(social),
         inviteLinkSourceProvider.overrideWithValue(
@@ -101,12 +99,12 @@ Future<void> _pump(
   await tester.pumpAndSettle();
 }
 
-/// Tomar foto, the shutter, then Usar foto.
-Future<void> _shoot(WidgetTester tester) async {
-  await _tapText(tester, 'Tomar foto');
-  await tester.tap(find.byTooltip('Capturar'));
-  await tester.pumpAndSettle();
-  await _tapText(tester, 'Usar foto');
+/// The intro and the three briefs; Empezar hands off to Didit (the mock here).
+Future<void> _walkBriefs(WidgetTester tester) async {
+  for (var i = 0; i < 3; i++) {
+    await _tapText(tester, 'Continuar');
+  }
+  await _tapText(tester, 'Empezar');
 }
 
 Finder _field(String label) => find.descendant(
@@ -160,14 +158,9 @@ Future<void> _answerUpToBio(WidgetTester tester) async {
   await _answerFromName(tester);
 }
 
-/// Sends the three identity photos and leaves the pending check.
+/// Runs the identity check and leaves the pending check.
 Future<void> _sendIdentity(WidgetTester tester) async {
-  await _tapText(tester, 'Continuar');
-  await _shoot(tester);
-  await _tapText(tester, 'Continuar');
-  await _shoot(tester);
-  await _shoot(tester);
-  await _tapText(tester, 'Enviar');
+  await _walkBriefs(tester);
   await _tapText(tester, 'Continuar');
 }
 
@@ -328,23 +321,18 @@ void main() {
       expect(find.byTooltip('Atrás'), findsNothing);
     });
 
-    testWidgets('the identity photos lead on to the name', (tester) async {
+    testWidgets('the identity check leads on to the name', (tester) async {
       await _pump(tester, picker: FakeMediaPicker());
       await _createAccount(tester);
 
-      await _tapText(tester, 'Continuar');
-      await _shoot(tester);
-      await _tapText(tester, 'Continuar');
-      await _shoot(tester);
-      await _shoot(tester);
-      await _tapText(tester, 'Enviar');
+      await _walkBriefs(tester);
       expect(find.text('Estamos revisando tus documentos'), findsOneWidget);
       await _tapText(tester, 'Continuar');
 
       expect(find.text('¿Cuál es tu nombre?'), findsOneWidget);
     });
 
-    testWidgets('system back inside the identity photos steps back', (
+    testWidgets('system back inside the identity briefs steps back', (
       tester,
     ) async {
       await _pump(tester, picker: FakeMediaPicker());

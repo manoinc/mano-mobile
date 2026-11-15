@@ -27,7 +27,9 @@ Future<ProviderContainer> _unverified(
     tester,
     path,
     session: signedIn(),
-    identity: FakeIdentityVerification(status),
+    identity: FakeIdentityVerification(
+      status ?? const IdentityCheckNotStarted(),
+    ),
     overrides: overrides,
   );
   await c.read(sessionProvider.future);

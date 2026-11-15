@@ -6,6 +6,7 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import 'config.dart';
+import 'features/identity/didit_sdk_launcher.dart';
 import 'features/onboarding/onboarding_copy.dart';
 import 'features/onboarding/professional_onboarding_screen.dart';
 import 'shell/provider_router.dart';
@@ -26,7 +27,10 @@ void main() {
       // has no default on purpose: an app that forgot to override it fails
       // loudly at startup rather than authenticating as the wrong client and
       // failing much later with an audience rejection nobody can explain.
-      overrides: [manoConfigProvider.overrideWithValue(providerConfig)],
+      overrides: [
+        manoConfigProvider.overrideWithValue(providerConfig),
+        diditLauncherProvider.overrideWithValue(const DiditSdkLauncher()),
+      ],
       child: const ProviderApp(),
     ),
   );

@@ -5,25 +5,18 @@ import 'package:mano_provider/features/identity/identity_flow_view.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-import '../../support/fake_capture_camera.dart';
 import '../../support/fake_identity.dart';
 
-Future<FakeCaptureCamera> _pump(
+Future<FakeIdentityVerification> _pump(
   WidgetTester tester, {
   FakeIdentityVerification? port,
-  FakeCaptureCamera? camera,
   VoidCallback? onDone,
   VoidCallback? onLater,
 }) async {
-  final cam = camera ?? FakeCaptureCamera();
+  final identity = port ?? FakeIdentityVerification();
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [
-        identityVerificationProvider.overrideWithValue(
-          port ?? FakeIdentityVerification(),
-        ),
-        fakeCamera(cam),
-      ],
+      overrides: [identityVerificationProvider.overrideWithValue(identity)],
       child: MaterialApp(
         theme: ManoTheme.light(),
         home: IdentityFlowView(onDone: onDone ?? () {}, onLater: onLater),
@@ -31,7 +24,7 @@ Future<FakeCaptureCamera> _pump(
     ),
   );
   await tester.pumpAndSettle();
-  return cam;
+  return identity;
 }
 
 Future<void> _tap(WidgetTester tester, String text) async {
@@ -40,35 +33,19 @@ Future<void> _tap(WidgetTester tester, String text) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> _tapTip(WidgetTester tester, String tooltip) async {
-  await tester.tap(find.byTooltip(tooltip));
-  await tester.pumpAndSettle();
-}
-
-/// Tomar foto, the shutter, then Usar foto.
-Future<void> _shoot(WidgetTester tester) async {
-  await _tap(tester, 'Tomar foto');
-  await _tapTip(tester, 'Capturar');
-  await _tap(tester, 'Usar foto');
-}
-
-Future<void> _photograph(WidgetTester tester) async {
-  await _tap(tester, 'Continuar');
-  await _shoot(tester);
-  await _tap(tester, 'Continuar');
-  await _shoot(tester);
-  await _shoot(tester);
+/// From the intro to the selfie brief.
+Future<void> _toSelfie(WidgetTester tester) async {
+  for (var i = 0; i < 3; i++) {
+    await _tap(tester, 'Continuar');
+  }
 }
 
 const _front = 'Toma la foto del frente de tu cédula';
-const _backTips = 'Ahora necesitamos una foto del reverso de tu cédula';
-const _back = 'Voltea tu cédula para tomar una foto de la parte de atrás';
+const _back =
+    'Voltea tu identificación para tomar una foto de la parte de atrás';
 const _selfie = '¿Tomamos tu selfie?';
 
 Finder _art(String name) => find.image(AssetImage('assets/identity/$name.jpg'));
-
-ManoCaptureFrame _frame(WidgetTester tester) =>
-    tester.widget<ManoCaptureFrame>(find.byType(ManoCaptureFrame));
 
 void main() {
   testWidgets('the intro says why, with tips, and highlights the point', (
@@ -90,158 +67,112 @@ void main() {
     expect(later, 1);
   });
 
-  testWidgets('walks Nu\'s steps: front, back tips, back, selfie', (
-    tester,
-  ) async {
-    final camera = await _pump(tester);
+  testWidgets('walks Nu\'s briefs: front, back, selfie', (tester) async {
+    final port = await _pump(tester);
     await _tap(tester, 'Continuar');
 
     expect(find.text(_front), findsOneWidget);
     expect(_art('cedula'), findsOneWidget);
-    await _shoot(tester);
-
-    expect(find.text(_backTips), findsOneWidget);
-    expect(find.byType(ManoTipList), findsOneWidget);
     await _tap(tester, 'Continuar');
 
     expect(find.text(_back), findsOneWidget);
-    expect(_art('cedula'), findsOneWidget);
-    await _shoot(tester);
+    expect(_art('cedula_back'), findsOneWidget);
+    await _tap(tester, 'Continuar');
 
     expect(find.text(_selfie), findsOneWidget);
     expect(_art('selfie'), findsOneWidget);
-    await _shoot(tester);
-
-    expect(find.text('Revisa tus fotos'), findsOneWidget);
-    expect(find.byType(ManoCaptureReviewRow), findsNWidgets(3));
-    expect(camera.opened, [
-      CameraFacing.rear,
-      CameraFacing.rear,
-      CameraFacing.front,
-    ], reason: 'the cédula on the back camera, the selfie on the front');
-    expect(camera.closed, 3, reason: 'each capture releases the camera');
+    expect(find.text('Empezar'), findsOneWidget);
+    expect(port.verifies, 0, reason: 'nothing reaches Didit until Empezar');
   });
 
-  group('the camera', () {
-    testWidgets('the cédula gets the card guide, its line and Ayuda', (
-      tester,
-    ) async {
-      await _pump(tester);
-      await _tap(tester, 'Continuar');
-      await _tap(tester, 'Tomar foto');
-
-      expect(_frame(tester).shape, ManoCaptureShape.card);
-      expect(find.text('Muestra el frente de tu cédula'), findsOneWidget);
-      expect(find.byKey(const Key('fake-preview')), findsOneWidget);
-
-      await _tap(tester, 'Ayuda');
-      expect(find.text('Errores comunes'), findsOneWidget);
-    });
-
-    testWidgets('the selfie gets the face guide and no Ayuda', (tester) async {
-      await _pump(tester);
-      await _photograph(tester);
-      await tester.tap(find.text('Repetir').at(2));
-      await tester.pumpAndSettle();
-      await _tap(tester, 'Tomar foto');
-
-      expect(_frame(tester).shape, ManoCaptureShape.face);
-      expect(find.text('Mira a la cámara'), findsOneWidget);
-      expect(find.text('Ayuda'), findsNothing);
-    });
-
-    testWidgets('Repetir goes back to the live camera; Usar foto sends', (
-      tester,
-    ) async {
-      final camera = await _pump(tester);
-      await _tap(tester, 'Continuar');
-      await _tap(tester, 'Tomar foto');
-
-      await _tapTip(tester, 'Capturar');
-      expect(find.text('Usar foto'), findsOneWidget);
-      expect(find.byKey(const Key('fake-preview')), findsNothing);
-
-      await _tap(tester, 'Repetir');
-      expect(find.byKey(const Key('fake-preview')), findsOneWidget);
-      expect(find.text('Usar foto'), findsNothing);
-
-      await _tapTip(tester, 'Capturar');
-      await _tap(tester, 'Usar foto');
-
-      expect(camera.shots, 2);
-      expect(find.text(_backTips), findsOneWidget);
-    });
-
-    testWidgets('closing the camera keeps the step, with no photo', (
-      tester,
-    ) async {
-      final camera = await _pump(tester);
-      await _tap(tester, 'Continuar');
-      await _tap(tester, 'Tomar foto');
-
-      await _tapTip(tester, 'Cerrar');
-
-      expect(find.text(_front), findsOneWidget);
-      expect(camera.closed, 1);
-    });
-
-    testWidgets('a denied camera says so and opens the settings', (
-      tester,
-    ) async {
-      final camera = await _pump(
-        tester,
-        camera: FakeCaptureCamera(denied: true),
-      );
-      await _tap(tester, 'Continuar');
-      await _tap(tester, 'Tomar foto');
-
-      expect(
-        find.textContaining('Necesitamos acceso a tu cámara'),
-        findsOneWidget,
-      );
-      expect(find.byTooltip('Capturar'), findsNothing);
-
-      await _tap(tester, 'Abrir ajustes');
-      expect(camera.settings, 1);
-    });
-  });
-
-  testWidgets('a retake from the review returns to the review', (tester) async {
+  testWidgets('the back brief sets "Voltea tu identificación" in flame', (
+    tester,
+  ) async {
     await _pump(tester);
-    await _photograph(tester);
+    await _tap(tester, 'Continuar');
+    await _tap(tester, 'Continuar');
 
-    await tester.tap(find.text('Repetir').at(1));
-    await tester.pumpAndSettle();
-    expect(find.text(_back), findsOneWidget, reason: 'no tips on a retake');
-    await _shoot(tester);
-
-    expect(find.text('Revisa tus fotos'), findsOneWidget);
+    final emphasis = tester.widget<ManoEmphasisText>(
+      find.byType(ManoEmphasisText),
+    );
+    expect(emphasis.emphasis, 'Voltea tu identificación');
+    expect(find.byTooltip('Atrás'), findsOneWidget);
   });
 
-  testWidgets('Enviar lands on pending and Continuar leaves', (tester) async {
+  testWidgets('Empezar runs the check and lands on pending', (tester) async {
     var done = 0;
-    await _pump(tester, onDone: () => done++);
-    await _photograph(tester);
+    final port = await _pump(tester, onDone: () => done++);
+    await _toSelfie(tester);
 
-    await _tap(tester, 'Enviar');
+    await _tap(tester, 'Empezar');
+
+    expect(port.verifies, 1);
     expect(find.text('Estamos revisando tus documentos'), findsOneWidget);
-
     await _tap(tester, 'Continuar');
     expect(done, 1);
   });
 
-  testWidgets('a refusal shows the reason and starts over', (tester) async {
+  testWidgets('closing Didit stays on the selfie brief', (tester) async {
     await _pump(
       tester,
       port: FakeIdentityVerification(
-        const IdentityCheckRejected(reason: 'La foto del frente está borrosa.'),
+        const IdentityCheckNotStarted(),
+        const Ok(IdentityCheckNotStarted()),
+      ),
+    );
+    await _toSelfie(tester);
+
+    await _tap(tester, 'Empezar');
+
+    expect(find.text(_selfie), findsOneWidget);
+  });
+
+  testWidgets('a failure shows on the brief', (tester) async {
+    await _pump(
+      tester,
+      port: FakeIdentityVerification(
+        const IdentityCheckNotStarted(),
+        const Err(DataUnavailable()),
+      ),
+    );
+    await _toSelfie(tester);
+
+    await _tap(tester, 'Empezar');
+
+    expect(find.text(const DataUnavailable().message), findsOneWidget);
+  });
+
+  testWidgets('a retryable refusal shows the reason and walks again', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      port: FakeIdentityVerification(
+        const IdentityCheckRejected(
+          reason: 'No pudimos leer tu cédula.',
+          canRetry: true,
+        ),
       ),
     );
     expect(find.text('No pudimos verificar tu identidad'), findsOneWidget);
-    expect(find.text('La foto del frente está borrosa.'), findsOneWidget);
+    expect(find.text('No pudimos leer tu cédula.'), findsOneWidget);
 
     await _tap(tester, 'Intentar de nuevo');
     expect(find.text(_front), findsOneWidget);
+  });
+
+  testWidgets('a final refusal offers no retry', (tester) async {
+    var done = 0;
+    await _pump(
+      tester,
+      onDone: () => done++,
+      port: FakeIdentityVerification(
+        const IdentityCheckRejected(reason: 'No.', canRetry: false),
+      ),
+    );
+    expect(find.text('Intentar de nuevo'), findsNothing);
+    await _tap(tester, 'Continuar');
+    expect(done, 1);
   });
 
   testWidgets('an approved check says so with the badge', (tester) async {
@@ -253,19 +184,11 @@ void main() {
     expect(find.byIcon(Icons.verified), findsOneWidget);
   });
 
-  testWidgets('back from a capture returns to the step before', (tester) async {
+  testWidgets('back from the front brief returns to the intro', (tester) async {
     await _pump(tester);
     await _tap(tester, 'Continuar');
-    await _tapTip(tester, 'Atrás');
+    await tester.tap(find.byTooltip('Atrás'));
+    await tester.pumpAndSettle();
     expect(find.byType(ManoTipList), findsOneWidget);
-  });
-
-  testWidgets('back from the back photo returns to its tips', (tester) async {
-    await _pump(tester);
-    await _tap(tester, 'Continuar');
-    await _shoot(tester);
-    await _tap(tester, 'Continuar');
-    await _tapTip(tester, 'Atrás');
-    expect(find.text(_backTips), findsOneWidget);
   });
 }

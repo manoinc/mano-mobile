@@ -11,11 +11,9 @@ class IdentityScreen extends ConsumerWidget {
 
   // Steps that system back walks within, rather than leaving the screen.
   static const _inner = {
-    IdentityFlowStep.cedulaFront,
-    IdentityFlowStep.backIntro,
-    IdentityFlowStep.cedulaBack,
-    IdentityFlowStep.selfie,
-    IdentityFlowStep.review,
+    IdentityFlowStep.frontBrief,
+    IdentityFlowStep.backBrief,
+    IdentityFlowStep.selfieBrief,
   };
 
   @override
