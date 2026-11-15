@@ -16,6 +16,8 @@ library;
 // construct one, and the composition seam would stop being a seam.
 export 'package:mano_data/mano_data.dart'
     show
+        DiditLauncher,
+        DiditOutcome,
         InMemoryPasswordlessAuth,
         InMemorySessionRepository,
         InMemorySocialAuth,

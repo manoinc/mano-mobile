@@ -1,23 +1,14 @@
-import 'identity_document_kind.dart';
-
 /// Where someone's identity check stands.
 sealed class IdentityCheckStatus {
   const IdentityCheckStatus();
 }
 
-/// Documents are being collected; nothing has been sent for review yet.
-final class IdentityCheckInProgress extends IdentityCheckStatus {
-  const IdentityCheckInProgress({required this.submitted});
-
-  final Set<IdentityDocumentKind> submitted;
-
-  Set<IdentityDocumentKind> get missing =>
-      IdentityDocumentKind.values.toSet().difference(submitted);
-
-  bool get isComplete => missing.isEmpty;
+/// Nothing has reached the checker yet, or the person left it unfinished.
+final class IdentityCheckNotStarted extends IdentityCheckStatus {
+  const IdentityCheckNotStarted();
 }
 
-/// Sent; the checker (Didit, Tusdatos.co, a person) has not answered yet.
+/// Sent; the checker (Didit, then Mano's staff) has not answered yet.
 final class IdentityCheckPending extends IdentityCheckStatus {
   const IdentityCheckPending();
 }
@@ -27,10 +18,11 @@ final class IdentityCheckApproved extends IdentityCheckStatus {
 }
 
 final class IdentityCheckRejected extends IdentityCheckStatus {
-  const IdentityCheckRejected({required this.reason});
+  const IdentityCheckRejected({required this.reason, required this.canRetry});
 
   /// Shown to the person, so they know what to fix.
   final String reason;
 
-  bool get canRetry => true;
+  /// False once the staff's refusal is final or no attempts remain.
+  final bool canRetry;
 }
