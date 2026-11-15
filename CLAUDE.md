@@ -34,15 +34,15 @@ dart analyze                                     # whole workspace, from root
 cd packages/mano_domain  && dart test            # 241 — no Flutter binding
 cd packages/mano_data    && flutter test         # 412
 cd packages/mano_session && flutter test         # 418
-cd packages/mano_ui      && flutter test         # 429
+cd packages/mano_ui      && flutter test         # 436
 cd apps/requester        && flutter test         # 283
 cd apps/provider         && flutter test         # 289
-cd widgetbook            && flutter test         # 194 — every use case renders, every widget covered
+cd widgetbook            && flutter test         # 197 — every use case renders, every widget covered
 tools/docs.sh serve                              # the handbook at localhost:8000
 cd apps/<app> && flutter test integration_test -d RFGL20WAR9E  # on the A36, one at a time
 cd apps/<app> && flutter test integration_test -d "iPhone 17"  # iOS simulator
 dart tools/generate_logo_paths.dart              # after changing tools/brand/*.svg
-cd apps/requester && flutter run -d RFGL20WAR9E  # the A36
+cd apps/requester && flutter run -d RFGL20WAR9E --dart-define-from-file=../../config/dev.json  # the A36
 ```
 
 ## Docs

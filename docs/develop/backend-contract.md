@@ -7,6 +7,8 @@ resolvers in `src/schema/*.rs` are the source of truth.
 Always read the gateway at **`origin/master`**. The old `stub-fixtures` branch
 is stale; the local clone tracks `master` (`git -C ../mano-gateway pull --ff-only`).
 
+What runs in the cloud, and what doesn't yet: [Deployment status](deployment-status.md).
+
 For a phone to reach it, run the gateway with `BIND_ADDR=0.0.0.0:8082` and set
 `adb reverse tcp:8082 tcp:8082`.
 

@@ -1,0 +1,5 @@
+{
+  "MANO_GATEWAY": "http://localhost:8082/graphql",
+  "SUPERTOKENS_API_DOMAIN": "http://localhost:3001",
+  "GOOGLE_SERVER_CLIENT_ID": "937642558480-v2op3hleq83utq7kn077a8rdkif9ke6k.apps.googleusercontent.com"
+}

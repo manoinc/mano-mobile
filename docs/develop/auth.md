@@ -135,6 +135,46 @@ Configuration:
   `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`,
   `APPLE_REQUESTER_CLIENT_ID`, `APPLE_PROVIDER_CLIENT_ID` in mano-auth.
 
+### Google Cloud project
+
+Google sign-in lives in the GCP project **`mano-app-prod`** (organisation
+manoapp.co), in Google Auth Platform. The audience is External and still in
+**testing**, so only the listed test users can sign in until the app is
+published. With only `openid`, `email` and `profile` scopes, publishing needs no
+Google verification.
+
+| Client | Type | Client ID | Used by |
+|---|---|---|---|
+| mano-auth (web, server client) | Web | `937642558480-v2op3hleq83utq7kn077a8rdkif9ke6k` | mano-auth `GOOGLE_CLIENT_ID`; the apps' `GOOGLE_SERVER_CLIENT_ID` |
+| Mano requester (Android, debug) | Android | `937642558480-av82…` | `com.manoinc.mano.requester`, debug SHA-1 |
+| Mano provider (Android, debug) | Android | `937642558480-hgfn…` | `com.manoinc.mano.provider`, debug SHA-1 |
+| Mano requester (iOS) | iOS | `937642558480-136cj6p11gv90pi2ickad9umij47s6fd` | `GIDClientID` in `apps/requester/ios/Runner/Info.plist` |
+| Mano provider (iOS) | iOS | `937642558480-4m75tt29su4vg766mdo2vhmrqc4olqv2` | `GIDClientID` in `apps/provider/ios/Runner/Info.plist` |
+
+All IDs end in `.apps.googleusercontent.com`. Client IDs are public. The web
+client's **secret** is not: it goes to mano-auth as `GOOGLE_CLIENT_SECRET` and
+is never committed.
+
+The Android clients only have to exist. `google_sign_in` 7 goes through
+Credential Manager with the web client as `serverClientId`, and Google matches
+the package and SHA-1 itself, so there is no `google-services.json`. Each iOS
+plist has `GIDClientID` and the reversed client ID as a URL scheme.
+
+The registered SHA-1 is the shared debug key's,
+`32:36:AB:DD:F3:B4:57:D7:14:BE:D1:89:0D:99:B5:66:55:F2:4D:C6`. Before release:
+
+1. Add an Android client per package with the **upload key** SHA-1.
+2. Add another with the **Play App Signing** SHA-1, taken from Play Console
+   (Protect with Play, then App signing).
+3. Put the Apple Team ID on both iOS clients.
+
+Run with the shared, secret-free defaults:
+
+    flutter run --dart-define-from-file=../../config/dev.json   # from apps/<app>
+
+`config/dev.json` points at the local gateway (8082) and mano-auth (3001), and
+carries the web client ID. Remember `adb reverse` for 8082 and 3001.
+
 ## After a first sign-up
 
 A phone account has no name or email yet, so the flow asks for a name (see
