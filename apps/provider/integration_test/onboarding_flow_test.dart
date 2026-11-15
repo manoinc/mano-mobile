@@ -46,7 +46,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Email sign-up is the fallback under the phone screen.
-    await _tapText(tester, 'Crear cuenta');
+    await _tapText(tester, 'Registrarse');
     await tester.tap(find.byTooltip('Continuar con correo'));
     await tester.pumpAndSettle();
     await _tapText(tester, 'Crear cuenta con correo');

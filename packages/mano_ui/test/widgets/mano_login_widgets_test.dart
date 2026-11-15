@@ -175,7 +175,7 @@ void main() {
                 onPressed: () => google++,
               ),
               ManoBrandPill(
-                mark: const Icon(Icons.mail_outline_rounded),
+                mark: const ManoEnvelopeIcon(),
                 label: 'Continuar con correo',
                 onPressed: () => email++,
               ),
@@ -488,6 +488,13 @@ void main() {
       );
 
       expect(find.byKey(const Key('apple')), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byTooltip('Continuar con correo'),
+          matching: find.byType(ManoEnvelopeIcon),
+        ),
+        findsOneWidget,
+      );
       await tester.tap(find.byTooltip('Continuar con Google'));
       await tester.tap(find.byTooltip('Continuar con correo'));
       expect(google, 1);

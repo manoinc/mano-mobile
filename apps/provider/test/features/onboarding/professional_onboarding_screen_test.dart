@@ -126,9 +126,9 @@ Future<void> _tapTooltip(WidgetTester tester, String tooltip) async {
   await tester.pumpAndSettle();
 }
 
-/// Email sign-up is the fallback: Crear cuenta, the email pill, then "Crear cuenta con correo".
+/// Email sign-up is the fallback: Registrarse, the email pill, then "Crear cuenta con correo".
 Future<void> _startEmailSignUp(WidgetTester tester) async {
-  await _tapText(tester, 'Crear cuenta');
+  await _tapText(tester, 'Registrarse');
   await _tapTooltip(tester, 'Continuar con correo');
   await _tapText(tester, 'Crear cuenta con correo');
 }
@@ -217,15 +217,15 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.widgetWithText(ManoPrimaryButton, 'Crear cuenta'),
+      find.widgetWithText(ManoPrimaryButton, 'Registrarse'),
       findsOneWidget,
     );
     expect(find.text('Continuar con Google'), findsOneWidget);
   });
 
-  testWidgets('Crear cuenta opens the same phone screen', (tester) async {
+  testWidgets('Registrarse opens the same phone screen', (tester) async {
     await _pump(tester);
-    await _tapText(tester, 'Crear cuenta');
+    await _tapText(tester, 'Registrarse');
 
     expect(find.text('Inicia sesión o regístrate'), findsOneWidget);
   });

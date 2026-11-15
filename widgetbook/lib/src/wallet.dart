@@ -135,13 +135,28 @@ WidgetbookCategory wallet() => WidgetbookCategory(
         ),
       ),
     }),
+    component('ManoPaymentLogo', {
+      // The apps' logo assets, each in the same box so method rows line up.
+      'Every brand': (context) => Padding(
+        padding: const EdgeInsets.all(ManoSpacing.md),
+        child: Wrap(
+          spacing: ManoSpacing.md,
+          runSpacing: ManoSpacing.md,
+          children: [
+            for (final brand in ['visa', 'mastercard', 'nequi', 'pse', 'bancolombia'])
+              ManoPaymentLogo(logo: Image(image: AssetImage('assets/payments/$brand.png'))),
+            const ManoPaymentLogo(),
+          ],
+        ),
+      ),
+    }),
     component('ManoMethodOption', {
       'Selected, idle and coming soon': (context) => const Padding(
         padding: EdgeInsets.all(ManoSpacing.md),
         child: Column(
           children: [
             ManoMethodOption(
-              leading: Icon(Icons.phone_iphone),
+              leading: ManoPaymentLogo(logo: Image(image: AssetImage('assets/payments/nequi.png'))),
               title: 'Nequi',
               detail: 'Apruebas el pago en tu celular',
               selected: true,
@@ -149,7 +164,7 @@ WidgetbookCategory wallet() => WidgetbookCategory(
             ),
             SizedBox(height: ManoSpacing.sm),
             ManoMethodOption(
-              leading: Icon(Icons.account_balance_outlined),
+              leading: ManoPaymentLogo(logo: Image(image: AssetImage('assets/payments/pse.png'))),
               title: 'PSE',
               detail: 'Pagas desde tu banco',
               selected: false,
@@ -173,7 +188,7 @@ WidgetbookCategory wallet() => WidgetbookCategory(
         child: Column(
           children: [
             ManoMethodRow(
-              leading: Icon(Icons.credit_card),
+              leading: ManoPaymentLogo(logo: Image(image: AssetImage('assets/payments/mastercard.png'))),
               title: 'Mastercard 8341',
               detail: 'Vence: 05/2033',
               tag: 'Predeterminado',
@@ -181,7 +196,7 @@ WidgetbookCategory wallet() => WidgetbookCategory(
               onAction: noop,
             ),
             ManoMethodRow(
-              leading: Icon(Icons.phone_iphone),
+              leading: ManoPaymentLogo(logo: Image(image: AssetImage('assets/payments/nequi.png'))),
               title: 'Nequi',
               detail: '•••• 4567',
               actionLabel: 'Editar',

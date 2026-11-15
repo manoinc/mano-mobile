@@ -44,6 +44,27 @@ WidgetbookCategory brand() => WidgetbookCategory(
         data: MediaQueryData(disableAnimations: true),
         child: Center(child: ManoLoader()),
       ),
+      // Scrub the band: the loop runs empty, full, empty, always moving right.
+      'One frame': (context) => Center(
+        child: SizedBox(
+          height: 96,
+          child: AspectRatio(
+            aspectRatio: kManoMonogramSize.aspectRatio,
+            child: ManoLoaderFrame(
+              from: context.knobs.double.slider(label: 'Trailing edge', initialValue: 0.3, min: 0, max: 1),
+              to: context.knobs.double.slider(label: 'Leading edge', initialValue: 0.8, min: 0, max: 1),
+              color: ManoColors.flame,
+            ),
+          ),
+        ),
+      ),
+    }),
+    component('ManoEnvelopeIcon', {
+      'Default': (context) => Center(
+        child: ManoEnvelopeIcon(
+          size: context.knobs.double.slider(label: 'Size', initialValue: 24, min: 16, max: 96),
+        ),
+      ),
     }),
     component('ManoArchMotif', {
       'On flame': (context) => const ColoredBox(

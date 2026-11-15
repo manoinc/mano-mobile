@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../icons/mano_envelope_icon.dart';
 import '../theme/mano_theme.dart';
 import 'mano_brand_pill_row.dart';
 import 'mano_country_picker_sheet.dart';
@@ -183,7 +184,7 @@ class _ManoPhoneSignInScreenState extends State<ManoPhoneSignInScreen> {
                   onPressed: w.busy ? null : w.onGoogle,
                 ),
           ManoBrandPill(
-            mark: const Icon(Icons.mail_outline_rounded, size: 22),
+            mark: const ManoEnvelopeIcon(size: 22),
             label: 'Continuar con correo',
             onPressed: w.busy ? null : w.onEmail,
           ),

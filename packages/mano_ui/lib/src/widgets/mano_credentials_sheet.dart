@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../icons/mano_envelope_icon.dart';
 import '../theme/mano_theme.dart';
 import 'mano_primary_button.dart';
 import 'mano_outline_button.dart';
@@ -129,7 +130,7 @@ class _ManoCredentialsSheetState extends State<ManoCredentialsSheet> {
                 const SizedBox(height: ManoSpacing.sm),
                 ManoOutlineButton(
                   label: label,
-                  icon: Icons.mail_outline_rounded,
+                  leading: const ManoEnvelopeIcon(),
                   onPressed: _busy ? null : widget.onSecondary,
                 ),
               ],

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/mano_motion.dart';
 import 'mano_logo_paths.g.dart';
 
-/// The brand's loading state: the `m` wiping in, holding, fading, on a loop.
+/// The brand's loading state: the `m` sweeping through, left to right, on a seamless loop.
 class ManoLoader extends StatefulWidget {
   const ManoLoader({this.color, this.height = 48, super.key});
 
@@ -55,12 +55,12 @@ class _ManoLoaderState extends State<ManoLoader>
         child: AspectRatio(
           aspectRatio: kManoMonogramSize.aspectRatio,
           child: still
-              ? ManoLoaderFrame(reveal: 1, opacity: 1, color: ink)
+              ? ManoLoaderFrame(from: 0, to: 1, color: ink)
               : AnimatedBuilder(
                   animation: _loop,
                   builder: (_, _) => ManoLoaderFrame(
-                    reveal: _reveal(_loop.value),
-                    opacity: _opacity(_loop.value),
+                    from: _from(_loop.value),
+                    to: _to(_loop.value),
                     color: ink,
                   ),
                 ),
@@ -69,47 +69,50 @@ class _ManoLoaderState extends State<ManoLoader>
     );
   }
 
-  // Wipe in over the first 55%, hold, then fade over the last 25%.
-  static double _reveal(double t) =>
-      ManoMotion.entrance.transform((t / 0.55).clamp(0.0, 1.0));
+  // In by 45%, hold, out from 55%: empty at both ends, so the loop has no seam.
+  static double _to(double t) =>
+      ManoMotion.entrance.transform((t / 0.45).clamp(0.0, 1.0));
 
-  static double _opacity(double t) =>
-      1 - ManoMotion.exit.transform(((t - 0.75) / 0.25).clamp(0.0, 1.0));
+  static double _from(double t) =>
+      ManoMotion.exit.transform(((t - 0.55) / 0.45).clamp(0.0, 1.0));
 }
 
 /// One frame of [ManoLoader]; public so the catalogue and tests can pin a frame.
 class ManoLoaderFrame extends StatelessWidget {
   const ManoLoaderFrame({
-    required this.reveal,
-    required this.opacity,
+    required this.from,
+    required this.to,
     required this.color,
     super.key,
   });
 
-  /// How much of the `m` is drawn, left to right, 0 to 1.
-  final double reveal;
-  final double opacity;
+  /// The drawn band of the `m`, as fractions of its width, 0 to 1.
+  final double from;
+  final double to;
   final Color color;
 
   @override
   Widget build(BuildContext context) => CustomPaint(
-    painter: _WipePainter(reveal, color.withValues(alpha: color.a * opacity)),
+    painter: _WipePainter(from, to, color),
     child: const SizedBox.expand(),
   );
 }
 
 class _WipePainter extends CustomPainter {
-  _WipePainter(this.reveal, this.color);
+  _WipePainter(this.from, this.to, this.color);
 
-  final double reveal;
+  final double from;
+  final double to;
   final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (reveal <= 0) return;
+    if (to <= from) return;
     canvas
       ..save()
-      ..clipRect(Offset.zero & Size(size.width * reveal, size.height))
+      ..clipRect(
+        Rect.fromLTRB(size.width * from, 0, size.width * to, size.height),
+      )
       ..scale(size.width / kManoMonogramSize.width)
       ..drawPath(manoMonogram(), Paint()..color = color)
       ..restore();
@@ -117,5 +120,5 @@ class _WipePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_WipePainter old) =>
-      old.reveal != reveal || old.color != color;
+      old.from != from || old.to != to || old.color != color;
 }

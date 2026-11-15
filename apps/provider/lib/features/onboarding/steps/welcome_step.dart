@@ -34,7 +34,7 @@ class WelcomeStep extends ConsumerWidget {
       actions: ManoWelcomeActions(
         firstLabel: 'Iniciar sesión',
         onFirst: onboarding.startWithPhone,
-        secondLabel: 'Crear cuenta',
+        secondLabel: 'Registrarse',
         onSecond: onboarding.startWithPhone,
         busy: busy,
         below: ManoPlatformSignInButton(

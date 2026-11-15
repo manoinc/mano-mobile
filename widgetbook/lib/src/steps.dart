@@ -206,7 +206,7 @@ Widget _phone(BuildContext context, {required bool busy, bool error = false}) =>
             onPressed: busy ? null : noop,
           ),
           ManoBrandPill(
-            mark: const Icon(Icons.mail_outline_rounded, size: 22),
+            mark: const ManoEnvelopeIcon(size: 22),
             label: 'Continuar con correo',
             onPressed: busy ? null : noop,
           ),

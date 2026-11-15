@@ -42,7 +42,7 @@ WidgetbookCategory actions() => WidgetbookCategory(
       'With icon': (context) => _padded(
         ManoOutlineButton(
           label: 'Crear cuenta con correo',
-          icon: Icons.mail_outline_rounded,
+          leading: const ManoEnvelopeIcon(),
           onPressed: noop,
         ),
       ),
@@ -109,7 +109,7 @@ WidgetbookCategory actions() => WidgetbookCategory(
         const ManoWelcomeActions(
           firstLabel: 'Iniciar sesión',
           onFirst: noop,
-          secondLabel: 'Crear cuenta',
+          secondLabel: 'Registrarse',
           onSecond: noop,
         ),
       ),
@@ -164,7 +164,7 @@ Widget _pills(TargetPlatform platform) => _padded(
               onPressed: noop,
             ),
       const ManoBrandPill(
-        mark: Icon(Icons.mail_outline_rounded, size: 22),
+        mark: ManoEnvelopeIcon(size: 22),
         label: 'Continuar con correo',
         onPressed: noop,
       ),

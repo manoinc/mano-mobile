@@ -39,17 +39,16 @@ class PayoutSummary extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    switch (payoutLogoAsset(destination, banks)) {
-                      final String asset => SizedBox(
-                        width: 48,
-                        height: 24,
-                        child: Image.asset(asset, fit: BoxFit.contain),
-                      ),
-                      null => const Icon(
+                    ManoPaymentLogo(
+                      logo: switch (payoutLogoAsset(destination, banks)) {
+                        final String asset => Image.asset(asset),
+                        null => null,
+                      },
+                      fallback: const Icon(
                         Icons.account_balance_outlined,
                         color: ManoColors.clay,
                       ),
-                    },
+                    ),
                     const SizedBox(width: ManoSpacing.md),
                     Expanded(
                       child: Column(

@@ -17,7 +17,7 @@ class ManoOutlineButton extends StatelessWidget {
     required this.onPressed,
     this.busy = false,
     this.tone = ManoOutlineTone.ink,
-    this.icon,
+    this.leading,
     super.key,
   });
 
@@ -31,8 +31,8 @@ class ManoOutlineButton extends StatelessWidget {
   /// [ManoOutlineTone.flame] pairs with a flame primary, e.g. sign in beside sign up.
   final ManoOutlineTone tone;
 
-  /// Leads the label, e.g. a mail icon for "Continuar con correo".
-  final IconData? icon;
+  /// Leads the label, e.g. [ManoEnvelopeIcon] for "Continuar con correo".
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
@@ -56,12 +56,15 @@ class ManoOutlineButton extends StatelessWidget {
         ),
         child: busy
             ? ManoLoader.small(color: foreground)
-            : icon == null
+            : leading == null
             ? Text(label)
             : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(icon, size: 20),
+                  IconTheme.merge(
+                    data: const IconThemeData(size: 20),
+                    child: leading!,
+                  ),
                   const SizedBox(width: ManoSpacing.sm),
                   Flexible(child: Text(label)),
                 ],

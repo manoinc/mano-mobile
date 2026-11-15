@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mano_session/mano_session.dart';
+import 'package:mano_ui/mano_ui.dart';
 
 /// The logo asset for a method, or null when it has none.
 String? paymentLogoAsset(PaymentKind kind, String label) =>
@@ -22,24 +23,13 @@ class PaymentBrandMark extends StatelessWidget {
       PaymentLogo(asset: paymentLogoAsset(method.kind, method.label));
 }
 
-/// [asset] fitted into the shared logo box; the card icon when null.
+/// [asset] in the shared logo box; the card icon when null.
 class PaymentLogo extends StatelessWidget {
   const PaymentLogo({required this.asset, super.key});
 
   final String? asset;
 
-  static const double _width = 48;
-  static const double _height = 24;
-
   @override
-  Widget build(BuildContext context) => SizedBox(
-    width: _width,
-    height: _height,
-    child: Align(
-      alignment: AlignmentDirectional.centerStart,
-      child: asset == null
-          ? const Icon(Icons.credit_card)
-          : Image.asset(asset!, fit: BoxFit.contain),
-    ),
-  );
+  Widget build(BuildContext context) =>
+      ManoPaymentLogo(logo: asset == null ? null : Image.asset(asset!));
 }

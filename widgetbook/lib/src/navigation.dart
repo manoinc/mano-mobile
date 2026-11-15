@@ -42,7 +42,7 @@ WidgetbookCategory navigation() => WidgetbookCategory(
         actions: ManoWelcomeActions(
           firstLabel: 'Iniciar sesión',
           onFirst: noop,
-          secondLabel: 'Crear cuenta',
+          secondLabel: 'Registrarse',
           onSecond: noop,
           busy: context.knobs.boolean(label: 'Busy'),
           below: const ManoPlatformSignInButton(

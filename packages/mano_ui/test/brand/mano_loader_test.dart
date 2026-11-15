@@ -10,8 +10,8 @@ Widget _host(Widget child, {bool still = false}) => MaterialApp(
   ),
 );
 
-double _reveal(WidgetTester tester) =>
-    tester.widget<ManoLoaderFrame>(find.byType(ManoLoaderFrame)).reveal;
+ManoLoaderFrame _frame(WidgetTester tester) =>
+    tester.widget<ManoLoaderFrame>(find.byType(ManoLoaderFrame));
 
 void main() {
   testWidgets('announces itself as loading', (tester) async {
@@ -20,23 +20,40 @@ void main() {
     expect(find.bySemanticsLabel('Cargando'), findsOneWidget);
   });
 
-  testWidgets('draws the m in from nothing and keeps looping', (tester) async {
+  testWidgets('a cycle ends exactly where it began', (tester) async {
     await tester.pumpWidget(_host(const ManoLoader()));
-    final start = _reveal(tester);
+    final start = _frame(tester);
 
     await tester.pump(ManoLoader.cycle ~/ 2);
-    final middle = _reveal(tester);
+    final middle = _frame(tester);
 
-    await tester.pump(ManoLoader.cycle);
-    expect(start, 0);
-    expect(middle, greaterThan(start));
+    await tester.pump(ManoLoader.cycle ~/ 2 - const Duration(milliseconds: 1));
+    final end = _frame(tester);
+
+    expect((start.from, start.to), (0.0, 0.0));
+    expect((middle.from, middle.to), (0.0, 1.0));
+    expect(end.from, closeTo(1, 0.01));
+    expect(end.to, 1);
     expect(tester.hasRunningAnimations, isTrue);
+  });
+
+  testWidgets('both edges only ever travel left to right', (tester) async {
+    await tester.pumpWidget(_host(const ManoLoader()));
+    var last = _frame(tester);
+    for (var i = 0; i < 27; i++) {
+      await tester.pump(ManoLoader.cycle ~/ 28);
+      final now = _frame(tester);
+      expect(now.from, greaterThanOrEqualTo(last.from));
+      expect(now.to, greaterThanOrEqualTo(last.to));
+      expect(now.to, greaterThanOrEqualTo(now.from));
+      last = now;
+    }
   });
 
   testWidgets('holds a full, still m when motion is reduced', (tester) async {
     await tester.pumpWidget(_host(const ManoLoader(), still: true));
 
-    expect(_reveal(tester), 1);
+    expect((_frame(tester).from, _frame(tester).to), (0.0, 1.0));
     expect(tester.hasRunningAnimations, isFalse);
   });
 

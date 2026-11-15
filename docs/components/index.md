@@ -17,7 +17,7 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | Component | Use it for |
 |---|---|
 | `ManoPrimaryButton` | The one flame action on a screen. Full width, supports `busy`. `tone: ink` fills it with ink for a main action that is not the hot one, as "Agregar método de pago". |
-| `ManoOutlineButton` | A strong secondary action (ink outline). `tone: flame` pairs it with a flame primary; an optional leading `icon` (the mail icon on "Crear cuenta con correo"). |
+| `ManoOutlineButton` | A strong secondary action (ink outline). `tone: flame` pairs it with a flame primary; an optional `leading` widget (`ManoEnvelopeIcon` on "Crear cuenta con correo"). |
 | `ManoWelcomeActions` | The welcome's two equal flame pills side by side ("Iniciar sesión", "Registrarse"), with a full-width slot below for the platform button. The one-flame rule's only exception, see [Colour](../brand/colour.md). |
 | `ManoQuietButton` | A low-emphasis action in clay text. |
 | `ManoTextAction` | An inline link-like action ("Iniciar sesión", "Agendar"). |
@@ -65,6 +65,7 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 | `ManoPersonRow`, `ManoDetailRow`, `ManoTagList` | People with rating, label/value rows, tag chips. |
 | `ManoPriceBreakdown` | Airbnb-style price details: labelled lines, a rule, the total. Used by the job checkout. |
 | `ManoMethodOption` | One way to pay, picked like a radio; a null `onTap` shows it disabled with a `tag` such as "Próximamente". |
+| `ManoPaymentLogo` | A payment brand's logo in one 48 × 24 box, scaled down whole and left-aligned, so method rows line up. The app passes its own `Image.asset` from `assets/payments/`; `fallback` covers a method without a logo. |
 | `ManoMethodRow` | A saved payment method: mark, name, detail, optional tag, and a small outlined action ("Editar"). |
 | `ManoInfoCard` | An outlined reassurance card: icon, title, message and an optional link ("Paga siempre a través de Mano"). |
 | `ManoProfileHeader`, `ManoGreetingHeader` | Profile top with an optional contact line, "Hola, …" header. |
@@ -124,8 +125,13 @@ to see each one in light and dark, at phone size and at large text, with knobs.
 `ManoWordmark`, `ManoMonogram`, `ManoArchMotif`, `ManoOpening`. See
 [Logo](../brand/logo.md).
 
-`ManoLoader` is the loading state for both apps: the `m` wipes in, holds and
-fades, on a loop. Use `ManoLoader()` (48) for a screen or section and
+`ManoEnvelopeIcon` is Heroicons' outline envelope (v2.2.0, MIT), drawn as a
+path so `mano_ui` still ships no images. It marks every email alternative:
+the "Continuar con correo" pill and "Crear cuenta con correo". It takes the
+ambient `IconTheme` size and colour.
+
+`ManoLoader` is the loading state for both apps: the `m` sweeps through left
+to right on a seamless loop (in, hold, out, empty again). Use `ManoLoader()` (48) for a screen or section and
 `ManoLoader.small()` (18) inside a button. Prefer it to
 `CircularProgressIndicator`.
 

@@ -46,10 +46,7 @@ void main() {
     );
     expect(button, findsOneWidget);
     expect(
-      find.descendant(
-        of: button,
-        matching: find.byIcon(Icons.mail_outline_rounded),
-      ),
+      find.descendant(of: button, matching: find.byType(ManoEnvelopeIcon)),
       findsOneWidget,
     );
     await tester.tap(button);
