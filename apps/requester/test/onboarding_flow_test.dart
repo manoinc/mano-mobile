@@ -662,7 +662,7 @@ void main() {
 
       expect(find.text('Inicia sesión o regístrate'), findsOneWidget);
       expect(find.text('Colombia (+57)'), findsOneWidget);
-      expect(find.text('Te enviaremos un código por SMS.'), findsOneWidget);
+      expect(find.text('Te enviaremos un código por WhatsApp.'), findsOneWidget);
       expect(find.text('País o región'), findsOneWidget);
       expect(find.text('¿Problemas para entrar?'), findsOneWidget);
       expect(find.byTooltip('Continuar con correo'), findsOneWidget);

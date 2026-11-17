@@ -160,7 +160,7 @@ class _ManoPhoneSignInScreenState extends State<ManoPhoneSignInScreen> {
         country: '${country.name} (${country.dialCode})',
         onCountryTap: w.busy ? null : _pickCountry,
         enabled: !w.busy,
-        helperText: 'Te enviaremos un código por SMS.',
+        helperText: 'Te enviaremos un código por WhatsApp.',
         errorText: w.phoneError,
         onChanged: w.onPhoneChanged,
         onSubmitted: (_) => w.onSendCode(),
