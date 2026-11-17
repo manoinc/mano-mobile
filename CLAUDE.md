@@ -42,7 +42,7 @@ tools/docs.sh serve                              # the handbook at localhost:800
 cd apps/<app> && flutter test integration_test -d RFGL20WAR9E  # on the A36, one at a time
 cd apps/<app> && flutter test integration_test -d "iPhone 17"  # iOS simulator
 dart tools/generate_logo_paths.dart              # after changing tools/brand/*.svg
-cd apps/requester && flutter run -d RFGL20WAR9E --dart-define-from-file=../../config/dev.json  # the A36
+cd apps/requester && flutter run -d RFGL20WAR9E --dart-define-from-file=../../config/dev.json  # the A36; =.env for personal keys
 ```
 
 ## Docs

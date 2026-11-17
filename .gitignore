@@ -36,3 +36,8 @@ Thumbs.db
 # Handbook build output (tools/docs.sh)
 /site/
 /docs/widgetbook/
+
+# Per-app environment (APIs and keys). Commit .env.example only.
+.env
+.env.*
+!.env.example

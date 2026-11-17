@@ -4,7 +4,7 @@
 
 - Flutter (stable) and the Android SDK, with a phone attached over USB (we test on
   a Samsung A36, `-d RFGL20WAR9E`) or an emulator. For iOS, Xcode and a
-  simulator; see [iOS](ios.md).
+  simulator; see [iOS](ios.md). Play Store builds: [Android release](release-android.md).
 - Docker, for the docs and the local backend database.
 - Optional: the backend repos next to this one (`../mano-gateway`, …).
 
@@ -13,8 +13,8 @@
 ```bash
 flutter pub get                      # once, from the repo root (Pub workspace)
 dart analyze                         # whole workspace
-cd apps/requester && flutter run -d RFGL20WAR9E
-cd apps/provider  && flutter run -d RFGL20WAR9E
+cd apps/requester && flutter run -d RFGL20WAR9E --dart-define-from-file=.env
+cd apps/provider  && flutter run -d RFGL20WAR9E --dart-define-from-file=.env
 ```
 
 ## The repo
@@ -32,7 +32,11 @@ docs                  this handbook
 
 ## Talking to the backend
 
-Both apps call the gateway at `http://localhost:8082/graphql`. The phone reaches
+API URLs and client keys are compiled in with `--dart-define-from-file`. The
+shared values are committed in `config/dev.json` (local stack) and
+`config/prod.json` (release); for personal overrides copy `.env.example` to a
+git-ignored `apps/<app>/.env` and pass that instead. Locally both
+apps call the gateway at `http://localhost:8082/graphql`. The phone reaches
 your machine through `adb reverse tcp:8082 tcp:8082`, which you must re-run after
 reconnecting the phone. Only the catalogue (search, services, offers) is live
 today; everything else runs on in-memory mocks. See
@@ -40,7 +44,9 @@ today; everything else runs on in-memory mocks. See
 seeding it.
 
 ```bash
-flutter run --dart-define=MANO_GATEWAY=https://api.mano.co/graphql   # another gateway
+flutter run --dart-define-from-file=../../config/dev.json   # shared local defaults
+cp .env.example .env                       # or: personal overrides, once per app
+flutter run --dart-define-from-file=.env
 ```
 
 ## Next
