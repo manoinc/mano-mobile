@@ -36,9 +36,8 @@ class ManoBrandButton extends StatelessWidget {
           minimumSize: const Size.fromHeight(52),
           shape: const StadiumBorder(),
           backgroundColor: scheme.surface,
-          // Not `ManoColors.stone`: that is the light theme's divider, and on a
-          // dark ground it comes out near-white.
-          side: BorderSide(color: scheme.outlineVariant),
+          // Google's white button needs a visible grey stroke; stone vanishes on white.
+          side: BorderSide(color: scheme.outline),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

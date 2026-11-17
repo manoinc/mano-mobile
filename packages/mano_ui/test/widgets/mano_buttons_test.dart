@@ -192,6 +192,37 @@ void main() {
         );
       }
     });
+
+    testWidgets('draws a visible stroke, the same one as the pill row', (
+      tester,
+    ) async {
+      // Google's white button needs a grey stroke; stone on white vanishes.
+      for (final theme in [ManoTheme.light(), ManoTheme.dark()]) {
+        await tester.pumpWidget(
+          _host(
+            ManoBrandButton(
+              label: 'Continuar con Google',
+              leading: const SizedBox(width: 18, height: 18),
+              onPressed: () {},
+            ),
+            theme: theme,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final style = tester
+            .widget<OutlinedButton>(find.byType(OutlinedButton))
+            .style!;
+        final stroke = style.side!.resolve({})!.color;
+        final a = stroke.computeLuminance();
+        final b = theme.colorScheme.surface.computeLuminance();
+        final contrast =
+            (a > b ? a + 0.05 : b + 0.05) / (a > b ? b + 0.05 : a + 0.05);
+
+        expect(stroke, theme.colorScheme.outline);
+        expect(contrast, greaterThanOrEqualTo(3), reason: 'WCAG 1.4.11');
+      }
+    });
   });
 
   group('the corner action', () {
