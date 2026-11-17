@@ -20,7 +20,7 @@ cd apps/provider  && flutter run -d RFGL20WAR9E
 ## The repo
 
 ```
-apps/requester        Mano (Solicitantes)          com.manoinc.mano.requester
+apps/requester        Mano (Solicitantes)          com.manoInc.mano (iOS: com.manoinc.mano.requester)
 apps/provider         Mano Profesionales           com.manoinc.mano.provider
 packages/mano_domain  entities, ports, rules — no dependencies
 packages/mano_data    adapters: gateway GraphQL + in-memory mocks

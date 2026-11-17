@@ -146,7 +146,9 @@ Google verification.
 | Client | Type | Client ID | Used by |
 |---|---|---|---|
 | mano-auth (web, server client) | Web | `937642558480-v2op3hleq83utq7kn077a8rdkif9ke6k` | mano-auth `GOOGLE_CLIENT_ID`; the apps' `GOOGLE_SERVER_CLIENT_ID` |
-| Mano requester (Android, debug) | Android | `937642558480-av82…` | `com.manoinc.mano.requester`, debug SHA-1 |
+| Mano requester (Play, com.manoInc.mano) | Android | `937642558480-edkq…` | `com.manoInc.mano`, Play App Signing SHA-1 |
+| Mano requester (debug, com.manoInc.mano) | Android | `937642558480-opdc…` | `com.manoInc.mano`, debug SHA-1 |
+| Mano requester (Android, debug) | Android | `937642558480-av82…` | the old `com.manoinc.mano.requester`; unused since the Play listing |
 | Mano provider (Android, debug) | Android | `937642558480-hgfn…` | `com.manoinc.mano.provider`, debug SHA-1 |
 | Mano requester (iOS) | iOS | `937642558480-136cj6p11gv90pi2ickad9umij47s6fd` | `GIDClientID` in `apps/requester/ios/Runner/Info.plist` |
 | Mano provider (iOS) | iOS | `937642558480-4m75tt29su4vg766mdo2vhmrqc4olqv2` | `GIDClientID` in `apps/provider/ios/Runner/Info.plist` |
@@ -160,13 +162,22 @@ Credential Manager with the web client as `serverClientId`, and Google matches
 the package and SHA-1 itself, so there is no `google-services.json`. Each iOS
 plist has `GIDClientID` and the reversed client ID as a URL scheme.
 
-The registered SHA-1 is the shared debug key's,
-`32:36:AB:DD:F3:B4:57:D7:14:BE:D1:89:0D:99:B5:66:55:F2:4D:C6`. Before release:
+The requester's Android id is `com.manoInc.mano`, fixed by its Play listing
+(early access since 2026-11-16); iOS keeps `com.manoinc.mano.requester`.
 
-1. Add an Android client per package with the **upload key** SHA-1.
-2. Add another with the **Play App Signing** SHA-1, taken from Play Console
-   (Protect with Play, then App signing).
-3. Put the Apple Team ID on both iOS clients.
+| Key | SHA-1 |
+|---|---|
+| Shared debug key | `32:36:AB:DD:F3:B4:57:D7:14:BE:D1:89:0D:99:B5:66:55:F2:4D:C6` |
+| Play App Signing (`deployment_cert.der`) | `0F:D1:89:8E:BC:05:73:8B:EA:05:DB:4E:28:1E:CD:7E:05:E5:54:13` |
+
+Play's app signing SHA-256 (`4D:8C:95:…:D4:98:CE`) is the one App Links'
+`assetlinks.json` lists. Play's "internal" certificate is a debug key, and the
+hybrid certificates are for Play's newer signing scheme; Google sign-in needs
+neither. A debug build cannot install over the Play build of the same id:
+uninstall one first. Before release:
+
+1. Give the provider a Play listing, then its Play App Signing client.
+2. Put the Apple Team ID on both iOS clients.
 
 Run with the shared, secret-free defaults:
 
