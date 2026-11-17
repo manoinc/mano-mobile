@@ -96,6 +96,10 @@ What exists today:
 
 ### Projects tab: a segment for "Proyectos"
 
+> Superseded: the segment is gone. Projects now share Actividad's one status
+> filter with requests and jobs; see
+> [Activity filtering architecture](../develop/activity.md).
+
 The tab already holds jobs and requests (`ActivityTab`). Add a top segment with
 `ManoProjectFilterTabs`: **Servicios · Proyectos**. *Proyectos* lists
 `myProjectsProvider`, newest first.

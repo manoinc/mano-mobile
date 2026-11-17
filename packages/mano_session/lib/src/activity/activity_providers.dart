@@ -2,8 +2,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_domain/mano_domain.dart';
 
 import '../marketplace_providers.dart';
+import '../projects/project_providers.dart';
 
 // Shared by both apps: the requester's Actividad tab and the provider's agenda and requests.
+
+/// The requester's Actividad in one bucket: requests, jobs and projects, newest first.
+final activityProvider =
+    FutureProvider.family<List<ActivityItem>, ActivityBucket>((
+      ref,
+      bucket,
+    ) async {
+      final (requests, jobs, projects) = await (
+        ref.watch(myServiceRequestsProvider.future),
+        ref.watch(myJobsProvider.future),
+        ref.watch(myProjectsProvider.future),
+      ).wait;
+      return activityIn(
+        bucket,
+        requests: requests,
+        jobs: jobs,
+        projects: projects,
+      );
+    });
 
 final jobProvider = FutureProvider.family<Job?, String>(
   (ref, id) => ref.watch(jobRepositoryProvider).job(id),

@@ -161,8 +161,7 @@ class _PublishProjectScreenState extends ConsumerState<PublishProjectScreen> {
       onBack: _back,
     ),
     _Step.published => PublishedView(
-      onOpen: () =>
-          context.go('/projects/project/${_published!.id}?segment=proyectos'),
+      onOpen: () => context.go('/projects/project/${_published!.id}'),
     ),
   };
 }

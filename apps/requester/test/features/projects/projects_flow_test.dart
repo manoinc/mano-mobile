@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mano_requester/features/activity/activity_list.dart';
 
 import '../../support/pump_app.dart';
 import 'projects_fakes.dart';
@@ -45,6 +46,16 @@ void main() {
 
     await _tap(tester, find.byType(BackButton));
     expect(routerPath(c), '/projects');
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('project-card-project-1')),
+      300,
+      scrollable: find
+          .descendant(
+            of: find.byType(ActivityList),
+            matching: find.byType(Scrollable),
+          )
+          .last,
+    );
     await _tap(tester, find.byKey(const Key('project-card-project-1')));
     await _tap(
       tester,

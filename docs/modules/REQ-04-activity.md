@@ -7,43 +7,53 @@ for, what's booked, what's happening now, and what is over.
 
 | Route | Class | File |
 |---|---|---|
-| `/projects` | `ProjectsTabScreen` → `ActivityTab` | `apps/requester/lib/screens/projects_tab_screen.dart`, `features/activity/activity_tab.dart` |
+| `/projects` | `ProjectsTabScreen` → `ActivityList` | `apps/requester/lib/screens/projects_tab_screen.dart`, `features/activity/activity_list.dart` |
 | `/projects/job/:id` | `JobDetailScreen(jobId:)` | `features/activity/job_detail_screen.dart` |
-
-`ProjectsTabScreen` stays as the class the router builds and just renders
-`ActivityTab`.
 
 ### Actividad tab
 
-A `ManoProjectFilterTabs` row over one list. Each filter combines jobs and
-requests:
+"Tu actividad", then one `ManoProjectFilterTabs` row (Pendientes · En curso ·
+Historial) over one list. Each list mixes requests, jobs and
+[projects](REQ-06-projects.md), newest first. How items land in each bucket,
+and why there is no Servicios/Proyectos split:
+[Activity filtering architecture](../develop/activity.md).
 
-| Filter | Jobs | Requests |
-|---|---|---|
-| Solicitudes (default) | none | `pending` |
-| Programados | `scheduled` | none |
-| En curso | `inProgress` | none |
-| Finalizados | `finished` | none |
-| Cancelados | `cancelled` | `rejected`, `cancelled` |
+| Filter | Requests | Jobs | Projects |
+|---|---|---|---|
+| Pendientes (default) | `pending` | none | `open` |
+| En curso | none | `scheduled`, `inProgress` | `awarded` |
+| Historial | `rejected`, `cancelled` | `finished`, `cancelled` | `closed`, `cancelled` |
 
 Accepted requests aren't listed, because accepting one creates a job.
 
-Every item is a `ManoProjectCard` showing the service title, the provider's
-name and photo, a date (`ManoFormat.dateTime`; for requests the proposed start,
-or the creation date if there is none), the price (`ManoFormat.cop`, plus
-`/hora` for hourly) and a `ManoStatusChip`. Cards are keyed
-`activity-job-<id>` and `activity-request-<id>`.
+`ActivityCard` draws each item with the card its kind already has:
+
+- **Requests and jobs** use `ManoProjectCard`: the service title, the
+  provider's name and photo, a date (`ManoFormat.dateTime`; for requests the
+  proposed start, or the creation date if there is none), the price
+  (`ManoFormat.cop`, plus `/hora` for hourly) and a `ManoStatusChip`. They are
+  keyed `activity-job-<id>` and `activity-request-<id>`.
+- **Projects** use `ManoProjectSummaryCard`, keyed `project-card-<id>`
+  ([REQ-06](REQ-06-projects.md)).
+
+Taps:
 
 - Tapping a **job** pushes `/projects/job/<id>`.
+- Tapping a **project** pushes `/projects/project/<id>`.
 - Tapping a **request** opens a `ManoPromptSheet` showing the provider, the
   proposed date, the message and any rejection reason. A pending request's
   sheet offers "Cancelar solicitud". On success a snackbar says "Cancelamos tu
-  solicitud." and the card moves to Cancelados. Closed requests only offer
+  solicitud." and the card moves to Historial. Closed requests only offer
   "Entendido".
-- Each filter has its own `ManoEmptyState` message. The CTA, "Explorar
-  servicios", goes to `/home`.
+
+The list's other states:
+
+- Each filter has its own `ManoEmptyState` message, with no CTA. The outlined
+  "+ Publicar proyecto" pill floats over every filter, and the shell's centre
+  "+" stays the one flame.
 - Loading shows a spinner. Errors show "No pudimos cargar tu actividad." with
-  "Reintentar", which invalidates both list reads.
+  "Reintentar", which invalidates all three list reads. If any one of the three
+  fails, the whole list shows this error.
 
 ### Job detail
 
@@ -80,8 +90,9 @@ It's app-agnostic so PROV-04 and PROV-05 can reuse it.
 | Provider | Type | Reads |
 |---|---|---|
 | `jobProvider(id)` | `FutureProvider.family<Job?, String>` | `JobRepository.job(id)` |
-| `jobsByStatusProvider(status)` | `FutureProvider.family<List<Job>, JobStatus>` | filters `myJobsProvider` |
-| `requestsByStatusProvider(status)` | `FutureProvider.family<List<ServiceRequest>, ServiceRequestStatus>` | filters `myServiceRequestsProvider` |
+| `activityProvider(bucket)` | `FutureProvider.family<List<ActivityItem>, ActivityBucket>` | merges `myServiceRequestsProvider`, `myJobsProvider`, `myProjectsProvider` through `activityIn` |
+| `jobsByStatusProvider(status)` | `FutureProvider.family<List<Job>, JobStatus>` | filters `myJobsProvider` (provider app) |
+| `requestsByStatusProvider(status)` | `FutureProvider.family<List<ServiceRequest>, ServiceRequestStatus>` | filters `myServiceRequestsProvider` (provider app) |
 | `activityActionsProvider` | `NotifierProvider<ActivityActions, void>` | mutations, below |
 
 `ActivityActions` methods return `Result<_, DataFailure>`. Only a success
@@ -93,9 +104,9 @@ invalidates:
 | `rebook(jobId)` | `JobRepository.rebook` | `myServiceRequestsProvider` |
 | `cancelRequest(id)` | `ServiceRequestRepository.cancel` | `myServiceRequestsProvider` |
 
-The selectors watch the base lists, so invalidating `myJobsProvider` or
-`myServiceRequestsProvider` refreshes every filter. Screens keep only
-presentation state: the selected filter and a busy flag.
+The selectors watch the base lists, so invalidating `myJobsProvider`,
+`myServiceRequestsProvider` or `myProjectsProvider` refreshes every filter.
+Screens keep only presentation state: the selected filter and a busy flag.
 
 ## Ports and adapters
 
@@ -120,6 +131,8 @@ these:
 
 App-local helpers in `features/activity/`:
 
+- `activity_list.dart`: the list's states and pull-to-refresh
+- `activity_card.dart`: the card per kind, and the request cancel
 - `activity_labels.dart`: status, price and rate copy
 - `request_sheet.dart`
 - `load_error.dart`
@@ -135,18 +148,24 @@ them, so these are deleted along with their tests:
 
 ## Tests
 
+- `packages/mano_domain/test/activity/activity_item_test.dart`: each status's
+  bucket, the timestamps, and the newest-first merge.
 - `packages/mano_session/test/activity/activity_providers_test.dart`: the
   selectors, `jobProvider`, and each action's result and invalidation.
-- `apps/requester/test/screens/projects_tab_screen_test.dart`: filters, card
-  mapping, empty states and their CTA, the error state, job navigation, and the
-  request cancel sheet.
+- `packages/mano_session/test/activity/activity_provider_test.dart`: the merged
+  buckets, their order, and a failing source.
+- `apps/requester/test/screens/projects_tab_screen_test.dart`: the filter row,
+  each bucket's items and order, card mapping, empty states, the error state,
+  job and project navigation, and the request cancel sheet.
+- `apps/requester/test/features/projects/publish_project_pill_test.dart`: the
+  floating pill on every filter.
 - `apps/requester/test/features/activity/job_detail_screen_test.dart`: details,
   not found, error, cancel with reason, dismissing the sheet, and rebook.
 - `apps/requester/test/features/activity/activity_flow_test.dart`: a host twin
   of the device flow.
 - `apps/requester/integration_test/activity_flow_test.dart`: the device flow.
-  Signed in: Actividad → Programados → open job-1 → Cancelar → Sí, cancelar →
-  back → it shows under Cancelados.
+  Signed in: Actividad → En curso → open job-1 → Cancelar → Sí, cancelar →
+  back → it shows under Historial.
 
 ## Backend gaps
 
@@ -154,11 +173,11 @@ them, so these are deleted along with their tests:
   both repositories are mocks.
 - `JobRepository.rebook` creates a request in the job repository's own memory.
   `MockServiceRequestRepository` never sees it, so with mocks a rebooked
-  request doesn't show under Solicitudes. It will once one backend owns both,
+  request doesn't show under Pendientes. It will once one backend owns both,
   or once the mocks share a store.
 - `cancel(reason:)` is accepted but the mock drops the reason.
-- There's no live push. Both segments refetch on pull-to-refresh
-  (`ManoPullToRefresh`: requests and jobs, or projects) and whenever the app
+- There's no live push. The list refetches on pull-to-refresh
+  (`ManoPullToRefresh`: requests, jobs and projects) and whenever the app
   comes back into view (`refreshOnResumeProvider`); otherwise a provider's
   action shows only after this app invalidates its reads.
 - The job detail's app bar has "Escribir" (`JobChatButton`, chat icon): it opens
