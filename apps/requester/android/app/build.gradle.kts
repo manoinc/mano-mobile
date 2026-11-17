@@ -19,7 +19,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.manoinc.mano.requester"
+        applicationId = "com.manoInc.mano"  // the Play listing's id; it can never change
 
         // No manifestPlaceholders for an OAuth redirect scheme here.
         // AppAuth's Gradle plugin needed one to register the custom-scheme

@@ -3,7 +3,7 @@
 The two Mano apps, and the packages they share.
 
 - **`apps/requester`** — Mano, for Solicitantes: people who need work done in
-  their home (`com.manoinc.mano.requester`).
+  their home (`com.manoInc.mano` on Android).
 - **`apps/provider`** — Mano Profesionales, for Proveedores: people who do the work
   (`com.manoinc.mano.provider`).
 

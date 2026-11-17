@@ -5,7 +5,7 @@ Colombia. There are two apps:
 
 | App | For | Package |
 |---|---|---|
-| **Mano** | Solicitantes: people who hire | `com.manoinc.mano.requester` |
+| **Mano** | Solicitantes: people who hire | `com.manoInc.mano` (iOS `com.manoinc.mano.requester`) |
 | **Mano Profesionales** | Proveedores: people who do the work | `com.manoinc.mano.provider` |
 
 Both apps are built from one design system and one domain, so this handbook

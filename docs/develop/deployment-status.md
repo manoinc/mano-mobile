@@ -41,9 +41,10 @@ These services are not deployed. None of them has an ECR image, and none is in
 2. **mano-auth, mano-verification, mano-media and mano-reviews must be added**
    to the manifest and deployed. Their secrets (Didit, Google, Wompi) go in
    through `bws run`.
-3. **Only the debug SHA-1** is registered with Google (see [Auth](auth.md)).
-   The release keystore and Play App Signing SHA-1 must be added once they
-   exist.
+3. **The requester is on Play as early access** (`com.manoInc.mano`, since
+   2026-11-16) and its Play App Signing SHA-1 is registered with Google (see
+   [Auth](auth.md)). That build cannot work yet: it needs blockers 1 and 2.
+   The provider has no Play listing, so only its debug SHA-1 is registered.
 
 Until then the apps are developed and tested against the local stack (see
 `../mano-gateway/docs/local-stack.md`).
