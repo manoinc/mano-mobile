@@ -22,13 +22,24 @@ class IdentityOutcomeStep extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
 
     return switch (state.step) {
-      IdentityFlowStep.rejected => ManoStepScaffold(
+      IdentityFlowStep.rejected when state.canRetry => ManoStepScaffold(
         headline: 'No pudimos verificar tu identidad',
-        subhead: 'Toma las fotos de nuevo con esto en cuenta:',
+        subhead: 'Inténtalo de nuevo con esto en cuenta:',
         trailingLabel: onLater == null ? null : 'Ahora no',
         onTrailing: onLater,
         primaryLabel: 'Intentar de nuevo',
         onPrimary: notifier.retry,
+        children: [
+          ManoNotice(
+            message: state.rejection ?? '',
+            tone: ManoNoticeTone.warning,
+          ),
+        ],
+      ),
+      IdentityFlowStep.rejected => ManoStepScaffold(
+        headline: 'No pudimos verificar tu identidad',
+        primaryLabel: 'Continuar',
+        onPrimary: onDone,
         children: [
           ManoNotice(
             message: state.rejection ?? '',
@@ -51,8 +62,7 @@ class IdentityOutcomeStep extends ConsumerWidget {
       ),
       _ => ManoStepScaffold(
         headline: 'Estamos revisando tus documentos',
-        subhead:
-            'Te avisaremos cuando terminemos; suele tomar menos de un día.',
+        subhead: 'Te avisaremos cuando terminemos; tarda hasta 3 días hábiles.',
         primaryLabel: 'Continuar',
         onPrimary: onDone,
         children: [

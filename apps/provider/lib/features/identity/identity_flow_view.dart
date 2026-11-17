@@ -3,17 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-import 'steps/back_intro_step.dart';
-import 'steps/capture_step.dart';
+import 'steps/brief_step.dart';
 import 'steps/identity_intro_step.dart';
 import 'steps/identity_outcome_step.dart';
-import 'steps/identity_review_step.dart';
 
 /// The identity check, one screen per step; the host decides where it leads.
 class IdentityFlowView extends ConsumerWidget {
   const IdentityFlowView({required this.onDone, this.onLater, super.key});
 
-  /// Leaves once the photos are sent, or the check is already settled.
+  /// Leaves once Didit has the photos, or the check is already settled.
   final VoidCallback onDone;
 
   /// Puts the check off; offered only when set.
@@ -36,18 +34,10 @@ class IdentityFlowView extends ConsumerWidget {
           state: state,
           onLater: onLater,
         ),
-        IdentityFlowStep.backIntro => BackIntroStep(
-          key: const ValueKey('backIntro'),
-          state: state,
-        ),
-        IdentityFlowStep.cedulaFront ||
-        IdentityFlowStep.cedulaBack ||
-        IdentityFlowStep.selfie => CaptureStep(
+        IdentityFlowStep.frontBrief ||
+        IdentityFlowStep.backBrief ||
+        IdentityFlowStep.selfieBrief => BriefStep(
           key: ValueKey(step),
-          state: state,
-        ),
-        IdentityFlowStep.review => IdentityReviewStep(
-          key: const ValueKey('review'),
           state: state,
         ),
         IdentityFlowStep.pending ||

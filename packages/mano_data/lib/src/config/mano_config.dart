@@ -18,8 +18,9 @@ final class ManoConfig {
   /// The SuperTokens API domain; `null` leaves sign-in unconfigured.
   final String? authApiDomain;
 
-  /// Debug only: the mock identity check approves on send, so the gate can be walked.
+  /// Debug only: the mock identity check approves at once, so the gate can be walked.
   final bool approveIdentityChecks;
+
   /// mano-auth's Google web client ID, the audience of Google id tokens; `null` turns Google off.
   final String? googleServerClientId;
 

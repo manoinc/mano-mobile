@@ -7,67 +7,36 @@ import 'identity_verification_providers.dart';
 enum IdentityFlowStep {
   loading,
   intro,
-  cedulaFront,
 
-  /// Tips before the back of the cédula, as Nu shows them; no photo.
-  backIntro,
-  cedulaBack,
-  selfie,
-  review,
+  /// Briefs before the checker's own flow, as Nu shows them; no photo here.
+  frontBrief,
+  backBrief,
+  selfieBrief,
   pending,
   approved,
-  rejected;
-
-  /// The photo this step takes, if it takes one.
-  IdentityDocumentKind? get kind => switch (this) {
-    cedulaFront => IdentityDocumentKind.cedulaFront,
-    cedulaBack => IdentityDocumentKind.cedulaBack,
-    selfie => IdentityDocumentKind.selfie,
-    _ => null,
-  };
-
-  /// The lens this step's photo is taken with, if it takes one.
-  CameraFacing? get facing => switch (kind) {
-    null => null,
-    IdentityDocumentKind.selfie => CameraFacing.front,
-    _ => CameraFacing.rear,
-  };
-
-  static IdentityFlowStep of(IdentityDocumentKind kind) => switch (kind) {
-    IdentityDocumentKind.cedulaFront => cedulaFront,
-    IdentityDocumentKind.cedulaBack => cedulaBack,
-    IdentityDocumentKind.selfie => selfie,
-  };
+  rejected,
 }
 
 const _walked = [
   IdentityFlowStep.intro,
-  IdentityFlowStep.cedulaFront,
-  IdentityFlowStep.backIntro,
-  IdentityFlowStep.cedulaBack,
-  IdentityFlowStep.selfie,
-  IdentityFlowStep.review,
+  IdentityFlowStep.frontBrief,
+  IdentityFlowStep.backBrief,
+  IdentityFlowStep.selfieBrief,
 ];
 
 final class IdentityFlowState {
   const IdentityFlowState({
     this.step = IdentityFlowStep.loading,
-    this.photos = const {},
     this.busy = false,
-    this.retaking = false,
     this.failure,
     this.rejection,
+    this.canRetry = false,
   });
 
   final IdentityFlowStep step;
 
-  /// Kept on the device for the review thumbnails.
-  final Map<IdentityDocumentKind, PickedImage> photos;
-
+  /// The checker's flow is open.
   final bool busy;
-
-  /// A photo is being taken again from the review, which it returns to.
-  final bool retaking;
 
   /// The last action's refusal; any later change clears it.
   final DataFailure? failure;
@@ -75,7 +44,10 @@ final class IdentityFlowState {
   /// Why the checker refused, while [step] is rejected.
   final String? rejection;
 
-  /// 0..1 across intro to review; null on the screens around them.
+  /// Whether a refusal may be tried again.
+  final bool canRetry;
+
+  /// 0..1 across the intro and briefs; null on the screens around them.
   double? get progress {
     final i = _walked.indexOf(step);
     return i < 0 ? null : (i + 1) / _walked.length;
@@ -83,22 +55,20 @@ final class IdentityFlowState {
 
   IdentityFlowState copyWith({
     IdentityFlowStep? step,
-    Map<IdentityDocumentKind, PickedImage>? photos,
     bool? busy,
-    bool? retaking,
     DataFailure? failure,
     String? rejection,
+    bool? canRetry,
   }) => IdentityFlowState(
     step: step ?? this.step,
-    photos: photos ?? this.photos,
     busy: busy ?? this.busy,
-    retaking: retaking ?? this.retaking,
     failure: failure,
     rejection: rejection ?? this.rejection,
+    canRetry: canRetry ?? this.canRetry,
   );
 }
 
-/// Walks a person through the cédula and selfie photos, then sends them.
+/// Walks a person through the briefs, then hands off once to the checker.
 final class IdentityFlowNotifier extends Notifier<IdentityFlowState> {
   @override
   IdentityFlowState build() {
@@ -113,7 +83,7 @@ final class IdentityFlowNotifier extends Notifier<IdentityFlowState> {
     final result = await _port.status();
     if (!ref.mounted) return;
     state = switch (result) {
-      Ok(:final value) => _showing(value),
+      Ok(:final value) => _showing(value, notStarted: IdentityFlowStep.intro),
       Err(:final failure) => state.copyWith(
         step: IdentityFlowStep.intro,
         failure: failure,
@@ -127,83 +97,57 @@ final class IdentityFlowNotifier extends Notifier<IdentityFlowState> {
     return state.step == IdentityFlowStep.approved;
   }
 
-  /// Continuar on a step that only explains: the intro or the back tips.
-  void begin() => switch (state.step) {
-    IdentityFlowStep.intro => _goTo(_nextMissing()),
-    IdentityFlowStep.backIntro => _goTo(IdentityFlowStep.cedulaBack),
-    _ => null,
-  };
-
-  /// Sends the photo the app's camera took for the current step.
-  Future<void> usePhoto(PickedImage image) async {
-    final kind = state.step.kind;
-    if (kind == null || state.busy) return;
-    state = state.copyWith(busy: true);
-    final result = await _port.submit(kind, image);
-    if (!ref.mounted) return;
-    if (result case Err(:final failure)) {
-      state = state.copyWith(busy: false, failure: failure);
-      return;
-    }
-    final photos = {...state.photos, kind: image};
-    state = state.copyWith(photos: photos, busy: false);
-    _goTo(state.retaking ? IdentityFlowStep.review : _nextMissing());
+  /// Continuar on the intro or a brief; the last brief starts instead.
+  void next() {
+    final i = _walked.indexOf(state.step);
+    if (i >= 0 && i < _walked.length - 1) _goTo(_walked[i + 1]);
   }
 
-  void retake(IdentityDocumentKind kind) {
-    if (state.step != IdentityFlowStep.review) return;
-    state = state.copyWith(step: IdentityFlowStep.of(kind), retaking: true);
-  }
-
-  /// Sends every photo for review.
-  Future<void> send() async {
-    if (state.step != IdentityFlowStep.review || state.busy) return;
+  /// Empezar on the selfie brief: the checker's flow, then its answer.
+  Future<void> start() async {
+    if (state.step != IdentityFlowStep.selfieBrief || state.busy) return;
     state = state.copyWith(busy: true);
-    final result = await _port.finish();
+    final result = await _port.verify();
     if (!ref.mounted) return;
     state = switch (result) {
-      Ok(:final value) => _showing(value).copyWith(busy: false),
+      // Not started means the person closed the checker: they stay here.
+      Ok(:final value) => _showing(
+        value,
+        notStarted: IdentityFlowStep.selfieBrief,
+      ).copyWith(busy: false),
       Err(:final failure) => state.copyWith(busy: false, failure: failure),
     };
   }
 
-  /// After a refusal, every photo is taken again.
+  /// After a refusal that allows it, the briefs come round again.
   void retry() {
-    if (state.step != IdentityFlowStep.rejected) return;
-    state = const IdentityFlowState(step: IdentityFlowStep.cedulaFront);
+    if (state.step != IdentityFlowStep.rejected || !state.canRetry) return;
+    _goTo(IdentityFlowStep.frontBrief);
   }
 
   void back() {
     if (state.busy) return;
-    if (state.retaking) return _goTo(IdentityFlowStep.review);
     final i = _walked.indexOf(state.step);
     if (i > 0) _goTo(_walked[i - 1]);
   }
 
   void acknowledgeFailure() => state = state.copyWith();
 
-  IdentityFlowStep _nextMissing() {
-    for (final kind in IdentityDocumentKind.values) {
-      if (state.photos.containsKey(kind)) continue;
-      return kind == IdentityDocumentKind.cedulaBack
-          ? IdentityFlowStep.backIntro
-          : IdentityFlowStep.of(kind);
-    }
-    return IdentityFlowStep.review;
-  }
-
-  IdentityFlowState _showing(IdentityCheckStatus status) => switch (status) {
-    IdentityCheckInProgress() => state.copyWith(step: IdentityFlowStep.intro),
+  IdentityFlowState _showing(
+    IdentityCheckStatus status, {
+    required IdentityFlowStep notStarted,
+  }) => switch (status) {
+    IdentityCheckNotStarted() => state.copyWith(step: notStarted),
     IdentityCheckPending() => state.copyWith(step: IdentityFlowStep.pending),
     IdentityCheckApproved() => state.copyWith(step: IdentityFlowStep.approved),
-    IdentityCheckRejected(:final reason) => state.copyWith(
+    IdentityCheckRejected(:final reason, :final canRetry) => state.copyWith(
       step: IdentityFlowStep.rejected,
       rejection: reason,
+      canRetry: canRetry,
     ),
   };
 
-  void _goTo(IdentityFlowStep step) =>
-      state = state.copyWith(step: step, retaking: false);
+  void _goTo(IdentityFlowStep step) => state = state.copyWith(step: step);
 }
 
 final identityFlowProvider =

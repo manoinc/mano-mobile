@@ -32,8 +32,6 @@ export 'src/widgets/mano_bar_chart.dart';
 export 'src/widgets/mano_balance_hero.dart';
 export 'src/widgets/mano_booking_card.dart';
 export 'src/widgets/mano_bottom_nav_bar.dart';
-export 'src/widgets/mano_capture_frame.dart';
-export 'src/widgets/mano_capture_review_row.dart';
 export 'src/widgets/mano_brand_button.dart';
 export 'src/widgets/mano_brand_pill_row.dart';
 export 'src/widgets/mano_category_chip.dart';

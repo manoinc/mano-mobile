@@ -39,6 +39,8 @@ export 'src/session/supertokens_social_auth.dart';
 export 'src/session/native_id_tokens.dart';
 export 'src/session/token_store.dart';
 export 'src/wallet/gateway_wallet_repository.dart';
+export 'src/verification/didit_launcher.dart';
+export 'src/verification/gateway_identity_verification.dart';
 
 // Mock implementations pending real gateway-backed adapters.
 export 'src/account/mock_address_book.dart';

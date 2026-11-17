@@ -15,7 +15,7 @@ import 'package:mano_session/mano_session.dart';
 /// flutter run --dart-define=SUPERTOKENS_API_DOMAIN=http://localhost:3001
 /// ```
 ///
-/// The mock identity check approves on send only when asked, to walk the gates:
+/// Without sign-in the identity check is a mock; it approves only when asked:
 ///
 /// ```bash
 /// flutter run --dart-define=MANO_APPROVE_IDENTITY=true

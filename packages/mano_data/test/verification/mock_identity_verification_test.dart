@@ -1,49 +1,25 @@
-import 'dart:typed_data';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_data/mano_data.dart';
 import 'package:mano_domain/mano_domain.dart';
 
-final _photo = PickedImage(
-  bytes: Uint8List(4),
-  mimeType: 'image/jpeg',
-  name: 'id.jpg',
-);
-
 void main() {
-  test('starts with nothing sent', () async {
+  test('starts not started', () async {
     final port = MockIdentityVerification();
 
-    final status = (await port.status()).valueOrNull;
-
-    expect(status, isA<IdentityCheckInProgress>());
-    expect((status! as IdentityCheckInProgress).submitted, isEmpty);
+    expect((await port.status()).valueOrNull, isA<IdentityCheckNotStarted>());
   });
 
-  test('refuses to finish while a document is missing', () async {
+  test('a verified check goes to review', () async {
     final port = MockIdentityVerification();
-    await port.submit(IdentityDocumentKind.cedulaFront, _photo);
 
-    expect((await port.finish()).failureOrNull, isA<DataRejected>());
-  });
-
-  test('all three documents go to review', () async {
-    final port = MockIdentityVerification();
-    for (final kind in IdentityDocumentKind.values) {
-      await port.submit(kind, _photo);
-    }
-
-    expect((await port.finish()).valueOrNull, isA<IdentityCheckPending>());
+    expect((await port.verify()).valueOrNull, isA<IdentityCheckPending>());
     expect((await port.status()).valueOrNull, isA<IdentityCheckPending>());
   });
 
-  test('set to approve, a finished check comes back approved', () async {
-    final port = MockIdentityVerification(approveOnFinish: true);
-    for (final kind in IdentityDocumentKind.values) {
-      await port.submit(kind, _photo);
-    }
+  test('set to approve, a verified check comes back approved', () async {
+    final port = MockIdentityVerification(approveOnVerify: true);
 
-    expect((await port.finish()).valueOrNull, isA<IdentityCheckApproved>());
+    expect((await port.verify()).valueOrNull, isA<IdentityCheckApproved>());
     expect((await port.status()).valueOrNull, isA<IdentityCheckApproved>());
   });
 }

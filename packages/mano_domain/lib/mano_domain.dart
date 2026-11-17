@@ -101,7 +101,6 @@ export 'src/shared/party.dart';
 export 'src/support/support_desk.dart';
 export 'src/support/support_ticket.dart';
 export 'src/support/support_ticket_draft.dart';
-export 'src/verification/identity_document_kind.dart';
 export 'src/verification/identity_verification_port.dart';
 export 'src/verification/identity_check_status.dart';
 export 'src/wallet/checkout_term.dart';

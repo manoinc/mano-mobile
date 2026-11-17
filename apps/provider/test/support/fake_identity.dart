@@ -1,29 +1,27 @@
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:mano_session/mano_session.dart';
 
-/// Reports [reported] when set; otherwise collects photos like the mock.
+/// Reports [reported]; verify answers [verified], pending by default.
 final class FakeIdentityVerification implements IdentityVerificationPort {
-  FakeIdentityVerification([this.reported]);
+  FakeIdentityVerification([
+    this.reported = const IdentityCheckNotStarted(),
+    this.verified = const Ok(IdentityCheckPending()),
+  ]);
 
-  IdentityCheckStatus? reported;
-  final _kinds = <IdentityDocumentKind>{};
+  IdentityCheckStatus reported;
+  Result<IdentityCheckStatus, DataFailure> verified;
+  var verifies = 0;
 
   @override
   Future<Result<IdentityCheckStatus, DataFailure>> status() async =>
-      Ok(reported ?? IdentityCheckInProgress(submitted: {..._kinds}));
+      Ok(reported);
 
   @override
-  Future<Result<IdentityCheckStatus, DataFailure>> submit(
-    IdentityDocumentKind kind,
-    PickedImage image,
-  ) async {
-    _kinds.add(kind);
-    return Ok(IdentityCheckInProgress(submitted: {..._kinds}));
+  Future<Result<IdentityCheckStatus, DataFailure>> verify() async {
+    verifies++;
+    if (verified case Ok(:final value)) reported = value;
+    return verified;
   }
-
-  @override
-  Future<Result<IdentityCheckStatus, DataFailure>> finish() async =>
-      Ok(reported = const IdentityCheckPending());
 }
 
 /// A pro whose identity check came back approved, so no gate stops them.

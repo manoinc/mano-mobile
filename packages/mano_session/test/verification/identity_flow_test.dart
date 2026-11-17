@@ -1,38 +1,28 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_data/mano_data.dart';
 import 'package:mano_session/mano_session.dart';
 
-PickedImage _photo([String type = 'image/jpeg']) =>
-    PickedImage(bytes: Uint8List(4), mimeType: type, name: 'p');
-
-/// The mock, with a status it can be told to report.
+/// A port told what to report, before and after the vendor's flow.
 final class _Port implements IdentityVerificationPort {
-  final inner = MockIdentityVerification();
-  IdentityCheckStatus? reported;
+  IdentityCheckStatus reported = const IdentityCheckNotStarted();
+  Result<IdentityCheckStatus, DataFailure> verified = const Ok(
+    IdentityCheckPending(),
+  );
   Completer<void>? gate;
-  final submitted = <IdentityDocumentKind>[];
+  var verifies = 0;
 
   @override
   Future<Result<IdentityCheckStatus, DataFailure>> status() async =>
-      reported != null ? Ok(reported!) : inner.status();
+      Ok(reported);
 
   @override
-  Future<Result<IdentityCheckStatus, DataFailure>> submit(
-    IdentityDocumentKind kind,
-    PickedImage image,
-  ) {
-    submitted.add(kind);
-    return inner.submit(kind, image);
-  }
-
-  @override
-  Future<Result<IdentityCheckStatus, DataFailure>> finish() async {
+  Future<Result<IdentityCheckStatus, DataFailure>> verify() async {
+    verifies++;
     await gate?.future;
-    return inner.finish();
+    return verified;
   }
 }
 
@@ -49,13 +39,10 @@ Future<({ProviderContainer c, IdentityFlowNotifier n})> _setUp(
 
 IdentityFlowState _s(ProviderContainer c) => c.read(identityFlowProvider);
 
-Future<void> _captureAll(IdentityFlowNotifier n) async {
-  n.begin();
-  await n.usePhoto(_photo());
-  n.begin();
-  await n.usePhoto(_photo());
-  await n.usePhoto(_photo());
-}
+void _walkToSelfie(IdentityFlowNotifier n) => n
+  ..next()
+  ..next()
+  ..next();
 
 void main() {
   group('opening', () {
@@ -81,149 +68,120 @@ void main() {
 
     test('a refused check opens on the reason', () async {
       final (:c, n: _) = await _setUp(
-        _Port()..reported = const IdentityCheckRejected(reason: 'Borrosa'),
+        _Port()
+          ..reported = const IdentityCheckRejected(
+            reason: 'Borrosa',
+            canRetry: true,
+          ),
       );
       expect(_s(c).step, IdentityFlowStep.rejected);
       expect(_s(c).rejection, 'Borrosa');
+      expect(_s(c).canRetry, isTrue);
       expect(c.read(identityVerifiedProvider), isFalse);
     });
   });
 
-  test('front, back tips, back, selfie, then review, as Nu walks it', () async {
-    final port = _Port();
-    final (:c, :n) = await _setUp(port);
+  test('intro, front, back, selfie: the briefs Nu walks', () async {
+    final (:c, :n) = await _setUp(_Port());
     final seen = <IdentityFlowStep>[];
-    final lenses = <CameraFacing?>[];
-
-    n.begin();
-    lenses.add(_s(c).step.facing);
-    seen.add(_s(c).step);
-    await n.usePhoto(_photo());
-    seen.add(_s(c).step);
-    n.begin();
-    seen.add(_s(c).step);
-    lenses.add(_s(c).step.facing);
-    for (var i = 0; i < 2; i++) {
-      await n.usePhoto(_photo());
+    for (var i = 0; i < 4; i++) {
+      n.next();
       seen.add(_s(c).step);
-      lenses.add(_s(c).step.facing);
     }
-
     expect(seen, [
-      IdentityFlowStep.cedulaFront,
-      IdentityFlowStep.backIntro,
-      IdentityFlowStep.cedulaBack,
-      IdentityFlowStep.selfie,
-      IdentityFlowStep.review,
-    ]);
-    expect(port.submitted, IdentityDocumentKind.values);
-    expect(lenses, [
-      CameraFacing.rear,
-      CameraFacing.rear,
-      CameraFacing.front,
-      null,
-    ], reason: 'the cédula on the back camera, the selfie on the front');
-    expect(_s(c).photos.keys, IdentityDocumentKind.values);
+      IdentityFlowStep.frontBrief,
+      IdentityFlowStep.backBrief,
+      IdentityFlowStep.selfieBrief,
+      IdentityFlowStep.selfieBrief,
+    ], reason: 'the last brief starts the check instead');
   });
 
-  test('an unsupported photo stays on the step and says why', () async {
+  test('back walks the briefs to the intro', () async {
     final (:c, :n) = await _setUp(_Port());
-    n.begin();
-    await n.usePhoto(_photo('image/gif'));
-    expect(_s(c).step, IdentityFlowStep.cedulaFront);
-    expect(_s(c).failure, isA<DataRejected>());
-
-    n.acknowledgeFailure();
-    expect(_s(c).failure, isNull);
-  });
-
-  test('retake from review comes straight back to review', () async {
-    final port = _Port();
-    final (:c, :n) = await _setUp(port);
-    await _captureAll(n);
-
-    n.retake(IdentityDocumentKind.cedulaBack);
-    expect(_s(c).step, IdentityFlowStep.cedulaBack);
-    await n.usePhoto(_photo());
-
-    expect(_s(c).step, IdentityFlowStep.review);
-    expect(port.submitted.last, IdentityDocumentKind.cedulaBack);
-  });
-
-  test('the back tips take no photo and lead to the back', () async {
-    final port = _Port();
-    final (:c, :n) = await _setUp(port);
-    n.begin();
-    await n.usePhoto(_photo());
-    await n.usePhoto(_photo());
-    expect(_s(c).step, IdentityFlowStep.backIntro);
-    expect(_s(c).step.facing, isNull);
-    expect(port.submitted, hasLength(1));
-  });
-
-  test('back walks the steps and returns from a retake to review', () async {
-    final (:c, :n) = await _setUp(_Port());
-    await _captureAll(n);
-
+    _walkToSelfie(n);
     n.back();
-    expect(_s(c).step, IdentityFlowStep.selfie);
-    n.back();
-    expect(_s(c).step, IdentityFlowStep.cedulaBack);
-    n.back();
-    expect(_s(c).step, IdentityFlowStep.backIntro);
-    n.back();
-    expect(_s(c).step, IdentityFlowStep.cedulaFront);
-    n.back();
-    expect(_s(c).step, IdentityFlowStep.intro);
-    n.back();
-    expect(_s(c).step, IdentityFlowStep.intro);
-  });
-
-  test('back from a retake returns to review', () async {
-    final (:c, :n) = await _setUp(_Port());
-    await _captureAll(n);
+    expect(_s(c).step, IdentityFlowStep.backBrief);
     n
-      ..retake(IdentityDocumentKind.selfie)
+      ..back()
+      ..back()
       ..back();
-    expect(_s(c).step, IdentityFlowStep.review);
+    expect(_s(c).step, IdentityFlowStep.intro);
   });
 
-  test('send is busy while in flight, then pending', () async {
+  test('start is busy while the vendor runs, then pending', () async {
     final port = _Port()..gate = Completer<void>();
     final (:c, :n) = await _setUp(port);
-    await _captureAll(n);
+    _walkToSelfie(n);
 
-    final sending = n.send();
+    final starting = n.start();
     expect(_s(c).busy, isTrue);
+    await n.start();
+    expect(port.verifies, 1, reason: 'a second tap while busy is ignored');
     port.gate!.complete();
-    await sending;
+    await starting;
 
     expect(_s(c).busy, isFalse);
     expect(_s(c).step, IdentityFlowStep.pending);
   });
 
-  test('send does nothing off the review', () async {
-    final (:c, :n) = await _setUp(_Port());
-    n.begin();
-    await n.send();
-    expect(_s(c).step, IdentityFlowStep.cedulaFront);
+  test('closing the vendor\'s flow stays on the selfie brief', () async {
+    final port = _Port()..verified = const Ok(IdentityCheckNotStarted());
+    final (:c, :n) = await _setUp(port);
+    _walkToSelfie(n);
+
+    await n.start();
+
+    expect(_s(c).step, IdentityFlowStep.selfieBrief);
+    expect(_s(c).failure, isNull);
   });
 
-  test('retry after a refusal starts the photos over', () async {
+  test('a failure stays on the brief and says why', () async {
+    final port = _Port()..verified = const Err(DataUnavailable());
+    final (:c, :n) = await _setUp(port);
+    _walkToSelfie(n);
+
+    await n.start();
+
+    expect(_s(c).step, IdentityFlowStep.selfieBrief);
+    expect(_s(c).failure, isA<DataUnavailable>());
+    n.acknowledgeFailure();
+    expect(_s(c).failure, isNull);
+  });
+
+  test('start does nothing off the selfie brief', () async {
+    final port = _Port();
+    final (c: _, :n) = await _setUp(port);
+    await n.start();
+    expect(port.verifies, 0);
+  });
+
+  test('retry after a retryable refusal walks the briefs again', () async {
     final (:c, :n) = await _setUp(
-      _Port()..reported = const IdentityCheckRejected(reason: 'Borrosa'),
+      _Port()
+        ..reported = const IdentityCheckRejected(
+          reason: 'Borrosa',
+          canRetry: true,
+        ),
     );
     n.retry();
-    expect(_s(c).step, IdentityFlowStep.cedulaFront);
-    expect(_s(c).photos, isEmpty);
+    expect(_s(c).step, IdentityFlowStep.frontBrief);
   });
 
-  test('progress runs from the intro to the review', () async {
+  test('a final refusal cannot be retried', () async {
+    final (:c, :n) = await _setUp(
+      _Port()
+        ..reported = const IdentityCheckRejected(reason: 'No', canRetry: false),
+    );
+    n.retry();
+    expect(_s(c).step, IdentityFlowStep.rejected);
+  });
+
+  test('progress runs across the briefs', () async {
     final (:c, :n) = await _setUp(_Port());
-    expect(_s(c).progress, closeTo(1 / 6, 1e-9));
-    await _captureAll(n);
+    expect(_s(c).progress, closeTo(1 / 4, 1e-9));
+    _walkToSelfie(n);
     expect(_s(c).progress, 1);
-    await n.send();
+    await n.start();
     expect(_s(c).progress, isNull);
   });
 
@@ -238,13 +196,13 @@ void main() {
     });
 
     test('a pending check is not verified yet', () async {
-      final (:c, :n) = await _setUp(
+      final (c: _, :n) = await _setUp(
         _Port()..reported = const IdentityCheckPending(),
       );
       expect(await n.verified(), isFalse);
     });
 
-    test('a debug build set to approve approves on send', () async {
+    test('a debug build set to approve approves on start', () async {
       final c = ProviderContainer.test(
         overrides: [
           manoConfigProvider.overrideWithValue(
@@ -259,12 +217,51 @@ void main() {
       c.listen(identityFlowProvider, (_, _) {});
       await pumpEventQueue();
       final n = c.read(identityFlowProvider.notifier);
-      await _captureAll(n);
+      _walkToSelfie(n);
 
-      await n.send();
+      await n.start();
 
       expect(_s(c).step, IdentityFlowStep.approved);
       expect(c.read(identityVerifiedProvider), isTrue);
     });
   });
+
+  group('the port', () {
+    ManoConfig config({String? authApiDomain}) => ManoConfig(
+      gatewayGraphQlUrl: 'http://gw/graphql',
+      appRole: ManoRole.provider,
+      authApiDomain: authApiDomain,
+    );
+
+    test('without an auth domain the check is the mock', () {
+      final c = ProviderContainer.test(
+        overrides: [manoConfigProvider.overrideWithValue(config())],
+      );
+      expect(
+        c.read(identityVerificationProvider),
+        isA<MockIdentityVerification>(),
+      );
+    });
+
+    test('with an auth domain it goes through the gateway and Didit', () {
+      final c = ProviderContainer.test(
+        overrides: [
+          manoConfigProvider.overrideWithValue(
+            config(authApiDomain: 'http://localhost:3001'),
+          ),
+          diditLauncherProvider.overrideWithValue(_NoDidit()),
+        ],
+      );
+      expect(
+        c.read(identityVerificationProvider),
+        isA<GatewayIdentityVerification>(),
+      );
+    });
+  });
+}
+
+final class _NoDidit implements DiditLauncher {
+  @override
+  Future<DiditOutcome> start(String sessionToken) async =>
+      DiditOutcome.cancelled;
 }
