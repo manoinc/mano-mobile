@@ -199,3 +199,26 @@ first if nothing has asked yet.
 - Perfil: an "Verifica tu identidad" row (or "Verificación en revisión",
   "Identidad verificada") opens `/profile/identity`. The header's verified
   badge shows when the profile says so or the check is approved.
+
+## Didit branding (white label)
+
+Didit draws its own capture screens; we restyle them as Mano. Two settings,
+both per Didit application (sandbox and live are separate, so repeat for live):
+
+1. **Style**, `PATCH /v3/customization/` (JSON): `ManoColors` (flame primary
+   and buttons, ink text, sand panels), Poppins 400, `border_radius_panel: 14`,
+   `border_radius_buttons: 28` (pill), `app_public_name: "Mano"`,
+   `skip_welcome_screen`, `hide_progress_bar` and `disable_login_with_didit`
+   all `true`. Logos go up as multipart `image_square` (512×512 monogram) and
+   `image_rectangular` (exactly 2:1, the wordmark), rendered flame from
+   `tools/brand/*.svg`. Poppins takes a numeric `font_weight`.
+2. **Workflow**, `PATCH /v3/workflows/{DIDIT_WORKFLOW_ID}/` with
+   `{"is_white_label_enabled": true, "status": "published"}`. Without
+   `published` the change lands in a draft and sessions keep Didit's look.
+
+Both calls take `x-api-key: $DIDIT_API_KEY` through `bws run`. Didit follows the
+phone's light or dark mode. The sandbox banner and its "choose a test result"
+sheet only exist in sandbox.
+
+A fully native capture (our own camera screens over Didit's standalone ID
+Verification, Passive Liveness and Face Match APIs) is planned for after launch.
