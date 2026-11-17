@@ -230,16 +230,14 @@ carries the web client ID. Remember `adb reverse` for 8082 and 3001.
 
 ### mano-auth with Google, locally
 
-From `../mano-auth`, with a throwaway in-memory core. The secret is read from
-`~/.config/mano/google-web-client.json` (mode 600) at launch and never typed,
-echoed or committed:
+From `../mano-auth`, with a throwaway in-memory core. The secret comes from
+Bitwarden through `bws run` and is never typed, echoed or committed:
 
     docker run -d --rm --name st-core -p 3568:3567 \
       registry.supertokens.io/supertokens/supertokens-postgresql:12.2.0
-    SUPERTOKENS_CORE_URL=http://localhost:3568 \
-    GOOGLE_CLIENT_ID=937642558480-v2op3hleq83utq7kn077a8rdkif9ke6k.apps.googleusercontent.com \
-    GOOGLE_CLIENT_SECRET="$(jq -r .web.client_secret ~/.config/mano/google-web-client.json)" \
-    npm start
+    source ~/.config/bws/env
+    bws run --project-id 48626d50-a88e-4f49-88e1-b4ee0127c8f8 -- \
+      'SUPERTOKENS_CORE_URL=http://localhost:3568 PORT=3001 GOOGLE_CLIENT_ID=937642558480-v2op3hleq83utq7kn077a8rdkif9ke6k.apps.googleusercontent.com npm start'
 
 Check the provider is loaded without a phone: post a fake token.
 
