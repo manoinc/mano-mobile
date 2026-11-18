@@ -63,6 +63,7 @@ export 'src/marketplace_providers.dart';
 export 'src/media/media_providers.dart';
 export 'src/media/photo_attachment.dart';
 export 'src/media/photo_attachments_notifier.dart';
+export 'src/observability/error_reporting.dart';
 export 'src/offline_marketplace_provider.dart';
 export 'src/offers/offer_pricing_filter.dart';
 export 'src/onboarding/onboarding_flow.dart';

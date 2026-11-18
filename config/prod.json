@@ -2,5 +2,7 @@
   "MANO_GATEWAY": "https://api.manoapp.co/graphql",
   "SUPERTOKENS_API_DOMAIN": "https://api.manoapp.co",
   "GOOGLE_SERVER_CLIENT_ID": "937642558480-v2op3hleq83utq7kn077a8rdkif9ke6k.apps.googleusercontent.com",
-  "MANO_APP_VERSION": "1.0.0"
+  "MANO_APP_VERSION": "1.0.0",
+  "SENTRY_DSN": "https://91a19543c0a0409ed8e40b5d5ce59b43@o4512450868609024.ingest.us.sentry.io/4512450954395648",
+  "SENTRY_ENVIRONMENT": "production"
 }

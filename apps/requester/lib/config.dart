@@ -34,3 +34,14 @@ const String requesterAppVersion = String.fromEnvironment(
   'MANO_APP_VERSION',
   defaultValue: '0.1.0',
 );
+
+/// Sentry's DSN; unset in dev and tests, so nothing is reported.
+const String? sentryDsn = bool.hasEnvironment('SENTRY_DSN')
+    ? String.fromEnvironment('SENTRY_DSN')
+    : null;
+
+/// Which Sentry environment events are filed under.
+const String sentryEnvironment = String.fromEnvironment(
+  'SENTRY_ENVIRONMENT',
+  defaultValue: 'development',
+);
