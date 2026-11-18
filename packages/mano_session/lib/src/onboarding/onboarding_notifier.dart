@@ -174,7 +174,10 @@ final class OnboardingFlowNotifier extends Notifier<OnboardingFlow> {
       if (flow.status is RegistrationSubmitting) return;
       state = flow.copyWith(status: const RegistrationSubmitting());
 
-      final result = await _registration.submit(flow.draft);
+      // A guest has no profile to write to yet; the draft stays on the device.
+      final result = ref.read(hasAccountProvider)
+          ? await _registration.submit(flow.draft)
+          : const Ok<void, RegistrationFailure>(null);
 
       // The screen may have moved on while this was in flight.
       if (state case final OnboardingRegistration current) {

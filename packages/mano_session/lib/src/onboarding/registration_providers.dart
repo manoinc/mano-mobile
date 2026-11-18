@@ -1,16 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mano_data/mano_data.dart';
 import 'package:mano_domain/mano_domain.dart';
 
-/// The composition step for registration, mirroring `sessionRepositoryProvider`.
+import '../offline_marketplace_provider.dart';
+import '../session_providers.dart';
+
+/// Where a finished sign-up draft goes: the profiles service, or nowhere offline.
 final registrationRepositoryProvider = Provider<RegistrationRepository>(
-  (ref) => const _LocalOnlyRegistration(),
+  (ref) => ref.watch(offlineMarketplaceProvider)
+      ? const _LocalOnlyRegistration()
+      : GatewayRegistrationRepository(ref.watch(gatewayTransportProvider)),
 );
 
-/// Stands in until there is somewhere to send a draft.
-///
-/// Returns [Ok], unlike the auth stub, and the difference is deliberate: a
-/// sign-in that cannot reach a provider has genuinely failed, but a draft that
-/// was only ever going to be kept on the device has not. The name says so.
+/// Offline (mock) builds keep the draft on the device.
 final class _LocalOnlyRegistration implements RegistrationRepository {
   const _LocalOnlyRegistration();
 

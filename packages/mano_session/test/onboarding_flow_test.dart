@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mano_data/mano_data.dart' show GatewayRegistrationRepository;
 import 'package:mano_session/mano_session.dart';
 
 /// The flow is exercised with a fake repository and nothing else: no widgets,
@@ -43,8 +44,9 @@ ProviderContainer containerWith([
     sessionRepositoryProvider.overrideWithValue(
       session ?? InMemorySessionRepository(onSignUp: () async => Ok(_session)),
     ),
-    if (repository != null)
-      registrationRepositoryProvider.overrideWithValue(repository),
+    registrationRepositoryProvider.overrideWithValue(
+      repository ?? _FakeRegistrationRepository(),
+    ),
   ],
 );
 
@@ -495,21 +497,49 @@ void main() {
     expect(container.read(onboardingFlowProvider), isA<OnboardingSignIn>());
   });
 
-  test(
-    'the default binding accepts a draft without sending it anywhere',
-    () async {
-      // Phase 1 keeps a draft on the device. The stub says Ok because that is
-      // the whole of what this phase promises -- unlike the auth stub, which
-      // must not pretend somebody signed in.
-      final container = containerWith();
+  test('online, a draft goes to the gateway', () {
+    final container = ProviderContainer.test(
+      overrides: [
+        manoConfigProvider.overrideWithValue(
+          const ManoConfig(
+            gatewayGraphQlUrl: 'http://gw/graphql',
+            appRole: ManoRole.requester,
+          ),
+        ),
+      ],
+    );
 
-      final result = await container
-          .read(registrationRepositoryProvider)
-          .submit(const RegistrationDraft());
+    expect(
+      container.read(registrationRepositoryProvider),
+      isA<GatewayRegistrationRepository>(),
+    );
+  });
 
-      expect(result.isOk, isTrue);
-    },
-  );
+  test('offline, a draft is accepted without sending it anywhere', () async {
+    final container = ProviderContainer.test(
+      overrides: [offlineMarketplaceProvider.overrideWithValue(true)],
+    );
+
+    final result = await container
+        .read(registrationRepositoryProvider)
+        .submit(const RegistrationDraft());
+
+    expect(result.isOk, isTrue);
+  });
+
+  test('a guest finishing registration keeps the draft on the device', () async {
+    final repository = _FakeRegistrationRepository();
+    final c = containerWith(repository);
+    await c.read(sessionProvider.future);
+    flowOf(c)
+      ..startRegistration()
+      ..editName(givenName: 'Ana', familyName: 'Rojas');
+
+    await flowOf(c).submit();
+
+    expect(repository.submitted, isNull);
+    expect(c.read(onboardingFlowProvider), isA<OnboardingBrowsing>());
+  });
 
   group('entering by phone or social sign-in', () {
     Session signedIn({required bool isNew}) => Session(
@@ -541,6 +571,20 @@ void main() {
         ..next();
 
       expect(registrationOf(c).step, RegistrationStep.address);
+    });
+
+    test('a new account saves the name it typed', () async {
+      final repository = _FakeRegistrationRepository();
+      final c = containerWith(repository);
+      await c.read(sessionProvider.future);
+      flowOf(c)
+        ..enter(signedIn(isNew: true))
+        ..editName(givenName: 'Roy', familyName: 'Sandoval');
+
+      await flowOf(c).submit();
+
+      expect(repository.submitted?.givenName, 'Roy');
+      expect(repository.submitted?.familyName, 'Sandoval');
     });
 
     test('there is no stepping back out of an account that exists', () async {
