@@ -46,7 +46,13 @@ class HomeTabScreen extends ConsumerWidget {
     final categories = ref.watch(serviceCategoriesProvider);
     final sections = ref.watch(homeSectionsProvider);
     final defaultAddress = ref.watch(defaultAddressProvider).value;
-    final name = requesterGreetingName(user, ref.watch(onboardingFlowProvider));
+    final name = requesterGreetingName(
+      user,
+      ref.watch(onboardingFlowProvider),
+      profileName: signedIn
+          ? ref.watch(clientProfileProvider).value?.displayName ?? ''
+          : '',
+    );
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
