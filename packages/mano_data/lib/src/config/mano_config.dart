@@ -9,7 +9,7 @@ final class ManoConfig {
     this.inviteLinkBase = 'https://manoapp.co/r/',
   });
 
-  /// Builds the config from the app's `.env` values; see [manoEnvironment].
+  /// Builds the config from the dart-defines (`config/*.json`, `.env`); see [manoEnvironment].
   factory ManoConfig.fromEnv(
     Map<String, String> env, {
     required String appRole,
@@ -22,8 +22,9 @@ final class ManoConfig {
     final gateway = value('MANO_GATEWAY');
     if (gateway == null) {
       throw StateError(
-        'MANO_GATEWAY is missing: copy .env.example to .env and run with '
-        '--dart-define-from-file=.env',
+        'MANO_GATEWAY is missing: run with '
+        '--dart-define-from-file=../../config/dev.json '
+        '(add --dart-define-from-file=.env for personal overrides)',
       );
     }
     final inviteBase = value('MANO_INVITE_LINK_BASE');

@@ -89,13 +89,30 @@ void main() {
       expect(config.inviteLink('X').toString(), 'https://manoapp.co/r/X');
     });
 
-    test('a missing gateway fails loudly, naming the .env', () {
+    test('a missing gateway fails loudly, naming the config files', () {
       expect(
         () => ManoConfig.fromEnv(const {}, appRole: ManoRole.provider),
         throwsA(
-          isA<StateError>().having((e) => e.message, 'message',
-              allOf(contains('MANO_GATEWAY'), contains('.env'))),
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            allOf(
+              contains('MANO_GATEWAY'),
+              contains('config/dev.json'),
+              contains('.env'),
+            ),
+          ),
         ),
+      );
+    });
+
+    test('a blank gateway counts as missing', () {
+      expect(
+        () => ManoConfig.fromEnv(
+          const {'MANO_GATEWAY': '   '},
+          appRole: ManoRole.provider,
+        ),
+        throwsStateError,
       );
     });
   });

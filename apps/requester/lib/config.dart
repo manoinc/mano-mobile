@@ -6,8 +6,5 @@ final ManoConfig requesterConfig = ManoConfig.fromEnv(
   appRole: ManoRole.requester,
 );
 
-/// Shown in Configuración; keep in step with `version` in pubspec.yaml.
-const String requesterAppVersion = String.fromEnvironment(
-  'MANO_APP_VERSION',
-  defaultValue: '0.1.0',
-);
+/// Shown in Configuración; test/version_test.dart keeps it equal to `version` in pubspec.yaml.
+const String requesterAppVersion = '1.0.0';

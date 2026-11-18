@@ -1,4 +1,4 @@
-/// The `.env` values compiled in by `flutter run --dart-define-from-file=.env`.
+/// The dart-defines compiled in from `config/*.json` and an optional `.env` (`--dart-define-from-file`).
 const Map<String, String> manoEnvironment = {
   'MANO_GATEWAY': String.fromEnvironment('MANO_GATEWAY'),
   'SUPERTOKENS_API_DOMAIN': String.fromEnvironment('SUPERTOKENS_API_DOMAIN'),

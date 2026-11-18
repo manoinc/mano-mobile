@@ -154,7 +154,7 @@ cd ../mano-gateway && VERIFICATION_URL=http://127.0.0.1:50058 cargo run
 # the provider app, signing in for real so the gateway adapter is used
 adb reverse tcp:8082 tcp:8082 && adb reverse tcp:3001 tcp:3001
 cd apps/provider && flutter run -d RFGL20WAR9E \
-  --dart-define=SUPERTOKENS_API_DOMAIN=http://localhost:3001
+  --dart-define-from-file=../../config/dev.json   # sets SUPERTOKENS_API_DOMAIN
 ```
 
 Didit cannot reach a laptop's webhook, and it does not have to: the
@@ -164,8 +164,9 @@ Didit cannot reach a laptop's webhook, and it does not have to: the
 Pending. To get webhooks too, expose the gateway (e.g. a tunnel) and set the
 workflow's callback to `https://<tunnel>/webhooks/verification/didit`.
 
-Without `SUPERTOKENS_API_DOMAIN` the app uses the mock: Empezar answers
-Pending, or Approved with `--dart-define=MANO_APPROVE_IDENTITY=true`
+Without `SUPERTOKENS_API_DOMAIN` (blank it in `apps/provider/.env`) the app
+uses the mock: Empezar answers Pending, or Approved with
+`MANO_APPROVE_IDENTITY=true` in the same `.env`
 (`ManoConfig.approveIdentityChecks`), to walk the gates.
 
 ## The gate

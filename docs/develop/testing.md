@@ -24,4 +24,4 @@ We work test-first: write the failing test, watch it fail, make it pass.
 !!! warning "Device runs uninstall the app"
     `flutter test integration_test` installs a test build and uninstalls it
     afterwards. Run one at a time, as the phone is shared. Reinstall when done:
-    `flutter build apk --release --dart-define-from-file=.env && adb install -r build/app/outputs/flutter-apk/app-release.apk`.
+    `flutter build apk --release --dart-define-from-file=../../config/dev.json && adb install -r build/app/outputs/flutter-apk/app-release.apk`.

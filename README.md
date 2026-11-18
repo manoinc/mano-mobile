@@ -103,13 +103,13 @@ instructions in this section.
 API URLs and client keys are passed at build time. The shared, public values
 are committed: `config/dev.json` for the local stack, `config/prod.json` for
 release builds. For personal overrides, copy the app's `.env.example` to a
-git-ignored `.env`:
+git-ignored `.env` and pass it after `dev.json`; the later file wins key by key:
 
 ```bash
 cd apps/requester
 flutter run --dart-define-from-file=../../config/dev.json   # shared defaults
-cp .env.example .env          # or: your own MANO_GATEWAY, SUPERTOKENS_API_DOMAIN, …
-flutter run --dart-define-from-file=.env
+cp .env.example .env          # uncomment what you override
+flutter run --dart-define-from-file=../../config/dev.json --dart-define-from-file=.env
 ```
 
 Without `MANO_GATEWAY` the app fails at startup. Values are compiled into the

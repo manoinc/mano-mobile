@@ -58,6 +58,9 @@ android {
     buildTypes {
         release {
             // Falls back to debug keys without key.properties, so `flutter run --release` still works.
+            if (keystoreProperties.isEmpty) {
+                logger.warn("key.properties not found: release is debug-signed and Play will reject it.")
+            }
             signingConfig = signingConfigs.getByName(
                 if (keystoreProperties.isEmpty) "debug" else "release"
             )

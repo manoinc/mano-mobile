@@ -32,17 +32,17 @@ See README.md for the rationale.
 ```bash
 dart analyze                                     # whole workspace, from root
 cd packages/mano_domain  && dart test            # 250 — no Flutter binding
-cd packages/mano_data    && flutter test         # 427
+cd packages/mano_data    && flutter test         # 431
 cd packages/mano_session && flutter test         # 423
 cd packages/mano_ui      && flutter test         # 437
-cd apps/requester        && flutter test         # 280
+cd apps/requester        && flutter test         # 281
 cd apps/provider         && flutter test         # 283
 cd widgetbook            && flutter test         # 193 — every use case renders, every widget covered
 tools/docs.sh serve                              # the handbook at localhost:8000
 cd apps/<app> && flutter test integration_test -d RFGL20WAR9E  # on the A36, one at a time
 cd apps/<app> && flutter test integration_test -d "iPhone 17"  # iOS simulator
 dart tools/generate_logo_paths.dart              # after changing tools/brand/*.svg
-cd apps/requester && flutter run -d RFGL20WAR9E --dart-define-from-file=../../config/dev.json  # the A36; =.env for personal keys
+cd apps/requester && flutter run -d RFGL20WAR9E --dart-define-from-file=../../config/dev.json  # the A36; add --dart-define-from-file=.env for overrides
 ```
 
 ## Docs

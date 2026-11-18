@@ -230,8 +230,8 @@ the fallback. The phone and social flows are in [Signing in](auth.md).
   (`st-auth-mode: header`): tokens arrive in the `st-access-token`,
   `st-refresh-token` and `front-token` headers. The refresh token is kept in
   the keystore (`SecureTokenStore`); the access token lives in memory only.
-- It is switched on per build: `SUPERTOKENS_API_DOMAIN=http://localhost:3001`
-  in `.env`, then `flutter run --dart-define-from-file=.env`.
+- It is switched on per build by `SUPERTOKENS_API_DOMAIN`, already set in
+  `config/dev.json`: `flutter run --dart-define-from-file=../../config/dev.json`.
   Without it, sign-in reports "not configured" and the app runs as before.
 - Every gateway call asks `SessionManager.freshAccessToken()` (`mano_session`)
   for its bearer token. A token within a minute of expiry is renewed first,

@@ -13,8 +13,8 @@
 ```bash
 flutter pub get                      # once, from the repo root (Pub workspace)
 dart analyze                         # whole workspace
-cd apps/requester && flutter run -d RFGL20WAR9E --dart-define-from-file=.env
-cd apps/provider  && flutter run -d RFGL20WAR9E --dart-define-from-file=.env
+cd apps/requester && flutter run -d RFGL20WAR9E --dart-define-from-file=../../config/dev.json
+cd apps/provider  && flutter run -d RFGL20WAR9E --dart-define-from-file=../../config/dev.json
 ```
 
 ## The repo
@@ -35,7 +35,7 @@ docs                  this handbook
 API URLs and client keys are compiled in with `--dart-define-from-file`. The
 shared values are committed in `config/dev.json` (local stack) and
 `config/prod.json` (release); for personal overrides copy `.env.example` to a
-git-ignored `apps/<app>/.env` and pass that instead. Locally both
+git-ignored `apps/<app>/.env` and pass it second: the later file wins key by key. Locally both
 apps call the gateway at `http://localhost:8082/graphql`. The phone reaches
 your machine through `adb reverse tcp:8082 tcp:8082`, which you must re-run after
 reconnecting the phone. Only the catalogue (search, services, offers) is live
@@ -45,8 +45,8 @@ seeding it.
 
 ```bash
 flutter run --dart-define-from-file=../../config/dev.json   # shared local defaults
-cp .env.example .env                       # or: personal overrides, once per app
-flutter run --dart-define-from-file=.env
+cp .env.example .env                       # personal overrides, once per app
+flutter run --dart-define-from-file=../../config/dev.json --dart-define-from-file=.env
 ```
 
 ## Next
