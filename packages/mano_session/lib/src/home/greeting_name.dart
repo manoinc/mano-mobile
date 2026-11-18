@@ -27,14 +27,24 @@ String profileHeaderName({
   return masked.isEmpty ? 'Tu perfil' : masked;
 }
 
-/// The requester's name: the one typed while registering, else the account's.
-String? requesterGreetingName(AuthenticatedUser? user, OnboardingFlow flow) =>
+/// The requester's name: the one just typed, else the saved profile's first word, else the account's.
+String? requesterGreetingName(
+  AuthenticatedUser? user,
+  OnboardingFlow flow, {
+  String profileName = '',
+}) =>
     switch (flow) {
       OnboardingBrowsing(:final name) when name.trim().isNotEmpty =>
         name.trim(),
       _ => null,
     } ??
+    _firstWord(profileName) ??
     greetingName(user);
+
+String? _firstWord(String name) {
+  final trimmed = name.trim();
+  return trimmed.isEmpty ? null : trimmed.split(RegExp(r'\s+')).first;
+}
 
 /// The professional's first name from their profile, or null when blank.
 String? greetingFirstName(ProviderProfile? profile) {

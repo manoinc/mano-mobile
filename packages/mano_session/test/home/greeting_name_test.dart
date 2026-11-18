@@ -107,5 +107,23 @@ void main() {
       expect(requesterGreetingName(null, blank), isNull);
       expect(requesterGreetingName(null, const OnboardingTour()), isNull);
     });
+
+    test('after a restart, greets by the saved profile first name', () {
+      const blank = OnboardingBrowsing();
+      expect(
+        requesterGreetingName(
+          _user(email: 'roy@manoapp.co'),
+          blank,
+          profileName: ' Roy Sandoval ',
+        ),
+        'Roy',
+      );
+      expect(
+        requesterGreetingName(null, const OnboardingBrowsing(name: 'Ana'),
+            profileName: 'Roy Sandoval'),
+        'Ana',
+        reason: 'the name just typed wins over a stale profile',
+      );
+    });
   });
 }

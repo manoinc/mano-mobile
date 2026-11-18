@@ -32,8 +32,8 @@ See README.md for the rationale.
 ```bash
 dart analyze                                     # whole workspace, from root
 cd packages/mano_domain  && dart test            # 250 — no Flutter binding
-cd packages/mano_data    && flutter test         # 431
-cd packages/mano_session && flutter test         # 423
+cd packages/mano_data    && flutter test         # 434
+cd packages/mano_session && flutter test         # 427
 cd packages/mano_ui      && flutter test         # 437
 cd apps/requester        && flutter test         # 281
 cd apps/provider         && flutter test         # 283
