@@ -36,3 +36,7 @@ Thumbs.db
 # Handbook build output (tools/docs.sh)
 /site/
 /docs/widgetbook/
+
+# Local environment files. Never commit these.
+.env
+.env.*
