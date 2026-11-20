@@ -41,6 +41,7 @@ nav = [
     "develop/adding-a-component.md",
     "develop/testing.md",
     "develop/ios.md",
+    "develop/release-android.md",
     "develop/backend-contract.md",
     "develop/deployment-status.md",
     "develop/activity.md",

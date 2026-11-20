@@ -54,4 +54,66 @@ void main() {
       'web.apps.googleusercontent.com',
     );
   });
+
+  group('fromEnv', () {
+    const env = {
+      'MANO_GATEWAY': 'http://localhost:8082/graphql',
+      'SUPERTOKENS_API_DOMAIN': 'http://localhost:3001',
+      'GOOGLE_SERVER_CLIENT_ID': 'web.apps.googleusercontent.com',
+      'MANO_INVITE_LINK_BASE': 'https://staging.manoapp.co/r/',
+      'MANO_APPROVE_IDENTITY': 'true',
+    };
+
+    test('reads every service from the .env values', () {
+      final config = ManoConfig.fromEnv(env, appRole: ManoRole.requester);
+      expect(config.gatewayGraphQlUrl, 'http://localhost:8082/graphql');
+      expect(config.authApiDomain, 'http://localhost:3001');
+      expect(config.googleServerClientId, 'web.apps.googleusercontent.com');
+      expect(config.inviteLinkBase, 'https://staging.manoapp.co/r/');
+      expect(config.approveIdentityChecks, isTrue);
+      expect(config.appRole, ManoRole.requester);
+    });
+
+    test('blank optional keys stay off', () {
+      final config = ManoConfig.fromEnv(
+        const {
+          'MANO_GATEWAY': 'http://gw/graphql',
+          'SUPERTOKENS_API_DOMAIN': '',
+          'GOOGLE_SERVER_CLIENT_ID': '',
+        },
+        appRole: ManoRole.provider,
+      );
+      expect(config.authApiDomain, isNull);
+      expect(config.googleServerClientId, isNull);
+      expect(config.approveIdentityChecks, isFalse);
+      expect(config.inviteLink('X').toString(), 'https://manoapp.co/r/X');
+    });
+
+    test('a missing gateway fails loudly, naming the config files', () {
+      expect(
+        () => ManoConfig.fromEnv(const {}, appRole: ManoRole.provider),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            allOf(
+              contains('MANO_GATEWAY'),
+              contains('config/dev.json'),
+              contains('.env'),
+            ),
+          ),
+        ),
+      );
+    });
+
+    test('a blank gateway counts as missing', () {
+      expect(
+        () => ManoConfig.fromEnv(
+          const {'MANO_GATEWAY': '   '},
+          appRole: ManoRole.provider,
+        ),
+        throwsStateError,
+      );
+    });
+  });
 }

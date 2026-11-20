@@ -37,6 +37,7 @@ Thumbs.db
 /site/
 /docs/widgetbook/
 
-# Local environment files. Never commit these.
+# Per-app environment (APIs and keys). Commit .env.example only.
 .env
 .env.*
+!.env.example

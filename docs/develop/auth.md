@@ -1,7 +1,7 @@
 # Signing in
 
 Both apps sign in through `mano-auth` (SuperTokens FDI, header mode, port 3001),
-switched on with `--dart-define=SUPERTOKENS_API_DOMAIN`. Three ways in, three
+switched on with `SUPERTOKENS_API_DOMAIN` (set in `config/*.json`). Three ways in, three
 ports in `mano_domain/session/`:
 
 | Way in | Port | SuperTokens recipe | Adapter (`mano_data/session/`) |
@@ -169,7 +169,7 @@ because each app's bundle ID is its own Apple client in mano-auth.
 Configuration:
 
 - Google needs mano-auth's **web** OAuth client ID twice: `GOOGLE_CLIENT_ID`
-  in mano-auth and `--dart-define=GOOGLE_SERVER_CLIENT_ID=…` in the app
+  in mano-auth and `GOOGLE_SERVER_CLIENT_ID` in `config/*.json`
   (`ManoConfig.googleServerClientId`). Android also needs an Android OAuth
   client for each package name and signing SHA-1 in the same Google Cloud
   project.

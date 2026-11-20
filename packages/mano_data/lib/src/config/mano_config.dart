@@ -9,6 +9,35 @@ final class ManoConfig {
     this.inviteLinkBase = 'https://manoapp.co/r/',
   });
 
+  /// Builds the config from the dart-defines (`config/*.json`, `.env`); see [manoEnvironment].
+  factory ManoConfig.fromEnv(
+    Map<String, String> env, {
+    required String appRole,
+  }) {
+    String? value(String key) {
+      final v = env[key]?.trim();
+      return v == null || v.isEmpty ? null : v;
+    }
+
+    final gateway = value('MANO_GATEWAY');
+    if (gateway == null) {
+      throw StateError(
+        'MANO_GATEWAY is missing: run with '
+        '--dart-define-from-file=../../config/dev.json '
+        '(add --dart-define-from-file=.env for personal overrides)',
+      );
+    }
+    final inviteBase = value('MANO_INVITE_LINK_BASE');
+    return ManoConfig(
+      gatewayGraphQlUrl: gateway,
+      appRole: appRole,
+      authApiDomain: value('SUPERTOKENS_API_DOMAIN'),
+      googleServerClientId: value('GOOGLE_SERVER_CLIENT_ID'),
+      approveIdentityChecks: value('MANO_APPROVE_IDENTITY') == 'true',
+      inviteLinkBase: inviteBase ?? 'https://manoapp.co/r/',
+    );
+  }
+
   /// The GraphQL endpoint of `mano-gateway`.
   final String gatewayGraphQlUrl;
 
