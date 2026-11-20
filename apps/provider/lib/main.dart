@@ -22,8 +22,7 @@ Future<void> main() async {
   );
 
   await runWithErrorReporting(
-    dsn: sentryDsn,
-    environment: sentryEnvironment,
+    config: providerConfig,
     release: 'mano-provider@$providerAppVersion',
     app: () => runApp(
       ProviderScope(

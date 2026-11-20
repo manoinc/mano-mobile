@@ -13,7 +13,7 @@ no `Podfile` and CocoaPods is not needed.
 
 ```bash
 open -a Simulator
-cd apps/requester && flutter run -d "iPhone 17"
+cd apps/requester && flutter run -d "iPhone 17" --dart-define-from-file=../../config/dev.json
 ```
 
 The simulator shares the Mac's network, so `localhost:8082` reaches the gateway
@@ -22,8 +22,8 @@ directly — no `adb reverse`.
 ## Build without running
 
 ```bash
-cd apps/<app> && flutter build ios --simulator --debug   # simulator
-cd apps/<app> && flutter build ios --release --no-codesign  # device, unsigned
+cd apps/<app> && flutter build ios --simulator --debug --dart-define-from-file=../../config/dev.json   # simulator
+cd apps/<app> && flutter build ios --release --no-codesign --dart-define-from-file=../../config/prod.json  # device, unsigned
 ```
 
 ## Device flows
@@ -41,10 +41,11 @@ not rebuilt yet. Pump once after typing; see `_type` in
 
 - **Signing.** Open `apps/<app>/ios/Runner.xcworkspace`, pick a Team under
   *Signing & Capabilities*. The simulator needs none.
-- **Gateway.** The phone's `localhost` is the phone. Point it at the Mac:
+- **Gateway.** The phone's `localhost` is the phone. Point it at the Mac in
+  `.env` with `MANO_GATEWAY=http://<mac-lan-ip>:8082/graphql`, then:
 
   ```bash
-  flutter run -d <iphone> --dart-define=MANO_GATEWAY=http://<mac-lan-ip>:8082/graphql
+  flutter run -d <iphone> --dart-define-from-file=../../config/dev.json --dart-define-from-file=.env
   ```
 
   `Info.plist` already allows local-network HTTP (`NSAllowsLocalNetworking`) and

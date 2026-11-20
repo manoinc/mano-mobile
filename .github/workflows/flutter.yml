@@ -84,8 +84,8 @@ jobs:
             'org.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=768m' \
             'kotlin.daemon.jvmargs=-Xmx1536m' \
             'org.gradle.workers.max=2' > ~/.gradle/gradle.properties
-      # Release builds are debug-signed until a Play upload key exists.
-      - run: flutter build appbundle --release
+      # CI has no key.properties, so this bundle is debug-signed; the Play upload is built locally.
+      - run: flutter build appbundle --release --dart-define-from-file=../../config/prod.json
         working-directory: apps/${{ matrix.app }}
 
   build-ios:
@@ -104,5 +104,5 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
       - run: flutter pub get
-      - run: flutter build ios --release --no-codesign
+      - run: flutter build ios --release --no-codesign --dart-define-from-file=../../config/prod.json
         working-directory: apps/${{ matrix.app }}

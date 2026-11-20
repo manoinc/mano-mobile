@@ -22,6 +22,7 @@ export 'package:mano_data/mano_data.dart'
         InMemorySessionRepository,
         InMemorySocialAuth,
         ManoConfig,
+        manoEnvironment,
         NoInstallReferrer,
         NoInviteLinks;
 

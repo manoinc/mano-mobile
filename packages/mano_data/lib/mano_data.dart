@@ -10,6 +10,7 @@
 library;
 
 export 'src/config/mano_config.dart';
+export 'src/config/mano_environment.dart';
 export 'src/account/gateway_client_profile_repository.dart';
 export 'src/account/gateway_registration_repository.dart';
 export 'src/catalog/gateway_offer_management.dart';

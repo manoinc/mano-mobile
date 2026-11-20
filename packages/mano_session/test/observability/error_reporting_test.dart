@@ -2,14 +2,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+ManoConfig _config({String? dsn}) => ManoConfig(
+  gatewayGraphQlUrl: 'http://gw/graphql',
+  appRole: ManoRole.requester,
+  sentryDsn: dsn,
+  sentryEnvironment: 'production',
+);
+
 void main() {
   test('without a DSN the app runs and Sentry is never started', () async {
     var ran = false;
     var initCalls = 0;
 
     await runWithErrorReporting(
-      dsn: null,
-      environment: 'production',
+      config: _config(),
       release: 'mano-requester@1.0.0',
       app: () => ran = true,
       init: (configure, {appRunner}) async => initCalls++,
@@ -26,8 +32,7 @@ void main() {
       final options = SentryFlutterOptions();
 
       await runWithErrorReporting(
-        dsn: 'https://key@o1.ingest.us.sentry.io/2',
-        environment: 'production',
+        config: _config(dsn: 'https://key@o1.ingest.us.sentry.io/2'),
         release: 'mano-requester@1.0.0',
         app: () => ran = true,
         init: (configure, {appRunner}) async {
