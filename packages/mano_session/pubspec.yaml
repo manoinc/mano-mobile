@@ -27,6 +27,7 @@ dependencies:
   url_launcher: ^6.3.3
   # The system share sheet, for a professional's invite link.
   share_plus: ^13.3.1
+  sentry_flutter: ^10.5.0
 
 dev_dependencies:
   flutter_test:

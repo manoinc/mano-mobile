@@ -4,7 +4,7 @@
 
 - Flutter (stable) and the Android SDK, with a phone attached over USB (we test on
   a Samsung A36, `-d RFGL20WAR9E`) or an emulator. For iOS, Xcode and a
-  simulator; see [iOS](ios.md). Play Store builds: [Android release](release-android.md).
+  simulator; see [iOS](ios.md). Play Store builds: [Android release](release-android.md). Crashes: [Error reporting](error-reporting.md).
 - Docker, for the docs and the local backend database.
 - Optional: the backend repos next to this one (`../mano-gateway`, …).
 

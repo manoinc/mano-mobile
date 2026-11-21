@@ -5,3 +5,6 @@ final ManoConfig providerConfig = ManoConfig.fromEnv(
   manoEnvironment,
   appRole: ManoRole.provider,
 );
+
+/// Reported with every error; test/version_test.dart keeps it equal to `version` in pubspec.yaml.
+const String providerAppVersion = '0.1.0';

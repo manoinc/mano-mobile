@@ -12,7 +12,7 @@ import 'features/onboarding/professional_onboarding_screen.dart';
 import 'shell/provider_router.dart';
 import 'shell/provider_shell.dart';
 
-void main() {
+Future<void> main() async {
   // Hold Android's splash until Flutter has painted. Without this there is a
   // blank window between the system's m and ours, which is the one seam the
   // opening animation exists to avoid. ManoOpening takes it down again from
@@ -21,17 +21,21 @@ void main() {
     widgetsBinding: WidgetsFlutterBinding.ensureInitialized(),
   );
 
-  runApp(
-    ProviderScope(
-      // The only place this app's identity is declared. `manoConfigProvider`
-      // has no default on purpose: an app that forgot to override it fails
-      // loudly at startup rather than authenticating as the wrong client and
-      // failing much later with an audience rejection nobody can explain.
-      overrides: [
-        manoConfigProvider.overrideWithValue(providerConfig),
-        diditLauncherProvider.overrideWithValue(const DiditSdkLauncher()),
-      ],
-      child: const ProviderApp(),
+  await runWithErrorReporting(
+    config: providerConfig,
+    release: 'mano-provider@$providerAppVersion',
+    app: () => runApp(
+      ProviderScope(
+        // The only place this app's identity is declared. `manoConfigProvider`
+        // has no default on purpose: an app that forgot to override it fails
+        // loudly at startup rather than authenticating as the wrong client and
+        // failing much later with an audience rejection nobody can explain.
+        overrides: [
+          manoConfigProvider.overrideWithValue(providerConfig),
+          diditLauncherProvider.overrideWithValue(const DiditSdkLauncher()),
+        ],
+        child: const ProviderApp(),
+      ),
     ),
   );
 }

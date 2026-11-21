@@ -5,4 +5,6 @@ const Map<String, String> manoEnvironment = {
   'GOOGLE_SERVER_CLIENT_ID': String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID'),
   'MANO_INVITE_LINK_BASE': String.fromEnvironment('MANO_INVITE_LINK_BASE'),
   'MANO_APPROVE_IDENTITY': String.fromEnvironment('MANO_APPROVE_IDENTITY'),
+  'SENTRY_DSN': String.fromEnvironment('SENTRY_DSN'),
+  'SENTRY_ENVIRONMENT': String.fromEnvironment('SENTRY_ENVIRONMENT'),
 };

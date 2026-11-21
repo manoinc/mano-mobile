@@ -7,6 +7,8 @@ final class ManoConfig {
     this.approveIdentityChecks = false,
     this.googleServerClientId,
     this.inviteLinkBase = 'https://manoapp.co/r/',
+    this.sentryDsn,
+    this.sentryEnvironment = 'development',
   });
 
   /// Builds the config from the dart-defines (`config/*.json`, `.env`); see [manoEnvironment].
@@ -35,6 +37,8 @@ final class ManoConfig {
       googleServerClientId: value('GOOGLE_SERVER_CLIENT_ID'),
       approveIdentityChecks: value('MANO_APPROVE_IDENTITY') == 'true',
       inviteLinkBase: inviteBase ?? 'https://manoapp.co/r/',
+      sentryDsn: value('SENTRY_DSN'),
+      sentryEnvironment: value('SENTRY_ENVIRONMENT') ?? 'development',
     );
   }
 
@@ -55,6 +59,12 @@ final class ManoConfig {
 
   /// Where a professional's invite link points; the code is appended.
   final String inviteLinkBase;
+
+  /// Where crashes are reported; `null`, as in dev and tests, reports nothing.
+  final String? sentryDsn;
+
+  /// The Sentry environment errors are filed under.
+  final String sentryEnvironment;
 
   /// The link a professional shares to invite a colleague.
   Uri inviteLink(String code) =>

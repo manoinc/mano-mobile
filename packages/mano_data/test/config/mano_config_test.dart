@@ -62,6 +62,8 @@ void main() {
       'GOOGLE_SERVER_CLIENT_ID': 'web.apps.googleusercontent.com',
       'MANO_INVITE_LINK_BASE': 'https://staging.manoapp.co/r/',
       'MANO_APPROVE_IDENTITY': 'true',
+      'SENTRY_DSN': 'https://key@o1.ingest.us.sentry.io/2',
+      'SENTRY_ENVIRONMENT': 'production',
     };
 
     test('reads every service from the .env values', () {
@@ -72,21 +74,24 @@ void main() {
       expect(config.inviteLinkBase, 'https://staging.manoapp.co/r/');
       expect(config.approveIdentityChecks, isTrue);
       expect(config.appRole, ManoRole.requester);
+      expect(config.sentryDsn, 'https://key@o1.ingest.us.sentry.io/2');
+      expect(config.sentryEnvironment, 'production');
     });
 
     test('blank optional keys stay off', () {
-      final config = ManoConfig.fromEnv(
-        const {
-          'MANO_GATEWAY': 'http://gw/graphql',
-          'SUPERTOKENS_API_DOMAIN': '',
-          'GOOGLE_SERVER_CLIENT_ID': '',
-        },
-        appRole: ManoRole.provider,
-      );
+      final config = ManoConfig.fromEnv(const {
+        'MANO_GATEWAY': 'http://gw/graphql',
+        'SUPERTOKENS_API_DOMAIN': '',
+        'GOOGLE_SERVER_CLIENT_ID': '',
+        'SENTRY_DSN': '',
+        'SENTRY_ENVIRONMENT': '',
+      }, appRole: ManoRole.provider);
       expect(config.authApiDomain, isNull);
       expect(config.googleServerClientId, isNull);
       expect(config.approveIdentityChecks, isFalse);
       expect(config.inviteLink('X').toString(), 'https://manoapp.co/r/X');
+      expect(config.sentryDsn, isNull);
+      expect(config.sentryEnvironment, 'development');
     });
 
     test('a missing gateway fails loudly, naming the config files', () {
@@ -108,10 +113,9 @@ void main() {
 
     test('a blank gateway counts as missing', () {
       expect(
-        () => ManoConfig.fromEnv(
-          const {'MANO_GATEWAY': '   '},
-          appRole: ManoRole.provider,
-        ),
+        () => ManoConfig.fromEnv(const {
+          'MANO_GATEWAY': '   ',
+        }, appRole: ManoRole.provider),
         throwsStateError,
       );
     });
