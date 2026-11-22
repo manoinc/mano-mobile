@@ -48,6 +48,7 @@ class ProviderApp extends StatelessWidget {
     return MaterialApp(
       title: 'Mano Profesionales',
       debugShowCheckedModeBanner: false,
+      builder: (context, child) => ManoKeyboardRestorer(child: child!),
       theme: ManoTheme.light(),
       darkTheme: ManoTheme.dark(),
       locale: const Locale('es', 'CO'),
