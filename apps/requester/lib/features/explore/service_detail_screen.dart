@@ -17,7 +17,7 @@ class ServiceDetailScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(),
       body: service.when(
-        loading: () => const Center(child: ManoLoader()),
+        loading: () => const ManoSkeletonList(),
         error: (_, _) => ManoEmptyState(
           icon: Icons.wifi_off_outlined,
           message: 'No pudimos cargar este servicio.',

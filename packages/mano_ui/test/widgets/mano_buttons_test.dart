@@ -120,7 +120,7 @@ void main() {
       );
 
       expect(find.text('Iniciar sesión'), findsNothing);
-      expect(find.byType(ManoLoader), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
       await tester.tap(find.byType(ManoOutlineButton));
       await tester.pump();
@@ -138,7 +138,7 @@ void main() {
       );
 
       expect(find.text('Iniciar sesión'), findsOneWidget);
-      expect(find.byType(ManoLoader), findsNothing);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
       expect(
         tester.widget<OutlinedButton>(find.byType(OutlinedButton)).enabled,
         isFalse,

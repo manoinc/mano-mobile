@@ -46,7 +46,7 @@ class _AgendaJobScreenState extends ConsumerState<AgendaJobScreen> {
           message: 'No pudimos cargar este trabajo.',
           onRetry: () => ref.invalidate(jobProvider(widget.jobId)),
         ),
-        _ => const Center(child: ManoLoader()),
+        _ => const ManoSkeletonList(),
       },
       bottomNavigationBar: switch (job.value) {
         final job? when job.canStart || job.canFinish => SafeArea(

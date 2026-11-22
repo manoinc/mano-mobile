@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../theme/mano_motion.dart';
 import '../theme/mano_theme.dart';
-import '../brand/mano_loader.dart';
 
 /// How a [ManoPaymentStatus] reads: still going, through, or refused.
 enum ManoPaymentTone { waiting, done, failed }
@@ -71,7 +70,10 @@ class ManoPaymentStatus extends StatelessWidget {
             const SizedBox(height: ManoSpacing.lg),
             Row(
               children: [
-                const ManoLoader(height: 14, color: ManoColors.clay),
+                const SizedBox.square(
+ dimension: 14,
+ child: CircularProgressIndicator(strokeWidth: 2, color: ManoColors.clay),
+ ),
                 const SizedBox(width: ManoSpacing.sm),
                 Flexible(
                   child: Text(

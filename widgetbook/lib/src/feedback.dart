@@ -7,6 +7,26 @@ import 'sample.dart';
 WidgetbookCategory feedback() => WidgetbookCategory(
   name: 'Status & feedback',
   children: [
+    component('ManoSkeleton', {
+      'Box': (context) => Center(
+        child: ManoSkeleton(
+          width: context.knobs.double.slider(label: 'Width', initialValue: 200, min: 24, max: 320),
+          height: context.knobs.double.slider(label: 'Height', initialValue: 16, min: 8, max: 120),
+        ),
+      ),
+      'Circle': (context) => Center(
+        child: ManoSkeleton.circle(
+          size: context.knobs.double.slider(label: 'Size', initialValue: 48, min: 16, max: 120),
+        ),
+      ),
+      'Reduced motion': (context) => const MediaQuery(
+        data: MediaQueryData(disableAnimations: true),
+        child: Center(child: ManoSkeleton(width: 200)),
+      ),
+      'List': (context) => ManoSkeletonList(
+        rows: context.knobs.int.slider(label: 'Rows', initialValue: 6, min: 1, max: 12),
+      ),
+    }),
     component('ManoStatusChip', {
       'All tones': (context) => Center(
         child: Wrap(

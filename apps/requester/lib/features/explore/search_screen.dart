@@ -108,7 +108,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       child: results.when(
         skipLoadingOnReload: true,
         loading: () =>
-            const Center(key: ValueKey('loading'), child: ManoLoader()),
+            const ManoSkeletonList(key: ValueKey('loading')),
         error: (_, _) => ManoEmptyState(
           key: const ValueKey('error'),
           icon: Icons.wifi_off_outlined,

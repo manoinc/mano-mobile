@@ -41,7 +41,7 @@ class ActivityList extends ConsumerWidget {
                   ..invalidate(myJobsProvider)
                   ..invalidate(myProjectsProvider),
               ),
-              _ when !activity.hasValue => const Center(child: ManoLoader()),
+              _ when !activity.hasValue => const ManoSkeletonList(),
               _ when activity.requireValue.isEmpty => ManoEmptyState(
                 icon: Icons.event_note_outlined,
                 message: _emptyMessages[bucket]!,

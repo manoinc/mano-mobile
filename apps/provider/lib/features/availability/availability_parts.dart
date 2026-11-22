@@ -89,8 +89,5 @@ class AvailabilityLoading extends StatelessWidget {
   const AvailabilityLoading({super.key});
 
   @override
-  Widget build(BuildContext context) => const Padding(
-    padding: EdgeInsets.all(ManoSpacing.md),
-    child: Center(child: ManoLoader()),
-  );
+  Widget build(BuildContext context) => const ManoSkeletonList(rows: 2);
 }

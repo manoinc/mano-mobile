@@ -35,7 +35,7 @@ class OrderHistoryScreen extends ConsumerWidget {
           message: 'No pudimos cargar tu historial.',
           onRetry: () => ref.invalidate(myJobsProvider),
         ),
-        _ => const Center(child: ManoLoader()),
+        _ => const ManoSkeletonList(),
       },
     );
   }

@@ -27,7 +27,7 @@ void main() {
 
     expect(find.byIcon(Icons.person), findsOneWidget);
     expect(find.byIcon(Icons.photo_camera_outlined), findsOneWidget);
-    expect(find.byType(ManoLoader), findsNothing);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
   });
 
   testWidgets(
@@ -46,7 +46,7 @@ void main() {
 
       final image = tester.widget<Image>(find.byType(Image));
       expect(image.image, isA<MemoryImage>());
-      expect(find.byType(ManoLoader), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
     },
   );
 

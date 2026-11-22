@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../theme/mano_motion.dart';
 import '../theme/mano_theme.dart';
 import 'mano_photo_picker_grid.dart';
-import '../brand/mano_loader.dart';
 
 /// One picked photo with its upload overlay and remove button; internal to mano_ui.
 class PickedPhotoTile extends StatelessWidget {
@@ -46,9 +45,12 @@ class PickedPhotoTile extends StatelessWidget {
             ),
             child: Center(
               child: switch (photo.status) {
-                ManoPhotoStatus.uploading => const ManoLoader(
-                  height: 18,
-                  color: Colors.white,
+                ManoPhotoStatus.uploading => const SizedBox.square(
+                  dimension: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
                 ),
                 ManoPhotoStatus.failed => Semantics(
                   label: 'Reintentar foto $position',

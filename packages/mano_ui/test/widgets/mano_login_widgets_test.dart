@@ -399,7 +399,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(ManoLoader), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
   });
 

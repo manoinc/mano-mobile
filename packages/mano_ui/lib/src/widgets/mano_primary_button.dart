@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../theme/mano_theme.dart';
 import 'mano_press_scale.dart';
-import '../brand/mano_loader.dart';
 
 /// Which fill the main action takes.
 enum ManoPrimaryTone { flame, ink }
@@ -58,7 +57,10 @@ class ManoPrimaryButton extends StatelessWidget {
               ? const EdgeInsets.symmetric(horizontal: ManoSpacing.lg)
               : null,
         ),
-        child: busy ? ManoLoader.small(color: foreground) : Text(label),
+        child: busy ? SizedBox.square(
+ dimension: 18,
+ child: CircularProgressIndicator(strokeWidth: 2, color: foreground),
+ ) : Text(label),
       ),
     );
     if (!compact) return button;

@@ -27,7 +27,7 @@ and falls back to the raw string. The home tab reuses them.
   [Search](../develop/search.md).
 - Each result shows its category label (clay), title and a 2-line description.
   Tapping one does `context.push('/home/service/<id>')`.
-- The states are loading (`ManoLoader`), error ("No pudimos cargar los servicios." with
+- The states are loading (`ManoSkeletonList`), error ("No pudimos cargar los servicios." with
   **Reintentar**) and empty ("No encontramos servicios con esa búsqueda…" with
   **Limpiar búsqueda**, which resets the text and the category). A previous
   result stays visible while the next one loads (`skipLoadingOnReload`).

@@ -66,7 +66,7 @@ class AddressesScreen extends ConsumerWidget {
           message: 'No pudimos cargar tus direcciones.',
           onRetry: () => ref.invalidate(savedAddressesProvider),
         ),
-        _ => const Center(child: ManoLoader()),
+        _ => const ManoSkeletonList(),
       },
     );
   }

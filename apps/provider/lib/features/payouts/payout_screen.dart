@@ -138,7 +138,7 @@ class _PayoutScreenState extends ConsumerState<PayoutScreen> {
                 ctaLabel: 'Reintentar',
                 onCta: () => ref.invalidate(payoutAccountProvider),
               )
-            : const Center(child: ManoLoader()),
+            : const ManoSkeletonList(),
       );
     }
     final account = saved.value;
