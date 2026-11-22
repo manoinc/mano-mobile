@@ -15,6 +15,7 @@ import '../features/profile/payment_methods_screen.dart';
 import '../features/profile/personal_info_screen.dart';
 import '../features/profile/settings_screen.dart';
 import '../features/profile/support_screen.dart';
+import '../features/profile/support_thread_screen.dart';
 import '../features/projects/project_detail_screen.dart';
 import '../features/projects/publish/publish_project_screen.dart';
 import '../features/projects/start_publishing.dart';
@@ -159,6 +160,14 @@ final requesterRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'support',
                     builder: (context, state) => const SupportScreen(),
+                    routes: [
+                      GoRoute(
+                        path: ':id',
+                        builder: (context, state) => SupportThreadScreen(
+                          ticketId: state.pathParameters['id']!,
+                        ),
+                      ),
+                    ],
                   ),
                   GoRoute(
                     path: 'settings',

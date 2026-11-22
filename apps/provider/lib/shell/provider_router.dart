@@ -18,6 +18,7 @@ import '../features/profile/reviews_section.dart';
 import '../features/services/my_services_screen.dart';
 import '../features/services/offer_editor_screen.dart';
 import '../features/support/support_screen.dart';
+import '../features/support/support_thread_screen.dart';
 import '../features/wallet/wallet_screen.dart';
 import 'provider_nav_shell.dart';
 
@@ -122,6 +123,15 @@ final providerRouterProvider = Provider<GoRouter>((ref) {
                     path: 'support',
                     parentNavigatorKey: rootKey,
                     builder: (context, state) => const SupportScreen(),
+                    routes: [
+                      GoRoute(
+                        path: ':id',
+                        parentNavigatorKey: rootKey,
+                        builder: (context, state) => SupportThreadScreen(
+                          ticketId: state.pathParameters['id']!,
+                        ),
+                      ),
+                    ],
                   ),
                   GoRoute(
                     path: 'identity',
