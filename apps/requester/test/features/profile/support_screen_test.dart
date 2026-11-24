@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
+import '../../support/fake_support_desk.dart';
 import '../../support/pump_app.dart';
 
 Finder _field(String label) => find.descendant(
@@ -54,7 +56,9 @@ void main() {
     expect(enviar.onPressed, isNull);
   });
 
-  testWidgets('filing a queja confirms it with its radicado', (tester) async {
+  testWidgets('filing a queja opens its thread with the description', (
+    tester,
+  ) async {
     await _open(tester);
 
     await tester.ensureVisible(find.text('Queja'));
@@ -68,8 +72,114 @@ void main() {
     await _tapEnviar(tester);
     await tester.pumpAndSettle();
 
-    expect(find.text('Recibimos tu queja'), findsOneWidget);
     expect(find.textContaining('MANO-'), findsOneWidget);
+    expect(find.text('Radicada'), findsOneWidget);
+    expect(
+      find.text('Me cobraron dos veces la limpieza del sábado.'),
+      findsOneWidget,
+    );
     expect(find.byType(ManoSupportForm), findsNothing);
+  });
+
+  group('with tickets', () {
+    final threads = {
+      't1': [
+        SupportMessage(
+          id: 'm0',
+          fromStaff: true,
+          body: 'Ya lo revisamos.',
+          sentAt: DateTime(2026, 11, 2, 11),
+        ),
+      ],
+    };
+
+    Future<ProviderContainer> pump(
+      WidgetTester tester,
+      FakeSupportDesk desk, {
+      String path = '/profile/support',
+    }) {
+      tester.view
+        ..physicalSize = const Size(1080, 2340)
+        ..devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      return pumpRouterAt(
+        tester,
+        path,
+        overrides: [supportDeskProvider.overrideWithValue(desk)],
+      );
+    }
+
+    testWidgets('Mis solicitudes lists radicado, subject and status', (
+      tester,
+    ) async {
+      final c = await pump(
+        tester,
+        FakeSupportDesk(
+          tickets: [fakeTicket(status: SupportTicketStatus.inProgress)],
+        ),
+      );
+
+      expect(find.text('Mis solicitudes'), findsOneWidget);
+      expect(find.text('Cobro doble'), findsOneWidget);
+      expect(find.text('En proceso'), findsOneWidget);
+      await tester.tap(find.text('Cobro doble'));
+      await tester.pumpAndSettle();
+      expect(routerPath(c), '/profile/support/t1');
+    });
+
+    testWidgets('the thread shows staff replies and sends mine', (
+      tester,
+    ) async {
+      final desk = FakeSupportDesk(tickets: [fakeTicket()], threads: threads);
+      await pump(tester, desk, path: '/profile/support/t1');
+
+      expect(find.text('Me cobraron dos veces el mismo lead.'), findsOneWidget);
+      expect(find.text('Soporte Mano'), findsOneWidget);
+      expect(find.text('Ya lo revisamos.'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), 'Gracias');
+      await tester.tap(find.byKey(const Key('mano-composer-send')));
+      await tester.pumpAndSettle();
+      expect(desk.sent, ['Gracias']);
+      expect(find.text('Gracias'), findsOneWidget);
+    });
+
+    testWidgets('a closed ticket has no composer, only the note', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        FakeSupportDesk(
+          tickets: [fakeTicket(status: SupportTicketStatus.closed)],
+          threads: threads,
+        ),
+        path: '/profile/support/t1',
+      );
+
+      expect(find.text('Cerrada'), findsOneWidget);
+      expect(find.byType(ManoMessageComposer), findsNothing);
+      expect(find.text(supportClosedNote), findsOneWidget);
+    });
+
+    testWidgets('pulling down fetches new replies', (tester) async {
+      final desk = FakeSupportDesk(tickets: [fakeTicket()], threads: threads);
+      await pump(tester, desk, path: '/profile/support/t1');
+      threads['t1']!.add(
+        SupportMessage(
+          id: 'm1',
+          fromStaff: true,
+          body: 'Resuelto.',
+          sentAt: DateTime(2026, 11, 3),
+        ),
+      );
+
+      await tester.fling(
+        find.text('Ya lo revisamos.'),
+        const Offset(0, 400),
+        1000,
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Resuelto.'), findsOneWidget);
+    });
   });
 }

@@ -20,7 +20,6 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
   final _description = TextEditingController();
   var _draft = const SupportTicketDraft();
   bool _sending = false;
-  SupportTicket? _ticket;
 
   @override
   void dispose() {
@@ -33,19 +32,29 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Atención al cliente')),
-      body: switch (_ticket) {
-        final ticket? => _Filed(ticket: ticket, kind: _draft.kind),
-        null => _askView(context),
-      },
+      body: _askView(context),
     );
   }
 
   Widget _askView(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final problems = _draft.problems;
+    final tickets = ref.watch(myTicketsProvider).value ?? const [];
     return ListView(
       padding: const EdgeInsets.all(ManoSpacing.lg),
       children: [
+        if (tickets.isNotEmpty) ...[
+          Text('Mis solicitudes', style: textTheme.titleMedium),
+          for (final t in tickets)
+            ManoSupportTicketTile(
+              number: t.number,
+              subject: t.subject,
+              statusLabel: supportStatusLabel(t.status),
+              tone: _tone(t.status),
+              onTap: () => context.push('/profile/support/${t.id}'),
+            ),
+          const SizedBox(height: ManoSpacing.xl),
+        ],
         Text('Preguntas frecuentes', style: textTheme.titleMedium),
         const SizedBox(height: ManoSpacing.sm),
         for (final (question, answer) in supportFaq)
@@ -101,54 +110,17 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
     setState(() => _sending = false);
     switch (result) {
       case Ok(:final value):
-        setState(() => _ticket = value);
+        ref.invalidate(myTicketsProvider);
+        context.pushReplacement('/profile/support/${value.id}');
       case Err(:final failure):
         showProfileMessage(context, failure.message);
     }
   }
 }
 
-class _Filed extends StatelessWidget {
-  const _Filed({required this.ticket, required this.kind});
-
-  final SupportTicket ticket;
-  final SupportTicketKind kind;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.all(ManoSpacing.lg),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Icon(
-            Icons.check_circle_outline,
-            size: 56,
-            color: ManoColors.faint,
-          ),
-          const SizedBox(height: ManoSpacing.md),
-          Text(
-            'Recibimos tu ${supportKindLabel(kind).toLowerCase()}',
-            textAlign: TextAlign.center,
-            style: textTheme.titleLarge,
-          ),
-          const SizedBox(height: ManoSpacing.sm),
-          Text(
-            'Tu radicado es ${ticket.number}. Te responderemos por '
-            'correo en máximo 15 días hábiles.',
-            textAlign: TextAlign.center,
-            style: textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
-          ),
-          const SizedBox(height: ManoSpacing.xl),
-          ManoPrimaryButton(
-            label: 'Listo',
-            onPressed: () =>
-                context.canPop() ? context.pop() : context.go('/profile'),
-          ),
-        ],
-      ),
-    );
-  }
-}
+ManoStatusTone _tone(SupportTicketStatus status) => switch (status) {
+  SupportTicketStatus.filed => ManoStatusTone.info,
+  SupportTicketStatus.inProgress => ManoStatusTone.warning,
+  SupportTicketStatus.resolved => ManoStatusTone.success,
+  SupportTicketStatus.closed => ManoStatusTone.neutral,
+};

@@ -74,6 +74,7 @@ export 'src/payouts/mock_payout_accounts.dart';
 export 'src/requests/mock_service_request_repository.dart';
 export 'src/reviews/mock_review_repository.dart';
 export 'src/scheduling/mock_availability_repository.dart';
+export 'src/support/gateway_support_desk.dart';
 export 'src/support/mock_support_desk.dart';
 export 'src/verification/mock_identity_verification.dart';
 export 'src/wallet/mock_wallet_repository.dart';

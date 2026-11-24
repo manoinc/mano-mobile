@@ -100,6 +100,7 @@ export 'src/shared/legal_id.dart';
 export 'src/shared/mobile_phone.dart';
 export 'src/shared/party.dart';
 export 'src/support/support_desk.dart';
+export 'src/support/support_message.dart';
 export 'src/support/support_ticket.dart';
 export 'src/support/support_ticket_draft.dart';
 export 'src/verification/identity_verification_port.dart';

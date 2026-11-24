@@ -11,6 +11,9 @@ String supportKindLabel(SupportTicketKind kind) => switch (kind) {
 
 String supportStatusLabel(SupportTicketStatus status) => switch (status) {
   SupportTicketStatus.filed => 'Radicada',
+  SupportTicketStatus.inProgress => 'En proceso',
+  SupportTicketStatus.resolved => 'Resuelta',
+  SupportTicketStatus.closed => 'Cerrada',
 };
 
 String? subjectError(Set<SupportTicketProblem> problems) =>
@@ -22,3 +25,7 @@ String? descriptionError(Set<SupportTicketProblem> problems) =>
     problems.contains(SupportTicketProblem.descriptionTooLong)
     ? 'Máximo $supportDescriptionMaxLength caracteres.'
     : null;
+
+const supportStaffLabel = 'Soporte Mano';
+const supportClosedNote =
+    'Esta solicitud está cerrada y ya no recibe mensajes.';

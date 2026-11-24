@@ -111,6 +111,8 @@ export 'src/widgets/mano_sign_in_layout.dart';
 export 'src/widgets/mano_slot_grid.dart';
 export 'src/widgets/mano_stat_tile.dart';
 export 'src/widgets/mano_support_form.dart';
+export 'src/widgets/mano_support_thread.dart';
+export 'src/widgets/mano_support_ticket_tile.dart';
 export 'src/widgets/mano_status_chip.dart';
 export 'src/widgets/mano_star_input.dart';
 export 'src/widgets/mano_step_scaffold.dart';
