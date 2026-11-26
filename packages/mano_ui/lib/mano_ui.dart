@@ -19,6 +19,7 @@ export 'src/brand/mano_monogram.dart';
 export 'src/brand/mano_opening.dart';
 export 'src/brand/mano_wordmark.dart';
 export 'src/icons/mano_envelope_icon.dart';
+export 'src/platform/mano_keyboard_restorer.dart';
 export 'src/format/mano_format.dart';
 export 'src/theme/mano_motion.dart';
 export 'src/theme/mano_theme.dart';
