@@ -3,9 +3,9 @@
 The two Mano apps, and the packages they share.
 
 - **`apps/requester`** — Mano, for Solicitantes: people who need work done in
-  their home (`com.manoInc.mano` on Android).
+  their home (`com.manoInc.mano` on Android and iOS).
 - **`apps/provider`** — Mano Profesionales, for Proveedores: people who do the work
-  (`com.manoInc.manoprofesional` on Android).
+  (`com.manoInc.manoprofesional` on Android and iOS).
 
 Two apps, two store listings, two userbases. One repository, so the design
 system and the domain are written once.
