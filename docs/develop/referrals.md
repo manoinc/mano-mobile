@@ -107,7 +107,7 @@ other code as unknown.
   Replace it with the Team ID and set the team in Xcode, or iOS will not open
   the app from the link.
 - **Store listings.** The Play button points at
-  `com.manoinc.mano.provider`, which must be published, at least on a testing
+  `com.manoInc.manoprofesional`, which must be published, at least on a testing
   track, before the install referrer carries anything. The App Store button
   appears once `appStoreUrl` is set in mano-landing's `src/data/referral.ts`.
 - **Backend.** The mobile app needs `redeemWorkerReferral`, the two counts and
@@ -120,11 +120,11 @@ Install a debug build of the provider app, then:
 ```bash
 # Opens the app straight away; works before the landing is deployed.
 adb shell am start -a android.intent.action.VIEW \
-  -d https://manoapp.co/r/RP-bb2cde6b com.manoinc.mano.provider
+  -d https://manoapp.co/r/RP-bb2cde6b com.manoInc.manoprofesional
 
 # Once the landing is deployed: is the domain verified?
-adb shell pm get-app-links com.manoinc.mano.provider
-adb shell pm verify-app-links --re-verify com.manoinc.mano.provider
+adb shell pm get-app-links com.manoInc.manoprofesional
+adb shell pm verify-app-links --re-verify com.manoInc.manoprofesional
 
 # Without the package name, the system decides; "verified" opens the app.
 adb shell am start -a android.intent.action.VIEW -d https://manoapp.co/r/RP-bb2cde6b

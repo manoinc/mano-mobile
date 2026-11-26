@@ -1,7 +1,15 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+// Upload key for Play; key.properties is gitignored, see docs/develop/release-android.md.
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("key.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
 }
 
 android {
@@ -18,8 +26,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.manoinc.mano.provider"
+        // The Play listing's id: must match exactly, case included, and can never change.
+        applicationId = "com.manoInc.manoprofesional"
 
         // No manifestPlaceholders for an OAuth redirect scheme here.
         // AppAuth's Gradle plugin needed one to register the custom-scheme
@@ -38,11 +46,24 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        create("release") {
+            keystoreProperties.getProperty("storeFile")?.let { storeFile = file(it) }
+            storePassword = keystoreProperties.getProperty("storePassword")
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Falls back to debug keys without key.properties, so `flutter run --release` still works.
+            if (keystoreProperties.isEmpty) {
+                logger.warn("key.properties not found: release is debug-signed and Play will reject it.")
+            }
+            signingConfig = signingConfigs.getByName(
+                if (keystoreProperties.isEmpty) "debug" else "release"
+            )
         }
     }
 }

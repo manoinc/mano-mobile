@@ -191,7 +191,8 @@ Google verification.
 | Mano requester (Play, com.manoInc.mano) | Android | `937642558480-edkq…` | `com.manoInc.mano`, Play App Signing SHA-1 |
 | Mano requester (debug, com.manoInc.mano) | Android | `937642558480-opdc…` | `com.manoInc.mano`, debug SHA-1 |
 | Mano requester (Android, debug) | Android | `937642558480-av82…` | the old `com.manoinc.mano.requester`; unused since the Play listing |
-| Mano provider (Android, debug) | Android | `937642558480-hgfn…` | `com.manoinc.mano.provider`, debug SHA-1 |
+| Mano provider (Android, Play) | Android | `937642558480-hgfngvepmqlv8lek1gpq78cep2lmbkbp` | `com.manoInc.manoprofesional`, Play App Signing SHA-1 |
+| Mano provider (debug, com.manoInc.manoprofesional) | Android | `937642558480-kg7a…` | `com.manoInc.manoprofesional`, debug SHA-1 |
 | Mano requester (iOS) | iOS | `937642558480-136cj6p11gv90pi2ickad9umij47s6fd` | `GIDClientID` in `apps/requester/ios/Runner/Info.plist` |
 | Mano provider (iOS) | iOS | `937642558480-4m75tt29su4vg766mdo2vhmrqc4olqv2` | `GIDClientID` in `apps/provider/ios/Runner/Info.plist` |
 
