@@ -4,8 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
-import 'support_filed_view.dart';
-
 /// HU-T4: a petición, queja, reclamo or sugerencia, filed with a radicado.
 class SupportScreen extends ConsumerStatefulWidget {
   const SupportScreen({super.key});
@@ -19,7 +17,6 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
   final _description = TextEditingController();
   var _draft = const SupportTicketDraft();
   var _busy = false;
-  SupportTicket? _filed;
   DataFailure? _failure;
 
   @override
@@ -41,7 +38,8 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
       _busy = false;
       switch (result) {
         case Ok(:final value):
-          _filed = value;
+          ref.invalidate(myTicketsProvider);
+          context.pushReplacement('/profile/support/${value.id}');
         case Err(:final failure):
           _failure = failure;
       }
@@ -50,14 +48,8 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_filed case final ticket?) {
-      return SupportFiledView(
-        ticket: ticket,
-        kind: _draft.kind,
-        onDone: () => context.pop(),
-      );
-    }
     final problems = _draft.problems;
+    final tickets = ref.watch(myTicketsProvider).value ?? const [];
     return ManoStepScaffold(
       onBack: () => context.pop(),
       headline: 'Ayuda y PQRS',
@@ -66,6 +58,21 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
       busy: _busy,
       onPrimary: _draft.isValid && !_busy ? _send : null,
       children: [
+        if (tickets.isNotEmpty) ...[
+          Text(
+            'Mis solicitudes',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          for (final t in tickets)
+            ManoSupportTicketTile(
+              number: t.number,
+              subject: t.subject,
+              statusLabel: supportStatusLabel(t.status),
+              tone: _tone(t.status),
+              onTap: () => context.push('/profile/support/${t.id}'),
+            ),
+          const SizedBox(height: ManoSpacing.xl),
+        ],
         ManoSupportForm(
           kinds: [
             for (final k in SupportTicketKind.values) supportKindLabel(k),
@@ -93,3 +100,10 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
     );
   }
 }
+
+ManoStatusTone _tone(SupportTicketStatus status) => switch (status) {
+  SupportTicketStatus.filed => ManoStatusTone.info,
+  SupportTicketStatus.inProgress => ManoStatusTone.warning,
+  SupportTicketStatus.resolved => ManoStatusTone.success,
+  SupportTicketStatus.closed => ManoStatusTone.neutral,
+};

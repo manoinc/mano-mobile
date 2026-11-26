@@ -1,17 +1,26 @@
 # Android release (Play Store)
 
-Mano (requester) ships to Play as **`com.manoInc.mano`**, exactly as registered in
-Play Console. Package names are case-sensitive: the `I` is uppercase.
+Mano (requester) ships to Play as **`com.manoInc.mano`** and Mano Profesionales
+(provider) as **`com.manoInc.manoprofesional`**, exactly as registered in Play
+Console. Package names are case-sensitive: the `I` is uppercase.
 
 ## Upload key
 
 Play App Signing holds the app signing key; we only hold the **upload key**.
 
-| | |
-|---|---|
-| Keystore | `~/.mano-keys/mano-requester-upload.jks` (PKCS12, RSA 2048, 10 000 days) |
-| Alias | `upload` |
-| Credentials | `apps/requester/android/key.properties` (gitignored), copy in `~/.mano-keys/` |
+| | Requester | Provider |
+|---|---|---|
+| Keystore | `~/.mano-keys/mano-requester-upload.jks` | `~/.mano-keys/mano-provider-upload.jks` |
+| Alias | `upload` | `upload` |
+| Credentials | `apps/requester/android/key.properties` | `apps/provider/android/key.properties` |
+
+Both keystores are PKCS12, RSA 2048, 10 000 days. `key.properties` is gitignored;
+keep a copy in `~/.mano-keys/`. Create the provider's with:
+
+```bash
+keytool -genkeypair -v -keystore ~/.mano-keys/mano-provider-upload.jks \
+  -storetype PKCS12 -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+```
 
 `key.properties` holds four lines. `storeFile` must be an absolute path: Gradle
 does not expand `~`.
@@ -33,14 +42,14 @@ Gradle warns, as Play rejects a debug-signed bundle. CI builds that way.
 ## Build
 
 ```bash
-cd apps/requester
+cd apps/requester   # or apps/provider
 flutter build appbundle --release --dart-define-from-file=../../config/prod.json
 # build/app/outputs/bundle/release/app-release.aab
 ```
 
-Bump `version:` in `apps/requester/pubspec.yaml` before each upload; Play
+Bump `version:` in the app's `pubspec.yaml` before each upload; Play
 rejects a repeated version code (the number after `+`). A new version name also
-goes in `requesterAppVersion` (`lib/config.dart`); `test/version_test.dart` fails until it does.
+goes in `requesterAppVersion` or `providerAppVersion` (`lib/config.dart`); `test/version_test.dart` fails until it does.
 
 If the build ends with *"failed to strip debug symbols"*, the AAB is still
 written: Flutter's post-build check needs the Android SDK `cmdline-tools`.

@@ -21,7 +21,7 @@ cd apps/provider  && flutter run -d RFGL20WAR9E --dart-define-from-file=../../co
 
 ```
 apps/requester        Mano (Solicitantes)          com.manoInc.mano (iOS: com.manoinc.mano.requester)
-apps/provider         Mano Profesionales           com.manoinc.mano.provider
+apps/provider         Mano Profesionales           com.manoInc.manoprofesional (iOS: com.manoinc.mano.provider)
 packages/mano_domain  entities, ports, rules — no dependencies
 packages/mano_data    adapters: gateway GraphQL + in-memory mocks
 packages/mano_session composition root; the only Riverpod user

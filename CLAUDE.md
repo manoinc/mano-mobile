@@ -8,7 +8,7 @@ mano-mobile is the shared frontend repo for the mobile UI/UX & frontend of all M
 Pub workspace — one `pub get`, one `pubspec.lock` at the root.
 
     apps/requester         Mano, for Solicitantes    com.manoInc.mano (iOS: com.manoinc.mano.requester)
-    apps/provider          Mano Profesionales, for Proveedores com.manoinc.mano.provider
+    apps/provider          Mano Profesionales, for Proveedores com.manoInc.manoprofesional (iOS: com.manoinc.mano.provider)
     packages/mano_domain   entities, ports, failures — zero dependencies
     packages/mano_data     adapters: GraphQL gateway (catalog live), in-memory mocks, secure storage
     packages/mano_ui       theme + dumb widgets — Flutter only

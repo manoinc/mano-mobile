@@ -44,7 +44,8 @@ These services are not deployed. None of them has an ECR image, and none is in
 3. **The requester is on Play as early access** (`com.manoInc.mano`, since
    2026-11-16) and its Play App Signing SHA-1 is registered with Google (see
    [Auth](auth.md)). That build cannot work yet: it needs blockers 1 and 2.
-   The provider has no Play listing, so only its debug SHA-1 is registered.
+   The provider's Play id is `com.manoInc.manoprofesional`; its Google Android
+   client must be created with that package and the Play App Signing SHA-1.
 
 Until then the apps are developed and tested against the local stack (see
 `../mano-gateway/docs/local-stack.md`).

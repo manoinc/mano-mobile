@@ -137,6 +137,25 @@ WidgetbookCategory chat() => WidgetbookCategory(
         child: ManoProfileSheet(name: 'Luis Martínez', photoUrl: null, verified: false),
       ),
     }),
+    component('ManoSupportThread', {
+      'Open': (context) => _supportThread(open: true),
+      'Closed': (context) => _supportThread(open: false),
+    }),
+    component('ManoSupportTicketTile', {
+      'Default': (context) => Material(
+        child: ManoSupportTicketTile(
+          number: 'MANO-20261102-0001',
+          subject: 'Cobro doble',
+          statusLabel: 'En proceso',
+          tone: context.knobs.object.segmented(
+            label: 'Tone',
+            options: ManoStatusTone.values,
+            labelBuilder: (t) => t.name,
+          ),
+          onTap: () {},
+        ),
+      ),
+    }),
     component('ManoChatThread', {
       'Default': (context) {
         final day = DateTime(2026, 10, 5, 12);
@@ -209,3 +228,18 @@ WidgetbookCategory chat() => WidgetbookCategory(
     }),
   ],
 );
+
+Widget _supportThread({required bool open}) {
+  final day = DateTime(2026, 11, 2, 9);
+  return ManoSupportThread(
+    entries: [
+      ManoChatEntry(id: '0', text: 'Me cobraron dos veces el mismo lead.', sentAt: day, mine: true),
+      ManoChatEntry(id: '1', text: 'Gracias, ya lo estamos revisando.', sentAt: day.add(const Duration(hours: 2))),
+    ],
+    staffLabel: 'Soporte Mano',
+    hintText: 'Escribe un mensaje',
+    closedNote: 'Esta solicitud está cerrada y ya no recibe mensajes.',
+    onRefresh: () async {},
+    onSend: open ? (_) => true : null,
+  );
+}
