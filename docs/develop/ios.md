@@ -55,8 +55,11 @@ not rebuilt yet. Pump once after typing; see `_type` in
 
 | | requester | provider |
 |---|---|---|
-| Bundle id | `com.manoinc.mano.requester` | `com.manoinc.mano.provider` |
+| Bundle id | `com.manoInc.mano` | `com.manoInc.manoprofesional` |
 | Home-screen name | Mano | Mano Profesional |
+| Capabilities (`Runner.entitlements`) | Sign in with Apple | Sign in with Apple, Associated Domains (`applinks:manoapp.co`) |
+
+The App ID in Apple Developer (team `G7R62XL9ST`) must enable the same capabilities.
 | Language | `es` | `es` |
 
 The icon and the launch screen are generated, not drawn by hand. After changing

@@ -193,8 +193,8 @@ Google verification.
 | Mano requester (Android, debug) | Android | `937642558480-av82…` | the old `com.manoinc.mano.requester`; unused since the Play listing |
 | Mano provider (Android, Play) | Android | `937642558480-hgfngvepmqlv8lek1gpq78cep2lmbkbp` | `com.manoInc.manoprofesional`, Play App Signing SHA-1 |
 | Mano provider (debug, com.manoInc.manoprofesional) | Android | `937642558480-kg7a…` | `com.manoInc.manoprofesional`, debug SHA-1 |
-| Mano requester (iOS) | iOS | `937642558480-136cj6p11gv90pi2ickad9umij47s6fd` | `GIDClientID` in `apps/requester/ios/Runner/Info.plist` |
-| Mano provider (iOS) | iOS | `937642558480-4m75tt29su4vg766mdo2vhmrqc4olqv2` | `GIDClientID` in `apps/provider/ios/Runner/Info.plist` |
+| Mano requester (iOS) | iOS | `937642558480-136cj6p11gv90pi2ickad9umij47s6fd` | `GIDClientID` in `apps/requester/ios/Runner/Info.plist`; bundle `com.manoInc.mano` |
+| Mano provider (iOS) | iOS | `937642558480-4m75tt29su4vg766mdo2vhmrqc4olqv2` | `GIDClientID` in `apps/provider/ios/Runner/Info.plist`; bundle `com.manoInc.manoprofesional` |
 
 All IDs end in `.apps.googleusercontent.com`. Client IDs are public. The web
 client's **secret** is not: it goes to mano-auth as `GOOGLE_CLIENT_SECRET` and
@@ -206,7 +206,8 @@ the package and SHA-1 itself, so there is no `google-services.json`. Each iOS
 plist has `GIDClientID` and the reversed client ID as a URL scheme.
 
 The requester's Android id is `com.manoInc.mano`, fixed by its Play listing
-(early access since 2026-11-16); iOS keeps `com.manoinc.mano.requester`.
+(early access since 2026-11-16). The provider's is `com.manoInc.manoprofesional`.
+iOS uses the same ids as bundle ids, so each iOS client's Bundle ID must match.
 
 | Key | SHA-1 |
 |---|---|
