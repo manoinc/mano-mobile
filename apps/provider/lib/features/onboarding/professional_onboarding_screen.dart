@@ -4,6 +4,7 @@ import 'package:mano_session/mano_session.dart';
 import 'package:mano_ui/mano_ui.dart';
 
 import '../identity/identity_flow_view.dart';
+import 'intro/intro_screen.dart';
 import 'steps/account_step.dart';
 import 'steps/documents_step.dart';
 import 'steps/pending_step.dart';
@@ -35,7 +36,7 @@ class ProfessionalOnboardingScreen extends ConsumerWidget {
         .leaveIdentity;
 
     return PopScope(
-      canPop: step == ProviderOnboardingStep.welcome,
+      canPop: step == ProviderOnboardingStep.intro,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
         // The identity photos walk back among themselves.
@@ -48,6 +49,9 @@ class ProfessionalOnboardingScreen extends ConsumerWidget {
       child: ManoStepTransition(
         index: step.index,
         child: switch (step) {
+          ProviderOnboardingStep.intro => const IntroScreen(
+            key: ValueKey('intro'),
+          ),
           ProviderOnboardingStep.welcome => const WelcomeStep(
             key: ValueKey('welcome'),
           ),

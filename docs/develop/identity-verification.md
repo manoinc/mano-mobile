@@ -107,7 +107,7 @@ prepare the person:
 
 | Nu screen | Step (`IdentityFlowStep`) | Mano screen |
 |---|---|---|
-| — | `loading` | `ManoLoader` while `status()` answers |
+| — | `loading` | `ManoSkeletonList` while `status()` answers |
 | 0, tips | `intro` | "Vamos a tomar fotos de tu cédula para **confirmar tu identidad**", tips, Continuar |
 | 1, man photographing his ID | `frontBrief` | `ManoIllustratedStep`: `cedula.jpg`, "Toma la **foto del frente** de tu cédula", Continuar |
 | 5, close-up of the back | `backBrief` | `cedula_back.jpg` (Nu's `verification3.png`), "**Voltea tu identificación** para tomar una foto de la parte de atrás", Continuar |

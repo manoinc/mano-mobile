@@ -26,8 +26,6 @@ the same everywhere. In code they are `ManoMotion.*`.
 - **Press feedback is a small scale-down** (`ManoPressScale`), not a ripple splash.
 - **Respect reduced motion.** When the system asks for less motion, sheets
   appear without climbing.
-- **Loading is the `m`.** `ManoLoader` sweeps the monogram through from left
-  to right every 1.4 s. The leading edge wipes it in on the entrance curve, it
-  holds, then the trailing edge wipes it out on the exit curve. Each cycle
-  starts and ends empty, so the loop has no seam. With reduced motion it shows
-  a still `m`.
+- **Loading is a skeleton.** `ManoSkeleton` pulses its opacity softly
+  (`ManoMotion.skeleton`). With reduced motion it sits still. The animated `m`
+  is kept for the splash only.

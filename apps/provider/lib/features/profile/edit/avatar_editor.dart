@@ -63,8 +63,8 @@ class _Local extends StatelessWidget {
             ),
             child: Center(
               child: photo.state == PhotoUploadState.uploading
-                  ? ManoLoader(
-                      height: _size * 0.2,
+                  ? ManoSpinner(
+                      size: _size * 0.2,
                       color: Theme.of(context).colorScheme.onPrimary,
                     )
                   : IconButton(

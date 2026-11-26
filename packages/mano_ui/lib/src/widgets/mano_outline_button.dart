@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../brand/mano_loader.dart';
 import '../theme/mano_theme.dart';
 import 'mano_press_scale.dart';
+import 'mano_spinner.dart';
 
 /// Which ink an outline action takes.
 enum ManoOutlineTone { ink, flame }
@@ -55,7 +55,7 @@ class ManoOutlineButton extends StatelessWidget {
           side: BorderSide(color: foreground, width: 1.5),
         ),
         child: busy
-            ? ManoLoader.small(color: foreground)
+            ? ManoSpinner(color: foreground)
             : leading == null
             ? Text(label)
             : Row(

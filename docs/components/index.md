@@ -128,9 +128,10 @@ path so `mano_ui` still ships no images. It marks every email alternative:
 the "Continuar con correo" pill and "Crear cuenta con correo". It takes the
 ambient `IconTheme` size and colour.
 
-`ManoLoader` is the loading state for both apps: the `m` sweeps through left
-to right on a seamless loop (in, hold, out, empty again). Use `ManoLoader()` (48) for a screen or section and
-`ManoLoader.small()` (18) inside a button. Prefer it to
-`CircularProgressIndicator`.
+Loading is a skeleton, not the logo: `ManoSkeletonList()` for a screen or
+section, `ManoSkeleton` / `ManoSkeleton.circle` for a bespoke layout. They pulse
+softly and sit still under reduced motion. Inline spots (a button, a photo
+tile) use a small `CircularProgressIndicator`. The animated `m` is only the
+splash (`ManoOpening`).
 
 Missing something? See [Adding a component](../develop/adding-a-component.md).

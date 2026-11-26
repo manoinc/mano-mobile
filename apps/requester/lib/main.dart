@@ -46,6 +46,7 @@ class RequesterApp extends StatelessWidget {
     return MaterialApp(
       title: 'Mano',
       debugShowCheckedModeBanner: false,
+      builder: (context, child) => ManoKeyboardRestorer(child: child!),
       theme: ManoTheme.light(),
       // Light always: the phone's dark mode must not reach the app.
       themeMode: ThemeMode.light,

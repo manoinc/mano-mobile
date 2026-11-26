@@ -107,7 +107,7 @@ class _OfferEditorScreenState extends ConsumerState<OfferEditorScreen> {
             ctaLabel: 'Reintentar',
             onCta: () => ref.invalidate(provider),
           ),
-          _ => const Center(child: ManoLoader()),
+          _ => const ManoSkeletonList(),
         },
       ),
     );
@@ -218,12 +218,7 @@ class _OfferEditorScreenState extends ConsumerState<OfferEditorScreen> {
       const SizedBox(height: ManoSpacing.sm),
       ...results.when(
         skipLoadingOnReload: true,
-        loading: () => const [
-          Padding(
-            padding: EdgeInsets.all(ManoSpacing.md),
-            child: Center(child: ManoLoader()),
-          ),
-        ],
+        loading: () => const [ManoSkeletonList(rows: 1)],
         error: (_, _) => [
           Text('No pudimos cargar los servicios', style: faint),
           ManoQuietButton(

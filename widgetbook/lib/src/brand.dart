@@ -30,35 +30,6 @@ WidgetbookCategory brand() => WidgetbookCategory(
         child: const Center(child: Text('Inicio')),
       ),
     }),
-    component('ManoLoader', {
-      'Regular': (context) => Center(
-        child: ManoLoader(
-          height: context.knobs.double.slider(label: 'Height', initialValue: 48, min: 18, max: 120),
-        ),
-      ),
-      'Small, on flame': (context) => const ColoredBox(
-        color: ManoColors.flame,
-        child: Center(child: ManoLoader.small(color: Colors.white)),
-      ),
-      'Reduced motion': (context) => const MediaQuery(
-        data: MediaQueryData(disableAnimations: true),
-        child: Center(child: ManoLoader()),
-      ),
-      // Scrub the band: the loop runs empty, full, empty, always moving right.
-      'One frame': (context) => Center(
-        child: SizedBox(
-          height: 96,
-          child: AspectRatio(
-            aspectRatio: kManoMonogramSize.aspectRatio,
-            child: ManoLoaderFrame(
-              from: context.knobs.double.slider(label: 'Trailing edge', initialValue: 0.3, min: 0, max: 1),
-              to: context.knobs.double.slider(label: 'Leading edge', initialValue: 0.8, min: 0, max: 1),
-              color: ManoColors.flame,
-            ),
-          ),
-        ),
-      ),
-    }),
     component('ManoEnvelopeIcon', {
       'Default': (context) => Center(
         child: ManoEnvelopeIcon(

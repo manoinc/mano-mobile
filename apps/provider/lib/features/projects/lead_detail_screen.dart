@@ -42,7 +42,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
         AsyncData() when project != null => _Body(project: project),
         // Awarded projects leave the open board; the quote still names them.
         AsyncData() when mine != null => _QuoteBody(quote: mine),
-        AsyncData() when quotes.isLoading => const Center(child: ManoLoader()),
+        AsyncData() when quotes.isLoading => const ManoSkeletonList(),
         AsyncData() => ManoEmptyState(
           icon: Icons.lock_clock_outlined,
           message: 'Este proyecto ya no recibe cotizaciones.',
@@ -53,7 +53,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
           message: 'No pudimos cargar este proyecto.',
           onRetry: () => ref.invalidate(openProjectsProvider),
         ),
-        _ => const Center(child: ManoLoader()),
+        _ => const ManoSkeletonList(),
       },
       bottomNavigationBar: project == null
           ? _buyBar(mine)

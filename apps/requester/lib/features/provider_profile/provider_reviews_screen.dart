@@ -38,7 +38,7 @@ class ProviderReviewsScreen extends ConsumerWidget {
           ctaLabel: 'Reintentar',
           onCta: () => ref.invalidate(providerReviewsFeedProvider(providerId)),
         ),
-        _ => const Center(child: ManoLoader()),
+        _ => const ManoSkeletonList(),
       },
     );
   }

@@ -28,6 +28,12 @@ abstract final class ManoMotion {
   /// A sheet climbing into place.
   static const Duration sheet = Duration(milliseconds: 320);
 
+  /// One half-cycle of a skeleton placeholder's pulse.
+  static const Duration skeleton = Duration(milliseconds: 900);
+
+  /// The opacity a skeleton dims to at the bottom of its pulse.
+  static const double skeletonDim = 0.5;
+
   /// The whole app-open sequence, from the first Flutter frame to the hero
   /// being ready to touch.
   static const Duration opening = Duration(milliseconds: 1150);

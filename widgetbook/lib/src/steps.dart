@@ -88,11 +88,33 @@ WidgetbookCategory steps() => WidgetbookCategory(
         onPrimary: noop,
       ),
     }),
+    component('ManoIntroCarousel', {
+      'Default': (context) => ManoIntroCarousel(
+        count: 3,
+        skipLabel: 'Saltar',
+        onSkip: noop,
+        slideBuilder: (context, index, reveal) => Center(
+          child: Text(
+            'Diapositiva ${index + 1}',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+        ),
+        bottomBarBuilder: (context, index, next) => ManoPrimaryButton(
+          label: index == 2
+              ? 'Comenzar'
+              : index == 0
+              ? 'Empezar'
+              : 'Siguiente',
+          onPressed: next,
+        ),
+      ),
+    }),
     component('ManoPhoneSignInScreen', {
       'Phone': (context) => _screen(context),
       'Phone, error': (context) => _screen(
         context,
-        phoneError: 'Escribe un celular colombiano: 10 dígitos que empiezan por 3.',
+        phoneError:
+            'Escribe un celular colombiano: 10 dígitos que empiezan por 3.',
       ),
       'Code': (context) => _screen(context, codeSentTo: '+57 300 *** 4567'),
     }),

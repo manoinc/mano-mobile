@@ -48,6 +48,7 @@ class ProviderApp extends StatelessWidget {
     return MaterialApp(
       title: 'Mano Profesionales',
       debugShowCheckedModeBanner: false,
+      builder: (context, child) => ManoKeyboardRestorer(child: child!),
       theme: ManoTheme.light(),
       // Light always: the phone's dark mode must not reach the app.
       themeMode: ThemeMode.light,
@@ -87,10 +88,10 @@ class _RootState extends ConsumerState<_Root> {
       ref.read(referralInviteProvider.notifier).acknowledge();
     });
 
-    // Signing out starts the onboarding over, at the welcome.
+    // Signing out restarts the onboarding at the welcome; the intro is for first runs.
     ref.listen(sessionProvider, (before, after) {
       if (before?.value is SignedIn && after.value is SignedOut) {
-        ref.invalidate(providerOnboardingProvider);
+        ref.read(providerOnboardingProvider.notifier).signedOut();
       }
     });
 

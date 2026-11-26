@@ -61,6 +61,7 @@ Future<void> _pump(
   VoidCallback? onVerifyIdentity,
   PasswordlessAuth? phone,
   SocialAuth? social,
+  bool showIntro = false,
 }) async {
   await tester.pumpWidget(
     ProviderScope(
@@ -97,6 +98,7 @@ Future<void> _pump(
     ),
   );
   await tester.pumpAndSettle();
+  if (!showIntro) await _tapText(tester, 'Saltar');
 }
 
 /// The intro and the three briefs; Empezar hands off to Didit (the mock here).
@@ -199,6 +201,33 @@ bool _primaryEnabled(WidgetTester tester) =>
     null;
 
 void main() {
+  testWidgets('the intro shows its slides, and Saltar opens the welcome', (
+    tester,
+  ) async {
+    await _pump(tester, showIntro: true);
+
+    expect(find.text('Recibe solicitudes en tu zona'), findsOneWidget);
+    expect(find.byType(ManoWelcomeActions), findsNothing);
+
+    await _tapText(tester, 'Saltar');
+
+    expect(find.byType(ManoWelcomeActions), findsOneWidget);
+  });
+
+  testWidgets('the intro pages through to Comenzar, then the welcome', (
+    tester,
+  ) async {
+    await _pump(tester, showIntro: true);
+
+    await _tapText(tester, 'Empezar');
+    expect(find.text('Tú pones tu precio y tu agenda'), findsOneWidget);
+    await _tapText(tester, 'Siguiente');
+    expect(find.text('Cobra seguro con Mano'), findsOneWidget);
+    await _tapText(tester, 'Comenzar');
+
+    expect(find.byType(ManoWelcomeActions), findsOneWidget);
+  });
+
   testWidgets('welcome explains Mano Profesionales with both entries', (
     tester,
   ) async {

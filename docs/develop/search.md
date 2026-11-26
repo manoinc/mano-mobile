@@ -12,7 +12,7 @@ category tiles, each a square photo with its name beside it.
 | Nothing typed, no category | The category grid. No call to the gateway. |
 | A tile tapped, or `?category=<id>` in the route | The category rail with that chip selected, and the live results for it. |
 | Text typed (debounced 300 ms) | Live results from `jobServices(category, searchText)`, filtered by the selected chip if any. |
-| Waiting on the gateway | `ManoLoader`, centred. |
+| Waiting on the gateway | `ManoSkeletonList`. |
 | No matches | An empty state whose "Limpiar búsqueda" returns to the grid. |
 | Gateway error | An empty state with "Reintentar". |
 
