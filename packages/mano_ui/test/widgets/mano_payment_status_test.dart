@@ -26,7 +26,7 @@ void main() {
     expect(find.text('Aprueba el pago en Nequi'), findsOneWidget);
     expect(find.text('Te enviamos una notificación.'), findsOneWidget);
     expect(find.text('Esperando a Nequi…'), findsOneWidget);
-    expect(find.byType(ManoLoader), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
   testWidgets('done and failed show no waiting line', (tester) async {
@@ -43,7 +43,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('Listo'), findsOneWidget);
-      expect(find.byType(ManoLoader), findsNothing);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
     }
   });
 

@@ -65,7 +65,7 @@ void main() {
     );
 
     expect(find.byKey(const Key('mano-composer-attachments')), findsOneWidget);
-    expect(find.byType(ManoLoader), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
     expect(find.bySemanticsLabel('Quitar foto 2'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.close_rounded).last);
     expect(removed, ['b']);

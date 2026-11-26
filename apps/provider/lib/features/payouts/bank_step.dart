@@ -39,7 +39,7 @@ class BankStep extends StatelessWidget {
         ctaLabel: 'Reintentar',
         onCta: onRetry,
       ),
-      _ => const Center(child: ManoLoader()),
+      _ => const ManoSkeletonList(),
     },
   );
 

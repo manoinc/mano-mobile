@@ -27,7 +27,7 @@ class IdentityFlowView extends ConsumerWidget {
       child: switch (step) {
         IdentityFlowStep.loading => const Scaffold(
           key: ValueKey('loading'),
-          body: Center(child: ManoLoader()),
+          body: ManoSkeletonList(),
         ),
         IdentityFlowStep.intro => IdentityIntroStep(
           key: const ValueKey('intro'),

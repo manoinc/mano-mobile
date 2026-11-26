@@ -225,12 +225,12 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump();
 
-    expect(find.byType(ManoLoader), findsOneWidget);
+    expect(find.byType(ManoSkeletonList), findsOneWidget);
     expect(find.byType(CircularProgressIndicator), findsNothing);
 
     catalog.hold!.complete();
     await tester.pumpAndSettle();
-    expect(find.byType(ManoLoader), findsNothing);
+    expect(find.byType(ManoSkeletonList), findsNothing);
     expect(find.text('Reparación de fugas'), findsOneWidget);
   });
 

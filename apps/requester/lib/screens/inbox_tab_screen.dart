@@ -58,7 +58,7 @@ class InboxTabScreen extends ConsumerWidget {
                   ctaLabel: 'Reintentar',
                   onCta: () => ref.invalidate(conversationsProvider),
                 ),
-                _ => const Center(child: ManoLoader()),
+                _ => const ManoSkeletonList(),
               },
             ),
           ],

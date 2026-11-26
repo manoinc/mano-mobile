@@ -25,7 +25,7 @@ class PersonalInfoScreen extends ConsumerWidget {
           message: 'No pudimos cargar tus datos.',
           onRetry: () => ref.invalidate(clientProfileProvider),
         ),
-        _ => const Center(child: ManoLoader()),
+        _ => const ManoSkeletonList(),
       },
     );
   }

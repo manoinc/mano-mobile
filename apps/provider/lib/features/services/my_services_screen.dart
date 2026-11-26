@@ -75,7 +75,7 @@ class MyServicesScreen extends ConsumerWidget {
                     ctaLabel: 'Reintentar',
                     onCta: () => ref.invalidate(myOffersProvider),
                   ),
-                  _ => const Center(child: ManoLoader()),
+                  _ => const ManoSkeletonList(),
                 },
               ),
             ),

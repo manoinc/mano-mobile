@@ -58,7 +58,7 @@ class ChatScreen extends ConsumerWidget {
             ctaLabel: 'Reintentar',
             onCta: () => ref.invalidate(provider),
           ),
-          _ => const Center(child: ManoLoader()),
+          _ => const ManoSkeletonList(),
         },
       ),
     );

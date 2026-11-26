@@ -129,7 +129,7 @@ void main() {
     await tester.pump();
     await tester.tap(find.text('Entrar'));
     await tester.pump();
-    expect(find.byType(ManoLoader), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
     answer.complete('Correo o contraseña incorrectos.');
     await tester.pumpAndSettle();

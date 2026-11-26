@@ -13,7 +13,6 @@
 library;
 
 export 'src/brand/mano_arch_motif.dart';
-export 'src/brand/mano_loader.dart';
 export 'src/brand/mano_logo_paths.g.dart';
 export 'src/brand/mano_monogram.dart';
 export 'src/brand/mano_opening.dart';
@@ -108,6 +107,8 @@ export 'src/widgets/mano_search_field.dart';
 export 'src/widgets/mano_search_pill.dart';
 export 'src/widgets/mano_section_header.dart';
 export 'src/widgets/mano_sheet.dart';
+export 'src/widgets/mano_skeleton.dart';
+export 'src/widgets/mano_spinner.dart';
 export 'src/widgets/mano_sign_in_layout.dart';
 export 'src/widgets/mano_slot_grid.dart';
 export 'src/widgets/mano_stat_tile.dart';

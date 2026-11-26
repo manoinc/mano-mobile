@@ -71,7 +71,7 @@ class WalletScreen extends ConsumerWidget {
     AsyncValue<List<CoinTransaction>> history,
   ) {
     if (!history.hasValue) {
-      return const [Center(child: ManoLoader())];
+      return const [ManoSkeletonList()];
     }
     final now = DateTime.now();
     final groups = <String, List<CoinTransaction>>{};

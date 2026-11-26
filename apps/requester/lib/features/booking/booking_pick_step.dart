@@ -68,7 +68,7 @@ class BookingPickStep extends ConsumerWidget {
               ),
             ],
           ),
-          _ => const SizedBox(height: 72, child: Center(child: ManoLoader())),
+          _ => const ManoSkeletonList(rows: 1),
         },
         if (booking.status case BookingFailed(:final failure)) ...[
           const SizedBox(height: ManoSpacing.lg),

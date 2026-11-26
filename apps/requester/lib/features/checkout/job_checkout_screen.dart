@@ -98,7 +98,7 @@ class _JobCheckoutScreenState extends ConsumerState<JobCheckoutScreen> {
           message: 'No pudimos cargar este trabajo.',
           onRetry: () => ref.invalidate(jobProvider(widget.jobId)),
         ),
-        _ => const Center(child: ManoLoader()),
+        _ => const ManoSkeletonList(),
       },
       bottomNavigationBar: switch (job.value) {
         final job? when form => SafeArea(
