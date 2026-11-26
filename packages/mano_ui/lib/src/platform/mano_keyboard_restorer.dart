@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 /// Sticks at the app root; reconnects the focused field to the keyboard that Android drops when the notification shade takes window focus.
@@ -27,6 +28,10 @@ class _ManoKeyboardRestorerState extends State<ManoKeyboardRestorer> {
 
   // Android drops the IME connection with window focus; refocusing makes the field reconnect.
   void _restoreKeyboard() {
+    // Only Android drops the IME connection with window focus.
+    if (defaultTargetPlatform != TargetPlatform.android) {
+      return;
+    }
     final focus = FocusManager.instance.primaryFocus;
     final editing =
         focus?.context?.findAncestorWidgetOfExactType<EditableText>() != null;

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_ui/mano_ui.dart';
@@ -56,5 +57,13 @@ void main() {
         ]),
       ),
     );
+  });
+
+  testWidgets('leaves the keyboard alone on iOS', (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    await pumpApp(tester, focused: true);
+
+    expect(await pullShade(tester), isNot(contains('TextInput.setClient')));
+    debugDefaultTargetPlatformOverride = null;
   });
 }
