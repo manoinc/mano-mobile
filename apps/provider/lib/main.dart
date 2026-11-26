@@ -86,10 +86,10 @@ class _RootState extends ConsumerState<_Root> {
       ref.read(referralInviteProvider.notifier).acknowledge();
     });
 
-    // Signing out starts the onboarding over, at the welcome.
+    // Signing out restarts the onboarding at the welcome; the intro is for first runs.
     ref.listen(sessionProvider, (before, after) {
       if (before?.value is SignedIn && after.value is SignedOut) {
-        ref.invalidate(providerOnboardingProvider);
+        ref.read(providerOnboardingProvider.notifier).signedOut();
       }
     });
 

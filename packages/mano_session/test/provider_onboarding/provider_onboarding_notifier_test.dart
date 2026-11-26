@@ -190,6 +190,15 @@ void main() {
     expect(_step(c), ProviderOnboardingStep.signIn);
   });
 
+  test('signing out lands on the welcome, not the intro', () {
+    final (:c, :n) = _setUp();
+    n.startWithPhone();
+
+    n.signedOut();
+
+    expect(_step(c), ProviderOnboardingStep.welcome);
+  });
+
   group('the account steps', () {
     test('start asks for the email first', () {
       final (:c, :n) = _setUp();

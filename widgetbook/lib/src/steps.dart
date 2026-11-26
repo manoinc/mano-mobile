@@ -100,7 +100,11 @@ WidgetbookCategory steps() => WidgetbookCategory(
           ),
         ),
         bottomBarBuilder: (context, index, next) => ManoPrimaryButton(
-          label: index == 2 ? 'Empezar' : 'Siguiente',
+          label: index == 2
+              ? 'Comenzar'
+              : index == 0
+              ? 'Empezar'
+              : 'Siguiente',
           onPressed: next,
         ),
       ),
@@ -109,7 +113,8 @@ WidgetbookCategory steps() => WidgetbookCategory(
       'Phone': (context) => _screen(context),
       'Phone, error': (context) => _screen(
         context,
-        phoneError: 'Escribe un celular colombiano: 10 dígitos que empiezan por 3.',
+        phoneError:
+            'Escribe un celular colombiano: 10 dígitos que empiezan por 3.',
       ),
       'Code': (context) => _screen(context, codeSentTo: '+57 300 *** 4567'),
     }),

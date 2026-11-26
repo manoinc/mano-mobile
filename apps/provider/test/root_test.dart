@@ -122,7 +122,9 @@ void main() {
     expect(find.byType(ProviderNavShell), findsOneWidget);
   });
 
-  testWidgets('signing out returns to the intro', (tester) async {
+  testWidgets('signing out returns to the welcome, not the intro', (
+    tester,
+  ) async {
     await _pumpApp(
       tester,
       FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
@@ -132,7 +134,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(ProfessionalOnboardingScreen), findsOneWidget);
-    expect(find.text('Recibe solicitudes en tu zona'), findsOneWidget);
+    expect(find.text('Recibe solicitudes en tu zona'), findsNothing);
   });
 
   testWidgets('signed in goes straight to the shell', (tester) async {

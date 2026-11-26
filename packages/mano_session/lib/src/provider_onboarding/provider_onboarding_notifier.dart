@@ -284,6 +284,9 @@ final class ProviderOnboardingNotifier
     state = _atWelcome;
   }
 
+  /// After signing out: back to the welcome, the intro was seen already.
+  void signedOut() => state = _atWelcome;
+
   /// Leaves the pending step for the app, keeping the answers for greetings.
   void finish() => state = state.copyWith(finished: true);
 
