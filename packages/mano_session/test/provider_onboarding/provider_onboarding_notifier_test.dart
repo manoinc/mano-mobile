@@ -161,13 +161,42 @@ void main() {
     });
   });
 
-  test('starts on the welcome step, idle and empty', () {
+  test('starts on the intro step, idle and empty', () {
     final (:c, n: _) = _setUp();
     final s = c.read(providerOnboardingProvider);
-    expect(s.step, ProviderOnboardingStep.welcome);
+    expect(s.step, ProviderOnboardingStep.intro);
     expect(s.status, isA<ProviderOnboardingIdle>());
     expect(s.attached, isEmpty);
     expect(s.inProgress, isFalse);
+  });
+
+  test('leaving the intro goes to the welcome, and back returns', () {
+    final (:c, :n) = _setUp();
+
+    n.leaveIntro();
+    expect(_step(c), ProviderOnboardingStep.welcome);
+    expect(c.read(providerOnboardingProvider).inProgress, isFalse);
+
+    n.back();
+    expect(_step(c), ProviderOnboardingStep.intro);
+  });
+
+  test('leaving the intro does nothing off the intro', () {
+    final (:c, :n) = _setUp();
+    n.startWithPhone();
+
+    n.leaveIntro();
+
+    expect(_step(c), ProviderOnboardingStep.signIn);
+  });
+
+  test('signing out lands on the welcome, not the intro', () {
+    final (:c, :n) = _setUp();
+    n.startWithPhone();
+
+    n.signedOut();
+
+    expect(_step(c), ProviderOnboardingStep.welcome);
   });
 
   group('the account steps', () {

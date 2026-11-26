@@ -10,6 +10,7 @@ import 'provider_profile_validation.dart';
 
 /// The account is created on leaving [password], so [identity] onward is signed in.
 enum ProviderOnboardingStep {
+  intro,
   welcome,
   signIn,
   email,
@@ -75,7 +76,7 @@ const _questions = [
 
 final class ProviderOnboardingState {
   const ProviderOnboardingState({
-    this.step = ProviderOnboardingStep.welcome,
+    this.step = ProviderOnboardingStep.intro,
     this.email = '',
     this.password = '',
     this.finished = false,
@@ -128,7 +129,10 @@ final class ProviderOnboardingState {
   }
 
   /// Whether the onboarding still owns the screen, signed in or not.
-  bool get inProgress => step != ProviderOnboardingStep.welcome && !finished;
+  bool get inProgress =>
+      step != ProviderOnboardingStep.intro &&
+      step != ProviderOnboardingStep.welcome &&
+      !finished;
 
   /// Whether the current question can be answered as it stands.
   bool get stepComplete => switch (step) {
@@ -201,10 +205,22 @@ final class ProviderOnboardingState {
 // The enum lists the steps in flow order.
 const _flow = ProviderOnboardingStep.values;
 
+// A guest or returning user has seen the intro already.
+const _atWelcome = ProviderOnboardingState(
+  step: ProviderOnboardingStep.welcome,
+);
+
 final class ProviderOnboardingNotifier
     extends Notifier<ProviderOnboardingState> {
   @override
   ProviderOnboardingState build() => const ProviderOnboardingState();
+
+  /// Past the intro slides, skipped or finished, to the welcome.
+  void leaveIntro() {
+    if (state.step == ProviderOnboardingStep.intro) {
+      _goTo(ProviderOnboardingStep.welcome);
+    }
+  }
 
   /// Email sign-up, the fallback below the phone screen.
   void start() => _goTo(ProviderOnboardingStep.email);
@@ -224,7 +240,7 @@ final class ProviderOnboardingNotifier
             phone: known ?? '',
             phoneVerified: known != null,
           )
-        : const ProviderOnboardingState();
+        : _atWelcome;
     ref.read(sessionProvider.notifier).adopt(session);
   }
 
@@ -265,8 +281,11 @@ final class ProviderOnboardingNotifier
   /// "Ahora no": into the app without an account.
   void browseAsGuest() {
     ref.read(sessionProvider.notifier).browseAsGuest();
-    state = const ProviderOnboardingState();
+    state = _atWelcome;
   }
+
+  /// After signing out: back to the welcome, the intro was seen already.
+  void signedOut() => state = _atWelcome;
 
   /// Leaves the pending step for the app, keeping the answers for greetings.
   void finish() => state = state.copyWith(finished: true);

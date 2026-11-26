@@ -51,3 +51,24 @@ ManoNoticeTone authFailureTone(AuthFailure failure) => switch (failure) {
   InvalidCode() ||
   CodeExpired() => ManoNoticeTone.error,
 };
+
+/// The intro slides: a headline and one line each.
+const introSlides = [
+  (
+    title: 'Recibe solicitudes en tu zona',
+    subtitle: 'Hogares cerca de ti piden ayuda y tú eliges cuáles tomar.',
+  ),
+  (
+    title: 'Tú pones tu precio y tu agenda',
+    subtitle: 'Haces tus ofertas y decides cuándo tienes disponibilidad.',
+  ),
+  (
+    title: 'Cobra seguro con Mano',
+    subtitle: 'Verificamos tu identidad y los pagos van por la app.',
+  ),
+];
+
+const introSkipLabel = 'Saltar';
+const introStartLabel = 'Empezar';
+const introNextLabel = 'Siguiente';
+const introDoneLabel = 'Comenzar';
