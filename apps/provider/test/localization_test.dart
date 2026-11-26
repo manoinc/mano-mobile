@@ -36,4 +36,29 @@ void main() {
       contains('octubre'),
     );
   });
+
+  testWidgets('stays light when the phone is in dark mode', (tester) async {
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          offlineMarketplaceProvider.overrideWithValue(true),
+          manoConfigProvider.overrideWithValue(testConfig),
+          inviteLinkSourceProvider.overrideWithValue(const NoInviteLinks()),
+          installReferrerSourceProvider.overrideWithValue(
+            const NoInstallReferrer(),
+          ),
+          sessionRepositoryProvider.overrideWithValue(
+            FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
+          ),
+        ],
+        child: const ProviderApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final context = tester.element(find.byType(Scaffold).first);
+    expect(Theme.of(context).brightness, Brightness.light);
+  });
 }

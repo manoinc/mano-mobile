@@ -49,7 +49,8 @@ class ProviderApp extends StatelessWidget {
       title: 'Mano Profesionales',
       debugShowCheckedModeBanner: false,
       theme: ManoTheme.light(),
-      darkTheme: ManoTheme.dark(),
+      // Light always: the phone's dark mode must not reach the app.
+      themeMode: ThemeMode.light,
       locale: const Locale('es', 'CO'),
       supportedLocales: const [Locale('es', 'CO')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
