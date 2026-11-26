@@ -27,6 +27,13 @@ WidgetbookCategory feedback() => WidgetbookCategory(
         rows: context.knobs.int.slider(label: 'Rows', initialValue: 6, min: 1, max: 12),
       ),
     }),
+    component('ManoSpinner', {
+      'Default': (context) => Center(
+        child: ManoSpinner(
+          size: context.knobs.double.slider(label: 'Size', initialValue: 18, min: 12, max: 48),
+        ),
+      ),
+    }),
     component('ManoStatusChip', {
       'All tones': (context) => Center(
         child: Wrap(

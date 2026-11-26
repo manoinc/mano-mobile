@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/mano_theme.dart';
 import 'mano_avatar.dart';
+import 'mano_spinner.dart';
 
 /// The user's own photo with a camera badge; tapping asks for a new one.
 class ManoAvatarEditor extends StatelessWidget {
@@ -48,12 +49,9 @@ class ManoAvatarEditor extends StatelessWidget {
                       color: ManoColors.ink.withValues(alpha: 0.35),
                     ),
                     child: Center(
-                      child: SizedBox.square(
-                        dimension: size * 0.2,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: scheme.surface,
-                        ),
+                      child: ManoSpinner(
+                        size: size * 0.2,
+                        color: scheme.surface,
                       ),
                     ),
                   ),

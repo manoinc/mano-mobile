@@ -63,12 +63,9 @@ class _Local extends StatelessWidget {
             ),
             child: Center(
               child: photo.state == PhotoUploadState.uploading
-                  ? SizedBox.square(
-                      dimension: _size * 0.2,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
+                  ? ManoSpinner(
+                      size: _size * 0.2,
+                      color: Theme.of(context).colorScheme.onPrimary,
                     )
                   : IconButton(
                       onPressed: onRetry,

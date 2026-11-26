@@ -60,11 +60,11 @@ class _ManoSkeletonState extends State<ManoSkeleton>
         width: widget.width,
         height: widget.height,
         decoration: BoxDecoration(
-          color: ManoColors.stone,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           shape: widget.circle ? BoxShape.circle : BoxShape.rectangle,
           borderRadius: widget.circle
               ? null
-              : BorderRadius.circular(ManoRadius.sm),
+              : BorderRadius.circular(ManoRadius.pill),
         ),
       ),
     ),

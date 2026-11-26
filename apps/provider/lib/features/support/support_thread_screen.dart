@@ -85,7 +85,7 @@ class SupportThreadScreen extends ConsumerWidget {
               ref.invalidate(supportThreadProvider(ticketId));
             },
           ),
-          _ => const Center(child: ManoLoader()),
+          _ => const Center(child: ManoSkeletonList()),
         },
       ),
     );

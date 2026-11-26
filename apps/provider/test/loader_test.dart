@@ -8,7 +8,6 @@ void main() {
       for (final file in Directory('lib').listSync(recursive: true))
         if (file is File &&
             file.path.endsWith('.dart') &&
-            !file.path.endsWith('avatar_editor.dart') &&
             file.readAsStringSync().contains('CircularProgressIndicator'))
           file.path,
     ];
