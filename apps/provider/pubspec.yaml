@@ -3,7 +3,7 @@ description: >
   Mano for Proveedores: the app for people who do the work.
 publish_to: none
 resolution: workspace
-version: 0.1.0+1
+version: 0.1.0+2
 
 environment:
   sdk: ^3.13.2
