@@ -91,7 +91,7 @@ class _SummaryRow extends StatelessWidget {
         children: [
           Text(
             label,
-            style: text.labelMedium?.copyWith(color: ManoColors.faint),
+            style: text.labelMedium?.copyWith(color: context.palette.faint),
           ),
           const SizedBox(height: ManoSpacing.xs),
           Text(value, style: text.titleMedium),

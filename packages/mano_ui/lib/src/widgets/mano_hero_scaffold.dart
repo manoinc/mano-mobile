@@ -91,7 +91,7 @@ class ManoHeroScaffold extends StatelessWidget {
                               footnote!,
                               textAlign: TextAlign.center,
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: ManoColors.faint,
+                                color: context.palette.faint,
                               ),
                             ),
                           ],

@@ -119,7 +119,7 @@ class _ManoRatingSheetState extends State<ManoRatingSheet> {
                 Text(
                   widget.subtitle,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: ManoColors.muted,
+                    color: context.palette.muted,
                   ),
                 ),
                 const SizedBox(height: ManoSpacing.lg),
@@ -171,11 +171,7 @@ class _ManoRatingSheetState extends State<ManoRatingSheet> {
       mainAxisSize: MainAxisSize.min,
       children: [
         const SizedBox(height: ManoSpacing.xl),
-        const Icon(
-          Icons.check_circle_rounded,
-          size: 56,
-          color: ManoColors.clay,
-        ),
+        Icon(Icons.check_circle_rounded, size: 56, color: context.palette.clay),
         const SizedBox(height: ManoSpacing.md),
         Text(
           widget.doneTitle,
@@ -186,7 +182,9 @@ class _ManoRatingSheetState extends State<ManoRatingSheet> {
         Text(
           widget.doneMessage,
           textAlign: TextAlign.center,
-          style: theme.textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: context.palette.muted,
+          ),
         ),
         const SizedBox(height: ManoSpacing.xl),
         ManoPrimaryButton(label: widget.doneLabel, onPressed: widget.onDone),

@@ -35,7 +35,7 @@ class ManoSupportThread extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final labelStyle = Theme.of(context).textTheme.labelSmall
-        ?.copyWith(color: ManoColors.faint);
+        ?.copyWith(color: context.palette.faint);
     return Column(
       children: [
         Expanded(

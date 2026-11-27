@@ -148,7 +148,9 @@ class _JobSummary extends StatelessWidget {
               Text(
                 '$provider · ${ManoFormat.weekdayShort(job.start)} '
                 '${ManoFormat.dayMonth(job.start)}',
-                style: textTheme.bodySmall?.copyWith(color: ManoColors.faint),
+                style: textTheme.bodySmall?.copyWith(
+                  color: context.palette.faint,
+                ),
               ),
             ],
           ),

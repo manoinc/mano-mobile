@@ -44,7 +44,9 @@ class ManoIntegrationRow extends StatelessWidget {
               Text(title, style: textTheme.titleSmall),
               Text(
                 status,
-                style: textTheme.bodySmall?.copyWith(color: ManoColors.faint),
+                style: textTheme.bodySmall?.copyWith(
+                  color: context.palette.faint,
+                ),
               ),
             ],
           ),
@@ -59,7 +61,7 @@ class ManoIntegrationRow extends StatelessWidget {
           IconButton(
             onPressed: onMore,
             tooltip: 'Más opciones',
-            icon: const Icon(Icons.more_horiz, color: ManoColors.muted),
+            icon: Icon(Icons.more_horiz, color: context.palette.muted),
           ),
       ],
     );

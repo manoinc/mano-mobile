@@ -26,16 +26,22 @@ class SlideWelcome extends StatelessWidget {
             'Encuentra profesionales cerca de ti para arreglar, instalar y '
             'mantener lo que necesites.',
             textAlign: TextAlign.center,
-            style: theme.textTheme.bodyLarge?.copyWith(color: ManoColors.muted),
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: context.palette.muted,
+            ),
           ),
           const SizedBox(height: ManoSpacing.xl),
           // The file has no 2x/3x variants, so it is constrained rather than left to its pixel size.
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 300),
-            child: Image.asset(
-              'assets/illustrations/mano-sticky-tasks.webp',
-              fit: BoxFit.contain,
-              semanticLabel: 'Notas adhesivas con tareas del hogar',
+            // The art sits on white; the card corner frames it on a dark page.
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(ManoRadius.card),
+              child: Image.asset(
+                'assets/illustrations/mano-sticky-tasks.webp',
+                fit: BoxFit.contain,
+                semanticLabel: 'Notas adhesivas con tareas del hogar',
+              ),
             ),
           ),
           const SizedBox(height: ManoSpacing.lg),

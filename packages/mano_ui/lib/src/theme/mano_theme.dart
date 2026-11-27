@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'mano_palette.dart';
+export 'mano_palette.dart';
 import 'mano_typography.dart';
 
 /// Spacing, in multiples of four.
@@ -59,6 +61,9 @@ abstract final class ManoColors {
 
   /// Dividers and quiet borders.
   static const Color stone = Color(0xFFEDE9E6);
+
+  /// Darkens photos under overlaid controls; the same in both modes.
+  static const Color scrim = ink;
 }
 
 /// Mano's palette and typography.
@@ -76,34 +81,47 @@ abstract final class ManoTheme {
   static ThemeData _build(Brightness brightness) {
     final isLight = brightness == Brightness.light;
 
+    final p = isLight ? ManoPalette.light : ManoPalette.dark;
+
     // Seeded schemes harmonise a whole palette from one colour, which is right
     // for the incidental surfaces. But the brand's own values are then pinned
     // back over the roles that carry it: a tonally-derived orange is not the
     // orange on the landing page or the login screen, and the near-miss is
     // more noticeable than a mismatch would be.
-    final scheme =
-        ColorScheme.fromSeed(seedColor: seed, brightness: brightness).copyWith(
+    final scheme = ColorScheme.fromSeed(seedColor: seed, brightness: brightness)
+        .copyWith(
           primary: ManoColors.flame,
           onPrimary: Colors.white,
-          surface: isLight ? Colors.white : const Color(0xFF191716),
-          onSurface: isLight ? ManoColors.ink : ManoColors.sand,
-          onSurfaceVariant: isLight ? ManoColors.muted : const Color(0xFFC2BCB8),
-          outlineVariant: isLight ? ManoColors.stone : const Color(0xFF302C2A),
+          secondary: isLight ? null : p.clay,
+          surface: p.paper,
+          onSurface: p.ink,
+          onSurfaceVariant: p.muted,
+          outline: isLight ? null : p.faint,
+          outlineVariant: p.stone,
           surfaceTint: Colors.transparent,
-          surfaceContainerLowest: isLight ? Colors.white : const Color(0xFF141211),
-          surfaceContainerLow: isLight ? ManoColors.sand : const Color(0xFF1E1B1A),
-          surfaceContainer: isLight ? ManoColors.sand : const Color(0xFF24211F),
-          surfaceContainerHigh: isLight ? ManoColors.stone : const Color(0xFF2B2826),
-          surfaceContainerHighest: isLight ? ManoColors.stone : const Color(0xFF302C2A),
-          secondaryContainer: isLight ? ManoColors.stone : const Color(0xFF302C2A),
-          onSecondaryContainer: isLight ? ManoColors.ink : ManoColors.sand,
-          tertiaryContainer: isLight ? const Color(0xFFF1E3D6) : const Color(0xFF3A2D24),
-          onTertiaryContainer: isLight ? const Color(0xFF6B3A1B) : const Color(0xFFEBCDB4),
+          surfaceContainerLowest: p.paper,
+          surfaceContainerLow: p.sand,
+          surfaceContainer: p.sand,
+          surfaceContainerHigh: p.stone,
+          surfaceContainerHighest: p.stone,
+          secondaryContainer: p.stone,
+          onSecondaryContainer: p.ink,
+          tertiaryContainer: isLight
+              ? const Color(0xFFF1E3D6)
+              : const Color(0xFF3A2D24),
+          onTertiaryContainer: isLight
+              ? const Color(0xFF6B3A1B)
+              : const Color(0xFFEBCDB4),
+          inverseSurface: isLight ? null : p.ink,
+          onInverseSurface: isLight ? null : p.paper,
         );
 
     return ThemeData(
       useMaterial3: true,
+      brightness: brightness,
       colorScheme: scheme,
+      scaffoldBackgroundColor: p.paper,
+      extensions: [p],
       fontFamily: ManoTypography.fontFamily,
       textTheme: ManoTypography.textTheme(),
       inputDecorationTheme: InputDecorationTheme(

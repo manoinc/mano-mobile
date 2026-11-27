@@ -47,14 +47,18 @@ class ManoProjectSummaryCard extends StatelessWidget {
                 title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: textTheme.titleMedium?.copyWith(color: ManoColors.ink),
+                style: textTheme.titleMedium?.copyWith(
+                  color: context.palette.ink,
+                ),
               ),
               const SizedBox(height: ManoSpacing.xs),
               Text(
                 subtitle,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: textTheme.bodySmall?.copyWith(color: ManoColors.muted),
+                style: textTheme.bodySmall?.copyWith(
+                  color: context.palette.muted,
+                ),
               ),
               const SizedBox(height: ManoSpacing.sm),
               Row(
@@ -71,7 +75,7 @@ class ManoProjectSummaryCard extends StatelessWidget {
                         child: Text(
                           trailing,
                           style: textTheme.titleSmall?.copyWith(
-                            color: ManoColors.ink,
+                            color: context.palette.ink,
                           ),
                         ),
                       ),

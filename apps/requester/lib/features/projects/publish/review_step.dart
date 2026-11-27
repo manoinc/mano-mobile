@@ -48,7 +48,9 @@ class ReviewStep extends StatelessWidget {
             onEdit: () => onEdit(0),
             child: Text(
               ServiceCategories.labelOf(draft.category),
-              style: textTheme.labelLarge?.copyWith(color: ManoColors.clay),
+              style: textTheme.labelLarge?.copyWith(
+                color: context.palette.clay,
+              ),
             ),
           ),
           _Part(
@@ -63,7 +65,7 @@ class ReviewStep extends StatelessWidget {
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.bodyMedium?.copyWith(
-                    color: ManoColors.muted,
+                    color: context.palette.muted,
                   ),
                 ),
               ],
@@ -83,7 +85,7 @@ class ReviewStep extends StatelessWidget {
           const SizedBox(height: ManoSpacing.md),
           Text(
             'Gratis. Te avisamos cuando lleguen cotizaciones.',
-            style: textTheme.bodySmall?.copyWith(color: ManoColors.faint),
+            style: textTheme.bodySmall?.copyWith(color: context.palette.faint),
           ),
         ],
       ),
@@ -100,8 +102,8 @@ class _Part extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: ManoColors.stone)),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: context.palette.stone)),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: ManoSpacing.sm),

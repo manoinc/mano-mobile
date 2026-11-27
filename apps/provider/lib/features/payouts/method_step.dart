@@ -44,7 +44,7 @@ class MethodStep extends StatelessWidget {
                   Text(
                     'Solo en una cuenta a tu nombre. Puedes cambiarla cuando quieras.',
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      color: ManoColors.muted,
+                      color: context.palette.muted,
                     ),
                   ),
                   const SizedBox(height: ManoSpacing.xl),

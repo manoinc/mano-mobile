@@ -183,7 +183,9 @@ class _CalendarViewState extends ConsumerState<_CalendarView> {
             Expanded(
               child: Text(
                 dayLabel(_selected, DateTime.now()),
-                style: textTheme.titleSmall?.copyWith(color: ManoColors.muted),
+                style: textTheme.titleSmall?.copyWith(
+                  color: context.palette.muted,
+                ),
               ),
             ),
             if (block != null)
@@ -201,7 +203,9 @@ class _CalendarViewState extends ConsumerState<_CalendarView> {
             child: Text(
               'No recibirás reservas · ${blockLabel(block)}',
               key: const Key('agenda-blocked-note'),
-              style: textTheme.bodyMedium?.copyWith(color: ManoColors.faint),
+              style: textTheme.bodyMedium?.copyWith(
+                color: context.palette.faint,
+              ),
             ),
           ),
         if (dayJobs.isEmpty)
@@ -211,7 +215,9 @@ class _CalendarViewState extends ConsumerState<_CalendarView> {
               'No tienes trabajos este día.',
               key: const Key('agenda-empty-day'),
               textAlign: TextAlign.center,
-              style: textTheme.bodyLarge?.copyWith(color: ManoColors.faint),
+              style: textTheme.bodyLarge?.copyWith(
+                color: context.palette.faint,
+              ),
             ),
           ),
         for (final job in dayJobs) _JobCard(job: job, timeOnly: true),

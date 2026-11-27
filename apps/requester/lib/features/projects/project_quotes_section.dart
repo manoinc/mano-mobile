@@ -64,7 +64,7 @@ class _ProjectQuotesSectionState extends ConsumerState<ProjectQuotesSection> {
         if (quotes.isEmpty)
           Text(
             'Aún no hay cotizaciones.',
-            style: textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
+            style: textTheme.bodyMedium?.copyWith(color: context.palette.muted),
           ),
         if (arranged.selected case final picked?) _card(picked, now),
         for (final quote in arranged.active) _card(quote, now),

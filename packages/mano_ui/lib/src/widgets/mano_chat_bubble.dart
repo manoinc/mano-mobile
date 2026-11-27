@@ -148,7 +148,7 @@ class ManoChatBubble extends StatelessWidget {
           ] else if (time != null)
             Padding(
               padding: const EdgeInsets.only(top: ManoSpacing.xs),
-              child: _meta(context, time, ManoColors.faint),
+              child: _meta(context, time, context.palette.faint),
             ),
         ],
       );
@@ -185,8 +185,8 @@ class ManoChatBubble extends StatelessWidget {
 
   Widget _textBubble(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final foreground = mine ? Colors.white : ManoColors.ink;
-    final quiet = mine ? ManoColors.stone : ManoColors.faint;
+    final foreground = mine ? context.palette.paper : context.palette.ink;
+    final quiet = mine ? context.palette.stone : context.palette.faint;
     final bodyStyle = textTheme.bodyMedium?.copyWith(color: foreground);
     final timeStyle = textTheme.labelSmall?.copyWith(color: quiet);
     final time = timeLabel;
@@ -210,7 +210,7 @@ class ManoChatBubble extends StatelessWidget {
     return DecoratedBox(
       key: const Key('chat-bubble-body'),
       decoration: BoxDecoration(
-        color: mine ? ManoColors.ink : ManoColors.sand,
+        color: mine ? context.palette.ink : context.palette.sand,
         borderRadius: _radius,
       ),
       child: Padding(

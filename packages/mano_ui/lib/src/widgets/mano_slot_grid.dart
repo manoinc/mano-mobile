@@ -34,7 +34,7 @@ class ManoSlotGrid extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: ManoSpacing.lg),
         child: Text(
           emptyLabel,
-          style: textTheme.bodyMedium?.copyWith(color: ManoColors.faint),
+          style: textTheme.bodyMedium?.copyWith(color: context.palette.faint),
         ),
       );
     }
@@ -67,10 +67,10 @@ class _SlotChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final foreground = selected
-        ? Colors.white
+        ? context.palette.paper
         : slot.enabled
         ? Theme.of(context).colorScheme.onSurface
-        : ManoColors.faint;
+        : context.palette.faint;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -81,10 +81,10 @@ class _SlotChip extends StatelessWidget {
           vertical: ManoSpacing.sm + 2,
         ),
         decoration: BoxDecoration(
-          color: selected ? ManoColors.ink : Colors.transparent,
+          color: selected ? context.palette.ink : Colors.transparent,
           borderRadius: BorderRadius.circular(ManoRadius.pill),
           border: Border.all(
-            color: selected ? ManoColors.ink : ManoColors.stone,
+            color: selected ? context.palette.ink : context.palette.stone,
           ),
         ),
         child: Text(

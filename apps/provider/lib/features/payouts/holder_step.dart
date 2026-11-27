@@ -59,7 +59,7 @@ class HolderStep extends StatelessWidget {
         Text(
           'Tipo de documento',
           style: Theme.of(context).textTheme.labelMedium
-              ?.copyWith(color: ManoColors.faint),
+              ?.copyWith(color: context.palette.faint),
         ),
         const SizedBox(height: ManoSpacing.sm),
         Wrap(

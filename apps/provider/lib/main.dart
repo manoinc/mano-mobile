@@ -21,6 +21,8 @@ Future<void> main() async {
     widgetsBinding: WidgetsFlutterBinding.ensureInitialized(),
   );
 
+  final darkMode = await loadSavedDarkMode();
+
   await runWithErrorReporting(
     config: providerConfig,
     release: 'mano-provider@$providerAppVersion',
@@ -32,6 +34,7 @@ Future<void> main() async {
         // failing much later with an audience rejection nobody can explain.
         overrides: [
           manoConfigProvider.overrideWithValue(providerConfig),
+          initialDarkModeProvider.overrideWithValue(darkMode),
           diditLauncherProvider.overrideWithValue(const DiditSdkLauncher()),
         ],
         child: const ProviderApp(),
@@ -40,17 +43,19 @@ Future<void> main() async {
   );
 }
 
-class ProviderApp extends StatelessWidget {
+class ProviderApp extends ConsumerWidget {
   const ProviderApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: 'Mano Profesionales',
       debugShowCheckedModeBanner: false,
       builder: (context, child) => ManoKeyboardRestorer(child: child!),
       theme: ManoTheme.light(),
       darkTheme: ManoTheme.dark(),
+      // The app's own switch decides; the phone's dark mode never does.
+      themeMode: ref.watch(darkModeProvider) ? ThemeMode.dark : ThemeMode.light,
       locale: const Locale('es', 'CO'),
       supportedLocales: const [Locale('es', 'CO')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,

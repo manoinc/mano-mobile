@@ -61,7 +61,7 @@ class _HourLoggerSheetState extends State<HourLoggerSheet> {
           const SizedBox(height: ManoSpacing.xs),
           Text(
             'Total ${ManoFormat.cop(hourlyTotalCop(_hours, widget.rateCop))}',
-            style: textTheme.bodyLarge?.copyWith(color: ManoColors.muted),
+            style: textTheme.bodyLarge?.copyWith(color: context.palette.muted),
           ),
         ],
       ),

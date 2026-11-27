@@ -8,7 +8,9 @@ import 'support/fake_session_repository.dart';
 import 'support/pump_app.dart';
 
 void main() {
-  testWidgets('Material widgets such as date pickers speak Spanish', (tester) async {
+  testWidgets('Material widgets such as date pickers speak Spanish', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -29,5 +31,46 @@ void main() {
       MaterialLocalizations.of(context).formatMonthYear(DateTime(2026, 10)),
       contains('octubre'),
     );
+  });
+
+  testWidgets('stays light when the phone is in dark mode', (tester) async {
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          offlineMarketplaceProvider.overrideWithValue(true),
+          manoConfigProvider.overrideWithValue(testConfig),
+          sessionRepositoryProvider.overrideWithValue(
+            FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
+          ),
+        ],
+        child: const RequesterApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final context = tester.element(find.byType(Scaffold).first);
+    expect(Theme.of(context).brightness, Brightness.light);
+  });
+
+  testWidgets('goes dark when switched on in the app', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          offlineMarketplaceProvider.overrideWithValue(true),
+          manoConfigProvider.overrideWithValue(testConfig),
+          initialDarkModeProvider.overrideWithValue(true),
+          sessionRepositoryProvider.overrideWithValue(
+            FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
+          ),
+        ],
+        child: const RequesterApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final context = tester.element(find.byType(Scaffold).first);
+    expect(Theme.of(context).brightness, Brightness.dark);
   });
 }

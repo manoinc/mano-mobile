@@ -109,7 +109,7 @@ class _PaymentMethodFormSheetState extends State<PaymentMethodFormSheet> {
               Text(
                 'Solo guardamos los últimos 4 dígitos.',
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: ManoColors.faint,
+                  color: context.palette.faint,
                 ),
               ),
               const SizedBox(height: ManoSpacing.xl),

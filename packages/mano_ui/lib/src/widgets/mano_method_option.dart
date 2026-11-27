@@ -32,7 +32,7 @@ class ManoMethodOption extends StatelessWidget {
     final scheme = theme.colorScheme;
     final enabled = onTap != null;
     final on = selected && enabled;
-    final ink = enabled ? scheme.onSurface : ManoColors.faint;
+    final ink = enabled ? scheme.onSurface : context.palette.faint;
 
     return ManoPressScale(
       enabled: enabled,
@@ -79,7 +79,7 @@ class ManoMethodOption extends StatelessWidget {
                         Text(
                           detail,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: ManoColors.faint,
+                            color: context.palette.faint,
                           ),
                         ),
                     ],

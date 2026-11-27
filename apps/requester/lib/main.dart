@@ -17,6 +17,8 @@ Future<void> main() async {
     widgetsBinding: WidgetsFlutterBinding.ensureInitialized(),
   );
 
+  final darkMode = await loadSavedDarkMode();
+
   await runWithErrorReporting(
     config: requesterConfig,
     release: 'mano-requester@$requesterAppVersion',
@@ -26,7 +28,10 @@ Future<void> main() async {
         // has no default on purpose: an app that forgot to override it fails
         // loudly at startup rather than authenticating as the wrong client and
         // failing much later with an audience rejection nobody can explain.
-        overrides: [manoConfigProvider.overrideWithValue(requesterConfig)],
+        overrides: [
+          manoConfigProvider.overrideWithValue(requesterConfig),
+          initialDarkModeProvider.overrideWithValue(darkMode),
+        ],
         child: const RequesterApp(),
       ),
     ),
@@ -38,17 +43,19 @@ Future<void> main() async {
 /// Where to go -- carousel, sign-in, registration, browsing, or the nav
 /// shell -- is [ManoRoot]'s business, including the opening animation and
 /// crash handling. This widget only supplies the theme.
-class RequesterApp extends StatelessWidget {
+class RequesterApp extends ConsumerWidget {
   const RequesterApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: 'Mano',
       debugShowCheckedModeBanner: false,
       builder: (context, child) => ManoKeyboardRestorer(child: child!),
       theme: ManoTheme.light(),
       darkTheme: ManoTheme.dark(),
+      // The app's own switch decides; the phone's dark mode never does.
+      themeMode: ref.watch(darkModeProvider) ? ThemeMode.dark : ThemeMode.light,
       locale: const Locale('es', 'CO'),
       supportedLocales: const [Locale('es', 'CO')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,

@@ -64,7 +64,8 @@ class _ManoTimeRangePickerState extends State<ManoTimeRangePicker> {
           const Positioned(
             left: 0,
             right: 0,
-            bottom: (ManoTimeRangePicker.height -
+            bottom:
+                (ManoTimeRangePicker.height -
                     _captionHeight -
                     ManoTimeRangePicker.itemExtent) /
                 2,
@@ -108,11 +109,11 @@ class _SelectionBand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    return SizedBox(
       height: ManoTimeRangePicker.itemExtent,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: ManoColors.sand,
+          color: context.palette.sand,
           borderRadius: BorderRadius.all(Radius.circular(ManoRadius.card)),
         ),
       ),
@@ -145,7 +146,9 @@ class _Wheel extends StatelessWidget {
           height: _captionHeight,
           child: Text(
             caption,
-            style: textTheme.labelMedium?.copyWith(color: ManoColors.faint),
+            style: textTheme.labelMedium?.copyWith(
+              color: context.palette.faint,
+            ),
           ),
         ),
         Expanded(

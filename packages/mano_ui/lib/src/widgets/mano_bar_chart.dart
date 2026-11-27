@@ -31,7 +31,7 @@ class ManoBarChart extends StatelessWidget {
     final peak = highlightIndex ?? (max == 0 ? -1 : values.indexOf(max));
     final still = MediaQuery.disableAnimationsOf(context);
     final labelStyle = Theme.of(context).textTheme.labelSmall
-        ?.copyWith(color: ManoColors.faint);
+        ?.copyWith(color: context.palette.faint);
 
     return Semantics(
       label: semanticLabel,
@@ -64,7 +64,7 @@ class ManoBarChart extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: i == peak
                                     ? ManoColors.flame
-                                    : ManoColors.stone,
+                                    : context.palette.stone,
                                 borderRadius: BorderRadius.circular(
                                   ManoRadius.sm,
                                 ),

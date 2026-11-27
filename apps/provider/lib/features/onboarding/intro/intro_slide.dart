@@ -28,7 +28,9 @@ class IntroSlide extends StatelessWidget {
           const SizedBox(height: ManoSpacing.sm),
           Text(
             subtitle,
-            style: theme.textTheme.bodyLarge?.copyWith(color: ManoColors.muted),
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: context.palette.muted,
+            ),
           ),
           const SizedBox(height: ManoSpacing.xl),
           // A picture of the product, not a control.

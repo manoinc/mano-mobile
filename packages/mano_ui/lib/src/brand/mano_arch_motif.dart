@@ -46,8 +46,8 @@ class ManoArchMotif extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final alpha = opacity ??
-        (theme.brightness == Brightness.dark ? 0.042 : 0.070);
+    final alpha =
+        opacity ?? (theme.brightness == Brightness.dark ? 0.042 : 0.070);
 
     return ExcludeSemantics(
       child: IgnorePointer(
@@ -68,8 +68,9 @@ class ManoArchMotif extends StatelessWidget {
             ).createShader(bounds),
             child: CustomPaint(
               painter: _ArchPainter(
-                color: (color ?? theme.colorScheme.onSurface)
-                    .withValues(alpha: alpha),
+                color: (color ?? theme.colorScheme.onSurface).withValues(
+                  alpha: alpha,
+                ),
                 widthFactor: widthFactor,
                 alignment: alignment,
               ),

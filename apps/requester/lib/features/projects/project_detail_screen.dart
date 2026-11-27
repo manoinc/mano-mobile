@@ -152,14 +152,16 @@ class _Body extends StatelessWidget {
         Text(
           '${ServiceCategories.labelOf(project.category)} · Publicado '
           '${ManoFormat.ago(project.createdAt, DateTime.now())}',
-          style: textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
+          style: textTheme.bodyMedium?.copyWith(color: context.palette.muted),
         ),
         const SizedBox(height: ManoSpacing.md),
         Row(
           children: [
             Text(
               'Presupuesto',
-              style: textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
+              style: textTheme.bodyMedium?.copyWith(
+                color: context.palette.muted,
+              ),
             ),
             const SizedBox(width: ManoSpacing.sm),
             Flexible(
@@ -177,7 +179,7 @@ class _Body extends StatelessWidget {
           ManoPhotoGallery(urls: project.photoUrls, expandable: true),
         ],
         const SizedBox(height: ManoSpacing.lg),
-        const Divider(color: ManoColors.stone),
+        Divider(color: context.palette.stone),
         const SizedBox(height: ManoSpacing.md),
         ProjectQuotesSection(
           project: project,

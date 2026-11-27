@@ -29,7 +29,7 @@ class ManoRatingSummary extends StatelessWidget {
     if (average == null) {
       return Text(
         emptyLabel,
-        style: theme.titleMedium?.copyWith(color: ManoColors.muted),
+        style: theme.titleMedium?.copyWith(color: context.palette.muted),
       );
     }
     return Semantics(
@@ -51,14 +51,16 @@ class ManoRatingSummary extends StatelessWidget {
                       Icon(
                         _starFor(average, i),
                         size: 18,
-                        color: ManoColors.clay,
+                        color: context.palette.clay,
                       ),
                   ],
                 ),
                 const SizedBox(height: ManoSpacing.xs),
                 Text(
                   countLabel,
-                  style: theme.bodySmall?.copyWith(color: ManoColors.muted),
+                  style: theme.bodySmall?.copyWith(
+                    color: context.palette.muted,
+                  ),
                 ),
               ],
             ),

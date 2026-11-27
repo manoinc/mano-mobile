@@ -45,14 +45,18 @@ class ManoLeadCard extends StatelessWidget {
                 title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: textTheme.titleMedium?.copyWith(color: ManoColors.ink),
+                style: textTheme.titleMedium?.copyWith(
+                  color: context.palette.ink,
+                ),
               ),
               const SizedBox(height: ManoSpacing.xs),
               Text(
                 '$categoryLabel · $ageLabel',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: textTheme.bodySmall?.copyWith(color: ManoColors.muted),
+                style: textTheme.bodySmall?.copyWith(
+                  color: context.palette.muted,
+                ),
               ),
               const SizedBox(height: ManoSpacing.sm),
               Row(
@@ -63,7 +67,7 @@ class ManoLeadCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: textTheme.bodyMedium?.copyWith(
-                        color: ManoColors.ink,
+                        color: context.palette.ink,
                       ),
                     ),
                   ),
@@ -71,7 +75,7 @@ class ManoLeadCard extends StatelessWidget {
                   Text(
                     costLabel,
                     style: textTheme.labelLarge?.copyWith(
-                      color: ManoColors.clay,
+                      color: context.palette.clay,
                     ),
                   ),
                 ],

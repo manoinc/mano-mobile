@@ -18,10 +18,10 @@ class PublishedView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              const Icon(
+              Icon(
                 Icons.check_circle_outline,
                 size: 72,
-                color: ManoColors.clay,
+                color: context.palette.clay,
               ),
               const SizedBox(height: ManoSpacing.lg),
               Text(
@@ -33,7 +33,9 @@ class PublishedView extends StatelessWidget {
               Text(
                 'Te avisaremos cuando lleguen cotizaciones.',
                 textAlign: TextAlign.center,
-                style: textTheme.bodyLarge?.copyWith(color: ManoColors.muted),
+                style: textTheme.bodyLarge?.copyWith(
+                  color: context.palette.muted,
+                ),
               ),
               const Spacer(),
               ManoPrimaryButton(label: 'Ver proyecto', onPressed: onOpen),

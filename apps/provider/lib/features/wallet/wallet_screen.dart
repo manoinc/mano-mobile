@@ -88,7 +88,7 @@ class WalletScreen extends ConsumerWidget {
           child: Text(
             key,
             style: Theme.of(context).textTheme.labelLarge
-                ?.copyWith(color: ManoColors.faint),
+                ?.copyWith(color: context.palette.faint),
           ),
         ),
         for (final t in value)

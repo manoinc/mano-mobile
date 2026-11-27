@@ -78,7 +78,9 @@ class ManoLabelledField extends StatelessWidget {
 
     final decoration = InputDecoration(
       hintText: hintText,
-      hintStyle: theme.textTheme.titleMedium?.copyWith(color: ManoColors.faint),
+      hintStyle: theme.textTheme.titleMedium?.copyWith(
+        color: context.palette.faint,
+      ),
       contentPadding: const EdgeInsets.symmetric(
         horizontal: ManoSpacing.md,
         vertical: ManoSpacing.md,
@@ -141,7 +143,7 @@ class ManoLabelledField extends StatelessWidget {
           Text(
             note,
             style: theme.textTheme.bodySmall?.copyWith(
-              color: errorText == null ? ManoColors.faint : scheme.error,
+              color: errorText == null ? context.palette.faint : scheme.error,
             ),
           ),
         ],

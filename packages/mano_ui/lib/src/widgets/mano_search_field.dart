@@ -32,19 +32,21 @@ class ManoSearchField extends StatelessWidget {
         onChanged: onChanged,
         autofocus: autofocus,
         textInputAction: TextInputAction.search,
-        style: textTheme.bodyMedium?.copyWith(color: ManoColors.ink),
+        style: textTheme.bodyMedium?.copyWith(color: context.palette.ink),
         cursorColor: ManoColors.flame,
         decoration: InputDecoration(
           filled: true,
-          fillColor: ManoColors.sand,
+          fillColor: context.palette.sand,
           hintText: hintText,
-          hintStyle: textTheme.bodyMedium?.copyWith(color: ManoColors.faint),
-          prefixIcon: const Icon(Icons.search, color: ManoColors.faint),
+          hintStyle: textTheme.bodyMedium?.copyWith(
+            color: context.palette.faint,
+          ),
+          prefixIcon: Icon(Icons.search, color: context.palette.faint),
           suffixIcon: value.text.isEmpty
               ? null
               : IconButton(
                   tooltip: 'Borrar',
-                  icon: const Icon(Icons.close, color: ManoColors.faint),
+                  icon: Icon(Icons.close, color: context.palette.faint),
                   onPressed: () {
                     controller.clear();
                     onChanged?.call('');

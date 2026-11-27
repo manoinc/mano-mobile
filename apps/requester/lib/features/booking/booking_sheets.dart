@@ -61,7 +61,7 @@ Future<bool> showConfirmBookingSheet(
               child: Text(
                 hourlyNote,
                 style: Theme.of(context).textTheme.bodySmall
-                    ?.copyWith(color: ManoColors.faint),
+                    ?.copyWith(color: context.palette.faint),
               ),
             ),
         ],
@@ -86,7 +86,7 @@ class _SummaryRow extends StatelessWidget {
         children: [
           Text(
             label,
-            style: textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
+            style: textTheme.bodyMedium?.copyWith(color: context.palette.muted),
           ),
           const SizedBox(width: ManoSpacing.md),
           Expanded(

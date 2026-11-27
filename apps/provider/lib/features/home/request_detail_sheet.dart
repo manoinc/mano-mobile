@@ -64,7 +64,9 @@ class _RequestDetail extends StatelessWidget {
             if (caption.isNotEmpty) ...[
               Text(
                 caption,
-                style: textTheme.labelLarge?.copyWith(color: ManoColors.clay),
+                style: textTheme.labelLarge?.copyWith(
+                  color: context.palette.clay,
+                ),
               ),
               const SizedBox(height: ManoSpacing.xs),
             ],
@@ -72,7 +74,9 @@ class _RequestDetail extends StatelessWidget {
             const SizedBox(height: ManoSpacing.sm),
             Text(
               request.message,
-              style: textTheme.bodyLarge?.copyWith(color: ManoColors.muted),
+              style: textTheme.bodyLarge?.copyWith(
+                color: context.palette.muted,
+              ),
             ),
             const SizedBox(height: ManoSpacing.md),
             ManoDetailRow(label: 'Horario', value: scheduleLabel(request)),

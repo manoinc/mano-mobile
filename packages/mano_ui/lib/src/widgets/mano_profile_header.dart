@@ -48,7 +48,9 @@ class ManoProfileHeader extends StatelessWidget {
                 Text(
                   line,
                   overflow: TextOverflow.ellipsis,
-                  style: textTheme.bodySmall?.copyWith(color: ManoColors.muted),
+                  style: textTheme.bodySmall?.copyWith(
+                    color: context.palette.muted,
+                  ),
                 ),
             ],
           ),

@@ -39,7 +39,7 @@ class IdentityIntroStep extends ConsumerWidget {
         ],
         Text(
           'Sigue estos consejos para que tu cédula se vea bien en la foto:',
-          style: text.bodyLarge?.copyWith(color: ManoColors.muted),
+          style: text.bodyLarge?.copyWith(color: context.palette.muted),
         ),
         const SizedBox(height: ManoSpacing.md),
         const ManoTipList(tips: photoTips),

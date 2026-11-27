@@ -29,7 +29,9 @@ class _HowItWorks extends ConsumerWidget {
               'Aceptar solicitudes y cotizar es gratis: pagas coins solo al '
               'comprar el contacto de un proyecto. Si algo falla, te los '
               'devolvemos. Esto cuesta cada contacto:',
-              style: textTheme.bodyLarge?.copyWith(color: ManoColors.muted),
+              style: textTheme.bodyLarge?.copyWith(
+                color: context.palette.muted,
+              ),
             ),
             const SizedBox(height: ManoSpacing.md),
             if (prices != null)

@@ -25,7 +25,10 @@ class ManoStatusChip extends StatelessWidget {
         scheme.tertiaryContainer,
         scheme.onTertiaryContainer,
       ),
-      ManoStatusTone.success => (Colors.green.shade100, Colors.green.shade900),
+      ManoStatusTone.success =>
+        scheme.brightness == Brightness.light
+            ? (Colors.green.shade100, Colors.green.shade900)
+            : (Colors.green.shade900, Colors.green.shade100),
     };
 
     return Container(

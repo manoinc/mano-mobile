@@ -5,7 +5,7 @@ import 'package:mano_ui/mano_ui.dart';
 
 import '../../config.dart';
 
-/// Configuración: local notification toggles, language, terms and version.
+/// Configuración: notification toggles, dark mode, language, terms and version.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -41,6 +41,14 @@ class SettingsScreen extends ConsumerWidget {
             onChanged: notifier.setPromotions,
           ),
           const SizedBox(height: ManoSpacing.lg),
+          Text('Apariencia', style: theme.textTheme.titleMedium),
+          const SizedBox(height: ManoSpacing.md),
+          ManoToggleRow(
+            label: 'Modo oscuro',
+            value: ref.watch(darkModeProvider),
+            onChanged: ref.read(darkModeProvider.notifier).set,
+          ),
+          const SizedBox(height: ManoSpacing.lg),
           const ManoOptionRow(
             icon: Icons.language,
             label: 'Idioma',
@@ -57,7 +65,9 @@ class SettingsScreen extends ConsumerWidget {
           Text(
             'Versión $requesterAppVersion',
             textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall?.copyWith(color: ManoColors.faint),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: context.palette.faint,
+            ),
           ),
         ],
       ),

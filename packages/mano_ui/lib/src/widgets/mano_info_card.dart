@@ -45,7 +45,7 @@ class ManoInfoCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 28, color: ManoColors.clay),
+            Icon(icon, size: 28, color: context.palette.clay),
             const SizedBox(width: ManoSpacing.md),
             Expanded(
               child: Column(
@@ -60,11 +60,11 @@ class ManoInfoCard extends StatelessWidget {
                       style: TextButton.styleFrom(
                         minimumSize: const Size(0, 44),
                         padding: EdgeInsets.zero,
-                        foregroundColor: ManoColors.clay,
+                        foregroundColor: context.palette.clay,
                       ),
                       child: Text(
                         link,
-                        style: _linkStyle(theme.textTheme.labelLarge),
+                        style: _linkStyle(context, theme.textTheme.labelLarge),
                       ),
                     ),
                 ],
@@ -77,11 +77,11 @@ class ManoInfoCard extends StatelessWidget {
   }
 }
 
-TextStyle? _linkStyle(TextStyle? base) => base?.copyWith(
-  color: ManoColors.clay,
+TextStyle? _linkStyle(BuildContext context, TextStyle? base) => base?.copyWith(
+  color: context.palette.clay,
   fontWeight: FontWeight.w600,
   decoration: TextDecoration.underline,
-  decorationColor: ManoColors.clay,
+  decorationColor: context.palette.clay,
 );
 
 /// [text] with each phrase in [links] underlined and tappable.
@@ -129,7 +129,7 @@ class _LinkedTextState extends State<_LinkedText> {
         ..add(
           TextSpan(
             text: phrase,
-            style: _linkStyle(widget.style),
+            style: _linkStyle(context, widget.style),
             recognizer: recognizer,
           ),
         );

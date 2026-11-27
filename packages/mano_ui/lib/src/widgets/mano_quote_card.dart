@@ -68,7 +68,7 @@ class ManoQuoteCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(ManoRadius.card),
         side: selected
-            ? const BorderSide(color: ManoColors.clay, width: 1.5)
+            ? BorderSide(color: context.palette.clay, width: 1.5)
             : BorderSide.none,
       ),
       child: Padding(
@@ -86,7 +86,7 @@ class ManoQuoteCard extends StatelessWidget {
                       children: [
                         avatar,
                         const SizedBox(width: ManoSpacing.sm),
-                        Expanded(child: _who(textTheme, age)),
+                        Expanded(child: _who(context, textTheme, age)),
                       ],
                     ),
                   ),
@@ -100,7 +100,7 @@ class ManoQuoteCard extends StatelessWidget {
                     child: Text(
                       amountLabel,
                       style: textTheme.titleMedium?.copyWith(
-                        color: ManoColors.ink,
+                        color: context.palette.ink,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -116,7 +116,7 @@ class ManoQuoteCard extends StatelessWidget {
               const SizedBox(height: ManoSpacing.sm),
               DecoratedBox(
                 decoration: BoxDecoration(
-                  color: ManoColors.sand,
+                  color: context.palette.sand,
                   borderRadius: BorderRadius.circular(ManoRadius.card),
                 ),
                 child: Padding(
@@ -124,7 +124,7 @@ class ManoQuoteCard extends StatelessWidget {
                   child: Text(
                     note,
                     style: textTheme.bodyMedium?.copyWith(
-                      color: ManoColors.muted,
+                      color: context.palette.muted,
                     ),
                   ),
                 ),
@@ -160,8 +160,8 @@ class ManoQuoteCard extends StatelessWidget {
     );
   }
 
-  Widget _who(TextTheme textTheme, String? age) {
-    final faint = textTheme.bodySmall?.copyWith(color: ManoColors.faint);
+  Widget _who(BuildContext context, TextTheme textTheme, String? age) {
+    final faint = textTheme.bodySmall?.copyWith(color: context.palette.faint);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -169,7 +169,7 @@ class ManoQuoteCard extends StatelessWidget {
           name,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: textTheme.titleSmall?.copyWith(color: ManoColors.ink),
+          style: textTheme.titleSmall?.copyWith(color: context.palette.ink),
         ),
         if (ratingLabel != null || age != null)
           Row(

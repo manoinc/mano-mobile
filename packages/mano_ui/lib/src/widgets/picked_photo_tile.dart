@@ -30,9 +30,9 @@ class PickedPhotoTile extends StatelessWidget {
           child: Image(
             image: photo.image,
             fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => const ColoredBox(
-              color: ManoColors.stone,
-              child: Icon(Icons.image_outlined, color: ManoColors.faint),
+            errorBuilder: (context, error, stackTrace) => ColoredBox(
+              color: context.palette.stone,
+              child: Icon(Icons.image_outlined, color: context.palette.faint),
             ),
           ),
         ),
@@ -41,7 +41,7 @@ class PickedPhotoTile extends StatelessWidget {
           duration: ManoMotion.normal,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: ManoColors.ink.withValues(alpha: 0.45),
+              color: ManoColors.scrim.withValues(alpha: 0.45),
               borderRadius: BorderRadius.circular(ManoRadius.card),
             ),
             child: Center(
@@ -82,7 +82,7 @@ class PickedPhotoTile extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(ManoSpacing.xs),
                     decoration: BoxDecoration(
-                      color: ManoColors.ink.withValues(alpha: 0.6),
+                      color: ManoColors.scrim.withValues(alpha: 0.6),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(

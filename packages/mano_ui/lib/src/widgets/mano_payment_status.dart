@@ -30,8 +30,8 @@ class ManoPaymentStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final mark = switch (tone) {
-      ManoPaymentTone.waiting => ManoColors.clay,
-      ManoPaymentTone.done => ManoColors.ink,
+      ManoPaymentTone.waiting => context.palette.clay,
+      ManoPaymentTone.done => context.palette.ink,
       ManoPaymentTone.failed => theme.colorScheme.error,
     };
     final waiting = waitingLabel;
@@ -54,8 +54,8 @@ class ManoPaymentStatus extends StatelessWidget {
           Container(
             width: 56,
             height: 56,
-            decoration: const BoxDecoration(
-              color: ManoColors.sand,
+            decoration: BoxDecoration(
+              color: context.palette.sand,
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: mark, size: 28),
@@ -65,19 +65,21 @@ class ManoPaymentStatus extends StatelessWidget {
           const SizedBox(height: ManoSpacing.sm),
           Text(
             message,
-            style: theme.textTheme.bodyLarge?.copyWith(color: ManoColors.muted),
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: context.palette.muted,
+            ),
           ),
           if (tone == ManoPaymentTone.waiting && waiting != null) ...[
             const SizedBox(height: ManoSpacing.lg),
             Row(
               children: [
-                const ManoSpinner(size: 14, color: ManoColors.clay),
+                ManoSpinner(size: 14, color: context.palette.clay),
                 const SizedBox(width: ManoSpacing.sm),
                 Flexible(
                   child: Text(
                     waiting,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: ManoColors.faint,
+                      color: context.palette.faint,
                     ),
                   ),
                 ),

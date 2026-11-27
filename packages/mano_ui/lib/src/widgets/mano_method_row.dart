@@ -56,7 +56,7 @@ class ManoMethodRow extends StatelessWidget {
                   Text(
                     detail,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: ManoColors.faint,
+                      color: context.palette.faint,
                     ),
                   ),
               ],

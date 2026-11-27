@@ -18,6 +18,8 @@ export 'package:mano_data/mano_data.dart'
     show
         DiditLauncher,
         DiditOutcome,
+        AppearanceStore,
+        InMemoryAppearanceStore,
         InMemoryPasswordlessAuth,
         InMemorySessionRepository,
         InMemorySocialAuth,
@@ -35,6 +37,7 @@ export 'package:mano_data/mano_data.dart'
 export 'package:mano_domain/mano_domain.dart';
 
 export 'src/account/account_email.dart';
+export 'src/account/dark_mode.dart';
 export 'src/account/address_book_providers.dart';
 export 'src/account/client_profile_providers.dart';
 export 'src/account/notification_preferences.dart';

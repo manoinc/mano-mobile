@@ -28,11 +28,11 @@ class ManoPackOption extends StatelessWidget {
     return ManoPressScale(
       enabled: true,
       child: Material(
-        color: selected ? ManoColors.sand : Colors.transparent,
+        color: selected ? context.palette.sand : Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(ManoRadius.card),
           side: BorderSide(
-            color: selected ? ManoColors.ink : ManoColors.stone,
+            color: selected ? context.palette.ink : context.palette.stone,
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -52,7 +52,7 @@ class ManoPackOption extends StatelessWidget {
                         Text(
                           bonus,
                           style: textTheme.bodySmall?.copyWith(
-                            color: ManoColors.clay,
+                            color: context.palette.clay,
                           ),
                         ),
                     ],

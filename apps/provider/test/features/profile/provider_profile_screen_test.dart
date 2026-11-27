@@ -35,8 +35,11 @@ Future<ProviderContainer> _pump(
   String? subject = 'w1',
   IdentityVerificationPort? identity,
   List<String>? shared,
+  AppearanceStore? appearance,
 }) async {
+  appearance ??= InMemoryAppearanceStore();
   final overrides = [
+    appearanceStoreProvider.overrideWithValue(appearance),
     textSharerProvider.overrideWithValue((text) async => shared?.add(text)),
     if (profile != null)
       providerProfileRepositoryProvider.overrideWithValue(profile),
@@ -384,5 +387,17 @@ void main() {
       expect(find.text('Copiar código'), findsOneWidget);
       expect(find.text('Compartir mi código'), findsOneWidget);
     });
+  });
+
+  testWidgets('Modo oscuro switches the app dark and saves it', (tester) async {
+    final store = InMemoryAppearanceStore();
+    final c = await _pump(tester, appearance: store);
+
+    await _scrollTo(tester, 'Modo oscuro');
+    await tester.tap(find.text('Modo oscuro'));
+    await tester.pumpAndSettle();
+
+    expect(c.read(darkModeProvider), isTrue);
+    expect(await store.readDark(), isTrue);
   });
 }

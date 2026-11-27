@@ -59,7 +59,7 @@ class ManoBookingCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: ManoColors.muted,
+                        color: context.palette.muted,
                       ),
                     ),
                   ],
@@ -73,7 +73,7 @@ class ManoBookingCard extends StatelessWidget {
               Icon(
                 Icons.schedule_rounded,
                 size: 15,
-                color: ManoColors.faint,
+                color: context.palette.faint,
               ),
               const SizedBox(width: ManoSpacing.xs + 2),
               Expanded(
@@ -82,7 +82,7 @@ class ManoBookingCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: ManoColors.faint,
+                    color: context.palette.faint,
                   ),
                 ),
               ),

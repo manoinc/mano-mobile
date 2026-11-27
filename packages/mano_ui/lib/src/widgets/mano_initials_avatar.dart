@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../theme/mano_theme.dart';
-
 /// Somebody's face, before there is a photograph of it.
 ///
 /// Drawn rather than loaded: this package ships no images, and initials on a
@@ -26,7 +24,7 @@ class ManoInitialsAvatar extends StatelessWidget {
 
   /// Warm neighbours of the brand, none of them flame.
   static const List<Color> _palette = [
-    ManoColors.clay,
+    Color(0xFFC1602E),
     Color(0xFF8C5A3C),
     Color(0xFF9A4F2B),
     Color(0xFFB07C4A),

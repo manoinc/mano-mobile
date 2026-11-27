@@ -32,7 +32,7 @@ class BankStep extends StatelessWidget {
     onPrimary: onNext,
     onBack: onBack,
     child: switch (banks) {
-      AsyncData(:final value) => _list(value),
+      AsyncData(:final value) => _list(context, value),
       AsyncError() => ManoEmptyState(
         icon: Icons.cloud_off_outlined,
         message: 'No pudimos cargar los bancos',
@@ -43,19 +43,19 @@ class BankStep extends StatelessWidget {
     },
   );
 
-  Widget _list(List<Bank> banks) => Column(
+  Widget _list(BuildContext context, List<Bank> banks) => Column(
     children: [
       for (final bank in banks)
         ListTile(
           contentPadding: EdgeInsets.zero,
           title: Text(bank.name),
           selected: bank.code == selectedCode,
-          selectedColor: ManoColors.ink,
+          selectedColor: context.palette.ink,
           trailing: bank.code == selectedCode
               ? const Icon(Icons.check_circle, color: ManoColors.flame)
-              : const Icon(
+              : Icon(
                   Icons.radio_button_unchecked,
-                  color: ManoColors.stone,
+                  color: context.palette.stone,
                 ),
           onTap: () => onPick(bank.code),
         ),

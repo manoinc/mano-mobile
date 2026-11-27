@@ -10,13 +10,13 @@ enum ManoReceipt { sent, delivered, read }
 class ManoReceiptMark extends StatelessWidget {
   const ManoReceiptMark({
     required this.receipt,
-    this.color = ManoColors.stone,
+    this.color,
     this.size = 14,
     super.key,
   });
 
   final ManoReceipt receipt;
-  final Color color;
+  final Color? color;
   final double size;
 
   static const _overlap = 0.4;
@@ -43,7 +43,7 @@ class ManoReceiptMark extends StatelessWidget {
           painter: _ReceiptPainter(
             pair: receipt != ManoReceipt.sent,
             filled: receipt == ManoReceipt.read,
-            color: color,
+            color: color ?? context.palette.stone,
           ),
         ),
       ),

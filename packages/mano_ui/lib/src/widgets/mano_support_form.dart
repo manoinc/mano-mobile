@@ -44,7 +44,9 @@ class ManoSupportForm extends StatelessWidget {
       children: [
         Text(
           kindLabel,
-          style: theme.textTheme.labelMedium?.copyWith(color: ManoColors.faint),
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: context.palette.faint,
+          ),
         ),
         const SizedBox(height: ManoSpacing.sm),
         Wrap(

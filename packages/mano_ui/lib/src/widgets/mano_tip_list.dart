@@ -20,7 +20,7 @@ class ManoTipList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final body = Theme.of(context).textTheme.bodyLarge
-        ?.copyWith(color: ManoColors.muted);
+        ?.copyWith(color: context.palette.muted);
     final strong = TextStyle(
       color: Theme.of(context).colorScheme.onSurface,
       fontWeight: FontWeight.w600,

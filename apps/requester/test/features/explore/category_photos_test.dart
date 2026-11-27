@@ -18,10 +18,10 @@ void main() {
     }
   });
 
-  test('an unknown category falls back to its icon', () {
-    final photo = categoryPhoto('roofing');
+  testWidgets('an unknown category falls back to its icon', (tester) async {
+    await tester.pumpWidget(MaterialApp(home: categoryPhoto('roofing')));
 
-    expect(photo, isA<ColoredBox>());
-    expect((photo as ColoredBox).child, isA<Icon>());
+    expect(find.byType(Icon), findsOneWidget);
+    expect(find.byType(Image), findsNothing);
   });
 }

@@ -50,10 +50,10 @@ class ChatPhotoBlock extends StatelessWidget {
       image: photos[i],
       fit: BoxFit.cover,
       gaplessPlayback: true,
-      errorBuilder: (context, error, stackTrace) => const ColoredBox(
-        color: ManoColors.stone,
+      errorBuilder: (context, error, stackTrace) => ColoredBox(
+        color: context.palette.stone,
         child: Center(
-          child: Icon(Icons.image_outlined, color: ManoColors.faint),
+          child: Icon(Icons.image_outlined, color: context.palette.faint),
         ),
       ),
     );
@@ -79,7 +79,7 @@ class ChatPhotoBlock extends StatelessWidget {
                 opacity: status == ManoPhotoStatus.done ? 0 : 1,
                 duration: ManoMotion.normal,
                 child: ColoredBox(
-                  color: ManoColors.ink.withValues(alpha: 0.45),
+                  color: ManoColors.scrim.withValues(alpha: 0.45),
                   child: Center(
                     child: switch (status) {
                       ManoPhotoStatus.uploading => const ManoSpinner(

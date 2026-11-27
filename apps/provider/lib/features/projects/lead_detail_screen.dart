@@ -132,7 +132,7 @@ class _Quoted extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: ManoColors.sand,
+        color: context.palette.sand,
         borderRadius: BorderRadius.circular(ManoRadius.pill),
       ),
       child: Padding(
@@ -168,7 +168,7 @@ class _QuoteBody extends StatelessWidget {
         const SizedBox(height: ManoSpacing.xs),
         Text(
           awardedQuoteLine(quote),
-          style: textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
+          style: textTheme.bodyMedium?.copyWith(color: context.palette.muted),
         ),
         if (contact != null && !contact.isEmpty) ...[
           const SizedBox(height: ManoSpacing.lg),
@@ -201,14 +201,16 @@ class _Body extends StatelessWidget {
         Text(
           '${ServiceCategories.labelOf(project.category)} · Publicado '
           '${ManoFormat.ago(project.createdAt, DateTime.now())}',
-          style: textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
+          style: textTheme.bodyMedium?.copyWith(color: context.palette.muted),
         ),
         const SizedBox(height: ManoSpacing.md),
         Row(
           children: [
             Text(
               'Presupuesto del cliente',
-              style: textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
+              style: textTheme.bodyMedium?.copyWith(
+                color: context.palette.muted,
+              ),
             ),
             const SizedBox(width: ManoSpacing.sm),
             Text(

@@ -37,6 +37,7 @@ class ManoBottomNavBar extends StatelessWidget {
   /// action button is not one of [items] and never affects this index.
   final int currentIndex;
   final ValueChanged<int> onTap;
+
   /// The raised centre action; omitted, the items spread evenly.
   final VoidCallback? onActionTap;
 
@@ -71,7 +72,7 @@ class ManoBottomNavBar extends StatelessWidget {
   Widget _sideItem(BuildContext context, int index) {
     final item = items[index];
     final selected = index == currentIndex;
-    final color = selected ? ManoColors.flame : ManoColors.faint;
+    final color = selected ? ManoColors.flame : context.palette.faint;
 
     return _TappableNavItem(
       onTap: () => onTap(index),

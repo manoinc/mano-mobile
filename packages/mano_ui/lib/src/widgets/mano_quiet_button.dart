@@ -34,8 +34,8 @@ class ManoQuietButton extends StatelessWidget {
       style: TextButton.styleFrom(
         minimumSize: const Size.fromHeight(48),
         shape: const StadiumBorder(),
-        foregroundColor: ManoColors.clay,
-        disabledForegroundColor: ManoColors.faint,
+        foregroundColor: context.palette.clay,
+        disabledForegroundColor: context.palette.faint,
         textStyle: theme.textTheme.labelLarge,
       ),
       child: Opacity(opacity: enabled ? 1 : 0.6, child: Text(label)),

@@ -67,7 +67,9 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
             children: [
               Text(
                 answer,
-                style: textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
+                style: textTheme.bodyMedium?.copyWith(
+                  color: context.palette.muted,
+                ),
               ),
             ],
           ),

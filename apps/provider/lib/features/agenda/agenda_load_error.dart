@@ -21,7 +21,7 @@ class AgendaLoadError extends StatelessWidget {
           Text(
             message,
             style: Theme.of(context).textTheme.bodyLarge
-                ?.copyWith(color: ManoColors.muted),
+                ?.copyWith(color: context.palette.muted),
           ),
           const SizedBox(height: ManoSpacing.sm),
           ManoQuietButton(label: 'Reintentar', onPressed: onRetry),

@@ -30,9 +30,9 @@ class SceneCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: ManoColors.sand,
+        color: context.palette.sand,
         borderRadius: BorderRadius.circular(ManoRadius.card),
-        border: Border.all(color: ManoColors.stone),
+        border: Border.all(color: context.palette.stone),
       ),
       child: Padding(
         padding: const EdgeInsets.all(ManoSpacing.md),
@@ -63,15 +63,19 @@ class SceneChip extends StatelessWidget {
     final background = hot
         ? ManoColors.flame
         : dark
-        ? ManoColors.ink
-        : Colors.white;
-    final foreground = filled ? Colors.white : ManoColors.ink;
+        ? context.palette.ink
+        : context.palette.paper;
+    final foreground = hot
+        ? Colors.white
+        : dark
+        ? context.palette.paper
+        : context.palette.ink;
 
     return DecoratedBox(
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(ManoRadius.pill),
-        border: filled ? null : Border.all(color: ManoColors.stone),
+        border: filled ? null : Border.all(color: context.palette.stone),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(

@@ -42,7 +42,7 @@ class _EarningsSectionState extends ConsumerState<EarningsSection> {
           ),
           Text(
             payoutLine(summary.nextPayout),
-            style: text.bodyMedium?.copyWith(color: ManoColors.muted),
+            style: text.bodyMedium?.copyWith(color: context.palette.muted),
           ),
           const SizedBox(height: ManoSpacing.md),
           ManoBarChart(

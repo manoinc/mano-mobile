@@ -31,7 +31,7 @@ class ManoSectionHeader extends StatelessWidget {
             children: [
               Flexible(child: label),
               const SizedBox(width: ManoSpacing.xs),
-              const Icon(Icons.chevron_right, color: ManoColors.ink),
+              Icon(Icons.chevron_right, color: context.palette.ink),
             ],
           ),
         ),

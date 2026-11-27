@@ -43,10 +43,25 @@ abstract final class ManoTypography {
   static TextTheme textTheme() => TextTheme(
     // Reserved for the brand: the wordmark, and a hero's opening line.
     displayLarge: _style(44, extraBold, tracking: _headlineTracking, height: 1),
-    displayMedium: _style(38, extraBold, tracking: _headlineTracking, height: 1),
-    displaySmall: _style(32, extraBold, tracking: _headlineTracking, height: 1.05),
+    displayMedium: _style(
+      38,
+      extraBold,
+      tracking: _headlineTracking,
+      height: 1,
+    ),
+    displaySmall: _style(
+      32,
+      extraBold,
+      tracking: _headlineTracking,
+      height: 1.05,
+    ),
 
-    headlineLarge: _style(30, extraBold, tracking: _headlineTracking, height: 1.1),
+    headlineLarge: _style(
+      30,
+      extraBold,
+      tracking: _headlineTracking,
+      height: 1.1,
+    ),
     headlineMedium: _style(27, semiBold, tracking: _titleTracking, height: 1.2),
     headlineSmall: _style(24, semiBold, tracking: _titleTracking, height: 1.2),
 

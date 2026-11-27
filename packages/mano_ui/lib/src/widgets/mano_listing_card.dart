@@ -56,10 +56,10 @@ class ManoListingCard extends StatelessWidget {
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, progress) {
                       if (progress == null) return child;
-                      return ColoredBox(color: ManoColors.stone);
+                      return ColoredBox(color: context.palette.stone);
                     },
                     errorBuilder: (context, error, stackTrace) =>
-                        ColoredBox(color: ManoColors.stone),
+                        ColoredBox(color: context.palette.stone),
                   ),
                   Positioned(
                     left: ManoSpacing.sm,
@@ -124,9 +124,8 @@ class ManoListingCard extends StatelessWidget {
                     title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: scheme.onSurface),
+                    style: Theme.of(context).textTheme.bodyMedium
+                        ?.copyWith(color: scheme.onSurface),
                   ),
                 ],
               ),

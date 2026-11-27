@@ -28,6 +28,7 @@ class ClientContactSection extends ConsumerWidget {
         const ManoSectionHeader(title: 'Contacto del cliente'),
         if (phone != null) ...[
           _row(
+            context,
             Icons.call_outlined,
             phone,
             'Celular',
@@ -35,6 +36,7 @@ class ClientContactSection extends ConsumerWidget {
             () => open(phoneCallUri(phone)),
           ),
           _row(
+            context,
             Icons.chat_bubble_outline,
             'WhatsApp',
             phone,
@@ -44,6 +46,7 @@ class ClientContactSection extends ConsumerWidget {
         ],
         if (email != null)
           _row(
+            context,
             Icons.mail_outline,
             email,
             'Correo',
@@ -55,6 +58,7 @@ class ClientContactSection extends ConsumerWidget {
   }
 
   Widget _row(
+    BuildContext context,
     IconData icon,
     String title,
     String status,
@@ -63,7 +67,7 @@ class ClientContactSection extends ConsumerWidget {
   ) => Padding(
     padding: const EdgeInsets.only(top: ManoSpacing.md),
     child: ManoIntegrationRow(
-      leading: Icon(icon, color: ManoColors.muted),
+      leading: Icon(icon, color: context.palette.muted),
       title: title,
       status: status,
       actionLabel: action,

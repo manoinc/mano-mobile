@@ -34,18 +34,15 @@ class MyServicesScreen extends ConsumerWidget {
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: ManoSpacing.md,
               ),
-              leading: const Icon(
+              leading: Icon(
                 Icons.add_circle_outline,
-                color: ManoColors.muted,
+                color: context.palette.muted,
               ),
               title: Text('Nueva oferta', style: textTheme.bodyLarge),
-              trailing: const Icon(
-                Icons.chevron_right,
-                color: ManoColors.faint,
-              ),
+              trailing: Icon(Icons.chevron_right, color: context.palette.faint),
               onTap: () => _open(context, ref, '/profile/services/new'),
             ),
-            const Divider(color: ManoColors.stone, height: 1),
+            Divider(color: context.palette.stone, height: 1),
             const SizedBox(height: ManoSpacing.md),
             Expanded(
               child: ManoPullToRefresh(

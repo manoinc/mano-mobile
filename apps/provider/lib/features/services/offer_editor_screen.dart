@@ -207,7 +207,7 @@ class _OfferEditorScreenState extends ConsumerState<OfferEditorScreen> {
   List<Widget> _picker(String? selectedId) {
     final results = ref.watch(serviceSearchProvider(_query));
     final faint = Theme.of(context).textTheme.bodyMedium
-        ?.copyWith(color: ManoColors.faint);
+        ?.copyWith(color: context.palette.faint);
 
     return [
       ManoSearchField(
@@ -239,9 +239,9 @@ class _OfferEditorScreenState extends ConsumerState<OfferEditorScreen> {
                             Icons.check_circle,
                             color: ManoColors.flame,
                           )
-                        : const Icon(
+                        : Icon(
                             Icons.radio_button_unchecked,
-                            color: ManoColors.stone,
+                            color: context.palette.stone,
                           ),
                     onTap: () => _editor.selectService(s.id),
                   ),

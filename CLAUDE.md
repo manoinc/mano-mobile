@@ -91,8 +91,9 @@ The UI in the app must be minimalist, easy to use and simple. Our biggest refere
 
 ### Branding
 
-Defined once in `packages/mano_ui/lib/src/theme/mano_theme.dart`. Take colours
-from `ManoColors`; never hard-code a hex in a screen.
+Defined once in `packages/mano_ui/lib/src/theme/mano_theme.dart`. Read colours
+through `context.palette` (light and dark values, `docs/brand/colour.md`); never
+hard-code a hex in a screen. Light is the default; dark is an in-app switch only.
 
     flame  #ff4a1c   the one hot surface — one primary action per screen
     clay   #c1602e   links, secondary emphasis

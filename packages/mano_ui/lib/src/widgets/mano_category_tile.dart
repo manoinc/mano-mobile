@@ -44,7 +44,7 @@ class ManoCategoryTile extends StatelessWidget {
                       style: _fitLongestWord(
                         label,
                         Theme.of(context).textTheme.labelMedium!
-                            .copyWith(color: ManoColors.ink),
+                            .copyWith(color: context.palette.ink),
                         constraints.maxWidth,
                         MediaQuery.textScalerOf(context),
                       ),

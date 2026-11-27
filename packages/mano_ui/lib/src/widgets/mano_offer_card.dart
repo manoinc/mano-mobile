@@ -108,10 +108,10 @@ class ManoOfferCard extends StatelessWidget {
                 const SizedBox(height: ManoSpacing.md),
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.place_outlined,
                       size: 15,
-                      color: ManoColors.faint,
+                      color: context.palette.faint,
                     ),
                     const SizedBox(width: ManoSpacing.xs),
                     Expanded(
@@ -120,7 +120,7 @@ class ManoOfferCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: ManoColors.faint,
+                          color: context.palette.faint,
                         ),
                       ),
                     ),
@@ -165,7 +165,7 @@ class _Byline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).textTheme.bodySmall
-        ?.copyWith(color: ManoColors.muted);
+        ?.copyWith(color: context.palette.muted);
     return Row(
       children: [
         if (ratingLabel case final rating?) ...[

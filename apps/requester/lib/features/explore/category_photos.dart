@@ -14,9 +14,11 @@ const _photographed = {
 
 /// The category's photo, or its icon on stone when there is no photo.
 Widget categoryPhoto(String id) {
-  final fallback = ColoredBox(
-    color: ManoColors.stone,
-    child: Icon(categoryIcon(id), color: ManoColors.faint),
+  final fallback = Builder(
+    builder: (context) => ColoredBox(
+      color: context.palette.stone,
+      child: Icon(categoryIcon(id), color: context.palette.faint),
+    ),
   );
   if (!_photographed.contains(id)) return fallback;
   return Image.asset(

@@ -29,7 +29,9 @@ Future<bool?> showInsufficientCoinsSheet(
             Text(
               'Este contacto cuesta ${coinsLabel(needed)} y tienes '
               '${coinsLabel(available)}. Recarga para comprarlo.',
-              style: textTheme.bodyLarge?.copyWith(color: ManoColors.muted),
+              style: textTheme.bodyLarge?.copyWith(
+                color: context.palette.muted,
+              ),
             ),
             const SizedBox(height: ManoSpacing.lg),
             ManoPrimaryButton(

@@ -34,7 +34,7 @@ class PayoutSummary extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(ManoSpacing.md),
                 decoration: BoxDecoration(
-                  color: ManoColors.sand,
+                  color: context.palette.sand,
                   borderRadius: BorderRadius.circular(ManoRadius.card),
                 ),
                 child: Row(
@@ -44,9 +44,9 @@ class PayoutSummary extends StatelessWidget {
                         final String asset => Image.asset(asset),
                         null => null,
                       },
-                      fallback: const Icon(
+                      fallback: Icon(
                         Icons.account_balance_outlined,
-                        color: ManoColors.clay,
+                        color: context.palette.clay,
                       ),
                     ),
                     const SizedBox(width: ManoSpacing.md),
@@ -61,14 +61,14 @@ class PayoutSummary extends StatelessWidget {
                           Text(
                             destinationDetail(destination),
                             style: text.bodyMedium?.copyWith(
-                              color: ManoColors.muted,
+                              color: context.palette.muted,
                             ),
                           ),
                           const SizedBox(height: ManoSpacing.xs),
                           Text(
                             holderLine(account.holder),
                             style: text.bodySmall?.copyWith(
-                              color: ManoColors.faint,
+                              color: context.palette.faint,
                             ),
                           ),
                         ],
@@ -80,7 +80,7 @@ class PayoutSummary extends StatelessWidget {
               const SizedBox(height: ManoSpacing.md),
               Text(
                 'Aquí te pagamos lo que ganas con tus trabajos.',
-                style: text.bodySmall?.copyWith(color: ManoColors.faint),
+                style: text.bodySmall?.copyWith(color: context.palette.faint),
               ),
               const Spacer(),
               ManoPrimaryButton(label: 'Cambiar cuenta', onPressed: onChange),

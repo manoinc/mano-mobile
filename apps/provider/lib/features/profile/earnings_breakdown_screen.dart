@@ -31,7 +31,9 @@ class EarningsBreakdownScreen extends ConsumerWidget {
                 ),
                 Text(
                   payoutLine(summary.nextPayout),
-                  style: text.bodyMedium?.copyWith(color: ManoColors.muted),
+                  style: text.bodyMedium?.copyWith(
+                    color: context.palette.muted,
+                  ),
                 ),
                 const SizedBox(height: ManoSpacing.lg),
                 Text('Trabajos pagados', style: text.titleLarge),
@@ -62,7 +64,7 @@ class _PaidJobRow extends StatelessWidget {
                 Text(job.title, style: text.titleSmall),
                 Text(
                   '${job.client} · ${ManoFormat.dayMonth(job.paidAt)}',
-                  style: text.bodySmall?.copyWith(color: ManoColors.faint),
+                  style: text.bodySmall?.copyWith(color: context.palette.faint),
                 ),
               ],
             ),
