@@ -21,6 +21,8 @@ Future<void> main() async {
     widgetsBinding: WidgetsFlutterBinding.ensureInitialized(),
   );
 
+  final darkMode = await loadSavedDarkMode();
+
   await runWithErrorReporting(
     config: providerConfig,
     release: 'mano-provider@$providerAppVersion',
@@ -32,6 +34,7 @@ Future<void> main() async {
         // failing much later with an audience rejection nobody can explain.
         overrides: [
           manoConfigProvider.overrideWithValue(providerConfig),
+          initialDarkModeProvider.overrideWithValue(darkMode),
           diditLauncherProvider.overrideWithValue(const DiditSdkLauncher()),
         ],
         child: const ProviderApp(),

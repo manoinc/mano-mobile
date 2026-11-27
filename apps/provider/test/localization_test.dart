@@ -72,9 +72,7 @@ void main() {
           installReferrerSourceProvider.overrideWithValue(
             const NoInstallReferrer(),
           ),
-          appearanceStoreProvider.overrideWithValue(
-            InMemoryAppearanceStore(dark: true),
-          ),
+          initialDarkModeProvider.overrideWithValue(true),
           sessionRepositoryProvider.overrideWithValue(
             FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
           ),

@@ -6,31 +6,32 @@ final appearanceStoreProvider = Provider<AppearanceStore>(
   (ref) => const SecureAppearanceStore(),
 );
 
-/// Whether the app draws dark; light unless the user switched it in the app.
-final class DarkModeNotifier extends Notifier<bool> {
-  bool _touched = false;
+/// The saved choice, loaded in `main` so the first frame is already right.
+final initialDarkModeProvider = Provider<bool>((ref) => false);
 
-  @override
-  bool build() {
-    _restore();
+/// Reads the saved choice for [initialDarkModeProvider]; light when unreadable.
+Future<bool> loadSavedDarkMode([
+  AppearanceStore store = const SecureAppearanceStore(),
+]) async {
+  try {
+    return await store.readDark();
+  } on Object {
     return false;
   }
+}
 
-  Future<void> _restore() async {
-    final bool dark;
-    try {
-      dark = await ref.read(appearanceStoreProvider).readDark();
-    } on Object {
-      return; // Unreadable storage keeps the light default.
-    }
-    // A switch made while reading wins over the stored value.
-    if (!_touched) state = dark;
-  }
+/// Whether the app draws dark; light unless the user switched it in the app.
+final class DarkModeNotifier extends Notifier<bool> {
+  @override
+  bool build() => ref.read(initialDarkModeProvider);
 
-  Future<void> set(bool dark) {
-    _touched = true;
+  Future<void> set(bool dark) async {
     state = dark;
-    return ref.read(appearanceStoreProvider).writeDark(dark);
+    try {
+      await ref.read(appearanceStoreProvider).writeDark(dark);
+    } on Object {
+      // A failed save only loses the choice on the next launch.
+    }
   }
 }
 

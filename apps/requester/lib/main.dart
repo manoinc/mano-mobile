@@ -17,6 +17,8 @@ Future<void> main() async {
     widgetsBinding: WidgetsFlutterBinding.ensureInitialized(),
   );
 
+  final darkMode = await loadSavedDarkMode();
+
   await runWithErrorReporting(
     config: requesterConfig,
     release: 'mano-requester@$requesterAppVersion',
@@ -26,7 +28,10 @@ Future<void> main() async {
         // has no default on purpose: an app that forgot to override it fails
         // loudly at startup rather than authenticating as the wrong client and
         // failing much later with an audience rejection nobody can explain.
-        overrides: [manoConfigProvider.overrideWithValue(requesterConfig)],
+        overrides: [
+          manoConfigProvider.overrideWithValue(requesterConfig),
+          initialDarkModeProvider.overrideWithValue(darkMode),
+        ],
         child: const RequesterApp(),
       ),
     ),

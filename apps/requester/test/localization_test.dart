@@ -60,9 +60,7 @@ void main() {
         overrides: [
           offlineMarketplaceProvider.overrideWithValue(true),
           manoConfigProvider.overrideWithValue(testConfig),
-          appearanceStoreProvider.overrideWithValue(
-            InMemoryAppearanceStore(dark: true),
-          ),
+          initialDarkModeProvider.overrideWithValue(true),
           sessionRepositoryProvider.overrideWithValue(
             FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
           ),

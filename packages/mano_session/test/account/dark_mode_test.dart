@@ -2,25 +2,39 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mano_session/mano_session.dart';
 
-ProviderContainer _container(AppearanceStore store) => ProviderContainer(
-  overrides: [appearanceStoreProvider.overrideWithValue(store)],
-);
+final class _Failing implements AppearanceStore {
+  @override
+  Future<bool> readDark() async => throw StateError('keystore');
+
+  @override
+  Future<void> writeDark(bool dark) async => throw StateError('keystore');
+}
+
+ProviderContainer _container(AppearanceStore store, {bool initial = false}) =>
+    ProviderContainer(
+      overrides: [
+        appearanceStoreProvider.overrideWithValue(store),
+        initialDarkModeProvider.overrideWithValue(initial),
+      ],
+    );
 
 void main() {
-  test('light by default', () async {
+  test('light by default', () {
     final c = _container(InMemoryAppearanceStore());
     addTearDown(c.dispose);
     expect(c.read(darkModeProvider), isFalse);
-    await pumpEventQueue();
-    expect(c.read(darkModeProvider), isFalse);
   });
 
-  test('restores the saved choice', () async {
-    final c = _container(InMemoryAppearanceStore(dark: true));
+  test('starts with the choice loaded before the first frame', () async {
+    final store = InMemoryAppearanceStore(dark: true);
+    expect(await loadSavedDarkMode(store), isTrue);
+    final c = _container(store, initial: true);
     addTearDown(c.dispose);
-    c.read(darkModeProvider);
-    await pumpEventQueue();
     expect(c.read(darkModeProvider), isTrue);
+  });
+
+  test('unreadable storage loads light', () async {
+    expect(await loadSavedDarkMode(_Failing()), isFalse);
   });
 
   test('switching saves the choice', () async {
@@ -32,12 +46,10 @@ void main() {
     expect(await store.readDark(), isTrue);
   });
 
-  test('a late restore does not undo a switch made meanwhile', () async {
-    final c = _container(InMemoryAppearanceStore(dark: false));
+  test('a failed save keeps the switch and does not throw', () async {
+    final c = _container(_Failing());
     addTearDown(c.dispose);
-    final switching = c.read(darkModeProvider.notifier).set(true);
-    await pumpEventQueue();
-    await switching;
+    await c.read(darkModeProvider.notifier).set(true);
     expect(c.read(darkModeProvider), isTrue);
   });
 }
