@@ -53,7 +53,7 @@ class ManoReferralCard extends StatelessWidget {
                           Text(
                             title,
                             style: text.titleLarge?.copyWith(
-                              color: context.palette.paper,
+                              color: context.palette.sand,
                             ),
                           ),
                           const SizedBox(height: ManoSpacing.xs),

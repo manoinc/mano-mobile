@@ -81,11 +81,6 @@ abstract final class ManoTheme {
   static ThemeData _build(Brightness brightness) {
     final isLight = brightness == Brightness.light;
 
-    // Seeded schemes harmonise a whole palette from one colour, which is right
-    // for the incidental surfaces. But the brand's own values are then pinned
-    // back over the roles that carry it: a tonally-derived orange is not the
-    // orange on the landing page or the login screen, and the near-miss is
-    // more noticeable than a mismatch would be.
     final p = isLight ? ManoPalette.light : ManoPalette.dark;
 
     // Seeded schemes harmonise a whole palette from one colour, which is right
@@ -97,11 +92,11 @@ abstract final class ManoTheme {
         .copyWith(
           primary: ManoColors.flame,
           onPrimary: Colors.white,
-          secondary: p.clay,
+          secondary: isLight ? null : p.clay,
           surface: p.paper,
           onSurface: p.ink,
           onSurfaceVariant: p.muted,
-          outline: p.faint,
+          outline: isLight ? null : p.faint,
           outlineVariant: p.stone,
           surfaceTint: Colors.transparent,
           surfaceContainerLowest: p.paper,
@@ -117,8 +112,8 @@ abstract final class ManoTheme {
           onTertiaryContainer: isLight
               ? const Color(0xFF6B3A1B)
               : const Color(0xFFEBCDB4),
-          inverseSurface: p.ink,
-          onInverseSurface: p.paper,
+          inverseSurface: isLight ? null : p.ink,
+          onInverseSurface: isLight ? null : p.paper,
         );
 
     return ThemeData(

@@ -102,7 +102,7 @@ Future<T?> showManoDialog<T>({
     context: context,
     barrierDismissible: barrierDismissible,
     barrierLabel: 'Cerrar',
-    barrierColor: context.palette.ink.withValues(alpha: 0.45),
+    barrierColor: ManoColors.scrim.withValues(alpha: 0.45),
     transitionDuration: still ? Duration.zero : ManoMotion.normal,
     pageBuilder: (context, animation, secondaryAnimation) => builder(context),
     transitionBuilder: (context, animation, secondaryAnimation, child) {

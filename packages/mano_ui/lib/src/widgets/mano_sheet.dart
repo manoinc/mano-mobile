@@ -230,7 +230,7 @@ Future<T?> showManoSheet<T>({
     isScrollControlled: true,
     useRootNavigator: true,
     backgroundColor: Theme.of(context).colorScheme.surface,
-    barrierColor: context.palette.ink.withValues(alpha: 0.45),
+    barrierColor: ManoColors.scrim.withValues(alpha: 0.45),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(ManoRadius.lg)),
     ),
