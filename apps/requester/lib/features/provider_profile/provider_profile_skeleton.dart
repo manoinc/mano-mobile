@@ -45,7 +45,7 @@ class _Block extends StatelessWidget {
     width: width,
     height: height,
     decoration: BoxDecoration(
-      color: ManoColors.stone,
+      color: context.palette.stone,
       borderRadius: BorderRadius.circular(
         round ? ManoRadius.pill : ManoRadius.card,
       ),

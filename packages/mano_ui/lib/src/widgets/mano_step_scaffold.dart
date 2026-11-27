@@ -111,7 +111,7 @@ class ManoStepScaffold extends StatelessWidget {
                       Text(
                         subhead!,
                         style: theme.textTheme.bodyLarge?.copyWith(
-                          color: ManoColors.muted,
+                          color: context.palette.muted,
                         ),
                       ),
                     ],
@@ -161,7 +161,7 @@ class _ProgressBar extends StatelessWidget {
           minHeight: 3,
           borderRadius: BorderRadius.circular(ManoRadius.pill),
           color: ManoColors.flame,
-          backgroundColor: ManoColors.stone,
+          backgroundColor: context.palette.stone,
         ),
       ),
     );

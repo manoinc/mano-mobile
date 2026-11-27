@@ -36,7 +36,7 @@ class PurchaseForm extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final caption = theme.textTheme.labelMedium?.copyWith(
-      color: ManoColors.faint,
+      color: context.palette.faint,
     );
     final packs = ref.watch(coinPacksProvider).value ?? const <CoinPack>[];
     final terms = ref.watch(checkoutTermsProvider).value ?? const [];

@@ -94,7 +94,7 @@ class ManoSignInLayout extends StatelessWidget {
                       Text(
                         message,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: ManoColors.muted,
+                          color: context.palette.muted,
                         ),
                       ),
                     ],
@@ -147,7 +147,7 @@ class ManoSignInLayout extends StatelessWidget {
                         label,
                         textAlign: TextAlign.center,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: ManoColors.muted,
+                          color: context.palette.muted,
                         ),
                       ),
                       const SizedBox(height: ManoSpacing.md),

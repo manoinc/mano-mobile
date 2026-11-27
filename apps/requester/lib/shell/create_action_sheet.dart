@@ -49,7 +49,7 @@ class CreateActionSheet extends StatelessWidget {
               'Publica un proyecto y recibe cotizaciones de profesionales '
               'cerca de ti.',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: ManoColors.muted,
+                color: context.palette.muted,
               ),
             ),
             const SizedBox(height: ManoSpacing.lg),
@@ -80,7 +80,7 @@ class CreateActionSheet extends StatelessWidget {
             Text(
               'Es gratis. Te avisamos cuando lleguen cotizaciones.',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: ManoColors.faint,
+                color: context.palette.faint,
               ),
             ),
           ],

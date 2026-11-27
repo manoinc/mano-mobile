@@ -38,7 +38,7 @@ class ManoChatHeader extends StatelessWidget {
         ),
         if (verified) ...[
           const SizedBox(width: ManoSpacing.xs),
-          const Icon(Icons.verified, size: 16, color: ManoColors.clay),
+          Icon(Icons.verified, size: 16, color: context.palette.clay),
         ],
       ],
     );

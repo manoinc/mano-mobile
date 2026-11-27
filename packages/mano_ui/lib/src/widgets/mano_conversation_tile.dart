@@ -69,10 +69,10 @@ class ManoConversationTile extends StatelessWidget {
                       ),
                       if (verified) ...[
                         const SizedBox(width: ManoSpacing.xs),
-                        const Icon(
+                        Icon(
                           Icons.verified,
                           size: 16,
-                          color: ManoColors.clay,
+                          color: context.palette.clay,
                         ),
                       ],
                     ],
@@ -96,7 +96,9 @@ class ManoConversationTile extends StatelessWidget {
               children: [
                 Text(
                   timestampLabel,
-                  style: textTheme.labelSmall?.copyWith(color: ManoColors.faint),
+                  style: textTheme.labelSmall?.copyWith(
+                    color: context.palette.faint,
+                  ),
                 ),
                 if (unreadCount > 0) ...[
                   const SizedBox(height: ManoSpacing.xs),
@@ -109,12 +111,16 @@ class ManoConversationTile extends StatelessWidget {
                     ),
                     decoration: const BoxDecoration(
                       color: ManoColors.flame,
-                      borderRadius: BorderRadius.all(Radius.circular(ManoRadius.pill)),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(ManoRadius.pill),
+                      ),
                     ),
                     child: Text(
                       '$unreadCount',
                       textAlign: TextAlign.center,
-                      style: textTheme.labelSmall?.copyWith(color: Colors.white),
+                      style: textTheme.labelSmall?.copyWith(
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],

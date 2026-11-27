@@ -38,18 +38,19 @@ Future<void> main() async {
 /// Where to go -- carousel, sign-in, registration, browsing, or the nav
 /// shell -- is [ManoRoot]'s business, including the opening animation and
 /// crash handling. This widget only supplies the theme.
-class RequesterApp extends StatelessWidget {
+class RequesterApp extends ConsumerWidget {
   const RequesterApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: 'Mano',
       debugShowCheckedModeBanner: false,
       builder: (context, child) => ManoKeyboardRestorer(child: child!),
       theme: ManoTheme.light(),
-      // Light always: the phone's dark mode must not reach the app.
-      themeMode: ThemeMode.light,
+      darkTheme: ManoTheme.dark(),
+      // The app's own switch decides; the phone's dark mode never does.
+      themeMode: ref.watch(darkModeProvider) ? ThemeMode.dark : ThemeMode.light,
       locale: const Locale('es', 'CO'),
       supportedLocales: const [Locale('es', 'CO')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,

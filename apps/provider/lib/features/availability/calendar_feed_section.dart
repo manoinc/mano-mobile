@@ -86,8 +86,8 @@ class _CalendarFeedSectionState extends ConsumerState<CalendarFeedSection> {
         ),
         const SizedBox(height: ManoSpacing.sm),
         DecoratedBox(
-          decoration: const BoxDecoration(
-            color: ManoColors.sand,
+          decoration: BoxDecoration(
+            color: context.palette.sand,
             borderRadius: BorderRadius.all(Radius.circular(ManoRadius.card)),
           ),
           child: Padding(
@@ -109,14 +109,14 @@ class _CalendarFeedSectionState extends ConsumerState<CalendarFeedSection> {
     VoidCallback? more,
   }) {
     return ManoIntegrationRow(
-      leading: const DecoratedBox(
+      leading: DecoratedBox(
         decoration: BoxDecoration(
-          color: ManoColors.sand,
+          color: context.palette.sand,
           borderRadius: BorderRadius.all(Radius.circular(ManoRadius.card)),
         ),
         child: SizedBox.square(
           dimension: 44,
-          child: Icon(Icons.calendar_month, color: ManoColors.muted),
+          child: Icon(Icons.calendar_month, color: context.palette.muted),
         ),
       ),
       title: 'Google Calendar',

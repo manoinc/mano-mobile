@@ -82,7 +82,7 @@ class _DayToggle extends StatelessWidget {
           child: Text(
             letter,
             style: theme.textTheme.labelLarge?.copyWith(
-              color: selected ? scheme.surface : ManoColors.muted,
+              color: selected ? scheme.surface : context.palette.muted,
             ),
           ),
         ),

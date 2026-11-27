@@ -88,10 +88,10 @@ class _ManoImageViewerState extends State<ManoImageViewer> {
     Widget photo = Image(
       image: widget.image,
       fit: BoxFit.contain,
-      errorBuilder: (context, error, stackTrace) => const Icon(
+      errorBuilder: (context, error, stackTrace) => Icon(
         Icons.broken_image_outlined,
         size: 48,
-        color: ManoColors.faint,
+        color: context.palette.faint,
       ),
     );
     if (widget.heroTag case final tag?) photo = Hero(tag: tag, child: photo);

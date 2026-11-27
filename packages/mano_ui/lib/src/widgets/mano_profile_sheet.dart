@@ -66,7 +66,7 @@ class ManoProfileSheet extends StatelessWidget {
                 ),
                 if (verified) ...[
                   const SizedBox(width: ManoSpacing.xs),
-                  const Icon(Icons.verified, size: 20, color: ManoColors.clay),
+                  Icon(Icons.verified, size: 20, color: context.palette.clay),
                 ],
               ],
             ),
@@ -84,7 +84,7 @@ class ManoProfileSheet extends StatelessWidget {
                   Text(
                     rating,
                     style: textTheme.bodyMedium?.copyWith(
-                      color: ManoColors.muted,
+                      color: context.palette.muted,
                     ),
                   ),
                 ],
@@ -120,7 +120,7 @@ class _FactRow extends StatelessWidget {
         children: [
           Text(
             fact.label,
-            style: textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
+            style: textTheme.bodyMedium?.copyWith(color: context.palette.muted),
           ),
           const SizedBox(width: ManoSpacing.md),
           Expanded(

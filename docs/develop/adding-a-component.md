@@ -12,7 +12,7 @@ otherwise keep it private to the feature.
 - **Inputs are strings, booleans, numbers, callbacks and `Widget` slots.** Never a
   domain type. `mano_ui` can't import `mano_domain`, and `dart analyze` fails if
   you try.
-- **Tokens only:** `ManoColors`, `ManoSpacing`, `ManoRadius`, `ManoMotion`, and
+- **Tokens only:** `context.palette` (never a mode-dependent `ManoColors`), `ManoSpacing`, `ManoRadius`, `ManoMotion`, and
   text from `Theme.of(context).textTheme`.
 - **No images in `mano_ui`.** Take a `Widget` slot instead.
 - **Must not overflow at 360 dp or at 2× text.** Prices shrink rather than

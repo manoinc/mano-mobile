@@ -60,7 +60,9 @@ class ManoTextField extends StatelessWidget {
     final scheme = theme.colorScheme;
 
     UnderlineInputBorder rule(Color color, double width) =>
-        UnderlineInputBorder(borderSide: BorderSide(color: color, width: width));
+        UnderlineInputBorder(
+          borderSide: BorderSide(color: color, width: width),
+        );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -68,7 +70,9 @@ class ManoTextField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: theme.textTheme.labelMedium?.copyWith(color: ManoColors.faint),
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: context.palette.faint,
+          ),
         ),
         const SizedBox(height: ManoSpacing.xs),
         TextField(
@@ -97,9 +101,11 @@ class ManoTextField extends StatelessWidget {
             errorText: errorText,
             errorMaxLines: 2,
             helperStyle: theme.textTheme.bodySmall?.copyWith(
-              color: ManoColors.faint,
+              color: context.palette.faint,
             ),
-            errorStyle: theme.textTheme.bodySmall?.copyWith(color: scheme.error),
+            errorStyle: theme.textTheme.bodySmall?.copyWith(
+              color: scheme.error,
+            ),
             border: rule(scheme.outlineVariant, 1),
             enabledBorder: rule(scheme.outlineVariant, 1),
             focusedBorder: rule(ManoColors.flame, 2),

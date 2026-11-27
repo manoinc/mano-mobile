@@ -98,7 +98,7 @@ class _ManoMessageComposerState extends State<ManoMessageComposer> {
                   decoration: InputDecoration(
                     hintText: widget.hintText,
                     filled: true,
-                    fillColor: ManoColors.sand,
+                    fillColor: context.palette.sand,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: ManoSpacing.md,
                       vertical: ManoSpacing.sm,

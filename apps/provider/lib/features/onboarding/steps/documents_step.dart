@@ -30,7 +30,7 @@ class DocumentsStep extends ConsumerWidget {
             attached: state.attached.containsKey(document),
             onAttach: () => notifier.attach(document),
           ),
-          const Divider(height: 1, color: ManoColors.stone),
+          Divider(height: 1, color: context.palette.stone),
         ],
       ],
     );
@@ -66,7 +66,9 @@ class _DocumentRow extends StatelessWidget {
                 if (required)
                   Text(
                     'Obligatorio',
-                    style: text.bodySmall?.copyWith(color: ManoColors.faint),
+                    style: text.bodySmall?.copyWith(
+                      color: context.palette.faint,
+                    ),
                   ),
               ],
             ),
@@ -74,10 +76,10 @@ class _DocumentRow extends StatelessWidget {
           if (attached)
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.check_circle_rounded,
                   size: 18,
-                  color: ManoColors.ink,
+                  color: context.palette.ink,
                 ),
                 const SizedBox(width: ManoSpacing.xs),
                 Text('Adjuntado', style: text.labelLarge),

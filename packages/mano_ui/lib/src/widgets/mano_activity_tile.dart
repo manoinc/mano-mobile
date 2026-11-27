@@ -37,8 +37,8 @@ class ManoActivityTile extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 22,
-              backgroundColor: ManoColors.stone,
-              child: Icon(icon, color: ManoColors.ink, size: 20),
+              backgroundColor: context.palette.stone,
+              child: Icon(icon, color: context.palette.ink, size: 20),
             ),
             const SizedBox(width: ManoSpacing.md),
             Expanded(
@@ -56,7 +56,7 @@ class ManoActivityTile extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: textTheme.bodySmall?.copyWith(
-                      color: ManoColors.faint,
+                      color: context.palette.faint,
                     ),
                   ),
                 ],
@@ -66,7 +66,7 @@ class ManoActivityTile extends StatelessWidget {
             Text(
               amountLabel,
               style: textTheme.titleMedium?.copyWith(
-                color: positive ? ManoColors.ink : ManoColors.muted,
+                color: positive ? context.palette.ink : context.palette.muted,
               ),
             ),
           ],

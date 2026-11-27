@@ -38,7 +38,7 @@ class ProviderProfileHeader extends StatelessWidget {
               Icon(
                 Icons.verified,
                 size: 22,
-                color: ManoColors.clay,
+                color: context.palette.clay,
                 semanticLabel: 'Verificado',
               ),
             ],

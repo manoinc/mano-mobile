@@ -43,7 +43,7 @@ class ManoAmountPad extends StatelessWidget {
             amountLabel,
             key: const Key('mano-amount-pad-amount'),
             style: textTheme.displaySmall?.copyWith(
-              color: ManoColors.ink,
+              color: context.palette.ink,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -53,7 +53,7 @@ class ManoAmountPad extends StatelessWidget {
           Text(
             helperText!,
             textAlign: TextAlign.center,
-            style: textTheme.bodySmall?.copyWith(color: ManoColors.faint),
+            style: textTheme.bodySmall?.copyWith(color: context.palette.faint),
           ),
         ],
         const SizedBox(height: ManoSpacing.lg),
@@ -80,9 +80,9 @@ class ManoAmountPad extends StatelessWidget {
                 child: IconButton(
                   onPressed: onBackspace,
                   tooltip: 'Borrar',
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.backspace_outlined,
-                    color: ManoColors.ink,
+                    color: context.palette.ink,
                   ),
                 ),
               ),
@@ -112,7 +112,7 @@ class _Key extends StatelessWidget {
             label,
             maxLines: 1,
             style: Theme.of(context).textTheme.titleLarge
-                ?.copyWith(color: ManoColors.ink),
+                ?.copyWith(color: context.palette.ink),
           ),
         ),
       ),

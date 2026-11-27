@@ -39,7 +39,9 @@ class ManoReviewTile extends StatelessWidget {
                   Text(name, style: theme.titleSmall),
                   Text(
                     dateLabel,
-                    style: theme.bodySmall?.copyWith(color: ManoColors.faint),
+                    style: theme.bodySmall?.copyWith(
+                      color: context.palette.faint,
+                    ),
                   ),
                 ],
               ),
@@ -56,7 +58,9 @@ class ManoReviewTile extends StatelessWidget {
                             ? Icons.star_rounded
                             : Icons.star_outline_rounded,
                         size: 16,
-                        color: i < stars ? ManoColors.clay : ManoColors.faint,
+                        color: i < stars
+                            ? context.palette.clay
+                            : context.palette.faint,
                       ),
                   ],
                 ),

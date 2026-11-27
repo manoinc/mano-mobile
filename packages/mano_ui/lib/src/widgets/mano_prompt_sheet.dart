@@ -89,7 +89,7 @@ class ManoPromptSheet extends StatelessWidget {
                       message,
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: ManoColors.muted,
+                        color: context.palette.muted,
                       ),
                     ),
                     if (child != null) ...[

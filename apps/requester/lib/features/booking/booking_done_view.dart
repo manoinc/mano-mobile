@@ -31,10 +31,10 @@ class BookingDoneView extends StatelessWidget {
                 curve: ManoMotion.entrance,
                 builder: (context, scale, child) =>
                     Transform.scale(scale: scale, child: child),
-                child: const Icon(
+                child: Icon(
                   Icons.check_circle_rounded,
                   size: 72,
-                  color: ManoColors.ink,
+                  color: context.palette.ink,
                 ),
               ),
               const SizedBox(height: ManoSpacing.lg),
@@ -47,7 +47,9 @@ class BookingDoneView extends StatelessWidget {
               Text(
                 detail,
                 textAlign: TextAlign.center,
-                style: textTheme.bodyLarge?.copyWith(color: ManoColors.muted),
+                style: textTheme.bodyLarge?.copyWith(
+                  color: context.palette.muted,
+                ),
               ),
               const Spacer(),
               ManoPrimaryButton(

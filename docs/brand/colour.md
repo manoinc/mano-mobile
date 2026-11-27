@@ -1,8 +1,8 @@
 # Colour
 
 Seven colours, taken from the landing site so the app and the marketing page are
-the same orange. In code they are `ManoColors.<name>`; a hex never appears in a
-screen.
+the same orange. In code a widget reads them as `context.palette.<name>`, so it
+draws right in light and dark mode; a hex never appears in a screen.
 
 | | Name | Hex | Use it for |
 |---|---|---|---|
@@ -13,6 +13,28 @@ screen.
 | <span class="swatch" style="background:#8a8481"></span> | **faint** | `#8a8481` | Tertiary text, placeholders, disabled. |
 | <span class="swatch" style="background:#f7f5f3"></span> | **sand** | `#f7f5f3` | Raised surfaces: fields, bubbles, cards. |
 | <span class="swatch" style="background:#ede9e6"></span> | **stone** | `#ede9e6` | Dividers and quiet borders. |
+
+## Dark mode
+
+Light is the default whatever the phone says. Dark mode is the in-app switch
+*Modo oscuro* (Configuración in Mano, Perfil in Mano Profesionales), saved on the
+device. `ManoPalette` keeps the same names with dark values:
+
+| Name | Light | Dark |
+|---|---|---|
+| ink | `#201e1d` | `#f7f5f3` |
+| muted | `#4a4644` | `#c2bcb8` |
+| faint | `#8a8481` | `#948e8b` |
+| sand | `#f7f5f3` | `#24211f` |
+| stone | `#ede9e6` | `#302c2a` |
+| clay | `#c1602e` | `#e38b5e` |
+| paper (the page) | `#ffffff` | `#191716` |
+
+Flame is the same in both. Text on an ink fill is `paper`, so a selected chip
+stays readable when ink turns light. Text on flame stays white. Photo overlays
+use `ManoColors.scrim`, which is dark in both modes. `palette_guard_test` fails
+if a widget reads a mode-dependent `ManoColors` value directly, and
+`mano_palette_test` checks the contrast of every text colour.
 
 ## Status colours
 

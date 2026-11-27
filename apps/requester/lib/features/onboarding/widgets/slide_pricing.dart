@@ -117,7 +117,7 @@ class _QuoteCard extends StatelessWidget {
           Text(
             booking.when,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: ManoColors.muted,
+              color: context.palette.muted,
             ),
           ),
           const SizedBox(height: ManoSpacing.md),
@@ -148,17 +148,21 @@ class _AcceptedRow extends StatelessWidget {
               clipBehavior: Clip.none,
               children: [
                 ManoAvatar(photoUrl: photoUrl, size: 40),
-                const Positioned(
+                Positioned(
                   right: -4,
                   bottom: -4,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: ManoColors.ink,
+                      color: context.palette.ink,
                       shape: BoxShape.circle,
                     ),
                     child: Padding(
                       padding: EdgeInsets.all(2),
-                      child: Icon(Icons.check, size: 12, color: Colors.white),
+                      child: Icon(
+                        Icons.check,
+                        size: 12,
+                        color: context.palette.paper,
+                      ),
                     ),
                   ),
                 ),

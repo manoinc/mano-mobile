@@ -59,7 +59,7 @@ class _Local extends StatelessWidget {
           DecoratedBox(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: ManoColors.ink.withValues(alpha: 0.45),
+              color: context.palette.ink.withValues(alpha: 0.45),
             ),
             child: Center(
               child: photo.state == PhotoUploadState.uploading

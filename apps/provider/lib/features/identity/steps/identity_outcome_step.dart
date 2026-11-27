@@ -53,10 +53,10 @@ class IdentityOutcomeStep extends ConsumerWidget {
         subhead: 'Tus clientes verán la insignia en tu perfil.',
         primaryLabel: 'Continuar',
         onPrimary: onDone,
-        children: const [
+        children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: Icon(Icons.verified, size: 48, color: ManoColors.clay),
+            child: Icon(Icons.verified, size: 48, color: context.palette.clay),
           ),
         ],
       ),

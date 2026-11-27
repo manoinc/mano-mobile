@@ -221,7 +221,7 @@ class _LoadError extends StatelessWidget {
           Text(
             'No pudimos cargar tus solicitudes.',
             style: Theme.of(context).textTheme.bodyLarge
-                ?.copyWith(color: ManoColors.muted),
+                ?.copyWith(color: context.palette.muted),
           ),
           const SizedBox(height: ManoSpacing.sm),
           ManoQuietButton(label: 'Reintentar', onPressed: onRetry),

@@ -23,7 +23,7 @@ class CheckoutPseFields extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final caption = Theme.of(context).textTheme.labelMedium
-        ?.copyWith(color: ManoColors.faint);
+        ?.copyWith(color: context.palette.faint);
     final bank = banks.where((b) => b.code == draft.bankCode).firstOrNull;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

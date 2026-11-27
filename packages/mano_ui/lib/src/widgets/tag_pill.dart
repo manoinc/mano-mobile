@@ -23,7 +23,9 @@ class TagPill extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: theme.textTheme.labelSmall?.copyWith(color: ManoColors.muted),
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: context.palette.muted,
+          ),
         ),
       ),
     );

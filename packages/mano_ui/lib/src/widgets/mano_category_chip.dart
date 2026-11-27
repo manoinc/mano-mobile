@@ -22,10 +22,10 @@ class ManoCategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = selected ? ManoColors.flame : ManoColors.faint;
+    final foreground = selected ? ManoColors.flame : context.palette.faint;
     final background = selected
         ? ManoColors.flame.withValues(alpha: 0.12)
-        : ManoColors.stone;
+        : context.palette.stone;
 
     return Material(
       color: Colors.transparent,
@@ -49,9 +49,8 @@ class ManoCategoryChip extends StatelessWidget {
               const SizedBox(height: ManoSpacing.xs),
               Text(
                 label,
-                style: Theme.of(
-                  context,
-                ).textTheme.labelSmall?.copyWith(color: foreground),
+                style: Theme.of(context).textTheme.labelSmall
+                    ?.copyWith(color: foreground),
               ),
             ],
           ),

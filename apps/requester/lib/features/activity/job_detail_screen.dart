@@ -243,7 +243,7 @@ class _JobBody extends StatelessWidget {
                     Text(
                       role,
                       style: textTheme.bodySmall?.copyWith(
-                        color: ManoColors.faint,
+                        color: context.palette.faint,
                       ),
                     ),
                 ],
@@ -277,7 +277,7 @@ class _InfoLine extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: ManoSpacing.xs),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: ManoColors.muted),
+          Icon(icon, size: 20, color: context.palette.muted),
           const SizedBox(width: ManoSpacing.md),
           Text(text, style: Theme.of(context).textTheme.bodyLarge),
         ],

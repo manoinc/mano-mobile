@@ -60,7 +60,7 @@ class ManoIllustratedStep extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 ColoredBox(
-                  color: ManoColors.sand,
+                  color: context.palette.sand,
                   child: ClipRect(child: illustration),
                 ),
                 if (onBack != null)
@@ -77,7 +77,7 @@ class ManoIllustratedStep extends StatelessWidget {
                           tooltip: 'Atrás',
                           style: IconButton.styleFrom(
                             backgroundColor: theme.colorScheme.surface,
-                            foregroundColor: ManoColors.ink,
+                            foregroundColor: context.palette.ink,
                             disabledBackgroundColor: theme.colorScheme.surface,
                           ),
                         ),

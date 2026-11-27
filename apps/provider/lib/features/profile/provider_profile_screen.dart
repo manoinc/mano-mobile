@@ -44,6 +44,12 @@ class ProviderProfileScreen extends ConsumerWidget {
               _ReferralCard(program: referral),
             const SizedBox(height: ManoSpacing.lg),
             const AccountRows(),
+            const SizedBox(height: ManoSpacing.md),
+            ManoToggleRow(
+              label: 'Modo oscuro',
+              value: ref.watch(darkModeProvider),
+              onChanged: ref.read(darkModeProvider.notifier).set,
+            ),
             const SizedBox(height: ManoSpacing.sm),
             const _SessionRow(),
           ],
@@ -133,10 +139,10 @@ class _Header extends ConsumerWidget {
                       if (profile.verified ||
                           ref.watch(identityVerifiedProvider)) ...[
                         const SizedBox(width: ManoSpacing.xs),
-                        const Icon(
+                        Icon(
                           Icons.verified,
                           size: 20,
-                          color: ManoColors.clay,
+                          color: context.palette.clay,
                         ),
                       ],
                     ],
@@ -145,16 +151,22 @@ class _Header extends ConsumerWidget {
                       case final contact?)
                     Text(
                       contact,
-                      style: text.bodyMedium?.copyWith(color: ManoColors.muted),
+                      style: text.bodyMedium?.copyWith(
+                        color: context.palette.muted,
+                      ),
                     ),
                   if (profile.yearsExperience > 0)
                     Text(
                       yearsText(profile.yearsExperience),
-                      style: text.bodyMedium?.copyWith(color: ManoColors.muted),
+                      style: text.bodyMedium?.copyWith(
+                        color: context.palette.muted,
+                      ),
                     ),
                   Text(
                     profile.zones.join(' · '),
-                    style: text.bodySmall?.copyWith(color: ManoColors.faint),
+                    style: text.bodySmall?.copyWith(
+                      color: context.palette.faint,
+                    ),
                   ),
                 ],
               ),

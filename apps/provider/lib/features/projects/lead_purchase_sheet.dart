@@ -90,7 +90,9 @@ class _LeadPurchaseState extends ConsumerState<_LeadPurchase> {
             Text(
               'El cliente eligió tu cotización para «${widget.quote.projectTitle}». '
               'Con su contacto acuerdan el trabajo directamente.',
-              style: textTheme.bodyLarge?.copyWith(color: ManoColors.muted),
+              style: textTheme.bodyLarge?.copyWith(
+                color: context.palette.muted,
+              ),
             ),
             const SizedBox(height: ManoSpacing.md),
             if (cost != null)

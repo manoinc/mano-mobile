@@ -22,7 +22,7 @@ class ManoChoiceChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final ink = selected ? ManoColors.flame : ManoColors.ink;
+    final ink = selected ? ManoColors.flame : context.palette.ink;
     final remove = onRemove;
 
     return Semantics(
@@ -31,7 +31,7 @@ class ManoChoiceChip extends StatelessWidget {
       child: Material(
         color: selected
             ? ManoColors.flame.withValues(alpha: 0.12)
-            : ManoColors.stone,
+            : context.palette.stone,
         shape: StadiumBorder(
           side: BorderSide(
             color: selected ? ManoColors.flame : Colors.transparent,
@@ -62,7 +62,7 @@ class ManoChoiceChip extends StatelessWidget {
                       onPressed: remove,
                       tooltip: 'Quitar $label',
                       icon: const Icon(Icons.close_rounded, size: 18),
-                      color: ManoColors.muted,
+                      color: context.palette.muted,
                       visualDensity: VisualDensity.compact,
                     ),
                 ],

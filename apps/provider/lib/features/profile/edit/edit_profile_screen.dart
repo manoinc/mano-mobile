@@ -226,7 +226,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         heading('Fotos de tus trabajos'),
         Text(
           'Hasta $portfolioMaxPhotos fotos. Los clientes las ven en tu perfil.',
-          style: text.bodySmall?.copyWith(color: ManoColors.faint),
+          style: text.bodySmall?.copyWith(color: context.palette.faint),
         ),
         const SizedBox(height: ManoSpacing.sm),
         ManoPhotoPickerGrid(

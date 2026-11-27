@@ -58,7 +58,7 @@ class BookingPickStep extends ConsumerWidget {
                 child: Text(
                   'No pudimos cargar los horarios.',
                   style: textTheme.bodyMedium?.copyWith(
-                    color: ManoColors.muted,
+                    color: context.palette.muted,
                   ),
                 ),
               ),
@@ -110,7 +110,7 @@ class _Summary extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(ManoSpacing.md),
       decoration: BoxDecoration(
-        color: ManoColors.sand,
+        color: context.palette.sand,
         borderRadius: BorderRadius.circular(ManoRadius.card),
       ),
       child: Column(
@@ -123,7 +123,9 @@ class _Summary extends StatelessWidget {
             const SizedBox(height: ManoSpacing.sm),
             Text(
               hourlyNote,
-              style: textTheme.bodySmall?.copyWith(color: ManoColors.muted),
+              style: textTheme.bodySmall?.copyWith(
+                color: context.palette.muted,
+              ),
             ),
           ],
         ],

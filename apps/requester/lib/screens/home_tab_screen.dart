@@ -107,7 +107,7 @@ class HomeTabScreen extends ConsumerWidget {
                 TextButton(
                   onPressed: () => _openSearch(context),
                   style: TextButton.styleFrom(
-                    foregroundColor: ManoColors.clay,
+                    foregroundColor: context.palette.clay,
                     textStyle: textTheme.labelLarge,
                   ),
                   child: const Text('Ver todo'),

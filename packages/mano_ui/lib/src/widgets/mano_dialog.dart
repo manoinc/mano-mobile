@@ -67,7 +67,7 @@ class ManoDialogCard extends StatelessWidget {
                             message,
                             textAlign: TextAlign.center,
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: ManoColors.muted,
+                              color: context.palette.muted,
                             ),
                           ),
                         ],
@@ -75,10 +75,7 @@ class ManoDialogCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: ManoSpacing.lg),
-                  ManoPrimaryButton(
-                    label: primaryLabel,
-                    onPressed: onPrimary,
-                  ),
+                  ManoPrimaryButton(label: primaryLabel, onPressed: onPrimary),
                 ],
               ),
             ),
@@ -105,7 +102,7 @@ Future<T?> showManoDialog<T>({
     context: context,
     barrierDismissible: barrierDismissible,
     barrierLabel: 'Cerrar',
-    barrierColor: ManoColors.ink.withValues(alpha: 0.45),
+    barrierColor: context.palette.ink.withValues(alpha: 0.45),
     transitionDuration: still ? Duration.zero : ManoMotion.normal,
     pageBuilder: (context, animation, secondaryAnimation) => builder(context),
     transitionBuilder: (context, animation, secondaryAnimation, child) {

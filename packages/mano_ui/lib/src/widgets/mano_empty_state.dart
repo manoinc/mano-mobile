@@ -32,7 +32,7 @@ class ManoEmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 56, color: ManoColors.faint),
+            Icon(icon, size: 56, color: context.palette.faint),
             const SizedBox(height: ManoSpacing.md),
             Text(
               message,

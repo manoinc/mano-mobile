@@ -21,7 +21,7 @@ class ManoAddressPill extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     return Material(
-      color: ManoColors.stone,
+      color: context.palette.stone,
       shape: const StadiumBorder(),
       child: InkWell(
         customBorder: const StadiumBorder(),
@@ -44,9 +44,8 @@ class ManoAddressPill extends StatelessWidget {
                 child: Text(
                   address,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: scheme.onSurface),
+                  style: Theme.of(context).textTheme.bodyMedium
+                      ?.copyWith(color: scheme.onSurface),
                 ),
               ),
               const SizedBox(width: ManoSpacing.xs),

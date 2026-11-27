@@ -65,10 +65,10 @@ class _DayPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final foreground = selected
-        ? Colors.white
+        ? context.palette.paper
         : enabled
         ? Theme.of(context).colorScheme.onSurface
-        : ManoColors.faint;
+        : context.palette.faint;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -76,10 +76,10 @@ class _DayPill extends StatelessWidget {
         curve: ManoMotion.entrance,
         width: 52,
         decoration: BoxDecoration(
-          color: selected ? ManoColors.ink : Colors.transparent,
+          color: selected ? context.palette.ink : Colors.transparent,
           borderRadius: BorderRadius.circular(ManoRadius.card),
           border: Border.all(
-            color: selected ? ManoColors.ink : ManoColors.stone,
+            color: selected ? context.palette.ink : context.palette.stone,
           ),
         ),
         child: Column(

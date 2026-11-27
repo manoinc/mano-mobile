@@ -34,7 +34,7 @@ class ManoReferralCard extends StatelessWidget {
     return ManoPressScale(
       enabled: true,
       child: Material(
-        color: ManoColors.ink,
+        color: context.palette.ink,
         borderRadius: BorderRadius.circular(ManoRadius.card),
         child: InkWell(
           onTap: onTap,
@@ -53,14 +53,14 @@ class ManoReferralCard extends StatelessWidget {
                           Text(
                             title,
                             style: text.titleLarge?.copyWith(
-                              color: ManoColors.sand,
+                              color: context.palette.paper,
                             ),
                           ),
                           const SizedBox(height: ManoSpacing.xs),
                           Text(
                             subtitle,
                             style: text.bodyMedium?.copyWith(
-                              color: ManoColors.faint,
+                              color: context.palette.faint,
                             ),
                           ),
                         ],
@@ -74,7 +74,9 @@ class ManoReferralCard extends StatelessWidget {
                   const SizedBox(height: ManoSpacing.sm),
                   Text(
                     line,
-                    style: text.bodySmall?.copyWith(color: ManoColors.faint),
+                    style: text.bodySmall?.copyWith(
+                      color: context.palette.faint,
+                    ),
                   ),
                 ],
               ],
@@ -91,13 +93,18 @@ class _Motif extends StatelessWidget {
 
   final String? coinLabel;
 
-  Widget _circle(Color color, IconData icon, Color iconColor) => Container(
+  Widget _circle(
+    BuildContext context,
+    Color color,
+    IconData icon,
+    Color iconColor,
+  ) => Container(
     width: 36,
     height: 36,
     decoration: BoxDecoration(
       color: color,
       shape: BoxShape.circle,
-      border: Border.all(color: ManoColors.ink, width: 2),
+      border: Border.all(color: context.palette.ink, width: 2),
     ),
     child: Icon(icon, size: 20, color: iconColor),
   );
@@ -113,12 +120,22 @@ class _Motif extends StatelessWidget {
             Positioned(
               left: 0,
               top: 10,
-              child: _circle(ManoColors.stone, Icons.person, ManoColors.faint),
+              child: _circle(
+                context,
+                context.palette.stone,
+                Icons.person,
+                context.palette.faint,
+              ),
             ),
             Positioned(
               left: 22,
               top: 10,
-              child: _circle(ManoColors.clay, Icons.person, ManoColors.sand),
+              child: _circle(
+                context,
+                context.palette.clay,
+                Icons.person,
+                context.palette.sand,
+              ),
             ),
             if (coinLabel case final coin?)
               Positioned(
@@ -135,7 +152,7 @@ class _Motif extends StatelessWidget {
                   child: Text(
                     coin,
                     style: Theme.of(context).textTheme.titleSmall
-                        ?.copyWith(color: ManoColors.sand),
+                        ?.copyWith(color: Colors.white),
                   ),
                 ),
               ),

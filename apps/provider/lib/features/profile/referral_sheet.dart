@@ -58,14 +58,14 @@ class _ReferralSheetState extends ConsumerState<_ReferralSheet> {
                   ? 'Comparte tu código con colegas que quieran trabajar en Mano.'
                   : 'Cuando un colega se une con tu código y verifica su '
                         'identidad, ganas $coins Mano coins en tu Billetera.',
-              style: text.bodyMedium?.copyWith(color: ManoColors.muted),
+              style: text.bodyMedium?.copyWith(color: context.palette.muted),
             ),
             const SizedBox(height: ManoSpacing.md),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(ManoSpacing.md),
               decoration: BoxDecoration(
-                color: ManoColors.sand,
+                color: context.palette.sand,
                 borderRadius: BorderRadius.circular(ManoRadius.card),
               ),
               child: Text(
@@ -78,7 +78,7 @@ class _ReferralSheetState extends ConsumerState<_ReferralSheet> {
               const SizedBox(height: ManoSpacing.sm),
               Text(
                 referralCountText(program.invited, program.verified),
-                style: text.bodySmall?.copyWith(color: ManoColors.faint),
+                style: text.bodySmall?.copyWith(color: context.palette.faint),
               ),
             ],
             const SizedBox(height: ManoSpacing.lg),

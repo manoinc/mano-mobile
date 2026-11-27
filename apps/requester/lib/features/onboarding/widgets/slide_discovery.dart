@@ -95,7 +95,7 @@ class _ProCard extends StatelessWidget {
                 Text(
                   tasker.detail,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: ManoColors.muted,
+                    color: context.palette.muted,
                   ),
                 ),
               ],
@@ -129,7 +129,10 @@ class _NearbyBubbles extends StatelessWidget {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                      border: Border.all(
+                        color: context.palette.paper,
+                        width: 2,
+                      ),
                     ),
                     child: ManoAvatar(photoUrl: url, size: _size),
                   ),

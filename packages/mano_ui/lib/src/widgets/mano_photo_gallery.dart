@@ -15,10 +15,12 @@ class ManoPhoto extends StatelessWidget {
     url,
     fit: fit,
     loadingBuilder: (context, child, progress) =>
-        progress == null ? child : const ColoredBox(color: ManoColors.stone),
-    errorBuilder: (context, error, stackTrace) => const ColoredBox(
-      color: ManoColors.stone,
-      child: Center(child: Icon(Icons.image_outlined, color: ManoColors.faint)),
+        progress == null ? child : ColoredBox(color: context.palette.stone),
+    errorBuilder: (context, error, stackTrace) => ColoredBox(
+      color: context.palette.stone,
+      child: Center(
+        child: Icon(Icons.image_outlined, color: context.palette.faint),
+      ),
     ),
   );
 }

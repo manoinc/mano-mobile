@@ -21,7 +21,7 @@ class ManoStatTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(ManoSpacing.md),
       decoration: BoxDecoration(
-        color: ManoColors.sand,
+        color: context.palette.sand,
         borderRadius: BorderRadius.circular(ManoRadius.card),
       ),
       child: Column(
@@ -33,17 +33,22 @@ class ManoStatTile extends StatelessWidget {
               Flexible(
                 child: Text(
                   value,
-                  style: text.headlineSmall?.copyWith(color: ManoColors.ink),
+                  style: text.headlineSmall?.copyWith(
+                    color: context.palette.ink,
+                  ),
                 ),
               ),
               if (icon != null) ...[
                 const SizedBox(width: ManoSpacing.xs),
-                Icon(icon, size: 18, color: ManoColors.ink),
+                Icon(icon, size: 18, color: context.palette.ink),
               ],
             ],
           ),
           const SizedBox(height: ManoSpacing.xs),
-          Text(label, style: text.bodySmall?.copyWith(color: ManoColors.muted)),
+          Text(
+            label,
+            style: text.bodySmall?.copyWith(color: context.palette.muted),
+          ),
         ],
       ),
     );

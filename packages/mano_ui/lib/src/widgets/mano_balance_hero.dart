@@ -41,13 +41,17 @@ class ManoBalanceHero extends StatelessWidget {
           const SizedBox(height: ManoSpacing.xs),
           Text(
             unit,
-            style: textTheme.titleMedium?.copyWith(color: ManoColors.muted),
+            style: textTheme.titleMedium?.copyWith(
+              color: context.palette.muted,
+            ),
           ),
           if (note != null) ...[
             const SizedBox(height: ManoSpacing.xs),
             Text(
               note,
-              style: textTheme.bodyMedium?.copyWith(color: ManoColors.faint),
+              style: textTheme.bodyMedium?.copyWith(
+                color: context.palette.faint,
+              ),
             ),
           ],
           if (actions != null) ...[

@@ -22,10 +22,10 @@ class PublishProjectRow extends StatelessWidget {
                 '¿No sabes a quién contratar? Publica un proyecto y recibe '
                 'cotizaciones',
                 style: Theme.of(context).textTheme.bodyMedium
-                    ?.copyWith(color: ManoColors.clay),
+                    ?.copyWith(color: context.palette.clay),
               ),
             ),
-            const Icon(Icons.chevron_right, color: ManoColors.clay),
+            Icon(Icons.chevron_right, color: context.palette.clay),
           ],
         ),
       ),

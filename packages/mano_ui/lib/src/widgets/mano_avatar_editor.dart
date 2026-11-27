@@ -46,7 +46,7 @@ class ManoAvatarEditor extends StatelessWidget {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: ManoColors.ink.withValues(alpha: 0.35),
+                      color: context.palette.ink.withValues(alpha: 0.35),
                     ),
                     child: Center(
                       child: ManoSpinner(

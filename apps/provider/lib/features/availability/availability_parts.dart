@@ -34,7 +34,7 @@ class AvailabilitySection extends StatelessWidget {
         ),
         Text(
           detail,
-          style: textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
+          style: textTheme.bodyMedium?.copyWith(color: context.palette.muted),
         ),
         const SizedBox(height: ManoSpacing.sm),
         child,
@@ -79,7 +79,7 @@ class AvailabilityQuiet extends StatelessWidget {
       child: Text(
         text,
         style: Theme.of(context).textTheme.bodyMedium
-            ?.copyWith(color: ManoColors.faint),
+            ?.copyWith(color: context.palette.faint),
       ),
     );
   }

@@ -18,7 +18,7 @@ class SkillsRow extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
 
     return Material(
-      color: ManoColors.sand,
+      color: context.palette.sand,
       borderRadius: BorderRadius.circular(ManoRadius.card),
       child: InkWell(
         borderRadius: BorderRadius.circular(ManoRadius.card),
@@ -36,7 +36,7 @@ class SkillsRow extends ConsumerWidget {
                       style: text.titleMedium,
                     ),
                   ),
-                  const Icon(Icons.chevron_right, color: ManoColors.faint),
+                  Icon(Icons.chevron_right, color: context.palette.faint),
                 ],
               ),
               if (services.isNotEmpty) ...[
@@ -72,7 +72,7 @@ class _SkillChip extends ConsumerWidget {
         vertical: ManoSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: ManoColors.stone,
+        color: context.palette.stone,
         borderRadius: BorderRadius.circular(ManoRadius.pill),
       ),
       child: Text(title, style: Theme.of(context).textTheme.labelMedium),

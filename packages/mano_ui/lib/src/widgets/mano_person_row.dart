@@ -57,7 +57,7 @@ class ManoPersonRow extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: ManoColors.faint,
+                    color: context.palette.faint,
                   ),
                 ),
                 const SizedBox(height: ManoSpacing.sm),
@@ -99,7 +99,7 @@ class _Stars extends StatelessWidget {
                 size: 16,
                 // Clay, not flame: a rating is secondary emphasis, and flame is
                 // spoken for by the one action on the screen.
-                color: ManoColors.clay,
+                color: context.palette.clay,
               ),
             const SizedBox(width: ManoSpacing.sm),
             Flexible(
@@ -108,7 +108,7 @@ class _Stars extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: ManoColors.muted,
+                  color: context.palette.muted,
                 ),
               ),
             ),

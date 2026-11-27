@@ -213,7 +213,7 @@ class _DaySeparator extends StatelessWidget {
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelSmall
-            ?.copyWith(color: ManoColors.faint),
+            ?.copyWith(color: context.palette.faint),
       ),
     ),
   );
@@ -229,17 +229,17 @@ class _Empty extends StatelessWidget {
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(
+        Icon(
           Icons.chat_bubble_outline_rounded,
           size: 40,
-          color: ManoColors.faint,
+          color: context.palette.faint,
         ),
         const SizedBox(height: ManoSpacing.sm),
         Text(
           message,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyMedium
-              ?.copyWith(color: ManoColors.muted),
+              ?.copyWith(color: context.palette.muted),
         ),
       ],
     ),

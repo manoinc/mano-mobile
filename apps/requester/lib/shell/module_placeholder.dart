@@ -23,7 +23,7 @@ class ModulePlaceholder extends StatelessWidget {
             detail,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium
-                ?.copyWith(color: ManoColors.faint),
+                ?.copyWith(color: context.palette.faint),
           ),
         ),
       ),

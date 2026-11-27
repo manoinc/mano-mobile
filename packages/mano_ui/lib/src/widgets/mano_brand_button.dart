@@ -26,7 +26,7 @@ class ManoBrandButton extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final enabled = onPressed != null;
-    final ink = enabled ? scheme.onSurface : ManoColors.faint;
+    final ink = enabled ? scheme.onSurface : context.palette.faint;
 
     return ManoPressScale(
       enabled: enabled,

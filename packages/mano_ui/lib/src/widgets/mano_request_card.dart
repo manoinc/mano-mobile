@@ -102,7 +102,7 @@ class ManoRequestCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: textTheme.labelMedium?.copyWith(
-                              color: ManoColors.clay,
+                              color: context.palette.clay,
                             ),
                           ),
                           const SizedBox(height: ManoSpacing.xs),
@@ -194,8 +194,8 @@ class _Thumbnail extends StatelessWidget {
                 right: ManoSpacing.xs,
                 bottom: ManoSpacing.xs,
                 child: DecoratedBox(
-                  decoration: const BoxDecoration(
-                    color: ManoColors.ink,
+                  decoration: BoxDecoration(
+                    color: ManoColors.scrim,
                     borderRadius: BorderRadius.all(Radius.circular(99)),
                   ),
                   child: Padding(

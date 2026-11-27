@@ -90,7 +90,7 @@ class _ManoCredentialsSheetState extends State<ManoCredentialsSheet> {
                 Text(
                   message,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: ManoColors.muted,
+                    color: context.palette.muted,
                   ),
                 ),
               ],

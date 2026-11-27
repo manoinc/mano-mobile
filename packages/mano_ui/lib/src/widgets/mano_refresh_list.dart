@@ -30,9 +30,8 @@ class ManoRefreshList extends StatelessWidget {
               Text(
                 emptyMessage,
                 textAlign: TextAlign.center,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: ManoColors.muted),
+                style: Theme.of(context).textTheme.bodyMedium
+                    ?.copyWith(color: context.palette.muted),
               ),
             ],
           )

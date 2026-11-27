@@ -19,7 +19,7 @@ class ManoSearchPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: ManoColors.sand,
+      color: context.palette.sand,
       shape: const StadiumBorder(),
       child: InkWell(
         customBorder: const StadiumBorder(),
@@ -31,15 +31,14 @@ class ManoSearchPill extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.search, color: ManoColors.faint),
+              Icon(Icons.search, color: context.palette.faint),
               const SizedBox(width: ManoSpacing.sm),
               Expanded(
                 child: Text(
                   hintText,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: ManoColors.faint),
+                  style: Theme.of(context).textTheme.bodyMedium
+                      ?.copyWith(color: context.palette.faint),
                 ),
               ),
             ],

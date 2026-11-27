@@ -53,4 +53,26 @@ void main() {
     final context = tester.element(find.byType(Scaffold).first);
     expect(Theme.of(context).brightness, Brightness.light);
   });
+
+  testWidgets('goes dark when switched on in the app', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          offlineMarketplaceProvider.overrideWithValue(true),
+          manoConfigProvider.overrideWithValue(testConfig),
+          appearanceStoreProvider.overrideWithValue(
+            InMemoryAppearanceStore(dark: true),
+          ),
+          sessionRepositoryProvider.overrideWithValue(
+            FakeSessionRepository(onRestore: () async => Ok(fakeSession())),
+          ),
+        ],
+        child: const RequesterApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final context = tester.element(find.byType(Scaffold).first);
+    expect(Theme.of(context).brightness, Brightness.dark);
+  });
 }

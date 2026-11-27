@@ -51,7 +51,7 @@ class ManoStarInput extends StatelessWidget {
                               : Icons.star_outline_rounded,
                           size: size,
                           color: n <= value
-                              ? ManoColors.clay
+                              ? context.palette.clay
                               : theme.colorScheme.outlineVariant,
                         ),
                       ),
@@ -68,7 +68,7 @@ class ManoStarInput extends StatelessWidget {
             value >= 1 && value <= 5 ? _words[value - 1] : '',
             key: ValueKey(value),
             style: theme.textTheme.titleSmall?.copyWith(
-              color: ManoColors.muted,
+              color: context.palette.muted,
             ),
           ),
         ),

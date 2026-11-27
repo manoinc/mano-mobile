@@ -132,7 +132,7 @@ class _ManoCountryPickerSheetState extends State<ManoCountryPickerSheet> {
                           widget.emptyLabel,
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: ManoColors.faint,
+                            color: context.palette.faint,
                           ),
                         ),
                       )
@@ -184,7 +184,7 @@ class _CountryRow extends StatelessWidget {
             Text(
               option.dialCode,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: ManoColors.muted,
+                color: context.palette.muted,
               ),
             ),
             SizedBox(

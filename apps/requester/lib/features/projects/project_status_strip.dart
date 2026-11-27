@@ -28,11 +28,13 @@ class ProjectStatusStrip extends StatelessWidget {
       children: [
         for (final (index, (stage, label)) in _stages.indexed) ...[
           if (index > 0)
-            Text('·', style: style?.copyWith(color: ManoColors.faint)),
+            Text('·', style: style?.copyWith(color: context.palette.faint)),
           Text(
             label.toUpperCase(),
             style: style?.copyWith(
-              color: stage == status ? ManoColors.ink : ManoColors.faint,
+              color: stage == status
+                  ? context.palette.ink
+                  : context.palette.faint,
               fontWeight: stage == status ? FontWeight.w600 : null,
             ),
           ),

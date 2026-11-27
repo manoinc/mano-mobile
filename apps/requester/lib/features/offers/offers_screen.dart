@@ -60,7 +60,7 @@ class _OffersScreenState extends ConsumerState<OffersScreen> {
                 Text(
                   'Ofertas disponibles',
                   style: textTheme.bodyMedium?.copyWith(
-                    color: ManoColors.muted,
+                    color: context.palette.muted,
                   ),
                 ),
               ],
@@ -132,7 +132,7 @@ class _FilteredOffers extends StatelessWidget {
                     child: Text(
                       'No hay ofertas con este tipo de precio',
                       style: Theme.of(context).textTheme.bodyMedium
-                          ?.copyWith(color: ManoColors.faint),
+                          ?.copyWith(color: context.palette.faint),
                     ),
                   )
                 : ListView.separated(

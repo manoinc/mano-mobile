@@ -30,10 +30,10 @@ class ManoAvatar extends StatelessWidget {
   /// `null` = no online indicator at all. `true`/`false` shows the dot.
   final bool? online;
 
-  Widget _fallback() => ColoredBox(
-    color: ManoColors.stone,
+  Widget _fallback(BuildContext context) => ColoredBox(
+    color: context.palette.stone,
     child: Center(
-      child: Icon(Icons.person, color: ManoColors.faint, size: size * 0.6),
+      child: Icon(Icons.person, color: context.palette.faint, size: size * 0.6),
     ),
   );
 
@@ -49,18 +49,20 @@ class ManoAvatar extends StatelessWidget {
             ? Image(
                 image: local,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => _fallback(),
+                errorBuilder: (context, error, stackTrace) =>
+                    _fallback(context),
               )
             : url == null
-            ? _fallback()
+            ? _fallback(context)
             : Image.network(
                 url,
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, progress) {
                   if (progress == null) return child;
-                  return ColoredBox(color: ManoColors.stone);
+                  return ColoredBox(color: context.palette.stone);
                 },
-                errorBuilder: (context, error, stackTrace) => _fallback(),
+                errorBuilder: (context, error, stackTrace) =>
+                    _fallback(context),
               ),
       ),
     );
@@ -85,7 +87,7 @@ class ManoAvatar extends StatelessWidget {
               height: dotSize,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isOnline ? Colors.green : ManoColors.faint,
+                color: isOnline ? Colors.green : context.palette.faint,
                 border: Border.all(
                   color: Theme.of(context).colorScheme.surface,
                   width: 2,

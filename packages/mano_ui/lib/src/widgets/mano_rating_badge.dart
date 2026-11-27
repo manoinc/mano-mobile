@@ -16,21 +16,24 @@ class ManoRatingBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final base = Theme.of(context).textTheme.bodySmall;
     final style = rated
-        ? base?.copyWith(color: ManoColors.ink, fontWeight: FontWeight.w600)
-        : base?.copyWith(color: ManoColors.clay);
+        ? base?.copyWith(
+            color: context.palette.ink,
+            fontWeight: FontWeight.w600,
+          )
+        : base?.copyWith(color: context.palette.clay);
     // One rich text, so a narrow card ellipsizes instead of overflowing.
     return Text.rich(
       TextSpan(
         children: [
           if (rated)
-            const WidgetSpan(
+            WidgetSpan(
               alignment: PlaceholderAlignment.middle,
               child: Padding(
                 padding: EdgeInsets.only(right: 2),
                 child: Icon(
                   Icons.star_rounded,
                   size: 15,
-                  color: ManoColors.clay,
+                  color: context.palette.clay,
                 ),
               ),
             ),

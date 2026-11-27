@@ -39,6 +39,7 @@ export 'src/session/supertokens_passwordless_auth.dart';
 export 'src/session/supertokens_session_repository.dart';
 export 'src/session/supertokens_social_auth.dart';
 export 'src/session/native_id_tokens.dart';
+export 'src/preferences/appearance_store.dart';
 export 'src/session/token_store.dart';
 export 'src/wallet/gateway_wallet_repository.dart';
 export 'src/verification/didit_launcher.dart';

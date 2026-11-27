@@ -65,7 +65,7 @@ class _List extends StatelessWidget {
               child: Text(
                 'No pudimos cargar más reseñas',
                 style: Theme.of(context).textTheme.bodySmall
-                    ?.copyWith(color: ManoColors.muted),
+                    ?.copyWith(color: context.palette.muted),
               ),
             ),
           ManoOutlineButton(

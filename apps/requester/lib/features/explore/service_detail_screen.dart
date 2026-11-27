@@ -72,14 +72,14 @@ class _Details extends StatelessWidget {
       children: [
         Text(
           category,
-          style: textTheme.labelMedium?.copyWith(color: ManoColors.clay),
+          style: textTheme.labelMedium?.copyWith(color: context.palette.clay),
         ),
         const SizedBox(height: ManoSpacing.sm),
         Text(title, style: textTheme.headlineSmall),
         const SizedBox(height: ManoSpacing.md),
         Text(
           description,
-          style: textTheme.bodyLarge?.copyWith(color: ManoColors.muted),
+          style: textTheme.bodyLarge?.copyWith(color: context.palette.muted),
         ),
       ],
     );

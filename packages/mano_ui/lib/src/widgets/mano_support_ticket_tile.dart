@@ -29,7 +29,7 @@ class ManoSupportTicketTile extends StatelessWidget {
       title: Text(subject, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text(
         number,
-        style: text.bodySmall?.copyWith(color: ManoColors.muted),
+        style: text.bodySmall?.copyWith(color: context.palette.muted),
       ),
       trailing: ManoStatusChip(label: statusLabel, tone: tone),
     );

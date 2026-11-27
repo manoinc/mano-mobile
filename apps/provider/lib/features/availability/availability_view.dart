@@ -159,7 +159,7 @@ class _BlockRow extends StatelessWidget {
           ),
           IconButton(
             onPressed: onRemove,
-            icon: const Icon(Icons.close, size: 20, color: ManoColors.faint),
+            icon: Icon(Icons.close, size: 20, color: context.palette.faint),
             tooltip: 'Quitar bloqueo',
           ),
         ],

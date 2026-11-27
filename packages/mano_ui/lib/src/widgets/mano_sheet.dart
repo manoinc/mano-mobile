@@ -62,7 +62,7 @@ class ManoOptionRow extends StatelessWidget {
     final theme = Theme.of(context);
     final enabled = onPressed != null;
     final ink = !enabled
-        ? ManoColors.faint
+        ? context.palette.faint
         : destructive
         ? theme.colorScheme.error
         : theme.colorScheme.onSurface;
@@ -99,7 +99,7 @@ class ManoOptionRow extends StatelessWidget {
                     Text(
                       detail!,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: ManoColors.faint,
+                        color: context.palette.faint,
                       ),
                     ),
                   ],
@@ -110,12 +110,9 @@ class ManoOptionRow extends StatelessWidget {
             Icon(
               Icons.chevron_right,
               size: 20,
-              // Not `ManoColors.stone`: that is the light theme's divider, and
-              // on a dark ground it is very nearly white -- which drew the eye
-              // to exactly the rows that cannot be tapped. `outlineVariant`
-              // carries the same intent through both themes.
+              // A disabled row's chevron recedes into the divider colour.
               color: enabled
-                  ? ManoColors.faint
+                  ? context.palette.faint
                   : theme.colorScheme.outlineVariant,
             ),
           ],
@@ -201,7 +198,7 @@ class ManoActionSheet extends StatelessWidget {
               Text(
                 footnote!,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: ManoColors.faint,
+                  color: context.palette.faint,
                 ),
               ),
             ],
@@ -233,7 +230,7 @@ Future<T?> showManoSheet<T>({
     isScrollControlled: true,
     useRootNavigator: true,
     backgroundColor: Theme.of(context).colorScheme.surface,
-    barrierColor: ManoColors.ink.withValues(alpha: 0.45),
+    barrierColor: context.palette.ink.withValues(alpha: 0.45),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(ManoRadius.lg)),
     ),

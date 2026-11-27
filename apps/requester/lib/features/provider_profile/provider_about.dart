@@ -18,7 +18,10 @@ class ProviderAbout extends StatelessWidget {
         if (bio.isNotEmpty) ...[
           Text('Sobre mí', style: text.titleLarge),
           const SizedBox(height: ManoSpacing.sm),
-          Text(bio, style: text.bodyLarge?.copyWith(color: ManoColors.muted)),
+          Text(
+            bio,
+            style: text.bodyLarge?.copyWith(color: context.palette.muted),
+          ),
           const SizedBox(height: ManoSpacing.lg),
         ],
         if (profile.skills.isNotEmpty) ...[
@@ -38,7 +41,7 @@ class ProviderAbout extends StatelessWidget {
         if (profile.portfolioUrls.isEmpty)
           Text(
             'Aún no hay fotos de trabajos',
-            style: text.bodyMedium?.copyWith(color: ManoColors.faint),
+            style: text.bodyMedium?.copyWith(color: context.palette.faint),
           )
         else
           ManoPhotoGallery(urls: profile.portfolioUrls),
@@ -55,9 +58,9 @@ class _SkillChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) => DecoratedBox(
     decoration: BoxDecoration(
-      color: ManoColors.sand,
+      color: context.palette.sand,
       borderRadius: BorderRadius.circular(ManoRadius.pill),
-      border: Border.all(color: ManoColors.stone),
+      border: Border.all(color: context.palette.stone),
     ),
     child: Padding(
       padding: const EdgeInsets.symmetric(

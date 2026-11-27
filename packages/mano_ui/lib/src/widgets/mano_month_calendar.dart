@@ -75,7 +75,7 @@ class ManoMonthCalendar extends StatelessWidget {
                     letter,
                     key: const Key('mano-calendar-weekday'),
                     style: Theme.of(context).textTheme.labelMedium
-                        ?.copyWith(color: ManoColors.faint),
+                        ?.copyWith(color: context.palette.faint),
                   ),
                 ),
               ),
@@ -208,8 +208,8 @@ class _Day extends StatelessWidget {
                     color: selected
                         ? Colors.white
                         : blocked
-                        ? ManoColors.faint
-                        : ManoColors.ink,
+                        ? context.palette.faint
+                        : context.palette.ink,
                     decoration: blocked ? TextDecoration.lineThrough : null,
                   ),
                 ),
@@ -222,7 +222,7 @@ class _Day extends StatelessWidget {
                         key: const Key('mano-calendar-dot'),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: ManoColors.clay,
+                          color: context.palette.clay,
                         ),
                         child: const SizedBox.square(dimension: _dot),
                       )

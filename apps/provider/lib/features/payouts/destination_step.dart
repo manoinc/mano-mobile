@@ -54,7 +54,7 @@ class DestinationStep extends StatelessWidget {
       Text(
         'Tipo de cuenta',
         style: Theme.of(context).textTheme.labelMedium
-            ?.copyWith(color: ManoColors.faint),
+            ?.copyWith(color: context.palette.faint),
       ),
       const SizedBox(height: ManoSpacing.sm),
       Wrap(
